@@ -56,16 +56,6 @@ void Inc_Dec_Count(u8 Max,u8 Min,u8 Up_Flag,u8 *P);
 #define EXIT_KEY   0x19
 #endif
 
-#ifdef __9CH__
-#define LEFT_KEY   1
-#define UP_KEY     2
-#define DOWN_KEY   3
-#define RIGHT_KEY  4
-#define ENTER_KEY  8
-#define EXIT_KEY   9
-#endif
-
-
 //-----------------------------------------------------------------
 //
 //-----------------------------------------------------------------

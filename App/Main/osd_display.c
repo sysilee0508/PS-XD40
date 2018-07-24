@@ -932,7 +932,6 @@ void OSG_Display_CH_name(void)
 		if(vMODE == FULL_1CH)
 		{
 			Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
-			//Print_OSD_Char_Aux(720/2-12*2, 5, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
 		}
 		else if(vMODE == SPLIT_04)
 		{
@@ -954,8 +953,6 @@ void OSG_Display_CH_name(void)
 			}
 		}
 	}
-
-//	printf("OSG_Display_CH_name() vMODE = %d, vMAX_Ch = %d, vStart_CH = %d\r\n", vMODE, vMAX_Ch, vStart_CH); 
 }
 
 
@@ -995,7 +992,6 @@ void OSG_Display_Freeze(void)
 			tblFreezeDisplayLoc_X[2][2] = 1920-492-(8*24);
 
 			PosX = tblFreezeDisplayLoc_X[sys_env.vTIME_Position][0];
-			//if(sys_env.vOSD_Position < 3) PosY = 1080-24-4;
 			if(sys_env.vOSD_Position < 3 || sys_env.vOSD_Position == 6) PosY = 1080-24-4;
 			else PosY = 4;
 
@@ -1170,31 +1166,7 @@ void OSG_Display_Video_Loss(void)
 					Pos_Val[CH].x = tbl_OSG_SPLIT9_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
 					Pos_Val[CH].y = tbl_OSG_SPLIT9_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+180-12;
 				}
-/*				else if(sys_status.current_split_mode == SPLIT9_2)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT8_1_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 0) Pos_Val[CH].y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+405-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+135-12;
-				}
-				else if(sys_status.current_split_mode == SPLIT9_3)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT8_2_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 0) Pos_Val[CH].y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+405-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+135-12;
-				}
-				else if(sys_status.current_split_mode == SPLIT9_4)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT8_3_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 0) Pos_Val[CH].y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+405-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+135-12;
-				}
-				else if(sys_status.current_split_mode == SPLIT9_5)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT8_4_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 0) Pos_Val[CH].y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+405-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+135-12;
-				}
-*/				else if(sys_status.current_split_mode == SPLIT9_2)
+				else if(sys_status.current_split_mode == SPLIT9_2)
 				{
 					Pos_Val[CH].x = tbl_OSG_SPLIT8_1_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
 					if(CH == 8) Pos_Val[CH].y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+405-12;
@@ -1371,16 +1343,9 @@ void OSG_Display_Time(void)
 		tblTimeDisplayLoc_X[0][0] = 6;
 		tblTimeDisplayLoc_X[0][1] = 9;
 		tblTimeDisplayLoc_X[0][2] = 12;
-//#ifdef __4CH__
 		tblTimeDisplayLoc_X[1][0] = (1920/2)-120-12;
 		tblTimeDisplayLoc_X[1][1] = (1920/2)-180-12;
 		tblTimeDisplayLoc_X[1][2] = (1920/2)-240-12;
-//#endif
-/*#ifdef __9CH__
-		tblTimeDisplayLoc_X[1][0] = (1920/2)-120;
-		tblTimeDisplayLoc_X[1][1] = (1920/2)-180;
-		tblTimeDisplayLoc_X[1][2] = (1920/2)-240;
-#endif*/
 		tblTimeDisplayLoc_X[2][0] = 1920-246;
 		tblTimeDisplayLoc_X[2][1] = 1920-369;
 		tblTimeDisplayLoc_X[2][2] = 1920-492;
@@ -1413,16 +1378,9 @@ void OSG_Display_Time_NOW(void)
 	tblTimeDisplayLoc_X[0][0] = 6;
 	tblTimeDisplayLoc_X[0][1] = 9;
 	tblTimeDisplayLoc_X[0][2] = 12;
-//#ifdef __4CH__
-		tblTimeDisplayLoc_X[1][0] = (1920/2)-120-12;
-		tblTimeDisplayLoc_X[1][1] = (1920/2)-180-12;
-		tblTimeDisplayLoc_X[1][2] = (1920/2)-240-12;
-//#endif
-/*#ifdef __9CH__
-		tblTimeDisplayLoc_X[1][0] = (1920/2)-120;
-		tblTimeDisplayLoc_X[1][1] = (1920/2)-180;
-		tblTimeDisplayLoc_X[1][2] = (1920/2)-240;
-#endif*/
+	tblTimeDisplayLoc_X[1][0] = (1920/2)-120-12;
+	tblTimeDisplayLoc_X[1][1] = (1920/2)-180-12;
+	tblTimeDisplayLoc_X[1][2] = (1920/2)-240-12;
 	tblTimeDisplayLoc_X[2][0] = 1920-246;
 	tblTimeDisplayLoc_X[2][1] = 1920-369;
 	tblTimeDisplayLoc_X[2][2] = 1920-492;
@@ -1454,16 +1412,9 @@ void OSG_Display_Time_Erase(void)
 	tblTimeDisplayLoc_X[0][0] = 6;
 	tblTimeDisplayLoc_X[0][1] = 9;
 	tblTimeDisplayLoc_X[0][2] = 12;
-//#ifdef __4CH__
-		tblTimeDisplayLoc_X[1][0] = (1920/2)-120-12;
-		tblTimeDisplayLoc_X[1][1] = (1920/2)-180-12;
-		tblTimeDisplayLoc_X[1][2] = (1920/2)-240-12;
-//#endif
-/*#ifdef __9CH__
-		tblTimeDisplayLoc_X[1][0] = (1920/2)-120;
-		tblTimeDisplayLoc_X[1][1] = (1920/2)-180;
-		tblTimeDisplayLoc_X[1][2] = (1920/2)-240;
-#endif*/
+	tblTimeDisplayLoc_X[1][0] = (1920/2)-120-12;
+	tblTimeDisplayLoc_X[1][1] = (1920/2)-180-12;
+	tblTimeDisplayLoc_X[1][2] = (1920/2)-240-12;
 	tblTimeDisplayLoc_X[2][0] = 1920-246;
 	tblTimeDisplayLoc_X[2][1] = 1920-369;
 	tblTimeDisplayLoc_X[2][2] = 1920-492;

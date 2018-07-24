@@ -1256,12 +1256,6 @@ static void VideoFrameProcess(BYTE src)
 {
 	unsigned char current_split_mode_tmp = 0;
 
-	/*if (SrcMainFrmt == 0xff)		 //by hungry 2012.05.02 for dark-screen on no video.
-	{
-		MDINHIF_RegField(MDIN_LOCAL_ID, 0x43, 1, 1, 1);	//dark screen
-	}*/
-
-
 	if (fSyncParsed==FALSE) return;		// wait for sync detection
 
 	if (EncVideoFrmt!=PrevEncFrmt)	PrevSrcMainFrmt = 0xff;
@@ -1277,66 +1271,8 @@ static void VideoFrameProcess(BYTE src)
 
 	if (stVideo.exeFLAG==0)	return;		// not change video formats
 
-/*
-#if defined(SYSTEM_USE_MDIN380) || defined(SYSTEM_USE_MDIN340) 	// for HDMI 480i/576i output on 28Dec2011	 //by hungry 2012.02.28
-//	if (OutMainMode==PrevOutMainMode) {	// if main output mode is not changed,
-	if ((OutMainMode==PrevOutMainMode) && (PrevOutMainFrmt!= OutMainFrmt)) {	// if main output mode is not changed, and output format is changed..	   //by hungry 2012.03.01
-		if (OutMainFrmt==VIDOUT_720x480i60||OutMainFrmt==VIDOUT_720x576i50) {
-			if (!(PrevOutMainFrmt==VIDOUT_720x480i60||PrevOutMainFrmt==VIDOUT_720x576i50)) {
-				TempOutMainMode = OutMainMode;		  
-				OutMainMode = MDIN_OUT_MUX656_8;	  
-				//SDI_TX_20BIT(LOW);					  // SDI Tx Video output 10bit mode(0:10bit, 1:20bit)	   //by hungry 2012.03.07
-			}
-		}			
-		else if ((OutMainFrmt >= VIDOUT_720x480p60) && (OutMainFrmt <= VIDOUT_1920x1080p24)) {	//by hungry 2012.03.07
-			OutMainMode = MDIN_OUT_EMB422_10;
-			//SDI_TX_20BIT(HIGH);					  // SDI Tx Video output 20bit mode(0:10bit, 1:20bit) 
-		}
-		else if ((OutMainFrmt >= VIDOUT_640x480p60) && (OutMainFrmt <= VIDOUT_1920x1200pRB)) {	//by hungry 2012.03.07
-			OutMainMode = MDIN_OUT_RGB444_8;
-			//SDI_TX_20BIT(HIGH);					  // SDI Tx Video output 20bit mode(0:10bit, 1:20bit)
-		} 	
-	}
-
-	if(PrevSrcMainFrmt != SrcMainFrmt)	  //SrcMainFrmt is changed !!!	//by hungry 2012.03.01
-	{
-		if((SrcMainFrmt == VIDSRC_720x480i60) || (SrcMainFrmt == VIDSRC_720x576i50))  //SDI RX mode & video output setting !! 
-		{
-			SrcMainMode = MDIN_SRC_SEP422_10;	//by hungry 2012.03.05
-		}
-		else if (PrevSrcMainFrmt == VIDSRC_720x480i60 || PrevSrcMainFrmt == VIDSRC_720x576i50) 
-		{
-			SrcMainMode = MDIN_SRC_EMB422_10;	//720 ~ 1080p video input -> EMB422 mode.
-		}
-	}
-
-#endif
-*/
-/*	if ((SrcMainFrmt == VIDSRC_1920x1080i60) || (SrcMainFrmt == VIDSRC_1920x1080i50))	 //by hungry 2012.05.14, 1080i50/60 -> 576p/720p60/59/XGA75/SVGA60/75,SXGA75,1360x768p60,1440x900p75 fix.
-			if ( (OutMainFrmt == VIDOUT_1280x720p60) || (OutMainFrmt == VIDOUT_1280x720p59) || (OutMainFrmt == VIDOUT_720x576p50)
-			|| (OutMainFrmt == VIDOUT_800x600p60) || (OutMainFrmt == VIDOUT_800x600p75)	|| (OutMainFrmt == VIDOUT_1024x768p75)
-			|| (OutMainFrmt == VIDOUT_1280x1024p75) || (OutMainFrmt == VIDOUT_1360x768p60)	|| (OutMainFrmt == VIDOUT_1440x900p75) )
-		{
-			stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
-			SetMenuStatus(2,1,0);	//3DNR [off]
-		}
-	else
-	{
-		stVideo.stIPC_m.fine |= MDIN_DEINT_3DNR_ON;		  //3DNR on
-		SetMenuStatus(2,1,1);	//3DNR [typ]
-	}
-*/
 	stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
 	SetMenuStatus(2,1,0);	//3DNR [off]
-
-	
-#if __MDIN3xx_DBGPRT__ == 1
-	printf("VideoFrameProcess()!!!\n");
-	printf("m_src : %x, %x, %x, %x\n", SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode);
-	printf("m_out : %x, %x, %x, %x, %x\n", OutMainFrmt, PrevOutMainFrmt, OutMainMode, PrevOutMainMode, TempOutMainMode); // 28Dec2011
-	printf("x_src : %x, %x, %x, %x\n", SrcAuxFrmt, PrevSrcAuxFrmt, SrcAuxMode, PrevSrcAuxMode);
-	printf("x_out : %x, %x, %x, %x\n", OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode);
-#endif
 
 	if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
 	{
@@ -1353,17 +1289,6 @@ static void VideoFrameProcess(BYTE src)
 
 	MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
 	MDIN3xx_EnableMainDisplay(OFF);
-
-#ifdef __9CH__
-	//if((VideoFrameProcess_exe_cnt >= 2) && SDIRX_change_flag)
-	if(SDIRX_change_flag)
-	{
-		current_split_mode_tmp = sys_status.current_split_mode;
-		sys_status.current_split_mode = FULL_9;
-		aux_display_flag = 1;
-		DEMO_SetPIPViewWIND(0);	// update pip/pop window
-	}
-#endif
 
 	//SetOSDMenuDisable();		// set OSD menu disable
 	SetOffChipFrmtInA(src);		// set InA offchip format
@@ -1393,21 +1318,6 @@ static void VideoFrameProcess(BYTE src)
 	//DEMO_SetAspectRatio(GetMenuStatus(4,6));	// update aspect ratio
 	//DEMO_SetOverScanning(GetMenuStatus(4,5));	// update overscanning
 	//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
-
-#ifdef __9CH__
-	if(SDIRX_change_flag)
-	{
-		sys_status.current_split_mode = current_split_mode_tmp;
-		aux_display_flag = 1;
-		DEMO_SetPIPViewWIND(0);	// update pip/pop window
-	}
-
-	//if((VideoFrameProcess_exe_cnt >= 2) && (SDIRX_change_flag == 0))
-	{
-		if(aux_display_flag) MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-		else MDIN3xx_EnableAuxDisplay(&stVideo, OFF); 
-	}
-#endif
 
 #ifdef __4CH__
 	MDIN3xx_EnableAuxDisplay(&stVideo, ON);
@@ -1457,13 +1367,6 @@ void VideoHTXCtrlHandler(void)
 {
 	MDINHTX_CtrlHandler(&stVideo);
 }
-#if 0 //Louis
-//--------------------------------------------------------------------------------------------------
-void VideoSDITXCtrlHandler(void)	   //by hungry 2012.02.20
-{
-   SDITX_CtrlHandler(&stVideo);
-}
-#endif
 #endif	/* defined(SYSTEM_USE_MDIN380) */
 
 /*  FILE_END_HERE */

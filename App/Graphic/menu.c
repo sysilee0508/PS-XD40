@@ -920,11 +920,6 @@ const u8 cCH09_2[]			= " 9. CH09_NAME: ";
 const u8 cTITLE_DISPLAY2[]	= " 5. DISPLAY CH_NAME:";
 #endif
 
-#ifdef __9CH__
-const u8 cTITLE_DISPLAY2[]	= "10. DISPLAY CH_NAME:";
-#endif
-
-
 
 void PAGE2_TITLE(void)
 {
@@ -950,38 +945,6 @@ void PAGE2_TITLE(void)
 
     CodeWriteChar(20,13,cTITLE_DISPLAY2,NULL,0);
 	ON_OFF_DSP(41,13,NULL,sys_env.bTITLE_ON);	
-#endif
-
-#ifdef __9CH__
-    CodeWriteChar(20,5,cCH01_2,NULL,0);
-	WriteChar(35,5,&sys_env.vCH_NAME[0][0],NULL,12);
-
-    CodeWriteChar(20,7,cCH02_2,NULL,0);
-	WriteChar(35,7,&sys_env.vCH_NAME[1][0],NULL,12);
-
-    CodeWriteChar(20,9,cCH03_2,NULL,0);
-	WriteChar(35,9,&sys_env.vCH_NAME[2][0],NULL,12);
-
-    CodeWriteChar(20,11,cCH04_2,NULL,0);
-	WriteChar(35,11,&sys_env.vCH_NAME[3][0],NULL,12);
-
-    CodeWriteChar(20,13,cCH05_2,NULL,0);
-	WriteChar(35,13,&sys_env.vCH_NAME[4][0],NULL,12);
-
-    CodeWriteChar(20,15,cCH06_2,NULL,0);
-	WriteChar(35,15,&sys_env.vCH_NAME[5][0],NULL,12);
-
-    CodeWriteChar(20,17,cCH07_2,NULL,0);
-	WriteChar(35,17,&sys_env.vCH_NAME[6][0],NULL,12);
-
-    CodeWriteChar(20,19,cCH08_2,NULL,0);
-	WriteChar(35,19,&sys_env.vCH_NAME[7][0],NULL,12);
-
-    CodeWriteChar(20,21,cCH09_2,NULL,0);
-	WriteChar(35,21,&sys_env.vCH_NAME[8][0],NULL,12);
-
-    CodeWriteChar(20,23,cTITLE_DISPLAY2,NULL,0);
-	ON_OFF_DSP(41,23,NULL,sys_env.bTITLE_ON);	
 #endif
 }
 
@@ -1014,34 +977,11 @@ void tPAGE2_KEY(void)
 					ON_OFF_DSP(41,13,UNDER_BAR,sys_env.bTITLE_ON);	
 				}
 #endif
-
-#ifdef __9CH__
-				if(vITEM_Y < 9)
-				{
-					vFONT = sys_env.vCH_NAME[vITEM_Y][vITEM_X];
-					Inc_Dec_Count(0x7e,0x20,State,&vFONT);
-					sys_env.vCH_NAME[vITEM_Y][vITEM_X] = vFONT;						
-					EEP_buf[cSYSENV_vCH_NAME+vITEM_X+(vITEM_Y*12)] = sys_env.vCH_NAME[vITEM_Y][vITEM_X];
-
-					WriteChar(35+vITEM_X,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X],UNDER_BAR,1);
-				}				
-			  	else if(vITEM_Y==9)
-				{
-					INC_Dec_Hex(1,0,State,&sys_env.bTITLE_ON);
-					EEP_buf[cSYSENV_bTITLE_ON] = sys_env.bTITLE_ON;
-					ON_OFF_DSP(41,23,UNDER_BAR,sys_env.bTITLE_ON);	
-				}
-#endif
 			}
 			else
 			{
 #ifdef __4CH__
 				Inc_Dec_Count(4,0,~State,&vITEM_Y);
-				MenuSelect(vITEM_Y,0);	
-#endif
-
-#ifdef __9CH__
-				Inc_Dec_Count(9,0,~State,&vITEM_Y);
 				MenuSelect(vITEM_Y,0);	
 #endif
 			}
@@ -1053,30 +993,6 @@ void tPAGE2_KEY(void)
 			{
 #ifdef __4CH__
 				if(vITEM_Y < 4)
-				{
-	  				Inc_Dec_Count(11,0,State,&vITEM_X);
-					WriteChar(35+vITEM_X,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X],UNDER_BAR,1);
-
-					if(vITEM_X == 0)
-					{
-						WriteChar(35+vITEM_X+11,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X+11],NULL,1);
-						WriteChar(35+vITEM_X+1,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X+1],NULL,1);
-					}
-					else if(vITEM_X == 11)
-					{
-						WriteChar(35+vITEM_X-11,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X-11],NULL,1);
-						WriteChar(35+vITEM_X-1,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X-1],NULL,1);
-					}
-					else 
-					{
-						WriteChar(35+vITEM_X-1,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X-1],NULL,1);
-						WriteChar(35+vITEM_X+1,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X+1],NULL,1);
-					}
-				}
-#endif
-
-#ifdef __9CH__
-				if(vITEM_Y < 9)
 				{
 	  				Inc_Dec_Count(11,0,State,&vITEM_X);
 					WriteChar(35+vITEM_X,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X],UNDER_BAR,1);
@@ -1120,19 +1036,6 @@ void tPAGE2_KEY(void)
 					ON_OFF_DSP(41,13,NULL,sys_env.bTITLE_ON); return;
 				}
 #endif
-
-#ifdef __9CH__
-				bENTER = 0;
-				if(vITEM_Y < 9)
-				{
-					WriteChar(35+vITEM_X,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X],NULL,1);
-
-				}
-				else if(vITEM_Y==9)
-				{	
-					ON_OFF_DSP(41,23,NULL,sys_env.bTITLE_ON); return;
-				}
-#endif
 			}
 	        else 
 			{
@@ -1149,20 +1052,6 @@ void tPAGE2_KEY(void)
 					ON_OFF_DSP(41,13,UNDER_BAR,sys_env.bTITLE_ON); return;
 				}
 #endif
-
-#ifdef __9CH__
-				bENTER = 1;
-				vITEM_X = 0;
-
-				if(vITEM_Y < 9)
-				{
-					WriteChar(35+vITEM_X,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X],UNDER_BAR,1);
-				}
-				else if(vITEM_Y==9)
-				{	
-					ON_OFF_DSP(41,23,UNDER_BAR,sys_env.bTITLE_ON); return;
-				}
-#endif
 			}
 			break; 	
 
@@ -1177,20 +1066,6 @@ void tPAGE2_KEY(void)
 				}
 				else if(vITEM_Y==4)
 					ON_OFF_DSP(41,13,NULL,sys_env.bTITLE_ON);	     
-				else 
-					PAGE1_TITLE();	
-
-				MenuSelect(vITEM_Y,0);	
-#endif
-
-#ifdef __9CH__
-				bENTER = 0;
-				if(vITEM_Y < 9)
-				{
-					WriteChar(35+vITEM_X,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X],NULL,1);
-				}
-				else if(vITEM_Y==9)
-					ON_OFF_DSP(41,23,NULL,sys_env.bTITLE_ON);	     
 				else 
 					PAGE1_TITLE();	
 
@@ -1239,11 +1114,6 @@ const u8 cFULL_3[]		   = "1. FULL   : ";
 #ifdef __4CH__
 const u8 cLOSS_AUTO_SKIP3[] = "2. LOSS AUTO SKIP: ";
 #endif
-#ifdef __9CH__
-const u8 c4SPLIT_3[]	   = "2. 4SPLIT : ";
-const u8 cLOSS_AUTO_SKIP3[] = "3. LOSS AUTO SKIP: ";
-#endif
-
 
 void PAGE3_TITLE()
 {
@@ -1261,14 +1131,6 @@ void PAGE3_TITLE()
     CodeWriteChar(23,8,cLOSS_AUTO_SKIP3,NULL,0);
 	ON_OFF_DSP(42,8,NULL,sys_env.bLossAutoSkip);
 #endif
-
-#ifdef __9CH__
-    CodeWriteChar(23,8,c4SPLIT_3,NULL,0);
-	Off_Check(35,8,SEQ_4SPLIT,NULL);
-
-    CodeWriteChar(23,10,cLOSS_AUTO_SKIP3,NULL,0);
-	ON_OFF_DSP(42,10,NULL,sys_env.bLossAutoSkip);
-#endif
 }
 
 
@@ -1279,10 +1141,6 @@ void tPAGE3_Position(u8 Position)
     	case 0 : Off_Check(35,6,CH1,Position); break; 
 #ifdef __4CH__
     	case 1 : ON_OFF_DSP(42,8,Position,sys_env.bLossAutoSkip); break; 
-#endif
-#ifdef __9CH__
-    	case 1 : Off_Check(35,8,CH2,Position); break; 
-    	case 2 : ON_OFF_DSP(42,10,Position,sys_env.bLossAutoSkip); break; 
 #endif
  	}
 }
@@ -1304,11 +1162,6 @@ void tPAGE3_KEY(void)
       			case 0 : Inc_Dec_Count(60,0,State,&sys_env.vDWELL[vITEM_Y]); EEP_buf[cSYSENV_vDWELL+vITEM_Y] = sys_env.vDWELL[vITEM_Y]; break;
        			case 1 : Inc_Dec_Count(1,0,State,&sys_env.bLossAutoSkip); EEP_buf[cSYSENV_bLossAutoSkip] = sys_env.bLossAutoSkip; break;
 #endif
-#ifdef __9CH__
-      			case 0 : 
-      			case 1 : Inc_Dec_Count(60,0,State,&sys_env.vDWELL[vITEM_Y]); EEP_buf[cSYSENV_vDWELL+vITEM_Y] = sys_env.vDWELL[vITEM_Y]; break;
-       			case 2 : Inc_Dec_Count(1,0,State,&sys_env.bLossAutoSkip); EEP_buf[cSYSENV_bLossAutoSkip] = sys_env.bLossAutoSkip; break;
-#endif
 			}
 			
 			tPAGE3_Position(UNDER_BAR);
@@ -1317,9 +1170,6 @@ void tPAGE3_KEY(void)
 		{
 #ifdef __4CH__
 			Inc_Dec_Count(1,0,~State,&vITEM_Y);
-#endif
-#ifdef __9CH__
-			Inc_Dec_Count(2,0,~State,&vITEM_Y);
 #endif
 			MenuSelect(vITEM_Y,0);
 		}
@@ -1465,10 +1315,6 @@ void PAGE4_TITLE(void)
     CodeWriteChar(22,12,cBORDER_LINE_4,NULL,0);
 	ON_OFF_DSP(38,12,NULL,sys_env.border_line);
 
-#ifdef __9CH__
-    CodeWriteChar(22,14,c9SPLIT_MODE_4,NULL,0);
-	Mode_9Split(sys_env.b9Split_Mode,NULL);
-#endif
 }
 
 
@@ -1488,9 +1334,6 @@ void tPAGE4_KEY(void)
 				Inc_Dec_Count(1,0,State,&sys_env.vResolution);
 				Resolution_Dsp(sys_env.vResolution,UNDER_BAR);
 				EEP_buf[cSYSENV_resolution] = sys_env.vResolution;
-
-				//if(sys_env.vResolution == 0) Video_Out_Res_Val = VIDOUT_1920x1080p60;
-				//else if(sys_env.vResolution == 1) Video_Out_Res_Val = VIDOUT_1920x1080p50; 
 			}
 			else if(vITEM_Y==1)
 			{
@@ -1498,25 +1341,13 @@ void tPAGE4_KEY(void)
 				EEP_buf[cSYSENV_bOSD_Display] = sys_env.bOSD_Display;
 				ON_OFF_DSP(38,8,UNDER_BAR,sys_env.bOSD_Display);	
 			}
-/*			else if(vITEM_Y==2)					
-			{
-				Inc_Dec_Count(3,0,State,&sys_env.vOSD_Size);
-				OSD_SIZE_Dsp(sys_env.vOSD_Size,UNDER_BAR);
-			}
-*/			else if(vITEM_Y==2)					
+			else if(vITEM_Y==2)					
 			{
 #ifdef __4CH__
 				Inc_Dec_Count(6,0,State,&sys_env.vOSD_Position);
 #endif
-#ifdef __9CH__
-				Inc_Dec_Count(5,0,State,&sys_env.vOSD_Position);
-#endif
 				EEP_buf[cSYSENV_vOSD_Position] = sys_env.vOSD_Position;
 
-				//Erase_Menu_OSD();
-				//OSG_Display_CH_name();
-				//if(sys_env.bTIME_ON) OSG_Display_Time_NOW();
-				//PAGE4_TITLE();
 				OSD_Position_Dsp(sys_env.vOSD_Position,UNDER_BAR);
 			}
 			else if(vITEM_Y==3)					
@@ -1569,9 +1400,6 @@ void tPAGE4_KEY(void)
 		{ 
 #ifdef __4CH__
 			Inc_Dec_Count(3,0,~State,&vITEM_Y);
-#endif
-#ifdef __9CH__
-			Inc_Dec_Count(4,0,~State,&vITEM_Y);
 #endif
 			MenuSelect(vITEM_Y,0);
 		}
@@ -1826,10 +1654,4 @@ void tPAGE5_KEY(void)
 		break; 	
 	}
 }   
-
-
-
-
-
-
 

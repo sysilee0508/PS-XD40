@@ -481,55 +481,8 @@ BYTE SDIRX_GetVideoSystem(void)
 		default:
 			break;
 	}
-
-#ifdef __9CH__
-	if(rVal == 0xff)
-	{
-		ch9_loss = 1;
-		
-		if(rVal_status_flag != 0)
-		{
-			if(rVal_status_flag == 5)
-			{
-				MDINHIF_RegRead(MDIN_LOCAL_ID ,0x181, &csc_f_coef0_backup);	
-				MDINHIF_RegRead(MDIN_LOCAL_ID ,0x185, &csc_f_coef4_backup);	
-				MDINHIF_RegRead(MDIN_LOCAL_ID ,0x189, &csc_f_coef8_backup);	
-			}
-
-			rVal_status_flag--;
-
-			MDINHIF_RegWrite(MDIN_LOCAL_ID ,0x181, 0);	
-			MDINHIF_RegWrite(MDIN_LOCAL_ID ,0x185, 0);	
-			MDINHIF_RegWrite(MDIN_LOCAL_ID ,0x189, 0);	
-
-			if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 0, 1, 0)) return MDIN_I2C_ERROR;
-		}
-	}
-	else 
-	{
-		ch9_loss = 0;
-		
-		if(rVal_status_flag < 5)
-		{
-			rVal_status_flag = 5;
-
-			MDINHIF_RegWrite(MDIN_LOCAL_ID ,0x181, csc_f_coef0_backup);	
-			MDINHIF_RegWrite(MDIN_LOCAL_ID ,0x185, csc_f_coef4_backup);	
-			MDINHIF_RegWrite(MDIN_LOCAL_ID ,0x189, csc_f_coef8_backup);	
-
-			if(aux_display_flag)
-			{
-				if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 0, 1, 1)) return MDIN_I2C_ERROR;
-			}	
-		}
-	}
-#endif
-
 	if(rVal == 0xff) rVal = Old_rVal;
 	else Old_rVal = rVal;
-
-//	printf("CH2 GV7601 rVal = 0x%02x \n", rVal);
-
 
 	if(Old_rVal2 != rVal)
 	{

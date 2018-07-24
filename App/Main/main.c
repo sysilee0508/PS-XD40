@@ -56,7 +56,6 @@ void TIM2_IRQHandler(void)
 	if(cnt > 10)
 	{
 		cnt = 0;
-
 		tick_10ms++;
 	}
 
@@ -103,47 +102,13 @@ u8 rs232_key_table[] =
 	0x8a,	//0x1c	
 };	
 #endif
-#ifdef __9CH__
-u8 rs232_key_table[] =
-{	
-	0x00,	//0x00
-	0x80,	//0x01
-	0x81,	//0x02
-	0x82,	//0x03
-	0x83,	//0x04
-	0x84,	//0x05
-	0x85,	//0x06
-	0x86,	//0x07
-	0x87,	//0x08
-	0x88,	//0x09	
-	0x00,	//0x0a	
-	0x00,	//0x0b	
-	0x00,	//0x0c	
-	0x00,	//0x0d	
-	0x00,	//0x0e	
-	0x00,	//0x0f	
-	0x00,	//0x10	
-	0x00,	//0x11	
-	0x00,	//0x12	
-	0x00,	//0x13	
-	0x00,	//0x14	
-	0x99,	//0x15	
-	0x9c,	//0x16	
-	0x00,	//0x17	
-	0x00,	//0x18	
-	0x9a,	//0x19	
-	0x9b,	//0x1a	
-	0x00,	//0x1b	
-	0x8a,	//0x1c	
-	0x8b,	//0x1c Long
-};	
-#endif
+
 void USART3_IRQHandler(void)
 {
 	static u8 bSOH_FLAG = 0;
 	static u8 bHEADER_FLAG = 0;
-	static u8 bSTX_FLAG = 0;	
-	static u8 bETX_FLAG = 0;	
+	static u8 bSTX_FLAG = 0;
+	static u8 bETX_FLAG = 0;
 	u8 Data;
 	u8 i;
 
@@ -156,95 +121,97 @@ void USART3_IRQHandler(void)
 
 		if(sys_env.vREMOCON_ID != 0)
 		{	
-	 		if(!bSOH_FLAG)			
+	 		if(!bSOH_FLAG)
 			{
-	   		  	if(Data == 1) bSOH_FLAG = 1;
+	   		  	if(Data == 1) 
+					bSOH_FLAG = 1;
 				else 
-				{	
+				{
 					bSOH_FLAG = 0;
 					bHEADER_FLAG = 0;
-					bSTX_FLAG = 0;	
-					bETX_FLAG = 0;	
+					bSTX_FLAG = 0;
+					bETX_FLAG = 0;
 				}
 				return;
-
-	   		}
-	   		else if(!bHEADER_FLAG)  
-	  		{
-	   			if(Data == sys_env.vREMOCON_ID)	bHEADER_FLAG = 1;
+			}
+			else if(!bHEADER_FLAG)  
+			{
+				if(Data == sys_env.vREMOCON_ID)
+					bHEADER_FLAG = 1;
 				else 
-				{	
+				{
 					bSOH_FLAG = 0;
 					bHEADER_FLAG = 0;
-					bSTX_FLAG = 0;	
-					bETX_FLAG = 0;	
+					bSTX_FLAG = 0;
+					bETX_FLAG = 0;
 				}
 				return;
-	   		}
+			}
 		}
 
-		if(!bSTX_FLAG)     		  
+		if(!bSTX_FLAG)
 		{
-			if(Data == 2) bSTX_FLAG = 1;
+			if(Data == 2)
+				bSTX_FLAG = 1;
 			else 
-			{	
+			{
 				bSOH_FLAG = 0;
 				bHEADER_FLAG = 0;
-				bSTX_FLAG = 0;	
-				bETX_FLAG = 0;	
+				bSTX_FLAG = 0;
+				bETX_FLAG = 0;
 			}
-	   	}	
-	   	else if(bETX_FLAG)
-	   	{
+		}
+		else if(bETX_FLAG)
+		{
 			if(Data == 3) key_flag = 1;
-
 			bSOH_FLAG = 0;
 			bHEADER_FLAG = 0;
-			bSTX_FLAG = 0;	
-			bETX_FLAG = 0;	
-	   	}
-	   	else 
-	   	{
+			bSTX_FLAG = 0;
+			bETX_FLAG = 0;
+		}
+		else 
+		{
 			bETX_FLAG = 1;
 #ifdef __4CH__
-			if((Data >= 0x90) && (Data != 0x9a) && (Data != 0x9b)) Data -= 0x10;
+			if((Data >= 0x90) && (Data != 0x9a) && (Data != 0x9b))
+				Data -= 0x10;
 			if(bSETUP)
 			{
-				if(Data == 0x8a) Data = 0x9a; //KEY_MENU -> KEY_FREEZE
+				if(Data == 0x8a)
+					Data = 0x9a; //KEY_MENU -> KEY_FREEZE
 			}
 #endif
-			for(i=0; i<sizeof(rs232_key_table); i++) 
+			for(i = 0; i < sizeof(rs232_key_table); i++) 
 			{
 				if(rs232_key_table[i] == Data)
 				{
-					if(i == 0x1d) key_data = KEY_9SPLIT+0x80; 
-					else key_data = i; 	
-					break;	
+					if(i == 0x1d)
+						key_data = KEY_9SPLIT+0x80;
+					else
+						key_data = i;
+					break;
 				}
 			}
-	   	}
-    }
+		}
+	}
 }
-
 
 //-----------------------------------------------------------------------------
 //	Process RTC Interrupt
 //-----------------------------------------------------------------------------
 void RTC_IRQHandler(void)
 {
-    if (RTC_GetITStatus(RTC_IT_SEC) != RESET)
-    {
-        // Clear the RTC Second interrupt
-        RTC_ClearITPendingBit(RTC_IT_SEC);
+	if (RTC_GetITStatus(RTC_IT_SEC) != RESET)
+	{
+		// Clear the RTC Second interrupt
+		RTC_ClearITPendingBit(RTC_IT_SEC);
 
 		rtc_sec_update_flag = 1;
 
-        // Wait until last write operation on RTC registers has finished 
-        RTC_WaitForLastTask();
-    }
+		// Wait until last write operation on RTC registers has finished 
+		RTC_WaitForLastTask();
+	}
 }
-
-
 
 //-----------------------------------------------------------------------------
 //
@@ -262,7 +229,7 @@ void Load_Data(void)
 	sys_env.bTIME_ON = EEP_buf[cSYSENV_bTIME_ON];
 	sys_env.vTIME_Position = EEP_buf[cSYSENV_vTIME_Position];
 
-	for(i=0; i<9; i++)
+	for(i = 0; i < 9; i++)
 	{
 		sys_env.vCH_NAME[i][0] = EEP_buf[cSYSENV_vCH_NAME+0+(i*12)];
 		sys_env.vCH_NAME[i][1] = EEP_buf[cSYSENV_vCH_NAME+1+(i*12)];
@@ -307,9 +274,6 @@ void Data_Load(void)
 #ifdef __4CH__
 	if(EEP_buf[cEEP_CHK] == 0xa5)Load_Data();
 #endif
-#ifdef __9CH__
-	if(EEP_buf[cEEP_CHK] == 0x5a)Load_Data();
-#endif
 	else 
 	{
 		memset(EEP_buf, 0, 2048);
@@ -349,9 +313,7 @@ void Data_Load(void)
 #ifdef __4CH__
 		EEP_buf[cSYSENV_vOSD_Position] = 6;
 #endif
-#ifdef __9CH__
-		EEP_buf[cSYSENV_vOSD_Position] = 1;
-#endif
+
 		EEP_buf[cSYSENV_border_line] = 1;
 		//EEP_buf[cSYSENV_vAlarm] = 0;
 		//EEP_buf[cSYSENV_vAlarm+1] = 0;
@@ -367,9 +329,7 @@ void Data_Load(void)
 #ifdef __4CH__
 		EEP_buf[cEEP_CHK] = 0xa5;
 #endif
-#ifdef __9CH__
-		EEP_buf[cEEP_CHK] = 0x5a;
-#endif
+
 		write_eeprom_all();
 
 		Load_Data();
@@ -386,12 +346,12 @@ u8 Loss_Buzzer_Cnt = 0;
 
 void Loss_Buzzer(void)
 {
-    static u32 timeout= 0;
+	static u32 timeout= 0;
 
-    if(!TIME_AFTER(tick_10ms,timeout))
-        return;
+	if(!TIME_AFTER(tick_10ms,timeout))
+		return;
 
-    timeout = tick_10ms + 50; // 10ms * 50 = 500ms
+	timeout = tick_10ms + 50; // 10ms * 50 = 500ms
 
 	if(Loss_Buzzer_Cnt)
 	{
@@ -437,13 +397,6 @@ void Loss_Check(void)
 	
 	Pre_Video_Loss = vVideo_Loss;			
 
-#ifdef __9CH__
-	if(sys_status.current_split_mode == FULL_9 || sys_status.current_split_mode == SPLIT9_1) 
-	{
-		if(ch9_loss == 1) MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-		else MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-	}
-#endif
 }
 
 void Video_Loss_Check(void)
@@ -559,8 +512,8 @@ void main(void)
 
 	while(TRUE)
     { 
-#if 0 //for test
-		NVP6158_VideoDetectionProc();
+#if 1 //for test
+	NVP6158_VideoDetectionProc();
 #endif
 		Video_Loss_Check();
 		Loss_Buzzer();

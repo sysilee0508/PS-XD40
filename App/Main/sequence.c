@@ -42,10 +42,6 @@ void Auto_Seq_Init(void)
 #ifdef __4CH__
 		if((vVideo_Loss&0x0000000f) == 0x0000000f) return; 
 #endif
-
-#ifdef __9CH__
-		if((vVideo_Loss&0x000001ff) == 0x000001ff) return; 
-#endif
 	}
 
 	if(bAuto_Seq_Flag == 0)
@@ -55,10 +51,6 @@ void Auto_Seq_Init(void)
 #ifdef __4CH__
 	if(vMODE == SPLIT_04) vMODE = FULL_1CH;
 #endif
-#ifdef __9CH__
-	if(vMODE == SPLIT_09) vMODE = FULL_1CH;
-#endif
-
 	switch(vMODE)
 	{
 		case FULL_1CH:
@@ -72,10 +64,6 @@ void Auto_Seq_Init(void)
 				if(vAuto_Seq_Index < FULL_4) vAuto_Seq_Index++;
 				else vAuto_Seq_Index = FULL_1;
 #endif
-#ifdef __9CH__
-				if(vAuto_Seq_Index < FULL_9) vAuto_Seq_Index++;
-				else vAuto_Seq_Index = FULL_1;
-#endif
 			}
 			
 			if(sys_env.bLossAutoSkip)
@@ -86,10 +74,6 @@ void Auto_Seq_Init(void)
 					{
 #ifdef __4CH__
 						if(vAuto_Seq_Index < FULL_4) vAuto_Seq_Index++;
-						else vAuto_Seq_Index = FULL_1;
-#endif
-#ifdef __9CH__
-						if(vAuto_Seq_Index < FULL_9) vAuto_Seq_Index++;
 						else vAuto_Seq_Index = FULL_1;
 #endif
 					}
@@ -134,60 +118,17 @@ void Auto_Seq_Init(void)
 
 			if(bAuto_Seq_Flag)
 			{
-#ifdef __9CH__
-				if(vAuto_Seq_Index == 0) vAuto_Seq_Index = 1;
-				else vAuto_Seq_Index = 0;	
-#endif
 			}
 			
 			if(sys_env.bLossAutoSkip)
 			{
 				do
 				{
-#ifndef __9CH__	
 					if((vVideo_Loss&(0x0000000f<<(vAuto_Seq_Index*4))) == (0x0000000f<<(vAuto_Seq_Index*4))) 
 					{
 					}
 					else Index_flag = 1; 
-#endif
 
-#ifdef __9CH__
-					switch(vAuto_Seq_Index)	
-					{
-						case 0: 
-						{
-							if((vVideo_Loss&0x0000000f) == 0x0000000f) 
-							{
-								if(vAuto_Seq_Index < 2)vAuto_Seq_Index++;
-								else vAuto_Seq_Index = 0;
-							}
-							else Index_flag = 1; 
-						}
-						break;
-
-						case 1: 
-						{
-							if((vVideo_Loss&0x000000f0) == 0x000000f0) 
-							{
-								if(vAuto_Seq_Index < 2)vAuto_Seq_Index++;
-								else vAuto_Seq_Index = 0;
-							}
-							else Index_flag = 1; 
-						}
-						break;
-
-						case 2: 
-						{
-							if((vVideo_Loss&0x000001e0) == 0x000001e0) 
-							{
-								if(vAuto_Seq_Index < 2)vAuto_Seq_Index++;
-								else vAuto_Seq_Index = 0;
-							}
-							else Index_flag = 1; 
-						}
-						break;
-					}
-#endif
 				}
 				while(Index_flag == 0); 
 			}	
@@ -196,10 +137,6 @@ void Auto_Seq_Init(void)
 			vMODE = SPLIT_04; 
 			switch(vAuto_Seq_Index)
 			{
-#ifdef __9CH__
-				case 0: vStart_CH = FULL_1; break; 
-				case 1: vStart_CH = FULL_5; break; 
-#endif
 			}
 
 			if(vAuto_Seq_Index == 0)
@@ -279,9 +216,6 @@ void Auto_Sequence(void)
 #ifdef __4CH__
 			if(vVideo_Loss == 0x0000000f) return; 
 #endif
-#ifdef __9CH__
-			if(vVideo_Loss == 0x000001ff) return; 
-#endif
 		}
 		
 		if(vAuto_Seq_Cnt == 0)  
@@ -297,11 +231,6 @@ void Auto_Sequence(void)
 					if(vAuto_Seq_Index < FULL_4) vAuto_Seq_Index++;
 					else vAuto_Seq_Index = FULL_1;
 #endif
-#ifdef __9CH__
-					if(vAuto_Seq_Index < FULL_9) vAuto_Seq_Index++;
-					else vAuto_Seq_Index = FULL_1;
-#endif
-
 					if(sys_env.bLossAutoSkip)
 					{
 						do
@@ -310,10 +239,6 @@ void Auto_Sequence(void)
 							{
 #ifdef __4CH__
 								if(vAuto_Seq_Index < FULL_4) vAuto_Seq_Index++;
-								else vAuto_Seq_Index = FULL_1;
-#endif
-#ifdef __9CH__
-								if(vAuto_Seq_Index < FULL_9) vAuto_Seq_Index++;
 								else vAuto_Seq_Index = FULL_1;
 #endif
 							}
@@ -356,74 +281,21 @@ void Auto_Sequence(void)
 				case SPLIT_04:
 				{
 					vAuto_Seq_Cnt = sys_env.vDWELL[1];
-#ifdef __9CH__
-					if(vAuto_Seq_Index == 0) vAuto_Seq_Index = 1;
-					else vAuto_Seq_Index = 0;	
-#endif
-
-
 					if(sys_env.bLossAutoSkip)
 					{
 						do
 						{
-#ifndef __9CH__	
 							if((vVideo_Loss&(0x0000000f<<(vAuto_Seq_Index*4))) == (0x0000000f<<(vAuto_Seq_Index*4))) 
 							{
 							}
 							else Index_flag = 1; 
-#endif
-
-#ifdef __9CH__
-							switch(vAuto_Seq_Index)	
-							{
-								case 0: 
-								{
-									if((vVideo_Loss&0x0000000f) == 0x0000000f) 
-									{
-										if(vAuto_Seq_Index < 2)vAuto_Seq_Index++;
-										else vAuto_Seq_Index = 0;
-									}
-									else Index_flag = 1; 
-								}
-								break;
-
-								case 1: 
-								{
-									if((vVideo_Loss&0x000000f0) == 0x000000f0) 
-									{
-										if(vAuto_Seq_Index < 2)vAuto_Seq_Index++;
-										else vAuto_Seq_Index = 0;
-									}
-									else Index_flag = 1; 
-								}
-								break;
-
-								case 2: 
-								{
-									if((vVideo_Loss&0x000001e0) == 0x000001e0) 
-									{
-										if(vAuto_Seq_Index < 2)vAuto_Seq_Index++;
-										else vAuto_Seq_Index = 0;
-									}
-									else Index_flag = 1; 
-								}
-								break;
-							}
-#endif
 						}
 						while(Index_flag == 0); 
 					}	
-
-
-
 					//4분할 전환
 					vMODE = SPLIT_04; 
 					switch(vAuto_Seq_Index)
 					{
-#ifdef __9CH__
-						case 0: vStart_CH = FULL_1; break; 
-						case 1: vStart_CH = FULL_5; break; 
-#endif
 					}
 
 					if(vAuto_Seq_Index == 0)
@@ -452,6 +324,4 @@ void Auto_Sequence(void)
 	//vPre_vMODE = vMODE;		
 	vPre_vStart_CH = vStart_CH;		
 }
-
-
 
