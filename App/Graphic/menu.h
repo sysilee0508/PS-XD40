@@ -125,7 +125,11 @@ void tPAGE5_Position(u8 Position);
 void PAGE5_TITLE(void);
 void tPAGE5_KEY(void);
 
+void PAGE6_TITLE(void);
+void tPAGE6_KEY(void);
 
+void PAGE7_TITLE(void);
+void tPAGE7_KEY(void);
 
 
 #endif	

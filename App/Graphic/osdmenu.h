@@ -322,7 +322,7 @@ static ROMDATA char ViewRatioComb[][6]		= {
 
 //static ROMDATA BYTE defInOutMode[]		= {0, 0, 0, 1};	// initial value
 
-static ROMDATA BYTE defInOutMode[]		= {0, 0, 0, 0, 0, 1};	// initial value	 //by hungry 2012.03.15
+static ROMDATA BYTE defInOutMode[]		= {0, 0, 0, 0, 0, 0};	// initial value	 //by hungry 2012.03.15
 
 static ROMDATA BYTE defInOutModeMax[]		= {
 	sizeof(Set4ChComb)/sizeof(Set4ChComb[0]),	// [4xD1 Mux]
@@ -480,7 +480,7 @@ static ROMDATA char InSynInfoComb[][14]		= {
 
 //static ROMDATA BYTE defSetUp[]		= {0, 14, 0, 0, 0, 0, 0, 0};	// initial value
 //static ROMDATA BYTE defSetUp[]		= {0, 14, 0, 1, 0, 0, 0, 0};	// initial value	//API ver0.26 2012.02.13
-static ROMDATA BYTE defSetUp[]		= {0, 12, 0, 1, 0, 0, 0, 0};	// initial value	//by hungry 2012.03.20
+static ROMDATA BYTE defSetUp[]		= {0, 12, 4, 1, 0, 0, 0, 0};	// initial value	//by hungry 2012.03.20
 
 static ROMDATA BYTE defSetUpMax[]	= {
 	sizeof(InputPortComb)/sizeof(InputPortComb[0]),	// [Input Source]

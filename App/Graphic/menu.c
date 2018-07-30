@@ -195,9 +195,9 @@ const u8 ArrowL[]= {0x80,0x00};
 //-----------------------------------------------------------------
 // Menu 화살표 위치값    
 //-----------------------------------------------------------------
-const u8 tMenu_P[6][25] = 
-{{ 5,7,9,11,13,15},
- { 5,7,9,11,13,15,17},
+const u8 tMenu_P[8][25] = 
+{{ 5,7,9,11,13,15,17,19},
+ { 5,7,9,11,13,15,17,19,21},
 
  { 5,7,9,11,13,15,17,19,21,23},
 
@@ -206,13 +206,17 @@ const u8 tMenu_P[6][25] =
  { 6,8,10,12,14,16,18},
 
  { 6,8,10,12,14,16},
+
+ { 6,8,10,12,14,16},
+
+ { 6,8,10,12,14,16},
 };
 
 
 //-----------------------------------------------------------------
 //    
 //-----------------------------------------------------------------
-const u8 tMenu_S[6] =  {19,13, 18,20,18,17};
+const u8 tMenu_S[8] =  {19,13,18,20,18,17,17,17};
 
 
 //-----------------------------------------------------------------
@@ -242,12 +246,20 @@ void Hex_Dec_Function(u8 *P)
 	*P=(((*P/10)<<4)|(*P%10));
 }
 
-void Inc_Dec_Count(u8 Max,u8 Min,u8 Up_Flag,u8 *P) // 0 ~ 255 범위 내에서 최대값과 최소값을 정한 후 
-											       // Up_Flag가 1이면 최대값이 될 때까지 1씩 증가. 최대값이 되면 최소값으로 변환 
-										           // Up_Flag가 0이면 최소값이 될 때까지 1씩 감소. 최소값이 되면 최대값으로 변환
+void Inc_Dec_Count(u8 Max,u8 Min,u8 Up_Flag,u8 *P)
+
 {
-	if(Up_Flag){if(*P<Max)(*P)++; else *P = Min;}
-	else {if(*P>Min)(*P)--; else *P = Max;}
+	if(Up_Flag)
+	{
+		if(*P<Max)
+		(*P)++;
+		else *P = Min;}
+	else 
+	{
+		if(*P>Min)
+			(*P)--;
+		else
+			*P = Max;}
 }
 
 void INC_Dec_Hex(u8 Max,u8 Min,u8 Up_Flag,u8 *P) // 16진수로 변환 후 Inc_Dec_Count를 실행 후 다시 10진수로 변환한다.
@@ -379,12 +391,14 @@ void MenuSelect(u8 Current, u8 offset)
 //------------------------------------------------------------------
 //   PAGE0 Function
 //------------------------------------------------------------------
-const u8 cMAIN_MENU[]		= "- MAIN MENU -";
-const u8 cTIME_DATE[]		= "1. TIME/DATE";
-const u8 cCAMERA_TITLE[]	= "2. CAMERA";
-const u8 cAUTO_SEQUENCE[]	= "3. AUTO SEQUENCE";
-const u8 cDISPLAY[]			= "4. DISPLAY";
-const u8 cMISCELLANEOUS[]	= "5. MISCELLANEOUS";
+const BYTE cMAIN_MENU[]		= "- MAIN MENU -";
+const BYTE cTIME_DATE[]		= "1. TIME/DATE";
+const BYTE cCAMERA_TITLE[]		= "2. CAMERA TITLE";
+const BYTE cAUTO_SEQUENCE[]	= "3. AUTO SEQUENCE";
+const BYTE cDISPLAY[]			= "4. DISPLAY";
+const BYTE cALARM_SET[]        = "5. ALARM SET";
+const BYTE cMOTION_DETECTION[]	= "6. MOTION DETECTION";
+const BYTE cMISCELLANEOUS[]	= "7. MISCELLANEOUS";
   
 void SetupMenu(void)
 {   
@@ -410,12 +424,14 @@ void SetupMenu(void)
 	//------------------------------------------------
 
 	MenuSelect(vITEM_Y,0);
-	CodeWriteChar(24,2,cMAIN_MENU,NULL,0);
-	CodeWriteChar(22,5,cTIME_DATE,NULL,0);
-	CodeWriteChar(22,7,cCAMERA_TITLE,NULL,0);
-	CodeWriteChar(22,9,cAUTO_SEQUENCE,NULL,0);
-	CodeWriteChar(22,11,cDISPLAY,NULL,0);
-	CodeWriteChar(22,13,cMISCELLANEOUS,NULL,0);
+	CodeWriteChar(24,2,cMAIN_MENU,NULL, 0);
+	CodeWriteChar(22,5,cTIME_DATE,NULL, 0);
+	CodeWriteChar(22,7,cCAMERA_TITLE,NULL, 0);
+	CodeWriteChar(22,9,cAUTO_SEQUENCE,NULL, 0);
+	CodeWriteChar(22,11,cDISPLAY,NULL, 0);
+	CodeWriteChar(22,13,cALARM_SET,NULL, 0);
+	CodeWriteChar(22,15,cMOTION_DETECTION,NULL, 0);
+	CodeWriteChar(22,17,cMISCELLANEOUS,NULL, 0);
 }
 
 void Page_Title(void)
@@ -423,10 +439,12 @@ void Page_Title(void)
  	switch(vITEM_Y)
  	{
   		case 1 : PAGE1_TITLE(); break;
- 		case 2 : PAGE2_TITLE();	break;
+ 		case 2 : PAGE2_TITLE(); break;
   		case 3 : PAGE3_TITLE(); break;
- 		case 4 : vITEM_Y = 0; PAGE4_TITLE(); break;
+ 		case 4 : PAGE4_TITLE(); break;
  		case 5 : PAGE5_TITLE(); break;
+ 		case 6 :  vITEM_Y = 0; PAGE6_TITLE(); break;
+ 		case 7 : PAGE7_TITLE(); break;
 
 	}
 }
@@ -444,6 +462,8 @@ void Setup_Process(void)
       	 case 3 : tPAGE3_KEY(); break;
       	 case 4 : tPAGE4_KEY(); break;
       	 case 5 : tPAGE5_KEY(); break;
+      	 case 6 : tPAGE6_KEY(); break;
+      	 case 7 : tPAGE7_KEY(); break;
  		}
 	}
 	else
@@ -477,7 +497,7 @@ void tPAGE0_KEY(void)
 	{
 		case UP_KEY : State=0xff;
 		case DOWN_KEY : 
-			Inc_Dec_Count(4,0,~State,&vITEM_Y);
+			Inc_Dec_Count(6,0,~State,&vITEM_Y);
 			MenuSelect(vITEM_Y,0);
 			break;              
 
@@ -917,7 +937,7 @@ const u8 cCH08_2[]			= " 8. CH08_NAME: ";
 const u8 cCH09_2[]			= " 9. CH09_NAME: ";
 
 #ifdef __4CH__
-const u8 cTITLE_DISPLAY2[]	= " 5. DISPLAY CH_NAME:";
+const u8 cTITLE_DISPLAY2[]	= " 5. TITLE DISPLAY:";
 #endif
 
 
@@ -1284,7 +1304,6 @@ void Mode_9Split(u8 sel, u8 Position)
 const u8 cDISPLAY4[]			 = "- DISPLAY -";
 const u8 cRESOLUTION4[] 	  	= "1. RESOLUTION: ";
 const u8 cOSD_DISPLAY_4[]	    = "2. OSD DISPLAY: ";
-//const u8 cOSD_SIZE_4[]	    	= "3. OSD SIZE: ";
 const u8 cOSD_POSTION_4[]	    = "3. OSD POSITION: ";
 const u8 cBORDER_LINE_4[]	    = "4. BORDER LINE: ";
 const u8 c9SPLIT_MODE_4[]	    = "5. 9SPLIT MODE: ";
@@ -1294,7 +1313,7 @@ void PAGE4_TITLE(void)
 	vPAGE = 4;
 	Erase_Menu_OSD();                          
 
-	MenuSelect(vITEM_Y,0);
+	MenuSelect(0,0);
 
 	CodeWriteChar(24,2,cDISPLAY4,NULL,0);
 
@@ -1505,6 +1524,329 @@ void tPAGE4_KEY(void)
 //------------------------------------------------------------------
 //   PAGE5 Function
 //------------------------------------------------------------------
+#if 0
+const u8 cON7[]	     = "ON ";
+const u8 cOFF7[]	 = "OFF";
+const u8 cOFF_BLK7[] = "   ";
+void Remocon_Dsp(u8 Position)
+{
+	if(!sys_env.vREMOCON_ID)CodeWriteChar(34,6,cOFF7,Position,3);
+	else
+	{ 
+		CodeWriteChar(34,6,cOFF_BLK7,NULL,3);
+		Hex_Dec_OSD(34,6,&sys_env.vREMOCON_ID,Position);
+	}
+}
+
+void Loss_Time_Dsp(u8 Position)
+{
+	if(!sys_env.vLoss_Time)CodeWriteChar(46,10,cOFF7,Position,3);
+	else
+	{ 
+		CodeWriteChar(46,10,cOFF_BLK7,NULL,3);
+		Hex_Dec_OSD(46,10,&sys_env.vLoss_Time,Position);
+	}
+}
+
+const u8 cbaud_1200[]  = "1200BPS ";
+const u8 cbaud_2400[]  = "2400BPS ";
+const u8 cbaud_4800[]  = "4800BPS ";
+const u8 cbaud_9600[]  = "9600BPS ";
+const u8 cbaud_19200[] = "19200BPS";
+void Baud_Rate_Dsp(u8 Position)
+{
+	if(sys_env.baud_rate == 0)CodeWriteChar(33,8,cbaud_1200,Position,8);
+	else if(sys_env.baud_rate == 1)CodeWriteChar(33,8,cbaud_2400,Position,8);
+	else if(sys_env.baud_rate == 2)CodeWriteChar(33,8,cbaud_4800,Position,8);
+	else if(sys_env.baud_rate == 3)CodeWriteChar(33,8,cbaud_9600,Position,8);
+	else if(sys_env.baud_rate == 4)CodeWriteChar(33,8,cbaud_19200,Position,8);
+}
+#endif
+
+void tPAGE5_Position(u8 Position)
+{
+#if 0
+	if(vITEM_Y==0) Remocon_Dsp(Position);
+	else if(vITEM_Y==1) Baud_Rate_Dsp(Position);
+	else if(vITEM_Y==2) Loss_Time_Dsp(Position);
+	else if(vITEM_Y==3) ON_OFF_DSP(42,12,Position,sys_env.vLoss_Display);
+#endif
+}
+
+const BYTE cALARM6[] = "- ALARM -";
+const BYTE cCH1_6[] = "1. CH1 :     /           ";
+const BYTE cCH2_6[] = "2. CH2 :     /           ";
+const BYTE cCH3_6[] = "3. CH3 :     /           ";
+const BYTE cCH4_6[] = "4. CH4 :     /           ";
+const BYTE cALARM_OUT_TIME6[] = "5. ALARM OUT TIME :";
+const BYTE cALARM_BUZZER6[] = "6. ALARM BUZZER :";
+const BYTE cVIDEO_LOSS_BUZZER6[] = "7. VIDEO LOSS BUZZER :";
+
+
+void PAGE5_TITLE(void)
+{
+	vPAGE = 5;
+	Erase_Menu_OSD();                          
+
+	MenuSelect(0,0);
+
+	CodeWriteChar(23,2,cALARM6,NULL,0);
+
+    CodeWriteChar(19,6,cCH1_6,NULL,0);
+	//Remocon_Dsp(NULL);
+
+    CodeWriteChar(19,8,cCH2_6,NULL,0);
+	//Baud_Rate_Dsp(NULL);
+
+    CodeWriteChar(19,10,cCH3_6,NULL,0);
+	//Loss_Time_Dsp(NULL);
+
+    CodeWriteChar(19,12,cCH4_6,NULL,0);
+	//ON_OFF_DSP(42,12,NULL,sys_env.vLoss_Display);
+
+    CodeWriteChar(19,14,cALARM_OUT_TIME6,NULL,0);
+    CodeWriteChar(19,16,cALARM_BUZZER6,NULL,0);
+    CodeWriteChar(19,18,cVIDEO_LOSS_BUZZER6,NULL,0);
+}
+
+
+void tPAGE5_KEY(void)
+{
+	u8 State=0;		
+
+	switch(key_data){
+#if 0
+  	case UP_KEY : State=0xff;
+    case DOWN_KEY : 
+		if(bENTER)
+		{
+			bSETUP_Change_flag = 1;
+
+       	 	if(vITEM_Y==0)
+			{
+				Inc_Dec_Count(99,0,State,&sys_env.vREMOCON_ID);
+				EEP_buf[cSYSENV_vREMOCON_ID] = sys_env.vREMOCON_ID;
+			}
+   	     	else if(vITEM_Y==1)
+			{
+				Inc_Dec_Count(4,0,State,&sys_env.baud_rate);
+				EEP_buf[cSYSENV_baud_rate] = sys_env.baud_rate;
+
+				USART3_Init();					// initialize Serial
+			}
+   	     	else if(vITEM_Y==2)
+			{
+				Inc_Dec_Count(60,0,State,&sys_env.vLoss_Time);
+				EEP_buf[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
+			}
+   	     	else if(vITEM_Y==3)
+			{
+				Inc_Dec_Count(1,0,State,&sys_env.vLoss_Display);
+				EEP_buf[cSYSENV_vLoss_Display] = sys_env.vLoss_Display;
+			}
+			
+			tPAGE5_Position(UNDER_BAR);
+		}
+		else
+		{
+			Inc_Dec_Count(3,0,~State,&vITEM_Y);
+			MenuSelect(vITEM_Y,0);
+		}
+  		break;
+
+    case ENTER_KEY :
+       if(bENTER)
+		{
+			bENTER = 0;
+			tPAGE5_Position(NULL);
+		}
+		else 
+		{
+			bENTER = 1;
+			tPAGE5_Position(UNDER_BAR);
+		}
+		break; 	
+#endif
+	case EXIT_KEY : 
+       if(bENTER)
+		{
+			bENTER = 0;
+			tPAGE5_Position(NULL);
+		}
+		else 
+		{
+           vITEM_Y = vPAGE -1;   
+			SetupMenu();
+		}
+		break; 	
+	}
+}   
+
+//------------------------------------------------------------------
+//   PAGE6 Function
+//------------------------------------------------------------------
+#if 0
+const u8 cON7[]	     = "ON ";
+const u8 cOFF7[]	 = "OFF";
+const u8 cOFF_BLK7[] = "   ";
+void Remocon_Dsp(u8 Position)
+{
+	if(!sys_env.vREMOCON_ID)CodeWriteChar(34,6,cOFF7,Position,3);
+	else
+	{ 
+		CodeWriteChar(34,6,cOFF_BLK7,NULL,3);
+		Hex_Dec_OSD(34,6,&sys_env.vREMOCON_ID,Position);
+	}
+}
+
+void Loss_Time_Dsp(u8 Position)
+{
+	if(!sys_env.vLoss_Time)CodeWriteChar(46,10,cOFF7,Position,3);
+	else
+	{ 
+		CodeWriteChar(46,10,cOFF_BLK7,NULL,3);
+		Hex_Dec_OSD(46,10,&sys_env.vLoss_Time,Position);
+	}
+}
+
+const u8 cbaud_1200[]  = "1200BPS ";
+const u8 cbaud_2400[]  = "2400BPS ";
+const u8 cbaud_4800[]  = "4800BPS ";
+const u8 cbaud_9600[]  = "9600BPS ";
+const u8 cbaud_19200[] = "19200BPS";
+void Baud_Rate_Dsp(u8 Position)
+{
+	if(sys_env.baud_rate == 0)CodeWriteChar(33,8,cbaud_1200,Position,8);
+	else if(sys_env.baud_rate == 1)CodeWriteChar(33,8,cbaud_2400,Position,8);
+	else if(sys_env.baud_rate == 2)CodeWriteChar(33,8,cbaud_4800,Position,8);
+	else if(sys_env.baud_rate == 3)CodeWriteChar(33,8,cbaud_9600,Position,8);
+	else if(sys_env.baud_rate == 4)CodeWriteChar(33,8,cbaud_19200,Position,8);
+}
+#endif
+
+void tPAGE6_Position(u8 Position)
+{
+#if 0
+	if(vITEM_Y==0) Remocon_Dsp(Position);
+	else if(vITEM_Y==1) Baud_Rate_Dsp(Position);
+	else if(vITEM_Y==2) Loss_Time_Dsp(Position);
+	else if(vITEM_Y==3) ON_OFF_DSP(42,12,Position,sys_env.vLoss_Display);
+#endif
+}
+
+const BYTE cMOTION5[]		= "- MOTION -";
+const BYTE cCH1_5[]			= "1. CH1  :       /";
+const BYTE cCH2_5[]			= "2. CH2  :       /";
+const BYTE cCH3_5[]			= "3. CH3  :       /";
+const BYTE cCH4_5[]			= "4. CH4  :       /";
+const BYTE cSENSITIVITY5[]	= "5. SENSITIVITY :";
+const BYTE cCALL_MODE5[]	= "6. CALL MODE   :";
+const BYTE cAREA_SAVE[]	    = "SAVING AREA...  ";
+
+
+void PAGE6_TITLE(void)
+{
+	vPAGE = 6;
+	Erase_Menu_OSD();                          
+
+	MenuSelect(0,0);
+
+	CodeWriteChar(23,2,cMOTION5,NULL,0);
+
+    CodeWriteChar(19,6,cCH1_5,NULL,0);
+	//Remocon_Dsp(NULL);
+
+    CodeWriteChar(19,8,cCH2_5,NULL,0);
+	//Baud_Rate_Dsp(NULL);
+
+    CodeWriteChar(19,10,cCH3_5,NULL,0);
+	//Loss_Time_Dsp(NULL);
+
+    CodeWriteChar(19,12,cCH4_5,NULL,0);
+	//ON_OFF_DSP(42,12,NULL,sys_env.vLoss_Display);
+
+    CodeWriteChar(19,14,cSENSITIVITY5,NULL,0);
+    CodeWriteChar(19,16,cCALL_MODE5,NULL,0);
+    CodeWriteChar(19,18,cAREA_SAVE,NULL,0);
+}
+
+
+void tPAGE6_KEY(void)
+{
+	u8 State=0;		
+
+	switch(key_data){
+#if 0
+  	case UP_KEY : State=0xff;
+    case DOWN_KEY : 
+		if(bENTER)
+		{
+			bSETUP_Change_flag = 1;
+
+       	 	if(vITEM_Y==0)
+			{
+				Inc_Dec_Count(99,0,State,&sys_env.vREMOCON_ID);
+				EEP_buf[cSYSENV_vREMOCON_ID] = sys_env.vREMOCON_ID;
+			}
+   	     	else if(vITEM_Y==1)
+			{
+				Inc_Dec_Count(4,0,State,&sys_env.baud_rate);
+				EEP_buf[cSYSENV_baud_rate] = sys_env.baud_rate;
+
+				USART3_Init();					// initialize Serial
+			}
+   	     	else if(vITEM_Y==2)
+			{
+				Inc_Dec_Count(60,0,State,&sys_env.vLoss_Time);
+				EEP_buf[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
+			}
+   	     	else if(vITEM_Y==3)
+			{
+				Inc_Dec_Count(1,0,State,&sys_env.vLoss_Display);
+				EEP_buf[cSYSENV_vLoss_Display] = sys_env.vLoss_Display;
+			}
+			
+			tPAGE5_Position(UNDER_BAR);
+		}
+		else
+		{
+			Inc_Dec_Count(3,0,~State,&vITEM_Y);
+			MenuSelect(vITEM_Y,0);
+		}
+  		break;
+
+    case ENTER_KEY :
+       if(bENTER)
+		{
+			bENTER = 0;
+			tPAGE5_Position(NULL);
+		}
+		else 
+		{
+			bENTER = 1;
+			tPAGE5_Position(UNDER_BAR);
+		}
+		break; 	
+#endif
+	case EXIT_KEY : 
+       if(bENTER)
+		{
+			bENTER = 0;
+			tPAGE5_Position(NULL);
+		}
+		else 
+		{
+           vITEM_Y = vPAGE -1;   
+			SetupMenu();
+		}
+		break; 	
+	}
+
+}   
+
+//------------------------------------------------------------------
+//   PAGE7 Function
+//------------------------------------------------------------------
 const u8 cON7[]	     = "ON ";
 const u8 cOFF7[]	 = "OFF";
 const u8 cOFF_BLK7[] = "   ";
@@ -1543,7 +1885,7 @@ void Baud_Rate_Dsp(u8 Position)
 }
 
 
-void tPAGE5_Position(u8 Position)
+void tPAGE7_Position(u8 Position)
 {
 	if(vITEM_Y==0) Remocon_Dsp(Position);
 	else if(vITEM_Y==1) Baud_Rate_Dsp(Position);
@@ -1560,9 +1902,9 @@ const u8 cLOSS_DISPLAY_ID7[] =  "4. VIDEO LOSS DISPLAY:";
 const u8 cSW_VER_7[]         = "F/W: v1.1.1";
 
 
-void PAGE5_TITLE(void)
+void PAGE7_TITLE(void)
 {
-	vPAGE = 5;
+	vPAGE = 7;
 	Erase_Menu_OSD();                          
 
 	MenuSelect(0,0);
@@ -1585,7 +1927,7 @@ void PAGE5_TITLE(void)
 }
 
 
-void tPAGE5_KEY(void)
+void tPAGE7_KEY(void)
 {
 	u8 State=0;		
 

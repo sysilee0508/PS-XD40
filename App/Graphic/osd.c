@@ -464,10 +464,6 @@ void OSD_SetFontMAP(void)
 	stBMP.addr		= e_addr-stBMP.size;	// 192*96-font
 	MDINOSD_SetBitmapData(stBMP.addr, stBMP.size, stBMP.pBuff);
 
-#if __MDIN3xx_DBGPRT__ == 1
-	printf("[OSD] FONT-BMP addr = %d, size = %d\n", stBMP.addr, stBMP.size);
-#endif
-
 	stFONT.mode		= MDIN_GAC_DRAW_XYMODE;
 	stFONT.attb		= GACMAP_4BITPALT_COLOR | MDIN_GAC_16Vx32H_GRID | MDIN_GAC_HORI_AUTOINC;
 	stFONT.w		= 12;
