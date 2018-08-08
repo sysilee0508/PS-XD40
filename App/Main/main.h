@@ -4,15 +4,12 @@
 //#define __9CH__
 #define __4CH__
 
-
-
 #define cSYSENV_vCORRECT_OFFSET 	 1
 #define cSYSENV_bVECTOR				 2
 #define cSYSENV_bCORRECT		     3
 #define cSYSENV_vDATE_FORMAT		 4
 #define cSYSENV_bTIME_ON			 5
 #define cSYSENV_vTIME_Position		 6
-
 #define cSYSENV_vCH_NAME			 7	
 #define cSYSENV_bTITLE_ON			 120	
 #define cSYSENV_vDWELL				 121	
@@ -20,17 +17,13 @@
 #define cSYSENV_bOSD_Display		 126
 #define cSYSENV_vOSD_Position		 127
 #define cSYSENV_border_line			 128
-
 #define cSYSENV_resolution			 129
 #define cSYSENV_baud_rate		     130
-
 #define cSYSENV_vREMOCON_ID			 131	
 #define cSYSENV_vLoss_Time			 132
 #define cSYSENV_vLoss_Display		 133
 #define cSYSENV_b9Split_Mode		 134
-
 #define cEEP_CHK					 200
-
 
 #define FULL_1		0x00
 #define FULL_2		0x01
@@ -53,11 +46,8 @@
 #define SPLIT9_8	0x12
 #define SPLIT9_9	0x13
 
-
 #define NORMAL_VIEW	0
 #define MENU_VIEW	1
-
-
 
 //-----------------------------------------------------------------------------
 //  각종 시스템 상태 변수
@@ -119,6 +109,7 @@ typedef struct
 
 //    unsigned short crc;
 }sys_env_t;
+
 
 extern sys_stat_t sys_status;
 extern sys_env_t sys_env;

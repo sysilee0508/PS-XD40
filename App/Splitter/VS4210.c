@@ -73,6 +73,8 @@ tByte I2CRead(unsigned char maddr,unsigned char saddr)
 	I2C_P2S(saddr);
 	AckDetect();
 
+	I2C_Stop();
+
 	I2C_Start(); 
 	I2C_P2S(maddr|0x01);
 	AckDetect();
@@ -97,11 +99,9 @@ bit I2CWrite(unsigned char maddr,unsigned char saddr,unsigned char value)
 	I2C_P2S(saddr);
 	AckDetect();
 
-	I2C_P2S((BYTE)((value >> 8)&0x000000ff));
+	I2C_P2S(value);
 	AckDetect();
-	I2C_P2S((BYTE)((value)&0x000000ff));
-	AckDetect();
-
+	
 	I2C_Stop();
 	
 	return 1 ;
@@ -124,9 +124,7 @@ bit I2CMultiWrite(unsigned char maddr,unsigned char saddr,unsigned char number,t
 	for(i = 0; i < number; i++)
 	{
 		val = data[i];
-		I2C_P2S((BYTE)((val >> 8)&0x000000ff));
-		AckDetect();
-		I2C_P2S((BYTE)((val)&0x000000ff));
+		I2C_P2S(val);
 		AckDetect();
 	}
 	I2C_Stop();
@@ -591,6 +589,12 @@ void VXIS_fShowInOutMode0Fast(tiByte ch , tiByte in_mode, tiByte out_mode  )
 void vs4210_system_init()
 {
 	unsigned int i;
+#if 1 //for test
+	unsigned char infmt =0;
+	unsigned char temp =0;
+	unsigned char clk = 0;
+
+#endif
 
 	I2CWrite(VS4210_ADDR, 0x01 ,0x5A) ;  //reset
 	msleep(100) ;
@@ -601,6 +605,18 @@ void vs4210_system_init()
 	OSD_Clear_All();
 	VS4210_StartInit();
 	//VS4210_No_Signal_Init();
+#if 1 //for test
+
+	I2CWrite(VS4210_ADDR, 0x03, 0x01);
+	clk = I2CRead(VS4210_ADDR, 0x03);
+	
+
+	infmt = I2CRead(VS4210_ADDR, 0x11);
+
+	I2CWrite(VS4210_ADDR, 0x11, 0x83);
+
+	temp = I2CRead(VS4210_ADDR, 0x11);
+#endif
 
 	VS4210_JointKind1.WindowMap.WMap0 = 1 ;
 	VS4210_JointKind1.WindowMap.WMap1 = 2 ;
@@ -609,6 +625,13 @@ void vs4210_system_init()
 	VS4210_JointKind1.OutputSize = gbVXIS_OuputSize ;
 	VS4210_JointKind1.OutputMode = VS4210_FULL_MODE1;
 
+	//VS4210_VideoJoin_Output(&VS4210_JointKind1) ;
+
+	for (i = 0 ; i < 4 ; i++ )
+	{
+		VS4210_init_mode(i  , _OSD_No_Signal  , gbVXIS_OuputModeflg) ;
+	}
+	//VS4210_No_Signal_Init();
 #if 1//for VS4210 output test
 	for (i = 0; i < 4; i++)
 	{
@@ -616,10 +639,11 @@ void vs4210_system_init()
 
 	}
 
-	VS4210_displayon();
+	VS4210_displayon() ;
+	//VS4210_init_Input_MODE88( gbVXIS_OuputModeflg )  ;
 #endif
 
-	//VS4210_VideoJoin_Output(&VS4210_JointKind1) ;
+	
 
 
 }

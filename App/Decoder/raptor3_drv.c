@@ -3,7 +3,6 @@
 #include "delay.h"
 #include "video_input_table.h"
 #include "video_eq_table.h"
-#include "coax_table.h"
 
 /*******************************************************************************
 *	Description		: Get Device ID
@@ -1163,71 +1162,6 @@ unsigned char __video_cable_manualdistance( unsigned char cabletype, video_input
 	return distance;
 }
 
-void video_input_cable_manualdist_read(video_input_cable_dist *vin_cable_dist )
-{
-	video_input_acc_gain_val vin_acc;
-	video_input_hsync_accum  vin_hsync_accum;
-
-	/* cable type => 0:coaxial, 1:utp, 2:reserved1, 3:reserved2 */
-	video_equalizer_distance_table_s distance_value = equalizer_distance_fmtdef[vin_cable_dist->FmtDef];
-
-	if( vin_cable_dist->FmtDef == CVI_4M_30P || vin_cable_dist->FmtDef == CVI_4M_25P 	||
-		vin_cable_dist->FmtDef == CVI_8M_15P || vin_cable_dist->FmtDef == CVI_8M_12_5P 	||
-		vin_cable_dist->FmtDef == CVI_FHD_30P				|| vin_cable_dist->FmtDef == CVI_FHD_25P			||
-		vin_cable_dist->FmtDef == AHD30_4M_25P || vin_cable_dist->FmtDef == AHD30_4M_30P    ||
-		vin_cable_dist->FmtDef == AHD30_5M_20P ||
-		vin_cable_dist->FmtDef == TVI_4M_25P || vin_cable_dist->FmtDef == TVI_4M_30P ||
-		vin_cable_dist->FmtDef == TVI_5M_12_5P || vin_cable_dist->FmtDef == TVI_3M_18P ||
-		vin_cable_dist->FmtDef == AHD20_1080P_30P || vin_cable_dist->FmtDef == AHD20_1080P_25P ||
-		vin_cable_dist->FmtDef == TVI_FHD_30P 			  	|| vin_cable_dist->FmtDef == TVI_FHD_25P 			||
-		vin_cable_dist->FmtDef == AHD20_720P_30P_EX_Btype 	|| vin_cable_dist->FmtDef == AHD20_720P_25P_EX_Btype||
-		vin_cable_dist->FmtDef == AHD20_720P_30P		 	|| vin_cable_dist->FmtDef == AHD20_720P_25P			||
-
-		vin_cable_dist->FmtDef == CVI_HD_30P_EX           	|| vin_cable_dist->FmtDef == CVI_HD_25P_EX			||
-		vin_cable_dist->FmtDef == CVI_HD_30P              	|| vin_cable_dist->FmtDef == CVI_HD_25P  			||
-
-		vin_cable_dist->FmtDef == TVI_HD_30P_EX		   		|| vin_cable_dist->FmtDef == TVI_HD_25P_EX			||
-		vin_cable_dist->FmtDef == TVI_HD_B_30P_EX		   	|| vin_cable_dist->FmtDef == TVI_HD_B_25P_EX		||
-
-		vin_cable_dist->FmtDef == AHD30_5M_12_5P		   	|| vin_cable_dist->FmtDef == AHD30_4M_15P			||
-		vin_cable_dist->FmtDef == AHD30_3M_25P		   		|| vin_cable_dist->FmtDef == AHD30_3M_30P			|| 	
-		vin_cable_dist->FmtDef == TVI_5M_20P				|| vin_cable_dist->FmtDef == AHD30_5_3M_20P	
-
-
-		/*
-		vin_cable_dist->FmtDef == TVI_HD_60P			   	|| vin_cable_dist->FmtDef == TVI_HD_50P			    ||
-		vin_cable_dist->FmtDef == CVI_HD_60P              	|| vin_cable_dist->FmtDef == CVI_HD_50P   			||
-		*/
-		)
-	{
-		/* get hsync*/
-		vin_hsync_accum.ch = vin_cable_dist->ch;
-		vin_hsync_accum.devnum = vin_cable_dist->devnum;
-		video_input_hsync_accum_read(&vin_hsync_accum );
-
-		/* get acc */
-		vin_acc.ch = vin_cable_dist->ch;
-		vin_acc.devnum = vin_cable_dist->devnum;
-		vin_acc.func_sel = 0;
-		/* 1 is ACC_GAIN_DEBUG
-		   0 is ACC_GAIN_NORMAL */
-		video_input_acc_gain_val_read(&vin_acc);
-
-		/* decision distance using hsync and distance table */
-		vin_cable_dist->dist = __video_cable_manualdistance( vin_cable_dist->cabletype, &vin_hsync_accum, &vin_acc, &distance_value );
-
-	}
-	else if( vin_cable_dist->FmtDef == AHD20_SD_H960_2EX_Btype_NT || vin_cable_dist->FmtDef == AHD20_SD_H960_2EX_Btype_PAL )
-	{
-		/* CVBS Resolution not need distance distinguish, because cvbs format has low color frequency */
-		vin_cable_dist->dist = 0;
-	}
-	else
-	{
-		vin_cable_dist->dist = 0;
-	}
-}
-
 void __eq_base_set_value( video_equalizer_info_s *pvin_eq_set, video_equalizer_base_s *pbase )
 {
 	unsigned char ch = pvin_eq_set->Ch;
@@ -1689,97 +1623,6 @@ void video_input_eq_val_set(video_equalizer_info_s *pvin_eq_set)
 		val_9x44 &= ~(1 << ch);
 		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x44 , val_9x44);
 	}
-}
-
-
-NC_VD_COAX_Init_STR *__NC_VD_COAX_InitFormat_Get( NC_VIVO_CH_FORMATDEF def )
-{
-	NC_VD_COAX_Init_STR *pRet = &coax_init_lists[def];
-
-	return  pRet;
-}
-
-/**************************************************************************************
-* @desc
-* 	RAPTOR3's This function initializes the register associated with the UP Stream..
-*
-* @param_in		(NC_VD_COAX_Tx_Init_STR *)coax_tx_mode			UP Stream Initialize structure
-*
-* @return   	void  		       								None
-*
-* ioctl : IOC_VDEC_COAX_TX_INIT
-***************************************************************************************/
-void coax_tx_init( void *p_param )
-{
-	NC_VD_COAX_STR *coax_tx = (NC_VD_COAX_STR*)p_param;
-
-	int ch = coax_tx->ch;
-	unsigned char distance = 0;
-
-	NC_VD_COAX_Init_STR *CoaxVal = __NC_VD_COAX_InitFormat_Get( coax_tx->vivo_fmt);
-
-	// MPP Coaxial mode select Ch1~4
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x01);  // BANK 1
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xA8, 0x08);  // MPP_TST_SEL1
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xA9, 0x09);  // MPP_TST_SEL2
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xAA, 0x0A);  // MPP_TST_SEL3
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xAB, 0x0B);  // MPP_TST_SEL4
-
-	// Coaxial each mode set
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05+ch%4);  // BANK 5
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2F, 0x00);       // MPP_H_INV, MPP_V_INV, MPP_F_INV
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x30, 0xE0);       // MPP_H_S[7~4], MPP_H_E[3:0]
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x31, 0x43);       // MPP_H_S[7:0]
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x32, 0xA2);       // MPP_H_E[7:0]
- 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x7C, CoaxVal->rx_src);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x7D, CoaxVal->rx_slice_lev);
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x03+((ch%4)/2));
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x00+((ch%2)*0x80), CoaxVal->tx_baud[distance]);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x02+((ch%2)*0x80), CoaxVal->tx_pel_baud[distance]);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x03+((ch%2)*0x80), CoaxVal->tx_line_pos0[distance]);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x04+((ch%2)*0x80), CoaxVal->tx_line_pos1[distance]);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x05+((ch%2)*0x80), CoaxVal->tx_line_count);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x07+((ch%2)*0x80), CoaxVal->tx_pel_line_pos0[distance]);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x08+((ch%2)*0x80), CoaxVal->tx_pel_line_pos1[distance]);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0A+((ch%2)*0x80), CoaxVal->tx_line_count_max);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0B+((ch%2)*0x80), CoaxVal->tx_mode);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0D+((ch%2)*0x80), CoaxVal->tx_sync_pos0[distance]);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0E + ((ch%2)*0x80), CoaxVal->tx_sync_pos1[distance]);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2F+((ch%2)*0x80), CoaxVal->tx_even);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0C+((ch%2)*0x80), CoaxVal->tx_zero_length);
-
-}
-
-/**************************************************************************************
-* @desc
-* 	RAPTOR3's   This function initializes the register associated with the Down Stream.
-*
-* @param_in		(NC_VD_COAX_SET_STR *)coax_tx_mode			    Down Stream Initialize structure
-*
-* @return   	void  		       								None
-*
-* ioctl : IOC_VDEC_COAX_RX_INIT
-***************************************************************************************/
-void coax_rx_init(void *p_param)
-{
-	NC_VD_COAX_STR *coax_rx = (NC_VD_COAX_STR*)p_param;
-	unsigned char ch             = coax_rx->ch;
-	NC_VIVO_CH_FORMATDEF vivofmt = coax_rx->vivo_fmt;
-
-	NC_VD_COAX_Init_STR *coax_rx_val = __NC_VD_COAX_InitFormat_Get(vivofmt);
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x03+((ch%4)/2));
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x63+((ch%2)*0x80), coax_rx_val->rx_comm_on);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x62+((ch%2)*0x80), coax_rx_val->rx_area);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x66+((ch%2)*0x80), coax_rx_val->rx_signal_enhance);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x69+((ch%2)*0x80), coax_rx_val->rx_manual_duty);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x60+((ch%2)*0x80), coax_rx_val->rx_head_matching);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x61+((ch%2)*0x80), coax_rx_val->rx_data_rz);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x68+((ch%2)*0x80), coax_rx_val->rx_sz);
-
 }
 
 

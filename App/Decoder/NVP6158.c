@@ -64,13 +64,12 @@ unsigned char NVP6158_I2C_READ(unsigned char slaveaddr, unsigned char regaddr)
     return receive_data;
 }
 
-void NVP6158_I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned int write_data)
+void NVP6158_I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data)
 {
 	I2C_Start();
 	I2C_P2S(slaveaddr&0xFE); 						AckDetect();
 	I2C_P2S(regaddr); 		 						AckDetect();		
-	I2C_P2S((unsigned char)((write_data >> 8)&0x000000ff));	AckDetect();  		
-	I2C_P2S((unsigned char)((write_data)&0x000000ff)); 		AckDetect();  	
+	I2C_P2S(write_data);	AckDetect();  		
 	I2C_Stop();		
 }
 
@@ -300,111 +299,6 @@ void NC_VD_VO_Mode_Set_New( unsigned char ch, unsigned char devnum, unsigned cha
 	video_out_port_enable(&sPortEnable);
 }
 
-unsigned char NC_APP_VD_AGC_STABLE_Check(video_input_hsync_accum *pHsync,video_input_agc_val* pAGC, video_input_sam_val *pSAM)
-{
-	//return ((pAGC->agc_lock) && (pHsync->h_lock) && (pHsync->Hsync_Accum_Result != 0) && (pSAM->SAMval != 0));
-	return ((pHsync->hsync_accum_result != 0) && (pSAM->sam_val != 0));
-}
-
-CABLE_DISTANCE NC_VD_MANUAL_CABLE_DISTANCE_Get (unsigned char Ch, video_input_cable_dist *pDistance)
-{
-	unsigned char sGetDistCnt = 0;
-	unsigned char sGetDist[10] = {0, };
-	unsigned char sMaxDistVal;
-	unsigned char ii;
-	CABLE_DISTANCE sMaxGetDistVal;
-
-	/* Get Distance 10 Times */
-	while(sGetDistCnt < 10)
-	{
-		Delay_us(10);
-
-		video_input_cable_manualdist_read(pDistance);
-
-		sGetDist[ pDistance->dist ]++;
-
-		sGetDistCnt++;
-	}
-
-	sMaxDistVal = sGetDist[0];
-	sMaxGetDistVal = 0;
-
-	for(ii = 1; ii < 6; ii++)
-		{
-		if( sMaxDistVal < sGetDist[ii] )
-		{
-			sMaxDistVal = sGetDist[ii];
-			sMaxGetDistVal = ii;
-		}
-	}
-//	return (CABLE_DISTANCE)pDistance->Dist;
-	return sMaxGetDistVal;
-}
-
-/**************************************************************************************
-* @desc
-* 	Function to read cable distance for EQ setting according to cable distance.(manual)
-*
-* @param_in		(unsigned char)Ch						Video Channel
-*
-* @return   	(CABLE_DISTANCE) 0				Short ( < 2M )
-* @return   	1								100M
-* @return   	2								200M
-* @return   	3								300M
-* @return   	4								400M
-* @return   	5								500M
-***************************************************************************************/
-CABLE_DISTANCE NC_APP_VD_MANUAL_CABLE_DISTANCE_Get(unsigned char Ch, NC_VIVO_CH_FORMATDEF FmtDef )
-{
-	unsigned char oChannel = 0;
-	unsigned char oDevAddr = 0x00;
-	CABLE_DISTANCE Distance;
-
-	video_input_cable_dist sManualDistance;
-
-
-
-	oChannel = Ch % 4;
-	oDevAddr = Ch / 4;
-
-	/* convert vfc to formatDefine for APP and save videoloss information */
-	sManualDistance.ch = oChannel;
-	sManualDistance.FmtDef = FmtDef;
-	sManualDistance.devnum = oDevAddr;
-	sManualDistance.cabletype = 0; 		// Now, we use coaxial cable(0:coax, 1:utp, 2:reserved1, 3:reserved2
-
-	Distance = NC_VD_MANUAL_CABLE_DISTANCE_Get(oChannel, &sManualDistance);
-
-	return Distance;
-}
-
-/**************************************************************************************
-* @desc
-* 	Function to proceed with EQ (Analog, Digital EQ) setting according to cable distance.
-*
-* @param_in		(unsigned char)Ch								Video Channel
-* @param_out	(CABLE_DISTANCE)Dist					Distance Value
-* @param_in		(NC_VD_AUTO_DETECT_FLAG_STR *)pFlag		Structure parameter for Flag update during auto format detection process.
-*
-* @return   	void		       						None
-***************************************************************************************/
-void NC_APP_VD_MANUAL_VIDEO_EQ_Set(unsigned char Ch, CABLE_DISTANCE Dist, NC_VIVO_CH_FORMATDEF FmtDef )
-{
-	unsigned char oChannel;
-	unsigned char oDevNum;
-	video_equalizer_info_s sEQInfo;
-
-	oChannel = Ch % 4;
-	oDevNum = Ch / 4;
-
-	sEQInfo.Ch = oChannel;
-	sEQInfo.devnum = oDevNum;
-	sEQInfo.distance = Dist;
-	sEQInfo.FmtDef = FmtDef;
-
-	video_input_eq_val_set(&sEQInfo);
-}
-
 NC_VI_CH_FMT_S *NC_HI_VI_Get_ChannelFormat( NC_VIVO_CH_FORMATDEF def )
 {
 
@@ -434,39 +328,6 @@ NC_VIVO_CH_FORMATDEF NC_HI_VI_FindFormatDef( NC_FORMAT_STANDARD format_standard,
 	return NC_VIVO_CH_FORMATDEF_UNKNOWN;
 }
 
-void NC_APP_VD_COAX_Tx_Init( int vd_dev, int vd_ch, NC_FORMAT_STANDARD format_standard, NC_FORMAT_RESOLUTION format_resolution, NC_FORMAT_FPS format_fps )
-{
-	NC_VIVO_CH_FORMATDEF vivo_fmt = NC_HI_VI_FindFormatDef( format_standard, format_resolution, format_fps );
-	NC_VD_COAX_STR CoaxTx_Init;
-
-//	sFmtDef[vd_dev*4 + vd_ch]	   = vivo_fmt;
-
-	CoaxTx_Init.vd_dev             = vd_dev;
-	CoaxTx_Init.ch                 = vd_ch%4;
-	CoaxTx_Init.format_standard    = format_standard;
-	CoaxTx_Init.format_resolution  = format_resolution;
-	CoaxTx_Init.format_fps         = format_fps;
-	CoaxTx_Init.vivo_fmt           = vivo_fmt;
-	coax_tx_init(&CoaxTx_Init);
-}
-
-/*========================================================================================================================
- * Coaxial Down stream function
- ========================================================================================================================*/
-void NC_APP_VD_COAX_Rx_Init( int vd_dev, int vd_ch, NC_FORMAT_STANDARD format_standard, NC_FORMAT_RESOLUTION format_resolution, NC_FORMAT_FPS format_fps )
-{
-	NC_VIVO_CH_FORMATDEF vivo_fmt = NC_HI_VI_FindFormatDef( format_standard, format_resolution, format_fps );
-	NC_VD_COAX_STR CoaxRx_Init;
-
-//	sFmtDef[vd_dev*4 + vd_ch]	   = vivo_fmt;
-
-	CoaxRx_Init.vd_dev          = vd_dev;
-	CoaxRx_Init.ch              = vd_ch%4;
-	CoaxRx_Init.format_standard = format_standard;
-	CoaxRx_Init.vivo_fmt        = vivo_fmt;
-	coax_rx_init(&CoaxRx_Init);
-}
-
 void NVP6158_VideoDetectionProc(void)
 {
 
@@ -492,7 +353,7 @@ void NVP6158_VideoDetectionProc(void)
 		*****************************************************************/
 		/* get video format */
 		RAPTOR3_SAL_GetFormatEachCh( oLogicalChannel, &s_raptor3_vfmts );
-#if 1
+
 		oDevNum       = oLogicalChannel/4;
 		oCurVideofmt  = s_raptor3_vfmts.curvideofmt[oLogicalChannel];
 		oPreVideofmt  = s_raptor3_vfmts.prevideofmt[oLogicalChannel];
@@ -527,16 +388,6 @@ void NVP6158_VideoDetectionProc(void)
 
 				video_input_manual_agc_stable_endi(&sDevChInfo,0);
 
-#if 0 //Louis blocked due to crash!!
-				/* EQ - get stage and set eq value  */
-				CableDistance = NC_APP_VD_MANUAL_CABLE_DISTANCE_Get( oLogicalChannel, oFmtDef );
-				NC_APP_VD_MANUAL_VIDEO_EQ_Set(oLogicalChannel, CableDistance, oFmtDef);
-
-				/* set Coaxial */
-				pChFmt = (NC_VI_CH_FMT_S *)NC_HI_VI_Get_ChannelFormat( oFmtDef );
-				NC_APP_VD_COAX_Tx_Init( oDevNum, oLogicalChannel, pChFmt->format_standard, pChFmt->format_resolution, pChFmt->format_fps );
-				NC_APP_VD_COAX_Rx_Init( oDevNum, oLogicalChannel, pChFmt->format_standard, pChFmt->format_resolution, pChFmt->format_fps );
-#endif
 				/* show decoder */
 				DataOutMode.ch = oLogicalChannel;
 				DataOutMode.set_val = 0x1;
@@ -581,7 +432,6 @@ void NVP6158_VideoDetectionProc(void)
 			}
 		}
 		else
-#endif
 		{
 			/* no video */
 			//if( oPreVideofmt !=  NC_VIVO_CH_FORMATDEF_UNKNOWN )
@@ -679,14 +529,12 @@ void NVP6158_init(void)
 		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x56, 0x32);
 	}
 
-#if 1
 /* set auto mode, but if you want to change mode from auto to manual mode, check this!(2017-07-30) */
 	for( ch = 0; ch < 4; ch++ )
 	{
 		NC_VD_AUTO_AutoMode_Set(ch, ch/4);
 		Delay_ms(100);
 	}
-#endif
 
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;
 }

@@ -48,6 +48,16 @@
 #define LED_STAT_16SPLIT	0xffffffff
 #define LED_STAT_20SPLIT	0xffffffff
 
+#define QUEUE_SIZE	10
+#define NEXT(index)	((index+1)%QUEUE_SIZE)
+
+typedef struct Queue
+{
+	int buf[QUEUE_SIZE];
+	int front;
+	int rear;
+}Queue;
+
 //=============================================================================
 //  Function Prototype
 //=============================================================================

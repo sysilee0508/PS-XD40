@@ -2701,8 +2701,8 @@ extern unsigned char gbVXIS_OuputModeflg ;
 extern void msleep(unsigned int i );
 extern tByte I2CRead(unsigned char maddr,unsigned char saddr); 
 extern bit I2CWrite(unsigned char maddr,unsigned char saddr,unsigned char value); 
-//extern void VS4210_init_Input_MODE88( tByte out_Mode  ) ;
-//extern void VS4210_init_mode(tByte ch , tByte in_mode , tByte out_mode) ;     
+extern void VS4210_init_Input_MODE88( tByte out_Mode  ) ;
+extern void VS4210_init_mode(tByte ch , tByte in_mode , tByte out_mode) ;     
 //extern void VS4210_OpenWindowsX(tiByte n) ;
 //extern void VS4210_CloseWindowsX(tiByte n);
 //extern void VS4210_CloseAllWindows(void) ; 
@@ -2713,7 +2713,7 @@ extern void VS4210_Line_Draw(tiByte mode ) ;
 extern void VS4210_StartInit(void); 
 extern void VS4210_No_Signal_Init(void) ; 
 
-//extern void VS4210_displayoff(void) ; 
+extern void VS4210_displayoff(void) ; 
 extern void VS4210_displayon(void) ;
  
 //extern void ClearAudioOSD(void) ; 

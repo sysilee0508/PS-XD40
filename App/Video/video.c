@@ -618,7 +618,7 @@ static void MDIN3xx_SetRegInitial(void)
 
 
 	// define video format of PORTA-INPUT
-	stVideo.stSRC_a.frmt =  VIDSRC_1280x1024p60;//VIDSRC_1920x1080p60
+	stVideo.stSRC_a.frmt =  VIDSRC_1920x1080p60;//VIDSRC_1920x1080p60 VIDSRC_1280x1024p60
 	stVideo.stSRC_a.mode = MDIN_SRC_RGB444_8;
 	stVideo.stSRC_a.fine = MDIN_FIELDID_INPUT | MDIN_LOW_IS_TOPFLD;
 	stVideo.stSRC_a.offH = 0;	//API v0.31(2012.05.02)

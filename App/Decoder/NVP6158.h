@@ -862,7 +862,7 @@ typedef struct _RAPTOR3_INFORMATION_S
 void NVP6158_init(void);
 void NVP6158_VideoDetectionProc(void);
 unsigned char NVP6158_I2C_READ(unsigned char slaveaddr, unsigned char regaddr);
-void NVP6158_I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned int write_data);
+void NVP6158_I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data);
 
 int check_id(unsigned char dec);
 void video_input_auto_detect_set(video_input_auto_detect *vin_auto_det);
@@ -874,7 +874,6 @@ void video_output_port_mux_mode_set(video_output_port_mux_mode *vout_port_mux_mo
 void video_output_port_mux_chid_set(video_output_port_mux_chid *vout_chid);
 void video_out_auto_vclk_set(clock_video_output *clk_vout);
 void video_out_port_enable(video_output_port_enable_s *portenable);
-void video_input_cable_manualdist_read(video_input_cable_dist *vin_cable_dist );
 void video_input_eq_val_set(video_equalizer_info_s *pvin_eq_set);
 void video_input_manual_agc_stable_endi(decoder_dev_ch_info_s *decoder_info, int endi);
 void video_output_data_out_mode_set(video_output_data_out_mode *vo_data_out_mode);
@@ -892,12 +891,6 @@ void video_input_vafe_init(decoder_dev_ch_info_s *decoder_info);
 void video_input_new_format_set(decoder_dev_ch_info_s *decoder_info);
 void video_input_onvideo_check_data(video_input_vfc *vin_vfc);
 void video_input_no_video_set(video_input_novid_set *auto_novid);
-
-
-
-
-void coax_tx_init( void *p_param );
-void coax_rx_init(void *p_param);
 
 int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInformation );
 int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInformation );
