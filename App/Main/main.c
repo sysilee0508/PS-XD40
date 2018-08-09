@@ -58,12 +58,28 @@ void TIM2_IRQHandler(void)
 		cnt = 0;
 		tick_10ms++;
 	}
+//
+//#ifdef __4CH__
+//	Key_Led_Ctrl();
+//#endif
+}
 
+//-----------------------------------------------------------------------------
+//	Process Timer interrupt with 20ms - This is to handle keys and LEDs
+//-----------------------------------------------------------------------------
+void TIM3_IRQHandler(void)
+{
+	static unsigned int cnt;
+
+    TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
+
+	Key_Input();
+	Key_Check();
+	Key_LED_Set();
 #ifdef __4CH__
 	Key_Led_Ctrl();
 #endif
 }
-
 
 //-----------------------------------------------------------------------------
 //	USART3 Rx Interrupt
@@ -371,7 +387,7 @@ void Loss_Check(void)
 	vVideo_Loss = 0;
 
 #if 0 //Louis
-	//ºñµð¿À ½ÅÈ£°¡ ¾øÀ¸¸é 1
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1
 	if(SGQ_READ_CH_FLOCK(0) == 0) vVideo_Loss |= 0x00000001;
 	if(SGQ_READ_CH_FLOCK(1) == 0) vVideo_Loss |= 0x00000002;
 	if(SGQ_READ_CH_FLOCK(2) == 0) vVideo_Loss |= 0x00000004;
@@ -522,9 +538,9 @@ void main(void)
 		Auto_Seq_Cnt();
 		Auto_Sequence();
 
-		Key_Input();
-		Key_Check();
-		Key_LED_Set();
+//		Key_Input();
+//		Key_Check();
+//		Key_LED_Set();
 
 		if(bSETUP)Setup_Process();
 		else Key_Proc();

@@ -24,7 +24,7 @@ void MCU_init(void)
     while((RCC->CFGR & 0x0000000C) != 0x00000008); //PLL used as system clock
     //-------------------------------------------------------------------------
     
-    //Clock Enable  (Remap ÇÏ±â Àü¿¡ ¸ÕÀú ¼³Á¤ÇØ¾ß RemapÀÌ Á¤»óÀûÀ¸·Î ÀÛµ¿ÇÑ´Ù)  
+    //Clock Enable  (Remap ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ Remapï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ûµï¿½ï¿½Ñ´ï¿½)  
     RCC->APB1ENR |= RCC_APB1Periph_USART3; 
     RCC->APB1ENR |= RCC_APB1Periph_TIM2; 
     RCC->APB2ENR |= RCC_APB2Periph_GPIOA; 
@@ -145,7 +145,20 @@ void IRQ_Init(void)
 	TIM2->ARR = 99;					// 64MHz/(1+639)/(1+99) = 1000Hz
 	TIM2->SR = 0x0000;				// clear TIM2 interrupt flags
 	TIM2->DIER = 0x0001;			// enable TIM2 update interrupt
-	//Setting timer interrupt 100us--------------------------------------------
+	//Setting timer interrupt 1ms--------------------------------------------
+
+	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	TIM3->CR1 = 0x0005;				// up-counter enable
+	TIM3->PSC = 639;				// 64MHz/(1+639)/(1+9) = 10000Hz
+	TIM3->ARR = 1999;					// 64MHz/(1+639)/(1+1999) = 1000Hz
+	TIM3->SR = 0x0000;				// clear TIM3 interrupt flags
+	TIM3->DIER = 0x0001;			// enable TIM3 update interrupt
+	//Setting timer interrupt 20ms--------------------------------------------
 
 	//Setting UART3 interrupt -------------------------------------------------
 	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
@@ -154,7 +167,6 @@ void IRQ_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	//Setting UART3 interrupt  -------------------------------------------------
-
 
 	//Setting RTC -------------------------------------------------------------
 	NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQn;
