@@ -50,16 +50,16 @@ const u8 key_table_index[] =
 //=============================================================================
 
 //-----------------------------------------------------------------------------
-//  ÇöÀç È­¸é »óÅÂ¿¡ µû¶ó Å°º¸µåÀÇ LED¸¦ ¾î¶² °ÍÀ¸·Î ÄÓ °ÍÀÎ°¡¸¦ Ã³¸®ÇÏ´Â ÇÔ¼ö
+//  ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ Å°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ LEDï¿½ï¿½ ï¿½î¶² ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Î°ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 //-----------------------------------------------------------------------------
 void Key_LED_Set(void)
 {
 	static u32 timeout = 0;
 
-	if(!TIME_AFTER(tick_10ms,timeout))
-		return;
-
-	timeout = tick_10ms + 4; // 10ms * 4 = 40ms
+//	if(!TIME_AFTER(tick_10ms,timeout))
+//		return;
+//
+//	timeout = tick_10ms + 4; // 10ms * 4 = 40ms
 
 	led_state = 0xffff;
 	
@@ -89,10 +89,10 @@ void Key_Input(void)
 	static u32 timeout = 0;
 	u8 key_temp = 0;
 
-	if(!TIME_AFTER(tick_10ms,timeout))
-		return;
-
-	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
+//	if(!TIME_AFTER(tick_10ms,timeout))
+//		return;
+//
+//	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
 
 	KEY_EN_OUT_MODE;
 	KEY_EN1_HIGH;
@@ -214,7 +214,7 @@ void Key_Led_Ctrl(void)
 #endif
 
 //-----------------------------------------------------------------------------
-//	KeyINPUT()ÇÔ¼ö¿¡¼­ ÀÐÀº °ªÀ» »óÅÂ¿¡ µû¶ó ´Ù½Ã Ã³¸®ÇÏ´Â ÇÔ¼ö	(20ms¸¶´Ù ½ÇÇà)
+//	KeyINPUT()ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ Ã³ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½	(20msï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 //-----------------------------------------------------------------------------
 void Key_Check(void)	
 {
@@ -231,11 +231,10 @@ void Key_Check(void)
 	static u8 key_cnt = 0;
 	static u16 temp_key_data = 0;
 
-
-    if(!TIME_AFTER(tick_10ms,timeout))
-        return;
-
-    timeout = tick_10ms + 2; // 10ms * 2 = 20ms
+//    if(!TIME_AFTER(tick_10ms,timeout))
+//        return;
+//
+//    timeout = tick_10ms + 2; // 10ms * 2 = 20ms
 
 #ifdef __4CH__
 	if(key_raw_data != 0xff)	
@@ -289,7 +288,7 @@ void Key_Check(void)
 
 	if(key_cnt >= cmp_num)
 	{
-        // ÇöÀç Å°°ªÀÌ REPEAT ON ÀÌ¸é 
+        // ï¿½ï¿½ï¿½ï¿½ Å°ï¿½ï¿½ï¿½ï¿½ REPEAT ON ï¿½Ì¸ï¿½ 
         if(key_stat == STAT_KEY_REPEAT)
         {
             key_data = (u8)temp_key_data;	
@@ -313,7 +312,7 @@ void Key_Check(void)
         }
 
         
-        // ÇöÀç Å°°ªÀÌ LONG ON ÀÌ¸é  
+        // ï¿½ï¿½ï¿½ï¿½ Å°ï¿½ï¿½ï¿½ï¿½ LONG ON ï¿½Ì¸ï¿½  
         else if(key_stat == STAT_KEY_LONG)  
 		{
     		temp_key_flag = 1;
@@ -334,7 +333,7 @@ void Key_Check(void)
             }
         }
         
-        // ÇöÀç Å°°ªÀÌ SHORT ON ÀÌ¸é  
+        // ï¿½ï¿½ï¿½ï¿½ Å°ï¿½ï¿½ï¿½ï¿½ SHORT ON ï¿½Ì¸ï¿½  
         else if((key_stat == STAT_KEY_SHORT))
         {
             if(!key_repeat_flag)  
@@ -369,7 +368,7 @@ void Key_Proc(void)
 			case KEY_FULL_CH8 : 
 				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
 				{
-					//if(pre_split_mode > FULL_9) //2015.5.23 ÁÖ¼®Ã³¸®
+					//if(pre_split_mode > FULL_9) //2015.5.23 ï¿½Ö¼ï¿½Ã³ï¿½ï¿½
 					{
 						Erase_OSD();
 					}
@@ -390,7 +389,7 @@ void Key_Proc(void)
 			case KEY_FULL_CH9 : 
 				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
 				{
-					//if(pre_split_mode > FULL_9) //2015.5.23 ÁÖ¼®Ã³¸®
+					//if(pre_split_mode > FULL_9) //2015.5.23 ï¿½Ö¼ï¿½Ã³ï¿½ï¿½
 					{
 						Erase_OSD();
 					}
