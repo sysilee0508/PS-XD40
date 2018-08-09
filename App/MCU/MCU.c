@@ -26,8 +26,7 @@ void MCU_init(void)
     
     //Clock Enable  (Remap 하기 전에 먼저 설정해야 Remap이 정상적으로 작동한다)  
     RCC->APB1ENR |= RCC_APB1Periph_USART3; 
-    RCC->APB1ENR |= RCC_APB1Periph_TIM2;
-    RCC->APB1ENR |= RCC_APB1Periph_TIM3; 
+    RCC->APB1ENR |= RCC_APB1Periph_TIM2; 
     RCC->APB2ENR |= RCC_APB2Periph_GPIOA; 
     RCC->APB2ENR |= RCC_APB2Periph_GPIOB; 
     RCC->APB2ENR |= RCC_APB2Periph_GPIOC; 
@@ -143,25 +142,10 @@ void IRQ_Init(void)
 	TIM2->CR1 = 0x0005;				// up-counter enable
 	TIM2->PSC = 639;				// 64MHz/(1+639)/(1+9) = 10000Hz
 	//TIM2->ARR = 9;
-	TIM2->ARR = 199;					// 64MHz/(1+639)/(1+99) = 1000Hz
+	TIM2->ARR = 99;					// 64MHz/(1+639)/(1+99) = 1000Hz
 	TIM2->SR = 0x0000;				// clear TIM2 interrupt flags
 	TIM2->DIER = 0x0001;			// enable TIM2 update interrupt
-	//Setting timer interrupt 1000us--------------------------------------------
-
-
-	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-
-	TIM3->CR1 = 0x0005;				// up-counter enable
-	TIM3->PSC = 639;				// 64MHz/(1+639)/(1+9) = 10000Hz
-	//TIM3->ARR = 9;
-	TIM3->ARR = 199;					// 64MHz/(1+639)/(1+99) = 1000Hz
-	TIM3->SR = 0x0000;				// clear TIM2 interrupt flags
-	TIM3->DIER = 0x0001;			// enable TIM2 update interrupt
-	//Setting timer interrupt 1000us--------------------------------------------
+	//Setting timer interrupt 100us--------------------------------------------
 
 	//Setting UART3 interrupt -------------------------------------------------
 	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;

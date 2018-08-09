@@ -31,7 +31,7 @@ u8 aux_display_flag = 0;
 const unsigned char change_mode[4] = {0x4, 0x2, 0x7, 0x4};
 int cmode = 0;
 
-BOOL bStartKeyScan;
+
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
@@ -64,19 +64,6 @@ void TIM2_IRQHandler(void)
 #endif
 }
 
-//-----------------------------------------------------------------------------
-//	Process Timer interrupt with 1ms
-//-----------------------------------------------------------------------------
-void TIM3_IRQHandler(void)
-{
-	static unsigned int cnt;
-	
-    TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
-
-
-	if(bStartKeyScan)
-		Key_Input();
-}
 
 //-----------------------------------------------------------------------------
 //	USART3 Rx Interrupt
@@ -535,8 +522,7 @@ void main(void)
 		Auto_Seq_Cnt();
 		Auto_Sequence();
 
-		//Key_Input();
-		bStartKeyScan = 1;
+		Key_Input();
 		Key_Check();
 		Key_LED_Set();
 

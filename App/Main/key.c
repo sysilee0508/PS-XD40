@@ -7,13 +7,15 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
+//u32 key_raw_data = 0;
+u16 key_raw_data = 0;
 u8 key_stat = STAT_KEY_LONG;
 u8 key_flag = 0;
 u8 key_data = 0;
 u8 pre_key_data = 0;
 u16 led_state = 0xffff;
 u8 bFreeze = 0;
-Queue queue0, queue1;
+
 //=============================================================================
 //  Constant Array Declaration (data table)
 //=============================================================================
@@ -46,33 +48,7 @@ const u8 key_table_index[] =
 //=============================================================================
 //  Function Definition
 //=============================================================================
-void InitQueue(Queue *queue)
-{
-	queue->front = queue->rear = 0;
-}
 
-int IsEmpty(Queue *queue)
-{
-	return queue->front == queue->rear;
-}
-
-void Enqueue(Queue *queue, int data)
-{
-	queue->buf[queue->rear] = data;
-	queue->rear = NEXT(queue->rear);
-}
-
-int Dequeue(Queue *queue)
-{
-	int re = 0xffffffff;
-
-	if(IsEmpty(queue))
-		return re;
-
-	re = queue->buf[queue->front];
-	queue->front = NEXT(queue->front);
-	return re;
-}
 //-----------------------------------------------------------------------------
 //  현재 화면 상태에 따라 키보드의 LED를 어떤 것으로 켤 것인가를 처리하는 함수
 //-----------------------------------------------------------------------------
@@ -110,12 +86,13 @@ void Key_LED_Set(void)
 #ifdef __4CH__
 void Key_Input(void)
 {
-    static u32 timeout = 0;
+	static u32 timeout = 0;
+	u8 key_temp = 0;
 
-    if(!TIME_AFTER(tick_10ms,timeout))
-        return;
+	if(!TIME_AFTER(tick_10ms,timeout))
+		return;
 
-    timeout = tick_10ms + 2; // 10ms * 2 = 20ms
+	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
 
 	KEY_EN_OUT_MODE;
 	KEY_EN1_HIGH;
@@ -132,23 +109,62 @@ void Key_Input(void)
 	KEY_DATA_INPUT_MODE;
 	KEY_EN1_LOW;
 
-	Enqueue(&queue0,GPIOB->IDR);
-
+	if(KEY_DATA1_5_INPUT)
+		key_temp = 0x01;
+	else
+		key_temp = 0x00;
+	if(KEY_DATA2_6_INPUT)
+		key_temp |= 0x02;
+	else
+		key_temp &= 0xfd;
+	if(KEY_DATA3_7_INPUT)
+		key_temp |= 0x04;
+	else
+		key_temp &= 0xfb;
+	if(KEY_DATA4_INPUT)
+		key_temp |= 0x08;
+	else
+		key_temp &= 0xf7;
+	
+	//KEY_LED0EN_HIGH;
 	KEY_EN1_HIGH;
 	KEY_EN2_LOW;
 	
-	Enqueue(&queue1,GPIOB->IDR);
+	if(KEY_DATA1_5_INPUT)
+		key_temp |= 0x10;
+	else
+		key_temp &= 0xef;
+	if(KEY_DATA2_6_INPUT)
+		key_temp |= 0x20;
+	else
+		key_temp &= 0xdf;
+	if(KEY_DATA3_7_INPUT)
+		key_temp |= 0x40;
+	else
+		key_temp &= 0xbf;
+	if(KEY_DATA4_INPUT)
+		key_temp |= 0x80;
+	else
+		key_temp &= 0x7f;
 
 	KEY_EN2_HIGH;
 	KEY_EN_HIZ_MODE;
+
+	key_raw_data = key_temp;	
 
 	KEY_DATA_OUTPUT_MODE;
 }
 
 void Key_Led_Ctrl(void)
 {
+//	static u32 timeout = 0;
 	static u8 toggle = 0;
+#if 0
+	if(!TIME_AFTER(tick_10ms,timeout))
+		return;
 
+	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
+#endif
 	if(toggle == 0)
 	{
 		toggle = 1;
@@ -214,54 +230,12 @@ void Key_Check(void)
 	static u8 cmp_num = 0;
 	static u8 key_cnt = 0;
 	static u16 temp_key_data = 0;
-	int key_raw_data, rawKey0, rawKey1;
+
 
     if(!TIME_AFTER(tick_10ms,timeout))
         return;
 
     timeout = tick_10ms + 2; // 10ms * 2 = 20ms
-
-	rawKey0 = Dequeue(&queue0);
-
-	if(rawKey0 & 0x00001000)
-		key_raw_data = 0x01;
-	else
-		key_raw_data = 0x00;
-	if(rawKey0 & 0x00002000)
-		key_raw_data |= 0x02;
-	else
-		key_raw_data &= 0xfd;
-	if(rawKey0 & 0x00004000)
-		key_raw_data |= 0x04;
-	else
-		key_raw_data &= 0xfb;
-	if(rawKey0 & 0x00008000)
-		key_raw_data |= 0x08;
-	else
-		key_raw_data &= 0xf7;
-
-	InitQueue(&queue0);
-
-	rawKey1 = Dequeue(&queue1);
-
-	if(rawKey1 & 0x00001000)
-		key_raw_data |= 0x10;
-	else
-		key_raw_data &= 0xef;
-	if(rawKey1 & 0x00002000)
-		key_raw_data |= 0x20;
-	else
-		key_raw_data &= 0xdf;
-	if(rawKey1 & 0x00004000)
-		key_raw_data |= 0x40;
-	else
-		key_raw_data &= 0xbf;
-	if(rawKey1 & 0x00008000)
-		key_raw_data |= 0x80;
-	else
-		key_raw_data &= 0x7f;
-
-	InitQueue(&queue1);
 
 #ifdef __4CH__
 	if(key_raw_data != 0xff)	
