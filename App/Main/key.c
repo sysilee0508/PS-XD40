@@ -86,13 +86,7 @@ void Key_LED_Set(void)
 #ifdef __4CH__
 void Key_Input(void)
 {
-	static u32 timeout = 0;
 	u8 key_temp = 0;
-
-//	if(!TIME_AFTER(tick_10ms,timeout))
-//		return;
-//
-//	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
 
 	KEY_EN_OUT_MODE;
 	KEY_EN1_LOW;//KEY_EN1_HIGH;
@@ -107,7 +101,6 @@ void Key_Input(void)
 //	KEY_LED4_HIGH;
 	
 	KEY_DATA_INPUT_MODE;
-//	KEY_EN1_LOW;
 
 	if(KEY_DATA1_5_INPUT)
 		key_temp = 0x01;
@@ -149,6 +142,7 @@ void Key_Input(void)
 
 	KEY_EN2_HIGH;
 //	KEY_EN_HIZ_MODE;
+	KEY_DATA_OUTPUT_MODE;
 
 	key_raw_data = key_temp;	
 }
@@ -164,7 +158,7 @@ void Key_Led_Ctrl(void)
 	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
 #endif
 
-	KEY_DATA_OUTPUT_MODE;
+//	KEY_DATA_OUTPUT_MODE;
 
 	if(toggle == 0)
 	{
@@ -217,7 +211,7 @@ void Key_Led_Ctrl(void)
 		KEY_LED0EN_HIGH;
 	}
 
-	KEY_DATA_INPUT_MODE;
+//	KEY_DATA_INPUT_MODE;
 }
 #endif
 
