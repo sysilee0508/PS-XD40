@@ -95,19 +95,19 @@ void Key_Input(void)
 //	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
 
 	KEY_EN_OUT_MODE;
-	KEY_EN1_HIGH;
+	KEY_EN1_LOW;//KEY_EN1_HIGH;
 	KEY_EN2_HIGH;
 
-	KEY_LED0EN_LOW;
-	KEY_LED1EN_LOW;
-
-	KEY_LED1_5_HIGH;
-	KEY_LED2_6_HIGH;
-	KEY_LED3_7_HIGH;
-	KEY_LED4_HIGH; 
+//	KEY_LED0EN_LOW;
+//	KEY_LED1EN_LOW;
+//
+//	KEY_LED1_5_HIGH;
+//	KEY_LED2_6_HIGH;
+//	KEY_LED3_7_HIGH;
+//	KEY_LED4_HIGH;
 	
 	KEY_DATA_INPUT_MODE;
-	KEY_EN1_LOW;
+//	KEY_EN1_LOW;
 
 	if(KEY_DATA1_5_INPUT)
 		key_temp = 0x01;
@@ -148,11 +148,9 @@ void Key_Input(void)
 		key_temp &= 0x7f;
 
 	KEY_EN2_HIGH;
-	KEY_EN_HIZ_MODE;
+//	KEY_EN_HIZ_MODE;
 
 	key_raw_data = key_temp;	
-
-	KEY_DATA_OUTPUT_MODE;
 }
 
 void Key_Led_Ctrl(void)
@@ -165,6 +163,9 @@ void Key_Led_Ctrl(void)
 
 	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
 #endif
+
+	KEY_DATA_OUTPUT_MODE;
+
 	if(toggle == 0)
 	{
 		toggle = 1;
@@ -174,14 +175,17 @@ void Key_Led_Ctrl(void)
 			KEY_LED1_5_HIGH;
 		else
 			KEY_LED1_5_LOW;
+
 		if(led_state & 0x02) 
 			KEY_LED2_6_HIGH;
 		else
 			KEY_LED2_6_LOW;
+
 		if(led_state & 0x04)
 			KEY_LED3_7_HIGH;
 		else
 			KEY_LED3_7_LOW;
+
 		if(led_state & 0x08)
 			KEY_LED4_HIGH;
 		else
@@ -199,10 +203,12 @@ void Key_Led_Ctrl(void)
 			KEY_LED1_5_HIGH;
 		else
 			KEY_LED1_5_LOW;
+
 		if(led_state & 0x20)
 			KEY_LED2_6_HIGH;
 		else
 			KEY_LED2_6_LOW;
+
 		if(led_state & 0x40)
 			KEY_LED3_7_HIGH;
 		else
@@ -210,6 +216,8 @@ void Key_Led_Ctrl(void)
 		
 		KEY_LED0EN_HIGH;
 	}
+
+	KEY_DATA_INPUT_MODE;
 }
 #endif
 
