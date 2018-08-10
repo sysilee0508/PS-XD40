@@ -26,7 +26,8 @@ void MCU_init(void)
     
     //Clock Enable  (Remap �ϱ� ���� ���� �����ؾ� Remap�� ���������� �۵��Ѵ�)  
     RCC->APB1ENR |= RCC_APB1Periph_USART3; 
-    RCC->APB1ENR |= RCC_APB1Periph_TIM2; 
+    RCC->APB1ENR |= RCC_APB1Periph_TIM2;
+    RCC->APB1ENR |= RCC_APB1Periph_TIM3;
     RCC->APB2ENR |= RCC_APB2Periph_GPIOA; 
     RCC->APB2ENR |= RCC_APB2Periph_GPIOB; 
     RCC->APB2ENR |= RCC_APB2Periph_GPIOC; 
