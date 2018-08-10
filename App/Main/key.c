@@ -142,7 +142,7 @@ void Key_Input(void)
 
 	KEY_EN2_HIGH;
 //	KEY_EN_HIZ_MODE;
-//	KEY_DATA_OUTPUT_MODE;
+	KEY_DATA_OUTPUT_MODE;
 
 	key_raw_data = key_temp;	
 }
@@ -158,7 +158,7 @@ void Key_Led_Ctrl(void)
 	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
 #endif
 
-	KEY_DATA_OUTPUT_MODE;
+//	KEY_DATA_OUTPUT_MODE;
 
 	if(toggle == 0)
 	{
@@ -211,7 +211,7 @@ void Key_Led_Ctrl(void)
 		KEY_LED0EN_HIGH;
 	}
 
-	KEY_DATA_INPUT_MODE;
+//	KEY_DATA_INPUT_MODE;
 }
 #endif
 
