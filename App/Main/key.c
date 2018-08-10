@@ -148,7 +148,7 @@ void Key_Input(void)
 		key_temp &= 0x7f;
 
 	KEY_EN2_HIGH;
-//	KEY_EN_HIZ_MODE;
+	KEY_EN_HIZ_MODE;
 
 	key_raw_data = key_temp;	
 }
