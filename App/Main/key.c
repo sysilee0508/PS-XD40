@@ -54,13 +54,6 @@ const u8 key_table_index[] =
 //-----------------------------------------------------------------------------
 void Key_LED_Set(void)
 {
-	static u32 timeout = 0;
-
-//	if(!TIME_AFTER(tick_10ms,timeout))
-//		return;
-//
-//	timeout = tick_10ms + 4; // 10ms * 4 = 40ms
-
 	led_state = 0xffff;
 	
 	if(bSETUP == 0)
@@ -88,17 +81,16 @@ void Key_Input(void)
 {
 	u8 key_temp = 0;
 
-	KEY_EN_OUT_MODE;
-	KEY_EN1_LOW;//KEY_EN1_HIGH;
+//	KEY_EN_OUT_MODE;
+	KEY_EN1_LOW;
 	KEY_EN2_HIGH;
+	KEY_LED0EN_HIGH;
+	KEY_LED1EN_LOW;
 
-//	KEY_LED0EN_LOW;
-//	KEY_LED1EN_LOW;
-//
-//	KEY_LED1_5_HIGH;
-//	KEY_LED2_6_HIGH;
-//	KEY_LED3_7_HIGH;
-//	KEY_LED4_HIGH;
+	KEY_LED1_5_HIGH;
+	KEY_LED2_6_HIGH;
+	KEY_LED3_7_HIGH;
+	KEY_LED4_HIGH;
 	
 	KEY_DATA_INPUT_MODE;
 
@@ -119,9 +111,11 @@ void Key_Input(void)
 	else
 		key_temp &= 0xf7;
 	
-	//KEY_LED0EN_HIGH;
 	KEY_EN1_HIGH;
 	KEY_EN2_LOW;
+	KEY_LED0EN_LOW;
+	KEY_LED1EN_HIGH;
+
 	
 	if(KEY_DATA1_5_INPUT)
 		key_temp |= 0x10;
@@ -141,24 +135,18 @@ void Key_Input(void)
 		key_temp &= 0x7f;
 
 	KEY_EN2_HIGH;
+	KEY_LED1EN_LOW;
 //	KEY_EN_HIZ_MODE;
-	KEY_DATA_OUTPUT_MODE;
+//	KEY_DATA_OUTPUT_MODE;
 
 	key_raw_data = key_temp;	
 }
 
 void Key_Led_Ctrl(void)
 {
-//	static u32 timeout = 0;
 	static u8 toggle = 0;
-#if 0
-	if(!TIME_AFTER(tick_10ms,timeout))
-		return;
 
-	timeout = tick_10ms + 2; // 10ms * 2 = 20ms
-#endif
-
-//	KEY_DATA_OUTPUT_MODE;
+	KEY_DATA_OUTPUT_MODE;
 
 	if(toggle == 0)
 	{
@@ -220,7 +208,6 @@ void Key_Led_Ctrl(void)
 //-----------------------------------------------------------------------------
 void Key_Check(void)	
 {
-    static u32 timeout = 0;
 #ifdef __4CH__
 	const u8 *pKey;	
 	u8 Check_Value;	
@@ -232,11 +219,6 @@ void Key_Check(void)
 	static u8 cmp_num = 0;
 	static u8 key_cnt = 0;
 	static u16 temp_key_data = 0;
-
-//    if(!TIME_AFTER(tick_10ms,timeout))
-//        return;
-//
-//    timeout = tick_10ms + 2; // 10ms * 2 = 20ms
 
 #ifdef __4CH__
 	if(key_raw_data != 0xff)	

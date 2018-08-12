@@ -74,11 +74,12 @@ void TIM3_IRQHandler(void)
     TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	Key_Input();
-	Key_Check();
+//	Key_Check();
 	Key_LED_Set();
 #ifdef __4CH__
 	Key_Led_Ctrl();
 #endif
+	Key_Check();
 }
 
 //-----------------------------------------------------------------------------
