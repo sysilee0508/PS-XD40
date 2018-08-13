@@ -193,7 +193,7 @@ const u8 BLAN[]=" ";
 const u8 ArrowL[]= {0x80,0x00};
 
 //-----------------------------------------------------------------
-// Menu È­»ìÇ¥ À§Ä¡°ª    
+// Menu È­ï¿½ï¿½Ç¥ ï¿½ï¿½Ä¡ï¿½ï¿½    
 //-----------------------------------------------------------------
 const u8 tMenu_P[8][25] = 
 {{ 5,7,9,11,13,15,17,19},
@@ -262,7 +262,7 @@ void Inc_Dec_Count(u8 Max,u8 Min,u8 Up_Flag,u8 *P)
 			*P = Max;}
 }
 
-void INC_Dec_Hex(u8 Max,u8 Min,u8 Up_Flag,u8 *P) // 16Áø¼ö·Î º¯È¯ ÈÄ Inc_Dec_Count¸¦ ½ÇÇà ÈÄ ´Ù½Ã 10Áø¼ö·Î º¯È¯ÇÑ´Ù.
+void INC_Dec_Hex(u8 Max,u8 Min,u8 Up_Flag,u8 *P) // 16ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ ï¿½ï¿½ Inc_Dec_Countï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ù½ï¿½ 10ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
 {
 	Dec_Hex_Function(P);
 	Inc_Dec_Count(Max,Min,Up_Flag,P);
@@ -271,7 +271,7 @@ void INC_Dec_Hex(u8 Max,u8 Min,u8 Up_Flag,u8 *P) // 16Áø¼ö·Î º¯È¯ ÈÄ Inc_Dec_Cou
 
 
 //--------------------------------------------------------------------------------------
-//	(¿µ¾î) ¹®ÀÚ¿­ÀÇ ±æÀÌ ¸¸Å­ ¹®ÀÚ¿­À» Ç¥½ÃÇÔ.  
+//	(ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å­ ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½ï¿½.  
 //--------------------------------------------------------------------------------------
 void Print_Str(u16 PosX, u16 PosY, const u8 *FontData)
 {  
@@ -360,7 +360,7 @@ void SetUP(void)
 
 	bENTER = 0;
 
-	key_stat = STAT_KEY_REPEAT;
+	key_stat = KEY_STATE_REPEAT;
   
 	vITEM_X = 0;
 	vITEM_Y = 0;
@@ -407,10 +407,10 @@ void SetupMenu(void)
 	Erase_Menu_OSD();                          
 
 	//------------------------------------------------
-	// ¸Þ´º ¹é±×¶ó¿îµå¸¦ °ËÀº»ö ¹Ú½º·Î ³ªÅ¸³½´Ù.
+	// ï¿½Þ´ï¿½ ï¿½ï¿½×¶ï¿½ï¿½å¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½.
 	//------------------------------------------------
-	//MDINOSD_SetBGBoxColor(RGB(128,16,128));		// set BG-BOX color //°ËÀº»ö
-	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color //°ËÀº»ö
+	//MDINOSD_SetBGBoxColor(RGB(128,16,128));		// set BG-BOX color //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_H_START, MENU_V_START, MENU_WIDTH, MENU_HEIGHT);
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
@@ -519,9 +519,9 @@ void tPAGE0_KEY(void)
 			Erase_Menu_OSD();                          
 			bSETUP = 0;
 			//bMode_Change = 1;
-			key_stat = STAT_KEY_LONG;
+			key_stat = KEY_STATE_LONG;
 
-			MDINOSD_SetBGBoxColor(RGB(255,255,255));	// set BG-BOX color //Èò»ö
+			MDINOSD_SetBGBoxColor(RGB(255,255,255));	// set BG-BOX color //ï¿½ï¿½ï¿½
 			Set_border_line();
 			bMode_change_flag = 1;
 			break;

@@ -65,6 +65,11 @@ typedef enum {
 
 #define NOP()	asm("NOP")
 
+#define LOW		0
+#define HIGH	1
+
+#define FALSE	0
+#define TRUE	1
 
 // -----------------------------------------------------------------------------
 // External Variables declaration

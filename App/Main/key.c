@@ -7,28 +7,32 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
-//u32 key_raw_data = 0;
-u16 key_raw_data = 0;
-u8 key_stat = STAT_KEY_LONG;
+u8 key_raw_data = 0;
+key_state_e key_state = KEY_STATE_LONG;
 u8 key_flag = 0;
 u8 key_data = 0;
 u8 pre_key_data = 0;
-u16 led_state = 0xffff;
+//u16 led_state = 0xffff;
 u8 bFreeze = 0;
+
+//=============================================================================
+//  Static Variable Declaration
+//=============================================================================
+static u8 led_state = 0xff;
 
 //=============================================================================
 //  Constant Array Declaration (data table)
 //=============================================================================
 #ifdef __4CH__
-const u8 key_table[] = 
+const keycode_t keycode_table[] =
 {
-    0xfe, // KEY_1
-    0xfd, // KEY_2
-    0xfb, // KEY_3
-    0xf7, // KEY_4
-	0xef, // KEY_2x2
-	0xdf, // KEY_FRZ // KEY_MENU_ESC
-	0xbf, // KEY_SEQ
+	KEYCODE_CAM1, 	// KEY_1 	//1111 1110 	//254
+    KEYCODE_CAM2, 	// KEY_2 	//1111 1101 	//253
+	KEYCODE_CAM3, 	// KEY_3 	//1111 1011 	//251
+	KEYCODE_CAM4, 	// KEY_4 	//1111 0111 	//247
+	KEYCODE_SPLIT, 	// KEY_2x2 	//1110 1111 	//239
+	KEYCODE_FREEZE, 	// KEY_FRZ(KEY_MENU_ESC) //1101 1111 //223
+	KEYCODE_SEQUENCE, 	// KEY_SEQ 	// 1011 1111 	//191
 };
 
 const u8 key_table_index[] = 
@@ -45,6 +49,11 @@ const u8 key_table_index[] =
 #endif
 
 
+#define KEYLED_ROW0_EN		KEY_ROW0_LOW; KEY_LED1_HIGH;
+#define KEYLED_ROW0_DIS		KEY_ROW0_HIGH; KEY_LED1_LOW;
+#define KEYLED_ROW1_EN		KEY_ROW1_LOW; KEY_LED0_HIGH;
+#define KEYLED_ROW1_DIS		KEY_ROW1_HIGH; KEY_LED0_LOW;
+
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -54,152 +63,134 @@ const u8 key_table_index[] =
 //-----------------------------------------------------------------------------
 void Key_LED_Set(void)
 {
-	led_state = 0xffff;
+#if 0
+	//led_state = 0xff;
 	
 	if(bSETUP == 0)
 	{
 #ifdef __4CH__
 		if(sys_status.current_split_mode <= FULL_4) 
 		{
-			led_state = key_table[sys_status.current_split_mode];
+			led_state = keycode_table[sys_status.current_split_mode];
 		}	
 		else if(sys_status.current_split_mode <= SPLIT4_1)
 		{
-			led_state = key_table[4];
+			led_state = keycode_table[4];
 		}
 		
 	    if(bFreeze)
-			led_state &= key_table[5];
+			led_state &= keycode_table[5];
 	    if(bAuto_Seq_Flag) 
-			led_state &= key_table[6];
+			led_state &= keycode_table[6];
 #endif
 	}
+#endif
 }
 
 #ifdef __4CH__
-void Key_Input(void)
+void Key_Scan(void)
 {
-	u8 key_temp = 0;
+	keycode_t key_code = KEYCODE_NONE;
 
-//	KEY_EN_OUT_MODE;
-	KEY_EN1_LOW;
-	KEY_EN2_HIGH;
-	KEY_LED0EN_HIGH;
-	KEY_LED1EN_LOW;
+//	KEY_LED1_5_HIGH;
+//	KEY_LED2_6_HIGH;
+//	KEY_LED3_7_HIGH;
+//	KEY_LED4_HIGH;
+
+	//Scan KROW0
+	KEYLED_ROW0_EN;
+	KEYLED_ROW1_DIS;
+//
+//	KEY_ROW0_LOW;
+//	KEY_ROW1_HIGH;
+//
+//	KEY_LED0_LOW;	//pair with KROW1
+//	KEY_LED1_HIGH;  //pair with KROW0
+	
+	KEY_DATA_INPUT_MODE;
+
+	if(LOW == KEY_DATA1_5_INPUT)
+		key_code = KEYCODE_CAM1;
+	else if(LOW== KEY_DATA2_6_INPUT)
+		key_code = KEYCODE_CAM2;
+	else if(LOW == KEY_DATA3_7_INPUT)
+		key_code = KEYCODE_CAM3;
+	else if(LOW == KEY_DATA4_INPUT)
+		key_code = KEYCODE_CAM4;
+
+//	KEY_ROW0_HIGH;
+//	KEY_ROW1_LOW;
+//	KEY_LED0_LOW;
+//	KEY_LED1_HIGH;
+
+	//Scan KROW1
+	KEYLED_ROW1_EN;
+	KEYLED_ROW0_DIS;
+
+	if(LOW == KEY_DATA1_5_INPUT)
+		key_code = KEYCODE_SPLIT;
+	else if(LOW== KEY_DATA2_6_INPUT)
+		key_code = KEYCODE_FREEZE;
+	else if(LOW == KEY_DATA3_7_INPUT)
+		key_code = KEYCODE_SEQUENCE;
+
+	key_raw_data = key_code;
+	
+	KEYLED_ROW1_DIS;
+	KEYLED_ROW0_DIS;
+//
+//	//Set LED with active key
+//	KEY_DATA_OUTPUT_MODE;
+//	if((key_code & 0x0F) != 0x0F)
+//	{
+//		KEY_LED_ON(key_code);
+//		KEY_LED1_HIGH;
+//	}
+//	else if((key_code & 0xF0) != 0xF0)
+//	{
+//		KEY_LED_ON((key_code >> 4)|0xF0);
+//		KEY_LED0_HIGH;
+//	}
+	led_state = key_code;
+	
+	Key_Led_Ctrl(key_code);
+}
+
+void Key_Led_Ctrl(keycode_t led)
+{
+	static u8 stage = KEYLED_STAGE_LEFT;
+
+	KEY_DATA_OUTPUT_MODE;
 
 	KEY_LED1_5_HIGH;
 	KEY_LED2_6_HIGH;
 	KEY_LED3_7_HIGH;
 	KEY_LED4_HIGH;
-	
-	KEY_DATA_INPUT_MODE;
 
-	if(KEY_DATA1_5_INPUT)
-		key_temp = 0x01;
-	else
-		key_temp = 0x00;
-	if(KEY_DATA2_6_INPUT)
-		key_temp |= 0x02;
-	else
-		key_temp &= 0xfd;
-	if(KEY_DATA3_7_INPUT)
-		key_temp |= 0x04;
-	else
-		key_temp &= 0xfb;
-	if(KEY_DATA4_INPUT)
-		key_temp |= 0x08;
-	else
-		key_temp &= 0xf7;
-	
-	KEY_EN1_HIGH;
-	KEY_EN2_LOW;
-	KEY_LED0EN_LOW;
-	KEY_LED1EN_HIGH;
-
-	
-	if(KEY_DATA1_5_INPUT)
-		key_temp |= 0x10;
-	else
-		key_temp &= 0xef;
-	if(KEY_DATA2_6_INPUT)
-		key_temp |= 0x20;
-	else
-		key_temp &= 0xdf;
-	if(KEY_DATA3_7_INPUT)
-		key_temp |= 0x40;
-	else
-		key_temp &= 0xbf;
-	if(KEY_DATA4_INPUT)
-		key_temp |= 0x80;
-	else
-		key_temp &= 0x7f;
-
-	KEY_EN2_HIGH;
-	KEY_LED1EN_LOW;
-//	KEY_EN_HIZ_MODE;
-//	KEY_DATA_OUTPUT_MODE;
-
-	key_raw_data = key_temp;	
-}
-
-void Key_Led_Ctrl(void)
-{
-	static u8 toggle = 0;
-
-	KEY_DATA_OUTPUT_MODE;
-
-	if(toggle == 0)
+	if(stage == KEYLED_STAGE_LEFT)
 	{
-		toggle = 1;
-		KEY_LED0EN_LOW;
+		KEY_LED0_LOW;
+		if((led & 0x0F) != 0x0F)
+		{
+			KEY_LED_ON(led);
+		}
+		KEY_LED1_HIGH;
 
-		if(led_state & 0x01) 
-			KEY_LED1_5_HIGH;
-		else
-			KEY_LED1_5_LOW;
-
-		if(led_state & 0x02) 
-			KEY_LED2_6_HIGH;
-		else
-			KEY_LED2_6_LOW;
-
-		if(led_state & 0x04)
-			KEY_LED3_7_HIGH;
-		else
-			KEY_LED3_7_LOW;
-
-		if(led_state & 0x08)
-			KEY_LED4_HIGH;
-		else
-			KEY_LED4_LOW;
-
-		KEY_LED1EN_HIGH;
-
+		// Change stage for the next time
+		stage = KEYLED_STAGE_RIGHT;
 	}
-	else //if(toggle == 1)
+	else if(stage == KEYLED_STAGE_RIGHT)
 	{
-		toggle = 0;
-		KEY_LED1EN_LOW;
-
-		if(led_state & 0x10)
-			KEY_LED1_5_HIGH;
-		else
-			KEY_LED1_5_LOW;
-
-		if(led_state & 0x20)
-			KEY_LED2_6_HIGH;
-		else
-			KEY_LED2_6_LOW;
-
-		if(led_state & 0x40)
-			KEY_LED3_7_HIGH;
-		else
-			KEY_LED3_7_LOW;
-		
-		KEY_LED0EN_HIGH;
+		KEY_LED1_LOW;
+		if((led & 0xF0) != 0xF0)
+		{
+			KEY_LED_ON((led>>4)|0xF0);
+			KEY_LED0_HIGH;
+		}
+		KEY_LED0_HIGH;
+		// Change stage for the next time
+		stage = KEYLED_STAGE_LEFT;
 	}
-
-//	KEY_DATA_INPUT_MODE;
 }
 #endif
 
@@ -221,11 +212,11 @@ void Key_Check(void)
 	static u16 temp_key_data = 0;
 
 #ifdef __4CH__
-	if(key_raw_data != 0xff)	
+	if(key_raw_data != KEYCODE_NONE)
 	{	
-        pKey = key_table;			
+        pKey = keycode_table;
         Check_Value = key_raw_data;
-        Count = sizeof(key_table);
+        Count = sizeof(keycode_table);
     }
 #endif
 	else 
@@ -273,7 +264,7 @@ void Key_Check(void)
 	if(key_cnt >= cmp_num)
 	{
         // ���� Ű���� REPEAT ON �̸� 
-        if(key_stat == STAT_KEY_REPEAT)
+        if(key_stat == KEY_STATE_REPEAT)
         {
             key_data = (u8)temp_key_data;	
             cmp_num = 20;
@@ -297,7 +288,7 @@ void Key_Check(void)
 
         
         // ���� Ű���� LONG ON �̸�  
-        else if(key_stat == STAT_KEY_LONG)  
+        else if(key_stat == KEY_STATE_LONG)  
 		{
     		temp_key_flag = 1;
            	if(key_cnt >= 35)
@@ -318,7 +309,7 @@ void Key_Check(void)
         }
         
         // ���� Ű���� SHORT ON �̸�  
-        else if((key_stat == STAT_KEY_SHORT))
+        else if((key_stat == KEY_STATE_SHORT))
         {
             if(!key_repeat_flag)  
             {

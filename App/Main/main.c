@@ -73,13 +73,12 @@ void TIM3_IRQHandler(void)
 
     TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
-	Key_Input();
-//	Key_Check();
-	Key_LED_Set();
-#ifdef __4CH__
-	Key_Led_Ctrl();
-#endif
+	Key_Scan();
 	Key_Check();
+//	Key_LED_Set();
+#ifdef __4CH__
+//	Key_Led_Ctrl();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -448,10 +447,10 @@ void main(void)
 	MDIN3XX_RST_HIGH;	
 	
 	/* Reset key check(Press and hold the menu button during turning on the power to initialize the EEPROM) */
-	key_stat = STAT_KEY_SHORT;
+	key_stat = KEY_STATE_SHORT;
 	for(i = 0; i < 10; i++)
 	{
-		Key_Input();
+		Key_Scan();
 		Key_Check();
 		Delay_ms(20);
 	}
@@ -479,7 +478,7 @@ void main(void)
 	}
 	//--------------------------------------------
 
-	key_stat = STAT_KEY_LONG;
+	key_stat = KEY_STATE_LONG;
 
 	read_eeprom_all();
 	Data_Load();
@@ -539,7 +538,7 @@ void main(void)
 		Auto_Seq_Cnt();
 		Auto_Sequence();
 
-//		Key_Input();
+//		key_scan();
 //		Key_Check();
 //		Key_LED_Set();
 
