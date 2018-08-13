@@ -42,10 +42,10 @@
 #define KEY_LED4_LOW	GPIOB->BRR  = 0x00008000
 
 #define KEY_DATA_OUTPUT_MODE 	GPIOB->CRH = 0x33334b33 	//Change PB12, PB13, PB14, PB15 to Output mode
-#define KEY_DATA1_5_INPUT 		(GPIOB->IDR >> 12) & 0x01	//GPIOB12 status read
-#define KEY_DATA2_6_INPUT 		(GPIOB->IDR >> 13) & 0x01	//GPIOB13 status read
-#define KEY_DATA3_7_INPUT 		(GPIOB->IDR >> 14) & 0x01 	//GPIOB14 status read
-#define KEY_DATA4_INPUT 		(GPIOB->IDR >> 15) & 0x01 	//GPIOB15 status read
+#define KEY_DATA1_5_INPUT 		((GPIOB->IDR >> 12) & 0x00000001)	//GPIOB12 status read
+#define KEY_DATA2_6_INPUT 		((GPIOB->IDR >> 13) & 0x00000001)	//GPIOB13 status read
+#define KEY_DATA3_7_INPUT 		((GPIOB->IDR >> 14) & 0x00000001) 	//GPIOB14 status read
+#define KEY_DATA4_INPUT 		((GPIOB->IDR >> 15) & 0x00000001) 	//GPIOB15 status read
 #define KEY_DATA_INPUT_MODE  	GPIOB->CRH = 0x88884b33 	//Change PB12, PB13, PB14, PB15 to Input mode
 #endif
 

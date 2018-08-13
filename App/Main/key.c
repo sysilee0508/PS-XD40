@@ -92,10 +92,10 @@ void Key_Scan(void)
 {
 	keycode_t key_code = KEYCODE_NONE;
 
-//	KEY_LED1_5_HIGH;
-//	KEY_LED2_6_HIGH;
-//	KEY_LED3_7_HIGH;
-//	KEY_LED4_HIGH;
+	//KEY_LED1_5_HIGH;
+	//KEY_LED2_6_HIGH;
+	//KEY_LED3_7_HIGH;
+	//KEY_LED4_HIGH;
 
 	//Scan KROW0
 	KEYLED_ROW0_EN;
@@ -162,11 +162,6 @@ void Key_Led_Ctrl(keycode_t led)
 
 	KEY_DATA_OUTPUT_MODE;
 
-	KEY_LED1_5_HIGH;
-	KEY_LED2_6_HIGH;
-	KEY_LED3_7_HIGH;
-	KEY_LED4_HIGH;
-
 	if(stage == KEYLED_STAGE_LEFT)
 	{
 		KEY_LED0_LOW;
@@ -184,8 +179,8 @@ void Key_Led_Ctrl(keycode_t led)
 		KEY_LED1_LOW;
 		if((led & 0xF0) != 0xF0)
 		{
-			KEY_LED_ON((led>>4)|0xF0);
-			KEY_LED0_HIGH;
+			KEY_LED_ON((u32)((led>>4)|0xFFFFFFF0));
+			//KEY_LED0_HIGH;
 		}
 		KEY_LED0_HIGH;
 		// Change stage for the next time
