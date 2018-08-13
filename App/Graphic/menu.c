@@ -360,7 +360,7 @@ void SetUP(void)
 
 	bENTER = 0;
 
-	key_stat = KEY_STATE_REPEAT;
+	key_state = KEY_STATE_REPEAT;
   
 	vITEM_X = 0;
 	vITEM_Y = 0;
@@ -519,7 +519,7 @@ void tPAGE0_KEY(void)
 			Erase_Menu_OSD();                          
 			bSETUP = 0;
 			//bMode_Change = 1;
-			key_stat = KEY_STATE_LONG;
+			key_state = KEY_STATE_LONG;
 
 			MDINOSD_SetBGBoxColor(RGB(255,255,255));	// set BG-BOX color //���
 			Set_border_line();
@@ -772,7 +772,8 @@ void tPAGE1_KEY(void)
 
 	switch(key_data)
 	{
-		case UP_KEY : State=0xff;
+		case UP_KEY :
+			State=0xff;
 		case DOWN_KEY : 
 			if(bENTER)
 			{
@@ -865,7 +866,8 @@ void tPAGE1_KEY(void)
 			}
 			break;
 
-		case RIGHT_KEY : State=0xff; 
+		case RIGHT_KEY :
+			State=0xff;
 		case LEFT_KEY  : 
 			if(bENTER)
 			{
@@ -975,7 +977,8 @@ void tPAGE2_KEY(void)
 
 	switch(key_data)
 	{
-	  	case UP_KEY  :   State=0xff;
+	  	case UP_KEY  :
+	  		State=0xff;
 	    case DOWN_KEY  : 
 	    	if(bENTER)
 			{  
@@ -1007,7 +1010,8 @@ void tPAGE2_KEY(void)
 			}
 	  		break;
 
-		case RIGHT_KEY : State=0xff; 
+		case RIGHT_KEY :
+			State=0xff;
 		case LEFT_KEY  : 
 	    	if(bENTER)
 			{
@@ -1170,7 +1174,8 @@ void tPAGE3_KEY(void)
 	u8 State=0;		
 
 	switch(key_data){
-  	case UP_KEY  :  State=0xff;
+  	case UP_KEY  :
+  		State=0xff;
     case DOWN_KEY  : 
 		if(bENTER)
 		{

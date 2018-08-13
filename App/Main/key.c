@@ -264,7 +264,7 @@ void Key_Check(void)
 	if(key_cnt >= cmp_num)
 	{
         // ���� Ű���� REPEAT ON �̸� 
-        if(key_stat == KEY_STATE_REPEAT)
+        if(key_state == KEY_STATE_REPEAT)
         {
             key_data = (u8)temp_key_data;	
             cmp_num = 20;
@@ -288,7 +288,7 @@ void Key_Check(void)
 
         
         // ���� Ű���� LONG ON �̸�  
-        else if(key_stat == KEY_STATE_LONG)  
+        else if(key_state == KEY_STATE_LONG)
 		{
     		temp_key_flag = 1;
            	if(key_cnt >= 35)
@@ -309,7 +309,7 @@ void Key_Check(void)
         }
         
         // ���� Ű���� SHORT ON �̸�  
-        else if((key_stat == KEY_STATE_SHORT))
+        else if((key_state == KEY_STATE_SHORT))
         {
             if(!key_repeat_flag)  
             {
