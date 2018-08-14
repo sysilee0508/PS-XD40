@@ -156,7 +156,7 @@ void IRQ_Init(void)
 
 	TIM3->CR1 = 0x0005;				// up-counter enable
 	TIM3->PSC = 639;	
-	TIM3->ARR = 1999;					// 64MHz/(1+639)/(1+1999) = 50Hz  --> 20ms
+	TIM3->ARR = 999;					// 64MHz/(1+639)/(1+1999) = 50Hz  --> 20ms
 	TIM3->SR = 0x0000;				// clear TIM3 interrupt flags
 	TIM3->DIER = 0x0001;			// enable TIM3 update interrupt
 	//Setting timer interrupt 20ms--------------------------------------------

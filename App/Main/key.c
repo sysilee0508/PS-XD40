@@ -50,7 +50,7 @@ const static keydata_e key_table[] =
 
 #define NUM_OF_KEYS			sizeof(key_table) //7
 
-#define KEYCOUNT_SHORT		3
+#define KEYCOUNT_SHORT          4
 #define KEYCOUNT_REPEAT		20
 #define KEYCOUNT_LONG		35
 //
@@ -163,9 +163,6 @@ void Key_Scan(void)
 		key_code = KEYCODE_SEQUENCE;
 
 	KEY_ROW1_HIGH;
-
-	KEY_LED0_HIGH;
-	KEY_LED1_HIGH;
 
 	// Update current_keycode
 	current_keycode = key_code;
