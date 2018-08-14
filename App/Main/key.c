@@ -25,10 +25,10 @@ static key_mode_e key_mode = KEY_MODE_LONG;
 //=============================================================================
 const static keycode_t keycode_table[] =
 {
-	KEYCODE_CAM1, 		//0xFE	1111 1110	254
- 	KEYCODE_CAM2, 		//0xFD 	1111 1101	253
-	KEYCODE_CAM3, 		//0xFB 	1111 1011 	251
-	KEYCODE_CAM4, 		//0xF7 	1111 0111 	247
+	KEYCODE_CH1, 		//0xFE	1111 1110	254
+ 	KEYCODE_CH2, 		//0xFD 	1111 1101	253
+	KEYCODE_CH3, 		//0xFB 	1111 1011 	251
+	KEYCODE_CH4, 		//0xF7 	1111 0111 	247
 
 	KEYCODE_SPLIT, 		//0xEF 	1110 1111 	239
 	KEYCODE_FREEZE, 	//0xDF 	1101 1111 	223
@@ -126,7 +126,6 @@ void Key_LED_Set(void)
 #endif
 }
 
-#ifdef __4CH__
 void Key_Scan(void)
 {
 	keycode_t key_code = KEYCODE_NONE;
@@ -143,13 +142,13 @@ void Key_Scan(void)
 	KEY_ROW0_LOW;
 	
 	if(LOW == KEY_DATA1_5_INPUT)
-		key_code = KEYCODE_CAM1;
+		key_code = KEYCODE_CH1;
 	else if(LOW== KEY_DATA2_6_INPUT)
-		key_code = KEYCODE_CAM2;
+		key_code = KEYCODE_CH2;
 	else if(LOW == KEY_DATA3_7_INPUT)
-		key_code = KEYCODE_CAM3;
+		key_code = KEYCODE_CH3;
 	else if(LOW == KEY_DATA4_INPUT)
-		key_code = KEYCODE_CAM4;
+		key_code = KEYCODE_CH4;
 
 	//Scan KROW1
 	KEY_ROW0_HIGH;
@@ -177,17 +176,17 @@ void Key_Led_Ctrl(void)
 	{
 		KEY_DATA_OUTPUT_MODE;
 
-		// If key data is changed, turn off all leds
-		if(key_data != pre_key_data)
-		{
-			KEY_LED0_LOW;
-			KEY_LED1_LOW;
-
-			KEY_LED1_5_HIGH;
-			KEY_LED2_6_HIGH;
-			KEY_LED3_7_HIGH;
-			KEY_LED4_HIGH;
-		}
+//		// If key data is changed, turn off all leds
+//		if(key_data != pre_key_data)
+//		{
+//			KEY_LED0_LOW;
+//			KEY_LED1_LOW;
+//
+//			KEY_LED1_5_HIGH;
+//			KEY_LED2_6_HIGH;
+//			KEY_LED3_7_HIGH;
+//			KEY_LED4_HIGH;
+//		}
 
 		if(stage == KEYLED_STAGE_LEFT)
 		{
@@ -211,7 +210,6 @@ void Key_Led_Ctrl(void)
 	// Change stage for the next time
 	stage = (++stage) % KEYLED_STAGE_MAX;
 }
-#endif
 
 //-----------------------------------------------------------------------------
 //	KeyINPUT()�Լ����� ���� ���� ���¿� ���� �ٽ� ó���ϴ� �Լ�	(20ms���� ����)
@@ -246,7 +244,7 @@ void Key_Check(void)
 	}
 
 	// Find index of key code table
-	for(i=0; i< sizeof(keycode_table); i++)
+	for(i=0; i< NUM_OF_KEYS; i++)
 	{
 		if(*(pKeyCode+i) == current_keycode)
 		{
@@ -254,7 +252,7 @@ void Key_Check(void)
 		}
 	}
 
-	if(i < sizeof(keycode_table))
+	if(i < NUM_OF_KEYS)
 	{
 		if(key_table[i] != temp_key_data)
 		{

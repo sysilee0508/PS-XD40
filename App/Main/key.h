@@ -24,19 +24,16 @@
 // Key Codes
 #define KEYCODE_NONE		0x7F	//0111 1111
 // Left 4keys
-#define KEYCODE_CAM1		0xFE	//1111 1110
-#define KEYCODE_CAM2        0xFD	//1111 1101
-#define KEYCODE_CAM3		0xFB	//1111 1011
-#define KEYCODE_CAM4		0xF7	//1111 0111
+#define KEYCODE_CH1			0xFE	//1111 1110
+#define KEYCODE_CH2			0xFD	//1111 1101
+#define KEYCODE_CH3			0xFB	//1111 1011
+#define KEYCODE_CH4			0xF7	//1111 0111
 // Right 3keys
 #define KEYCODE_SPLIT		0xEF	//1110 1111
 #define KEYCODE_FREEZE		0xDF	//1101 1111
 #define KEYCODE_SEQUENCE	0xBF	//1011 1111
-//
-//#define KEYLED_STAGE_LEFT	0		// krow0 && led1
-//#define KEYLED_STAGE_RIGHT	1		// krow1 && led0
 
-#define KEY_LONG		0x80
+#define KEY_LONG			0x80
 
 //=============================================================================
 //  typedef
@@ -57,11 +54,13 @@ typedef enum
 	KEY_FULL_CH2,
 	KEY_FULL_CH3,
 	KEY_FULL_CH4,
-//	KEY_FULL_CH5,
-//	KEY_FULL_CH6,
-//	KEY_FULL_CH7,
-//	KEY_FULL_CH8,
-//	KEY_FULL_CH9,
+#ifdef __9CH_DEVICE__
+	KEY_FULL_CH5,
+	KEY_FULL_CH6,
+	KEY_FULL_CH7,
+	KEY_FULL_CH8,
+	KEY_FULL_CH9,
+#endif
 	KEY_4SPLIT			= 0x15,
 	KEY_9SPLIT			= 0x16,
 	KEY_FREEZE			= 0x19,
@@ -81,24 +80,6 @@ enum
 	KEYLED_STAGE_RIGHT,
 	KEYLED_STAGE_MAX
 };
-
-//#define LED_STAT_4SPLIT		0xfeffffff
-//#define LED_STAT_9SPLIT		0xfdffffff
-//#define LED_STAT_FREEZE		0xfbffffff
-//#define LED_STAT_SEQ			0xf7ffffff
-
-//#define LED_STAT_16SPLIT	0xffffffff
-//#define LED_STAT_20SPLIT	0xffffffff
-//
-//#define QUEUE_SIZE	10
-//#define NEXT(index)	((index+1)%QUEUE_SIZE)
-//
-//typedef struct Queue
-//{
-//	int buf[QUEUE_SIZE];
-//	int front;
-//	int rear;
-//}Queue;
 
 //=============================================================================
 //  Function Prototype
