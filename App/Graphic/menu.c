@@ -159,7 +159,7 @@ u8 vPAGE = 0;
 u8 vITEM_X = 0;
 u8 vITEM_Y = 0;
 u8 bENTER = 0;
-u8 bSETUP = 0;
+static u8 bSETUP = 0;
 
 u8 vOSD_B[2];
 

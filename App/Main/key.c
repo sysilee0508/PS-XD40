@@ -96,9 +96,8 @@ void Key_Scan(void)
 	static keycode_t active_key_code = KEYCODE_NONE;
 	keycode_t key_code = KEYCODE_NONE;
 
-	KEY_LED0_LOW;
-	KEY_LED1_LOW;
-	//KEY_ROWS_OUT_MODE;
+    //KEY_ROWS_OUT_MODE;
+
 	//Scan KROW0
 	//KEYLED_ROW0_EN;
 	//KEYLED_ROW1_DIS;
