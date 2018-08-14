@@ -22,7 +22,7 @@
 //#define MENU_KEY		0x0E
 
 // Key Codes
-#define KEYCODE_NONE		0xFF	//1111 1111
+#define KEYCODE_NONE		0x7F	//0111 1111
 // Left 4keys
 #define KEYCODE_CAM1		0xFE	//1111 1110
 #define KEYCODE_CAM2        0xFD	//1111 1101
@@ -32,27 +32,11 @@
 #define KEYCODE_SPLIT		0xEF	//1110 1111
 #define KEYCODE_FREEZE		0xDF	//1101 1111
 #define KEYCODE_SEQUENCE	0xBF	//1011 1111
-
-#define KEYLED_STAGE_LEFT	0		// krow0 && led1
-#define	KEYLED_STAGE_RIGHT	1		// krow1 && led0
+//
+//#define KEYLED_STAGE_LEFT	0		// krow0 && led1
+//#define KEYLED_STAGE_RIGHT	1		// krow1 && led0
 
 #define KEY_LONG		0x80
-
-#define KEY_FULL_CH1	0x01
-#define KEY_FULL_CH2	0x02
-#define KEY_FULL_CH3	0x03
-#define KEY_FULL_CH4	0x04
-#define KEY_FULL_CH5	0x05
-#define KEY_FULL_CH6	0x06
-#define KEY_FULL_CH7	0x07
-#define KEY_FULL_CH8	0x08
-#define KEY_FULL_CH9	0x09
-#define KEY_4SPLIT		0x15
-#define KEY_FREEZE		0x19
-#define KEY_FREEZE_LONG (KEY_FREEZE | KEY_LONG)
-#define KEY_AUTO_SEQ	0x1A
-#define KEY_9SPLIT		0x16
-#define KEY_MENU		KEY_FREEZE_LONG
 
 //=============================================================================
 //  typedef
@@ -65,17 +49,43 @@ typedef enum KeyMode
 	KEY_MODE_MAX
 } key_mode_e;
 
-typedef u8 keycode_t;
-//
-//#define STAT_KEY_SHORT      0x00
-//#define KEY_STATE_LONG       0x01
-//#define KEY_STATE_REPEAT     0x02
+typedef enum
+{
+	KEY_NONE 			= 0x00,
+//----Short Keys-------------------------------------	
+	KEY_FULL_CH1		= 0x01,
+	KEY_FULL_CH2,
+	KEY_FULL_CH3,
+	KEY_FULL_CH4,
+//	KEY_FULL_CH5,
+//	KEY_FULL_CH6,
+//	KEY_FULL_CH7,
+//	KEY_FULL_CH8,
+//	KEY_FULL_CH9,
+	KEY_4SPLIT			= 0x15,
+//	KEY_9SPLIT			= 0x16,
+	KEY_FREEZE			= 0x19,
+	KEY_AUTO_SEQ		= 0x1A,
+//----Long Keys--------------------------------------
+	KEY_FREEZE_LONG		= KEY_FREEZE | KEY_LONG,
+	KEY_MENU			= KEY_FREEZE_LONG,
+//---------------------------------------------------
+	KEY_MAX				= 0xFF
+} keydata_e;
 
+typedef u8 keycode_t;
+
+enum
+{
+	KEYLED_STAGE_LEFT = 0,
+	KEYLED_STAGE_RIGHT,
+	KEYLED_STAGE_MAX
+};
 
 //#define LED_STAT_4SPLIT		0xfeffffff
 //#define LED_STAT_9SPLIT		0xfdffffff
 //#define LED_STAT_FREEZE		0xfbffffff
-//#define LED_STAT_SEQ		0xf7ffffff
+//#define LED_STAT_SEQ			0xf7ffffff
 
 //#define LED_STAT_16SPLIT	0xffffffff
 //#define LED_STAT_20SPLIT	0xffffffff
@@ -100,9 +110,11 @@ extern void Key_Check(void);
 extern void Key_Proc(void);
 extern void Key_Led_Ctrl(void);
 
+// Interface
 extern void SetKeyMode(key_mode_e mode);
 extern key_mode_e GetKeyMode(void);
-
+extern void SetLedState(keycode_t leds);
+extern keycode_t GetLedState(void);
 
 //=============================================================================
 //  Extern Grobal Variable 

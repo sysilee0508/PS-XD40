@@ -7,35 +7,36 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
-u8 key_raw_data = 0;
-u8 key_flag = 0;
-u8 key_data = 0;
-u8 pre_key_data = 0;
+BOOL key_flag = CLEAR;
+keydata_e key_data = KEY_NONE;
+keydata_e pre_key_data = KEY_NONE;
 //u16 led_state = 0xffff;
-u8 bFreeze = 0;
+BOOL bFreeze = CLEAR;
 
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
-static u8 led_state = 0xff;
+static keycode_t current_keycode = KEYCODE_NONE;
+//static keycode_t led_state = KEYCODE_NONE;
 static key_mode_e key_mode = KEY_MODE_LONG;
 
 //=============================================================================
 //  Constant Array Declaration (data table)
 //=============================================================================
-#ifdef __4CH__
 const static keycode_t keycode_table[] =
 {
-	KEYCODE_CAM1, 	// KEY_1 	//1111 1110 	//254
- 	KEYCODE_CAM2, 	// KEY_2 	//1111 1101 	//253
-	KEYCODE_CAM3, 	// KEY_3 	//1111 1011 	//251
-	KEYCODE_CAM4, 	// KEY_4 	//1111 0111 	//247
-	KEYCODE_SPLIT, 	// KEY_2x2 	//1110 1111 	//239
-	KEYCODE_FREEZE, 	// KEY_FRZ(KEY_MENU_ESC) //1101 1111 //223
-	KEYCODE_SEQUENCE, 	// KEY_SEQ 	// 1011 1111 	//191
+	KEYCODE_CAM1, 		//0xFE	1111 1110	254
+ 	KEYCODE_CAM2, 		//0xFD 	1111 1101	253
+	KEYCODE_CAM3, 		//0xFB 	1111 1011 	251
+	KEYCODE_CAM4, 		//0xF7 	1111 0111 	247
+
+	KEYCODE_SPLIT, 		//0xEF 	1110 1111 	239
+	KEYCODE_FREEZE, 	//0xDF 	1101 1111 	223
+	KEYCODE_SEQUENCE, 	//0xBF 	1011 1111 	191
+	KEYCODE_NONE		//0x7f	0111 1111	127
 };
 
-const static u8 key_table[] =
+const static keydata_e key_table[] =
 {
 	KEY_FULL_CH1,
 	KEY_FULL_CH2,
@@ -46,20 +47,55 @@ const static u8 key_table[] =
 	KEY_FREEZE,
 	KEY_AUTO_SEQ,
 };
-#endif
+
+#define NUM_OF_KEYS			sizeof(key_table) //7
 
 #define KEYCOUNT_SHORT		3
 #define KEYCOUNT_REPEAT		20
 #define KEYCOUNT_LONG		35
-
-#define KEYLED_ROW0_EN		KEY_ROW0_LOW; KEY_LED1_HIGH;
-#define KEYLED_ROW0_DIS		KEY_ROW0_HIGH; KEY_LED1_LOW;
-#define KEYLED_ROW1_EN		KEY_ROW1_LOW; KEY_LED0_HIGH;
-#define KEYLED_ROW1_DIS		KEY_ROW1_HIGH; KEY_LED0_LOW;
+//
+//#define KEYLED_ROW0_EN		KEY_ROW0_LOW; KEY_LED1_HIGH;
+//#define KEYLED_ROW0_DIS		KEY_ROW0_HIGH; KEY_LED1_LOW;
+//#define KEYLED_ROW1_EN		KEY_ROW1_LOW; KEY_LED0_HIGH;
+//#define KEYLED_ROW1_DIS		KEY_ROW1_HIGH; KEY_LED0_LOW;
 
 //=============================================================================
 //  Function Definition
 //=============================================================================
+
+//-----------------------------------------------------------------------------
+// Interface
+//-----------------------------------------------------------------------------
+void SetKeyMode(key_mode_e mode)
+{
+	key_mode = mode;
+}
+
+key_mode_e GetKeyMode(void)
+{
+	return key_mode;
+}
+//-----------------------------------------------------------------------------
+keycode_t GetKeyCode(keydata_e key)
+{
+	keycode_t code = KEYCODE_NONE;
+	u8 i;
+
+	for(i=0; i<NUM_OF_KEYS; i++)
+	{
+		if(key == key_table[i])
+		{
+			break;
+		}
+	}
+
+	if(i < NUM_OF_KEYS)
+	{
+		code = keycode_table[i];
+	}
+
+	return code;
+}
 
 //-----------------------------------------------------------------------------
 //  ���� ȭ�� ���¿� ���� Ű������ LED�� � ������ �� ���ΰ��� ó���ϴ� �Լ�
@@ -96,11 +132,7 @@ void Key_Scan(void)
 	static keycode_t active_key_code = KEYCODE_NONE;
 	keycode_t key_code = KEYCODE_NONE;
 
-    //KEY_ROWS_OUT_MODE;
-
 	//Scan KROW0
-	//KEYLED_ROW0_EN;
-	//KEYLED_ROW1_DIS;
 	KEY_ROW1_HIGH;
 	KEY_ROW0_LOW;
 	
@@ -115,13 +147,7 @@ void Key_Scan(void)
 	else if(LOW == KEY_DATA4_INPUT)
 		key_code = KEYCODE_CAM4;
 
-	//KEY_LED1_HIGH;
-	//KEY_LED0_LOW;
-	
 	//Scan KROW1
-	//KEYLED_ROW0_DIS;
-	//KEYLED_ROW1_EN;
-
 	KEY_ROW0_HIGH;
 	KEY_ROW1_LOW;
 
@@ -133,53 +159,60 @@ void Key_Scan(void)
 		key_code = KEYCODE_SEQUENCE;
 
 	KEY_ROW1_HIGH;
-	//KEYLED_ROW1_DIS;
-	//KEYLED_ROW0_DIS;
-
 	//KEY_EN_HIZ_MODE;
 	
-	if(key_code != KEYCODE_NONE)
-	{
-		active_key_code = key_code;
-	}
-	led_state = active_key_code;
-	key_raw_data = key_code;
+//	if(key_code != KEYCODE_NONE)
+//	{
+//		active_key_code = key_code;
+//	}
+//	led_state = active_key_code;
+
+	// Update current_keycode
+	current_keycode = key_code;
 }
 
 void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
+	keycode_t leds = GetKeyCode();
 
-	KEY_DATA_OUTPUT_MODE;
-	
-	KEY_LED1_5_HIGH;
-	KEY_LED2_6_HIGH;
-	KEY_LED3_7_HIGH;
-	KEY_LED4_HIGH;
-
-	if(stage == KEYLED_STAGE_LEFT)
+	if(leds != KEYCODE_NONE)
 	{
-		KEY_LED0_LOW;
-		if((led_state & 0x0F) != 0x0F)
-		{
-			KEY_LED_ON(led_state);
-		}
-		KEY_LED1_HIGH;
+		KEY_DATA_OUTPUT_MODE;
 
-		// Change stage for the next time
-		stage = KEYLED_STAGE_RIGHT;
-	}
-	else if(stage == KEYLED_STAGE_RIGHT)
-	{
-		KEY_LED1_LOW;
-		if((led_state & 0xF0) != 0xF0)
+		// If key data is changed, turn off all leds
+		if(key_data != pre_key_data)
 		{
-			KEY_LED_ON((u32)((led_state>>4)|0xFFFFFFF0));
+			KEY_LED0_LOW;
+			KEY_LED1_LOW;
+
+			KEY_LED1_5_HIGH;
+			KEY_LED2_6_HIGH;
+			KEY_LED3_7_HIGH;
+			KEY_LED4_HIGH;
 		}
-		KEY_LED0_HIGH;
-		// Change stage for the next time
-		stage = KEYLED_STAGE_LEFT;
+
+		if(stage == KEYLED_STAGE_LEFT)
+		{
+			KEY_LED0_LOW;
+			if((leds & 0x0F) != 0x0F)
+			{
+				KEY_LED_ON(leds);
+			}
+			KEY_LED1_HIGH;
+		}
+		else if(stage == KEYLED_STAGE_RIGHT)
+		{
+			KEY_LED1_LOW;
+			if((leds & 0xF0) != 0xF0)
+			{
+				KEY_LED_ON((u32)((leds>>4)|0xFFFFFFF0));
+			}
+			KEY_LED0_HIGH;
+		}
 	}
+	// Change stage for the next time
+	stage = (++stage) % KEYLED_STAGE_MAX;
 }
 #endif
 
@@ -188,15 +221,15 @@ void Key_Led_Ctrl(void)
 //-----------------------------------------------------------------------------
 void Key_Check(void)	
 {
-	const u8 *pKey;	
-	u8 i;
+	const keycode_t *pKeyCode;
 	static BOOL bLongKey = CLEAR;
 	static BOOL bRepeatKey = CLEAR;
 	static u8 debounce_cnt = KEYCOUNT_SHORT;
 	static u8 key_cnt = 0;
-	static u8 temp_key_data = 0;
+	static keydata_e temp_key_data = 0;
+	u8 i;
 
-	if(key_raw_data == KEYCODE_NONE)
+	if(current_keycode == KEYCODE_NONE)
 	{
         if(SET == bLongKey)
 		{
@@ -212,13 +245,13 @@ void Key_Check(void)
 	}
 	else
 	{
-        pKey = keycode_table;
+		pKeyCode = keycode_table;
 	}
 
 	// Find index of key code table
 	for(i=0; i< sizeof(keycode_table); i++)
 	{
-		if(*(pKey+i) == key_raw_data)
+		if(*(pKeyCode+i) == current_keycode)
 		{
 			break;
 		}
@@ -271,16 +304,18 @@ void Key_Check(void)
 
 			case KEY_MODE_LONG:
 				bLongKey = SET;
-				if((key_cnt >= KEYCOUNT_LONG) && (RESET == bRepeatKey))
+				if((key_cnt >= KEYCOUNT_LONG) && (CLEAR == bRepeatKey))
 				{
 					bRepeatKey = SET;
-					bLongKey = RESET;
+					bLongKey = CLEAR;
 					key_flag = SET;
 
 					if(temp_key_data == KEY_FREEZE)
 						key_data = KEY_MENU;
-//					else if(temp_key_data == KEY_9SPLIT)
-//						key_data = KEY_9SPLIT | KEY_LONG;
+#ifdef __9CH_DEVICE__
+					else if(temp_key_data == KEY_9SPLIT)
+						key_data = KEY_9SPLIT | KEY_LONG;
+#endif //__9CH_DEVICE__
 					else
 						key_data = temp_key_data;
 				}
@@ -316,11 +351,13 @@ void Key_Proc(void)
 			case KEY_FULL_CH2 : 
 			case KEY_FULL_CH3 : 
 			case KEY_FULL_CH4 : 
+#ifdef __9CH_DEVICE__
 			case KEY_FULL_CH5 : 
 			case KEY_FULL_CH6 : 
 			case KEY_FULL_CH7 : 
 			case KEY_FULL_CH8 : 
 			case KEY_FULL_CH9 :
+#endif
 				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
 				{
 					//if(pre_split_mode > FULL_9) //2015.5.23 �ּ�ó��
@@ -332,6 +369,7 @@ void Key_Proc(void)
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = key_data-1;
+#ifdef __9CH_DEVICE__
 					if(key_data == KEY_FULL_CH9)
 					{
 						Set_border_line();
@@ -340,35 +378,28 @@ void Key_Proc(void)
 						DEMO_SetPIPViewWIND(0);	// update pip/pop window
 					}
 					else
+#endif
 					{
 						aux_display_flag = RESET;
 						//MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-#if 0 //Louis
-						FullScreen(key_data-1);
-#endif
+						//FullScreen(key_data-1); //blocked by Louis
 						Set_border_line();
 					}
 				}
 				break;
 				
 			case KEY_4SPLIT : 
-#ifdef __4CH__				
 				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
-#endif	
 				{
-#ifdef __4CH__				
 					if(pre_split_mode != SPLIT4_1 || bAuto_Seq_Flag || bFreeze)
-#endif
 					{
 						Erase_OSD();
 					}
-					bFreeze = RESET;
-					bAuto_Seq_Flag = RESET;
+					bFreeze = CLEAR;
+					bAuto_Seq_Flag = CLEAR;
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
-#ifdef __4CH__				
 					pre_split_mode = sys_status.current_split_mode = SPLIT4_1;
-#endif
 					aux_display_flag = RESET;
 					//MDIN3xx_EnableAuxDisplay(&stVideo, OFF); 
 #if 0 //Louis
@@ -378,7 +409,7 @@ void Key_Proc(void)
 				}
 				break;
 
-#if 0 // block 9 split
+#ifdef __9CH_DEVICE__ // blocked by kukuri
 			case KEY_9SPLIT : 
 				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
 				{
@@ -508,21 +539,21 @@ void Key_Proc(void)
 				write_eeprom_all();
 
 				break;
-#endif // block 9 split
+#endif // __9CH_DEVICE__
 			case KEY_FREEZE : 
-				bAuto_Seq_Flag = RESET;
-				if(bFreeze == RESET)
+				bAuto_Seq_Flag = CLEAR;
+				if(bFreeze == CLEAR)
 				{
 					bFreeze = SET;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
-					// don't need aut display for now ....kukuri
+					// don't need aut display for now Right?....by kukuri
 					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 1);	//aux freeze On
 				}
 				else 
 				{
 					bFreeze = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					// don't need aut display for now ....kukuri
+					// don't need aut display for now Right?....by kukuri
 					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
 				}
 				break;
@@ -530,10 +561,8 @@ void Key_Proc(void)
 			case KEY_AUTO_SEQ :
 				if(sys_env.bLossAutoSkip)
 				{
-#ifdef __4CH__
 					if((vVideo_Loss&0x0000000f) == 0x0000000f)  // what the magic number!!!!
 						break;
-#endif
 				}
 
 				if(bAuto_Seq_Flag == CLEAR)
@@ -543,6 +572,7 @@ void Key_Proc(void)
 				//bMode_change_flag = SET;
 				bFreeze = CLEAR;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+				// don't need aut display for now Right?....by kukuri
 				//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
 
 				Auto_Seq_Init();
@@ -552,21 +582,13 @@ void Key_Proc(void)
 				bAuto_Seq_Flag = CLEAR;
 				bFreeze = SET;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+				// don't need aut display for now Right?....by kukuri
 				//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
 				Enter_SetUP();
 				break;
 		}
-
 		pre_key_data = key_data & 0x7f;
 	}
 }
 
-void SetKeyMode(key_mode_e mode)
-{
-	key_mode = mode;
-}
 
-key_mode_e GetKeyMode(void)
-{
-	return key_mode;
-}

@@ -1,7 +1,7 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-//#define __9CH__
+#undef __9CH_DEVICE__
 #define __4CH__
 
 #define cSYSENV_vCORRECT_OFFSET 	 1
@@ -50,61 +50,61 @@
 #define MENU_VIEW	1
 
 //-----------------------------------------------------------------------------
-//  °¢Á¾ ½Ã½ºÅÛ »óÅÂ º¯¼ö
+//  ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 //-----------------------------------------------------------------------------
 typedef struct
 {
-//	unsigned char output_resolution;		// ¸ð´ÏÅÍ Ãâ·Â ÇØ»óµµ
-//	unsigned int  output_h_size;			// Ãâ·ÂÇØ»óµµ °¡·Î Å©±â
-//	unsigned int  output_v_size;			// Ãâ·ÂÇà»óµµ ¼¼·Î Å©±â
+//	unsigned char output_resolution;		// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ø»ï¿½
+//	unsigned int  output_h_size;			// ï¿½ï¿½ï¿½ï¿½Ø»ï¿½ ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½
+//	unsigned int  output_v_size;			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½
 
-	unsigned char current_mode;				// ÇöÀç »óÅÂ (º¸Åë ºÐÇÒ ¸ðµå, ¸Þ´º¸ðµå)
-	unsigned char current_split_mode;		// ÇöÀç ºÐÇÒ¸ðµå »óÅÂ (FULL, 4ºÐÇÒ, 9ºÐÇÒ)
+	unsigned char current_mode;				// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½Þ´ï¿½ï¿½ï¿½ï¿½)
+	unsigned char current_split_mode;		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (FULL, 4ï¿½ï¿½ï¿½ï¿½, 9ï¿½ï¿½ï¿½ï¿½)
 	
 } sys_stat_t;
 
 
 typedef struct
 {
-//	u8 bVideo_format;		// ºñµð¿À ÀÔ·Â Æ÷¸Ë(NTSC, PAL)
-//	SCR_MODE vSCR_MODE; 	// ¸ð´ÏÅÍ ÇØ»óµµ
+//	u8 bVideo_format;		// ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ ï¿½ï¿½ï¿½ï¿½(NTSC, PAL)
+//	SCR_MODE vSCR_MODE; 	// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø»ï¿½
 
-	u8 vCORRECT_OFFSET; 	// RTC ½Ã°£ º¸Á¤ offset°ª
-	u8 bVECTOR;				// RTC º¸Á¤ +, - ¼³Á¤
-	u8 bCORRECT;			// RTC ½Ã°£ º¸Á¤ ±âÁØ day, mon
-	u8 vDATE_FORMAT;		// ¾Æ½Ã¾Æ, ¹Ì±¹, À¯·´ ¹æ½ÄÀ¸·Î ½Ã°£ Ç¥½Ã
-//	u8 bYEAR_FORMAT;		// ¿¬µµ Ç¥½Ã¸¦ 4ÀÚ¸®·Î ÇÒÁö 2ÀÚ¸®·Î ÇÒÁö ¼³Á¤
-	u8 bTIME_ON;			// ½Ã°£Ç¥½Ã ON/OFF
-//	u8 vTIME_Size;      	// È­¸é¿¡ Ç¥½ÃµÇ´Â ½Ã°£ÀÇ ±ÛÀÚ Å©±â 
-	u8 vTIME_Position;  	// È­¸é¿¡ Ç¥½ÃµÇ´Â ½Ã°£ÀÇ À§Ä¡  
+	u8 vCORRECT_OFFSET; 	// RTC ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ offsetï¿½ï¿½
+	u8 bVECTOR;				// RTC ï¿½ï¿½ï¿½ï¿½ +, - ï¿½ï¿½ï¿½ï¿½
+	u8 bCORRECT;			// RTC ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ day, mon
+	u8 vDATE_FORMAT;		// ï¿½Æ½Ã¾ï¿½, ï¿½Ì±ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ Ç¥ï¿½ï¿½
+//	u8 bYEAR_FORMAT;		// ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½Ã¸ï¿½ 4ï¿½Ú¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 2ï¿½Ú¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	u8 bTIME_ON;			// ï¿½Ã°ï¿½Ç¥ï¿½ï¿½ ON/OFF
+//	u8 vTIME_Size;      	// È­ï¿½é¿¡ Ç¥ï¿½ÃµÇ´ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ 
+	u8 vTIME_Position;  	// È­ï¿½é¿¡ Ç¥ï¿½ÃµÇ´ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡  
 
-	u8 vCH_NAME[9][12]; 	// Ã¤³Î¸í ÀúÀå
-	u8 bTITLE_ON;		 	// Ã¤³Î¸í Ç¥½Ã ON/OFF
+	u8 vCH_NAME[9][12]; 	// Ã¤ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½
+	u8 bTITLE_ON;		 	// Ã¤ï¿½Î¸ï¿½ Ç¥ï¿½ï¿½ ON/OFF
 
 	u8 vDWELL[3];	    	// SEQ Dwell time(FULL,4split,9split)
-	u8 bLossAutoSkip;   	// ÀÔ·Â ¾ø´Â Ã¤³Î SEQ Á¦¿Ü ¼³Á¤
+	u8 bLossAutoSkip;   	// ï¿½Ô·ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¤ï¿½ï¿½ SEQ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	u8 vResolution;			// ¸ð´ÏÅÍ ÇØ»óµµ
-//	u8 vSPOT_type;			// SPOT type ÁöÁ¤ FULL, QUAD ¼±ÅÃ 
-//	u8 vSPOT_mode_FULL[4]; 	// SPOT Å¸ÀÔÀÌ FULLÀÏ¶§ mode 
-//	u8 vSPOT_mode_QUAD[4]; 	// SPOT Å¸ÀÔÀÌ QUADÀÏ¶§ mode 
-	u8 bOSD_Display;		// È­¸é¿¡ ±ÛÀÚ Ç¥½Ã ON/OFF
-//	u8 vOSD_Size;	    	// ±ÛÀÚ Å©±â ÁöÁ¤ 0:¼Ò 1:Áß 2:´ë
-	u8 vOSD_Position;		// ±ÛÀÚ À§Ä¡
-	u8 border_line;			// º¸´õ¶óÀÎ À¯¹«
+	u8 vResolution;			// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø»ï¿½
+//	u8 vSPOT_type;			// SPOT type ï¿½ï¿½ï¿½ï¿½ FULL, QUAD ï¿½ï¿½ï¿½ï¿½ 
+//	u8 vSPOT_mode_FULL[4]; 	// SPOT Å¸ï¿½ï¿½ï¿½ï¿½ FULLï¿½Ï¶ï¿½ mode 
+//	u8 vSPOT_mode_QUAD[4]; 	// SPOT Å¸ï¿½ï¿½ï¿½ï¿½ QUADï¿½Ï¶ï¿½ mode 
+	u8 bOSD_Display;		// È­ï¿½é¿¡ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ ON/OFF
+//	u8 vOSD_Size;	    	// ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 0:ï¿½ï¿½ 1:ï¿½ï¿½ 2:ï¿½ï¿½
+	u8 vOSD_Position;		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
+	u8 border_line;			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	
-//	u16 vMOTION_EN;			// ¸ð¼Ç ON/OFF		
-//	u8 bMotion_Mode;		// ¸ð¼Ç ¸ðµå(FULL, SPLIT)	
-//	u16 vAlarm;				// ¾Ë¶÷ 	
-//	u8 vAlarm_Display_Time; // ¾Ë¶÷ Ãâ·Â Ç¥½Ã Áö¼Ó½Ã°£	
+//	u16 vMOTION_EN;			// ï¿½ï¿½ï¿½ ON/OFF		
+//	u8 bMotion_Mode;		// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½(FULL, SPLIT)	
+//	u16 vAlarm;				// ï¿½Ë¶ï¿½ 	
+//	u8 vAlarm_Display_Time; // ï¿½Ë¶ï¿½ ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½Ó½Ã°ï¿½	
 
-	u8 vREMOCON_ID;			// Serial Key ±¸ºÐ ID
+	u8 vREMOCON_ID;			// Serial Key ï¿½ï¿½ï¿½ï¿½ ID
 	u8 baud_rate;			// baud_rate
-//	u8 bLang_sel;			// ¾ð¾î Á¾·ù(0:¿µ¾î, 1:ÇÑ±Û)
-	u8 vLoss_Time;			// Video Loss ½Ã ºÎÀúÀ½ Áö¼Ó½Ã°£ 
-	u8 vLoss_Display;		// Video Loss Display Ç¥½Ã ON/OFF 
+//	u8 bLang_sel;			// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(0:ï¿½ï¿½ï¿½ï¿½, 1:ï¿½Ñ±ï¿½)
+	u8 vLoss_Time;			// Video Loss ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ó½Ã°ï¿½ 
+	u8 vLoss_Display;		// Video Loss Display Ç¥ï¿½ï¿½ ON/OFF 
 
-	u8 b9Split_Mode;    	// 9ºÐÇÒ ¸ðµå¿¡¼­ 9ºÐÇÒ,8ºÐÇÒ ¼±ÅÃ
+	u8 b9Split_Mode;    	// 9ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½å¿¡ï¿½ï¿½ 9ï¿½ï¿½ï¿½ï¿½,8ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 
 //    unsigned short crc;

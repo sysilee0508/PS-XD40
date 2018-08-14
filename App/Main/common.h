@@ -71,7 +71,9 @@ typedef enum {
 #define FALSE	0
 #define TRUE	1
 
-#define CLEAR 	RESET
+#define CLEAR	0
+#define SET		1
+
 // -----------------------------------------------------------------------------
 // External Variables declaration
 // -----------------------------------------------------------------------------
