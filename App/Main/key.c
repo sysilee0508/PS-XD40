@@ -27,7 +27,7 @@ static key_mode_e key_mode = KEY_MODE_LONG;
 const static keycode_t keycode_table[] =
 {
 	KEYCODE_CAM1, 	// KEY_1 	//1111 1110 	//254
-    KEYCODE_CAM2, 	// KEY_2 	//1111 1101 	//253
+ 	KEYCODE_CAM2, 	// KEY_2 	//1111 1101 	//253
 	KEYCODE_CAM3, 	// KEY_3 	//1111 1011 	//251
 	KEYCODE_CAM4, 	// KEY_4 	//1111 0111 	//247
 	KEYCODE_SPLIT, 	// KEY_2x2 	//1110 1111 	//239
@@ -96,11 +96,15 @@ void Key_Scan(void)
 	static keycode_t active_key_code = KEYCODE_NONE;
 	keycode_t key_code = KEYCODE_NONE;
 
-    //KEY_ROWS_OUT_MODE;
+	KEY_LED0_LOW;
+	KEY_LED1_LOW;
+	//KEY_ROWS_OUT_MODE;
 	//Scan KROW0
-	KEYLED_ROW0_EN;
-	KEYLED_ROW1_DIS;
-
+	//KEYLED_ROW0_EN;
+	//KEYLED_ROW1_DIS;
+	KEY_ROW1_HIGH;
+	KEY_ROW0_LOW;
+	
 	KEY_DATA_INPUT_MODE;
        
 	if(LOW == KEY_DATA1_5_INPUT)
@@ -112,9 +116,15 @@ void Key_Scan(void)
 	else if(LOW == KEY_DATA4_INPUT)
 		key_code = KEYCODE_CAM4;
 
+	//KEY_LED1_HIGH;
+	//KEY_LED0_LOW;
+	
 	//Scan KROW1
-	KEYLED_ROW0_DIS;
-	KEYLED_ROW1_EN;
+	//KEYLED_ROW0_DIS;
+	//KEYLED_ROW1_EN;
+
+	KEY_ROW0_HIGH;
+	KEY_ROW1_LOW;
 
 	if(LOW == KEY_DATA1_5_INPUT)
 		key_code = KEYCODE_SPLIT;
@@ -122,9 +132,10 @@ void Key_Scan(void)
 		key_code = KEYCODE_FREEZE;
 	else if(LOW == KEY_DATA3_7_INPUT)
 		key_code = KEYCODE_SEQUENCE;
-	
-	KEYLED_ROW1_DIS;
-	KEYLED_ROW0_DIS;
+
+	KEY_ROW1_HIGH;
+	//KEYLED_ROW1_DIS;
+	//KEYLED_ROW0_DIS;
 
 	//KEY_EN_HIZ_MODE;
 	
