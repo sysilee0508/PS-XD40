@@ -129,16 +129,14 @@ void Key_LED_Set(void)
 #ifdef __4CH__
 void Key_Scan(void)
 {
-//	static keycode_t active_key_code = KEYCODE_NONE;
 	keycode_t key_code = KEYCODE_NONE;
 
 	KEY_DATA_INPUT_MODE;
-
-			KEY_LED1_5_HIGH;
-			KEY_LED2_6_HIGH;
-			KEY_LED3_7_HIGH;
-			KEY_LED4_HIGH;
-	
+	// Make sure all key columns are HIGH
+	KEY_LED1_5_HIGH;
+	KEY_LED2_6_HIGH;
+	KEY_LED3_7_HIGH;
+	KEY_LED4_HIGH;
        
 	//Scan KROW0
 	KEY_ROW1_HIGH;
@@ -165,19 +163,12 @@ void Key_Scan(void)
 		key_code = KEYCODE_SEQUENCE;
 
 	KEY_ROW1_HIGH;
-	//KEY_EN_HIZ_MODE;
-	
-//	if(key_code != KEYCODE_NONE)
-//	{
-//		active_key_code = key_code;
-//	}
-//	led_state = active_key_code;
+
+	KEY_LED0_HIGH;
+	KEY_LED1_HIGH;
 
 	// Update current_keycode
-        if(current_keycode != key_code)
-        {
 	current_keycode = key_code;
-        }
 }
 
 void Key_Led_Ctrl(void)
