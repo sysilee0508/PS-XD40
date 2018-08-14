@@ -360,7 +360,7 @@ void SetUP(void)
 
 	bENTER = 0;
 
-	key_state = KEY_STATE_REPEAT;
+	key_mode = KEY_STATE_REPEAT;
   
 	vITEM_X = 0;
 	vITEM_Y = 0;
@@ -519,7 +519,7 @@ void tPAGE0_KEY(void)
 			Erase_Menu_OSD();                          
 			bSETUP = 0;
 			//bMode_Change = 1;
-			key_state = KEY_STATE_LONG;
+			key_mode = KEY_STATE_LONG;
 
 			MDINOSD_SetBGBoxColor(RGB(255,255,255));	// set BG-BOX color //���
 			Set_border_line();

@@ -447,7 +447,7 @@ void main(void)
 	MDIN3XX_RST_HIGH;	
 	
 	/* Reset key check(Press and hold the menu button during turning on the power to initialize the EEPROM) */
-	key_state = KEY_STATE_SHORT;
+	key_mode = KEY_STATE_SHORT;
 	for(i = 0; i < 10; i++)
 	{
 		Key_Scan();
@@ -478,7 +478,7 @@ void main(void)
 	}
 	//--------------------------------------------
 
-	key_state = KEY_STATE_LONG;
+	key_mode = KEY_STATE_LONG;
 
 	read_eeprom_all();
 	Data_Load();

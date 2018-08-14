@@ -8,7 +8,7 @@
 //  Global Variable Declaration
 //=============================================================================
 u8 key_raw_data = 0;
-key_state_e key_state = KEY_STATE_LONG;
+key_mode_e key_mode = KEY_STATE_LONG;
 u8 key_flag = 0;
 u8 key_data = 0;
 u8 pre_key_data = 0;
@@ -48,6 +48,9 @@ const u8 key_table_index[] =
 };
 #endif
 
+#define KEYCOUNT_SHORT		3
+#define KEYCOUNT_REPEAT		20
+#define KEYCOUNT_LONG		35
 
 #define KEYLED_ROW0_EN		KEY_ROW0_LOW; KEY_LED1_HIGH;
 #define KEYLED_ROW0_DIS		KEY_ROW0_HIGH; KEY_LED1_LOW;
@@ -90,7 +93,8 @@ void Key_LED_Set(void)
 #ifdef __4CH__
 void Key_Scan(void)
 {
-	keycode_t key_code = KEYCODE_NONE;
+	static keycode_t active_key_code = KEYCODE_NONE;
+	keycode_t current_key_code = KEYCODE_NONE;
 
 //	KEY_LED1_5_HIGH;
 //	KEY_LED2_6_HIGH;
@@ -110,13 +114,13 @@ void Key_Scan(void)
 	KEY_DATA_INPUT_MODE;
 
 	if(LOW == KEY_DATA1_5_INPUT)
-		key_code = KEYCODE_CAM1;
+		current_key_code = KEYCODE_CAM1;
 	else if(LOW== KEY_DATA2_6_INPUT)
-		key_code = KEYCODE_CAM2;
+		current_key_code = KEYCODE_CAM2;
 	else if(LOW == KEY_DATA3_7_INPUT)
-		key_code = KEYCODE_CAM3;
+		current_key_code = KEYCODE_CAM3;
 	else if(LOW == KEY_DATA4_INPUT)
-		key_code = KEYCODE_CAM4;
+		current_key_code = KEYCODE_CAM4;
 
 //	KEY_ROW0_HIGH;
 //	KEY_ROW1_LOW;
@@ -128,32 +132,25 @@ void Key_Scan(void)
 	KEYLED_ROW0_DIS;
 
 	if(LOW == KEY_DATA1_5_INPUT)
-		key_code = KEYCODE_SPLIT;
+		current_key_code = KEYCODE_SPLIT;
 	else if(LOW== KEY_DATA2_6_INPUT)
-		key_code = KEYCODE_FREEZE;
+		current_key_code = KEYCODE_FREEZE;
 	else if(LOW == KEY_DATA3_7_INPUT)
-		key_code = KEYCODE_SEQUENCE;
+		current_key_code = KEYCODE_SEQUENCE;
 
-	key_raw_data = key_code;
+	key_raw_data = current_key_code;
 	
 	KEYLED_ROW1_DIS;
 	KEYLED_ROW0_DIS;
-//
-//	//Set LED with active key
-//	KEY_DATA_OUTPUT_MODE;
-//	if((key_code & 0x0F) != 0x0F)
-//	{
-//		KEY_LED_ON(key_code);
-//		KEY_LED1_HIGH;
-//	}
-//	else if((key_code & 0xF0) != 0xF0)
-//	{
-//		KEY_LED_ON((key_code >> 4)|0xF0);
-//		KEY_LED0_HIGH;
-//	}
-	led_state = key_code;
+
+	led_state = current_key_code;
+
+	if(current_key_code != KEYCODE_NONE)
+	{
+		active_key_code = current_key_code;
+	}
 	
-	Key_Led_Ctrl(key_code);
+	Key_Led_Ctrl(active_key_code);
 }
 
 void Key_Led_Ctrl(keycode_t led)
@@ -184,7 +181,7 @@ void Key_Led_Ctrl(keycode_t led)
 		KEY_LED1_LOW;
 		if((led & 0xF0) != 0xF0)
 		{
-			KEY_LED_ON((led>>4)|0xF0);
+			KEY_LED_ON(((u32)(led>>4)|0xFFFFFFF0));
 			KEY_LED0_HIGH;
 		}
 		KEY_LED0_HIGH;
@@ -203,123 +200,118 @@ void Key_Check(void)
 	const u8 *pKey;	
 	u8 Check_Value;	
 #endif
-	u8 Count;	
 	u8 i;
-	static u8 temp_key_flag = 0;
-	static u8 key_repeat_flag = 0;
-	static u8 cmp_num = 0;
+	static u8 temp_key_flag = RESET;
+	static u8 key_repeat_flag = RESET;
+	static u8 cmp_num = KEYCOUNT_SHORT;
 	static u8 key_cnt = 0;
-	static u16 temp_key_data = 0;
+	static u8 temp_key_data = 0;
 
-#ifdef __4CH__
-	if(key_raw_data != KEYCODE_NONE)
-	{	
-        pKey = keycode_table;
-        Check_Value = key_raw_data;
-        Count = sizeof(keycode_table);
-    }
-#endif
-	else 
+	if(key_raw_data == KEYCODE_NONE)
 	{
         if(temp_key_flag)
 		{
-	    	temp_key_flag = 0;
-			key_flag = 1;
-			key_data = (u8)temp_key_data;			
+	    	temp_key_flag = RESET;
+			key_flag = SET;
+			key_data = temp_key_data;
         }
 		
-		key_repeat_flag = 0;
-		cmp_num = 3;//4;
+		key_repeat_flag = RESET;
+		cmp_num = KEYCOUNT_SHORT;
 		key_cnt = 0;
 		return ; 
 	}
-
-
-//--------------------------------------
-	i = 0;
-	while(*pKey != Check_Value)		
+#ifdef __4CH__
+	else
 	{
-		if(Count==0)
-		{	
-			temp_key_flag = 0;
-			key_repeat_flag = 0;
-			cmp_num = 3;//4;
-			key_cnt = 0;
-			return ; 
-		}
-		pKey++;					
-        i++;
-		Count--;
+        pKey = keycode_table;
+        Check_Value = key_raw_data;
 	}
-
-	if(key_table_index[i] != temp_key_data)
+#endif
+	// Find index of key code table
+	for(i=0; i< sizeof(keycode_table); i++)
 	{
-		temp_key_data = key_table_index[i];
-		key_cnt = 0;
-		return ;
-	}
-//--------------------------------------
-	key_cnt++;	
-
-	if(key_cnt >= cmp_num)
-	{
-        // ���� Ű���� REPEAT ON �̸� 
-        if(key_state == KEY_STATE_REPEAT)
-        {
-            key_data = (u8)temp_key_data;	
-            cmp_num = 20;
-            if(key_repeat_flag)
-            {
-                if( (key_data != LEFT_KEY) && (key_data != RIGHT_KEY) && (key_data != UP_KEY) && (key_data != DOWN_KEY)) 
-                {
-                    key_repeat_flag = 1; 
-                    key_cnt = 0;
-                        
-                    return; 
-                }
-                cmp_num = 3;		
-            }
-            key_flag = 1;  								
-            key_repeat_flag = 1; 				
-            key_cnt = 0;
-
-            //printf("REPEAT : 0x%x\r\n",key_data);
-        }
-
-        
-        // ���� Ű���� LONG ON �̸�  
-        else if(key_state == KEY_STATE_LONG)
+		if(*(pKey+i) == Check_Value)
 		{
-    		temp_key_flag = 1;
-           	if(key_cnt >= 35)
-            {
-                if(!key_repeat_flag)  
-        		{		
-            		key_repeat_flag = 1; 
-                    temp_key_flag = 0; 	
-                    key_flag = 1; 
-                    //key_data = (u8)temp_key_data + 0x80;
-					//printf("LONG   : 0x%x\r\n",key_data);
+			break;
+		}
+	}
 
-					if(temp_key_data == KEY_FREEZE) key_data = KEY_MENU;     
-					else if(temp_key_data == KEY_9SPLIT) key_data = KEY_9SPLIT+0x80;
-					else key_data = (u8)temp_key_data;
-                }
-            }
-        }
-        
-        // ���� Ű���� SHORT ON �̸�  
-        else if((key_state == KEY_STATE_SHORT))
-        {
-            if(!key_repeat_flag)  
-            {
-                key_flag = 1; 
-                key_repeat_flag = 1; 
-                temp_key_flag = 0; 	
-                key_data = (u8)temp_key_data;
-            }
-        }
-    }
+	if(i < sizeof(keycode_table))
+	{
+		if(key_table_index[i] != temp_key_data)
+		{
+			temp_key_data = key_table_index[i];
+			key_cnt = 0;
+			return ;
+		}
+
+		key_cnt++;
+
+		if(key_cnt >= cmp_num)
+		{
+			switch (key_mode)
+			{
+			case KEY_STATE_SHORT:
+				if(RESET == key_repeat_flag)
+				{
+					key_flag = SET;
+					key_repeat_flag = SET;
+					temp_key_flag = RESET;
+					key_data = temp_key_data;
+				}
+				break;
+
+			case KEY_STATE_REPEAT:
+				key_data = temp_key_data;
+				cmp_num = KEYCOUNT_REPEAT;
+				if(SET == key_repeat_flag)
+				{
+					if( (key_data != LEFT_KEY) && (key_data != RIGHT_KEY) && (key_data != UP_KEY) && (key_data != DOWN_KEY))
+					{
+						key_repeat_flag = SET;
+						key_cnt = 0;
+
+						return;
+					}
+					cmp_num = KEYCOUNT_SHORT;
+				}
+				key_flag = SET;
+				key_repeat_flag = SET;
+				key_cnt = 0;
+				break;
+
+			case KEY_STATE_LONG:
+				temp_key_flag = SET;
+				if((key_cnt >= KEYCOUNT_LONG) && (RESET == key_repeat_flag))
+				{
+					key_repeat_flag = SET;
+					temp_key_flag = RESET;
+					key_flag = SET;
+
+					if(temp_key_data == KEY_FREEZE)
+						key_data = KEY_MENU;
+					else if(temp_key_data == KEY_9SPLIT)
+						key_data = KEY_9SPLIT+0x80;
+					else
+						key_data = temp_key_data;
+				}
+				break;
+
+			case KEY_STATE_MAX:
+			default:
+				// Do nothing
+				break;
+			}
+		}
+	}
+	else //reset all flags and count.
+	{
+		temp_key_flag = RESET;
+		key_repeat_flag = RESET;
+		cmp_num = KEYCOUNT_SHORT;
+		key_cnt = 0;
+	}
 }
 
 u8 pre_special_mode = LEFT_TOP;

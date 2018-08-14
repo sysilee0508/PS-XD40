@@ -54,13 +54,13 @@
 //=============================================================================
 //  typedef
 //=============================================================================
-typedef enum key_state
+typedef enum KeyMode
 {
 	KEY_STATE_SHORT = 0x00,
 	KEY_STATE_LONG,
 	KEY_STATE_REPEAT,
 	KEY_STATE_MAX
-} key_state_e;
+} key_mode_e;
 
 typedef u8 keycode_t;
 //
@@ -101,7 +101,7 @@ extern void Key_Led_Ctrl(keycode_t led);
 //=============================================================================
 //  Extern Grobal Variable 
 //=============================================================================
-extern key_state_e key_state;
+extern key_mode_e key_mode;
 extern u8 key_flag;
 extern u8 key_data;
 extern u8 pre_key_data;
