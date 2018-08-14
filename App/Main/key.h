@@ -72,6 +72,12 @@ typedef enum
 	KEY_MAX				= 0xFF
 } keydata_e;
 
+typedef enum
+{
+	KEY_STATUS_PRESSED = 0,
+	KEY_STATUS_RELEASED
+} keystatus_e;
+
 typedef u8 keycode_t;
 
 enum

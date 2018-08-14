@@ -19,6 +19,9 @@ BOOL bFreeze = CLEAR;
 static keycode_t current_keycode = KEYCODE_NONE;
 //static keycode_t led_state = KEYCODE_NONE;
 static key_mode_e key_mode = KEY_MODE_LONG;
+static keystatus_e key_status = KEY_STATUS_RELEASED;
+static BOOL bLongKey = CLEAR;
+static BOOL bRepeatKey = CLEAR;
 
 //=============================================================================
 //  Constant Array Declaration (data table)
@@ -48,11 +51,11 @@ const static keydata_e key_table[] =
 	KEY_AUTO_SEQ,
 };
 
-#define NUM_OF_KEYS			sizeof(key_table) //7
+#define NUM_OF_KEYS		sizeof(key_table) //7
 
-#define KEYCOUNT_SHORT          4
-#define KEYCOUNT_REPEAT		20
-#define KEYCOUNT_LONG		35
+#define KEYCOUNT_SHORT		4
+#define KEYCOUNT_REPEAT	40	//400ms
+#define KEYCOUNT_LONG		80	//800ms
 //
 //#define KEYLED_ROW0_EN		KEY_ROW0_LOW; KEY_LED1_HIGH;
 //#define KEYLED_ROW0_DIS		KEY_ROW0_HIGH; KEY_LED1_LOW;
@@ -69,6 +72,24 @@ const static keydata_e key_table[] =
 void SetKeyMode(key_mode_e mode)
 {
 	key_mode = mode;
+
+//	switch(mode)
+//	{
+//		case KEY_MODE_SHORT:
+//			bRepeatKey = CLEAR;
+//			bLongKey = CLEAR;
+//			break;
+//
+//		case KEY_MODE_REPEAT:
+//			bRepeatKey = SET;
+//			bLongKey = CLEAR;
+//			break;
+//
+//		case KEY_MODE_LONG:
+//			bRepeatKey = CLEAR;
+//			bLongKey = SET;
+//			break;
+//	}
 }
 
 key_mode_e GetKeyMode(void)
@@ -95,6 +116,15 @@ keycode_t GetKeyCode(keydata_e key)
 	}
 
 	return code;
+}
+//-----------------------------------------------------------------------------
+void UpdateKeyStatus(keystatus_e status)
+{
+	key_status = status; 
+}
+keystatus_e GetKeyStatus(void)
+{
+	return key_status;
 }
 
 //-----------------------------------------------------------------------------
@@ -130,12 +160,13 @@ void Key_Scan(void)
 {
 	keycode_t key_code = KEYCODE_NONE;
 
-	KEY_DATA_INPUT_MODE;
 	// Make sure all key columns are HIGH
 	KEY_LED1_5_HIGH;
 	KEY_LED2_6_HIGH;
 	KEY_LED3_7_HIGH;
 	KEY_LED4_HIGH;
+
+	KEY_DATA_INPUT_MODE;
        
 	//Scan KROW0
 	KEY_ROW1_HIGH;
@@ -176,18 +207,6 @@ void Key_Led_Ctrl(void)
 	{
 		KEY_DATA_OUTPUT_MODE;
 
-//		// If key data is changed, turn off all leds
-//		if(key_data != pre_key_data)
-//		{
-//			KEY_LED0_LOW;
-//			KEY_LED1_LOW;
-//
-//			KEY_LED1_5_HIGH;
-//			KEY_LED2_6_HIGH;
-//			KEY_LED3_7_HIGH;
-//			KEY_LED4_HIGH;
-//		}
-
 		if(stage == KEYLED_STAGE_LEFT)
 		{
 			KEY_LED0_LOW;
@@ -217,8 +236,6 @@ void Key_Led_Ctrl(void)
 void Key_Check(void)	
 {
 	const keycode_t *pKeyCode;
-	static BOOL bLongKey = CLEAR;
-	static BOOL bRepeatKey = CLEAR;
 	static u8 debounce_cnt = KEYCOUNT_SHORT;
 	static u8 key_cnt = 0;
 	static keydata_e temp_key_data = 0;
@@ -226,21 +243,23 @@ void Key_Check(void)
 
 	if(current_keycode == KEYCODE_NONE)
 	{
-        if(SET == bLongKey)
+		if(SET == bLongKey)
 		{
-	    	bLongKey = CLEAR;
+			bLongKey = CLEAR;
 			key_flag = SET;
 			key_data = temp_key_data;
-        }
+		}
 		
 		bRepeatKey = CLEAR;
 		debounce_cnt = KEYCOUNT_SHORT;
 		key_cnt = 0;
+		UpdateKeyStatus(KEY_STATUS_RELEASED);//key_status = KEY_STATUS_RELEASED;
 		return ; 
 	}
 	else
 	{
 		pKeyCode = keycode_table;
+		UpdateKeyStatus(KEY_STATUS_PRESSED);//key_status = KEY_STATUS_PRESSED;
 	}
 
 	// Find index of key code table
@@ -325,10 +344,11 @@ void Key_Check(void)
 	}
 	else //reset all flags and count.
 	{
-		bLongKey = RESET;
-		bRepeatKey = RESET;
+		bLongKey = CLEAR;
+		bRepeatKey = CLEAR;
 		debounce_cnt = KEYCOUNT_SHORT;
 		key_cnt = 0;
+		UpdateKeyStatus(KEY_STATUS_RELEASED);
 	}
 }
 
