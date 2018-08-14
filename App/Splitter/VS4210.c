@@ -599,6 +599,7 @@ void vs4210_system_init()
 	I2CWrite(VS4210_ADDR, 0x01 ,0x5A) ;  //reset
 	msleep(100) ;
 
+	I2CWrite(VS4210_ADDR, 0x11, 0x83);
 	VS4210_Line_Clear() ;
 	VS4210_Line_Draw(gbVXIS_OuputModeflg ) ;
 
@@ -607,31 +608,32 @@ void vs4210_system_init()
 	//VS4210_No_Signal_Init();
 #if 1 //for test
 
-	I2CWrite(VS4210_ADDR, 0x03, 0x01);
-	clk = I2CRead(VS4210_ADDR, 0x03);
+	//I2CWrite(VS4210_ADDR, 0x03, 0x01);
+	//clk = I2CRead(VS4210_ADDR, 0x03);
 	
 
-	infmt = I2CRead(VS4210_ADDR, 0x11);
+	//infmt = I2CRead(VS4210_ADDR, 0x11);
 
-	I2CWrite(VS4210_ADDR, 0x11, 0x83);
+	
 
-	temp = I2CRead(VS4210_ADDR, 0x11);
+	//temp = I2CRead(VS4210_ADDR, 0x11);
 #endif
 
-	VS4210_JointKind1.WindowMap.WMap0 = 1 ;
-	VS4210_JointKind1.WindowMap.WMap1 = 2 ;
-	VS4210_JointKind1.WindowMap.WMap2 = 3 ;
-	VS4210_JointKind1.WindowMap.WMap3 = 4 ;
+	VS4210_JointKind1.WindowMap.WMap0 = 0 ;
+	VS4210_JointKind1.WindowMap.WMap1 = 1 ;
+	VS4210_JointKind1.WindowMap.WMap2 = 2 ;
+	VS4210_JointKind1.WindowMap.WMap3 = 3 ;
 	VS4210_JointKind1.OutputSize = gbVXIS_OuputSize ;
 	VS4210_JointKind1.OutputMode = VS4210_FULL_MODE1;
 
-	//VS4210_VideoJoin_Output(&VS4210_JointKind1) ;
-
+	VS4210_VideoJoin_Output(&VS4210_JointKind1) ;
+#if 0
 	for (i = 0 ; i < 4 ; i++ )
 	{
 		VS4210_init_mode(i  , _OSD_No_Signal  , gbVXIS_OuputModeflg) ;
 	}
 	//VS4210_No_Signal_Init();
+#endif	
 #if 1//for VS4210 output test
 	for (i = 0; i < 4; i++)
 	{

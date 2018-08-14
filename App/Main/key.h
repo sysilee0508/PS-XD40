@@ -36,6 +36,8 @@
 #define KEYLED_STAGE_LEFT	0		// krow0 && led1
 #define	KEYLED_STAGE_RIGHT	1		// krow1 && led0
 
+#define KEY_LONG		0x80
+
 #define KEY_FULL_CH1	0x01
 #define KEY_FULL_CH2	0x02
 #define KEY_FULL_CH3	0x03
@@ -47,20 +49,21 @@
 #define KEY_FULL_CH9	0x09
 #define KEY_4SPLIT		0x15
 #define KEY_FREEZE		0x19
-#define KEY_SEQ			0x1a
+#define KEY_FREEZE_LONG (KEY_FREEZE | KEY_LONG)
+#define KEY_AUTO_SEQ	0x1A
 #define KEY_9SPLIT		0x16
-#define KEY_MENU		0x1c// KEY_FREEZE+0x80
+#define KEY_MENU		KEY_FREEZE_LONG
 
 //=============================================================================
 //  typedef
 //=============================================================================
-typedef enum key_state
+typedef enum KeyMode
 {
-	KEY_STATE_SHORT = 0x00,
-	KEY_STATE_LONG,
-	KEY_STATE_REPEAT,
-	KEY_STATE_MAX
-} key_state_e;
+	KEY_MODE_SHORT = 0x00,
+	KEY_MODE_LONG,
+	KEY_MODE_REPEAT,
+	KEY_MODE_MAX
+} key_mode_e;
 
 typedef u8 keycode_t;
 //
@@ -97,11 +100,14 @@ extern void Key_Check(void);
 extern void Key_Proc(void);
 extern void Key_Led_Ctrl(void);
 
+extern void SetKeyMode(key_mode_e mode);
+extern key_mode_e GetKeyMode(void);
+
 
 //=============================================================================
 //  Extern Grobal Variable 
 //=============================================================================
-extern key_state_e key_state;
+extern key_mode_e key_mode;
 extern u8 key_flag;
 extern u8 key_data;
 extern u8 pre_key_data;
