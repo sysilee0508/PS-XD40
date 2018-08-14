@@ -24,8 +24,8 @@
 #define KEY_ROW0_LOW	GPIOB->BRR  = 0x00000008
 #define KEY_ROW1_HIGH	GPIOB->BSRR = 0x00000010 	//PB4 //ROW1
 #define KEY_ROW1_LOW		GPIOB->BRR  = 0x00000010
-//#define KEY_EN_HIZ_MODE GPIOB->CRL  = 0x33344333 	//Change PB3, PB4 to Floating input in Input mode
-//#define KEY_ROWS_OUT_MODE GPIOB->CRL  = 0x33333333 	//Change PB3, PB4 to Output mode
+#define KEY_EN_HIZ_MODE GPIOB->CRL  = 0x33344333 	//Change PB3, PB4 to Floating input in Input mode
+#define KEY_ROWS_OUT_MODE GPIOB->CRL  = 0x33333333 	//Change PB3, PB4 to Output mode
 
 #define KEY_LED0_HIGH	GPIOB->BSRR = 0x00000100 	//PB8 //LED0
 #define KEY_LED0_LOW	GPIOB->BRR  = 0x00000100

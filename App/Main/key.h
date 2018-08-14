@@ -95,7 +95,7 @@ extern void Key_LED_Set(void);
 extern void Key_Scan(void);
 extern void Key_Check(void);
 extern void Key_Proc(void);
-extern void Key_Led_Ctrl(keycode_t led);
+extern void Key_Led_Ctrl(void);
 
 
 //=============================================================================

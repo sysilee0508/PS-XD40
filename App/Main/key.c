@@ -90,25 +90,16 @@ void Key_LED_Set(void)
 #ifdef __4CH__
 void Key_Scan(void)
 {
+	static keycode_t active_key_code = KEYCODE_NONE;
 	keycode_t key_code = KEYCODE_NONE;
 
-	//KEY_LED1_5_HIGH;
-	//KEY_LED2_6_HIGH;
-	//KEY_LED3_7_HIGH;
-	//KEY_LED4_HIGH;
-
+       //KEY_ROWS_OUT_MODE;
 	//Scan KROW0
 	KEYLED_ROW0_EN;
 	KEYLED_ROW1_DIS;
-//
-//	KEY_ROW0_LOW;
-//	KEY_ROW1_HIGH;
-//
-//	KEY_LED0_LOW;	//pair with KROW1
-//	KEY_LED1_HIGH;  //pair with KROW0
-	
-	KEY_DATA_INPUT_MODE;
 
+	KEY_DATA_INPUT_MODE;
+       
 	if(LOW == KEY_DATA1_5_INPUT)
 		key_code = KEYCODE_CAM1;
 	else if(LOW== KEY_DATA2_6_INPUT)
@@ -118,14 +109,9 @@ void Key_Scan(void)
 	else if(LOW == KEY_DATA4_INPUT)
 		key_code = KEYCODE_CAM4;
 
-//	KEY_ROW0_HIGH;
-//	KEY_ROW1_LOW;
-//	KEY_LED0_LOW;
-//	KEY_LED1_HIGH;
-
 	//Scan KROW1
-	KEYLED_ROW1_EN;
 	KEYLED_ROW0_DIS;
+	KEYLED_ROW1_EN;
 
 	if(LOW == KEY_DATA1_5_INPUT)
 		key_code = KEYCODE_SPLIT;
@@ -133,41 +119,37 @@ void Key_Scan(void)
 		key_code = KEYCODE_FREEZE;
 	else if(LOW == KEY_DATA3_7_INPUT)
 		key_code = KEYCODE_SEQUENCE;
-
-	key_raw_data = key_code;
 	
 	KEYLED_ROW1_DIS;
 	KEYLED_ROW0_DIS;
-//
-//	//Set LED with active key
-//	KEY_DATA_OUTPUT_MODE;
-//	if((key_code & 0x0F) != 0x0F)
-//	{
-//		KEY_LED_ON(key_code);
-//		KEY_LED1_HIGH;
-//	}
-//	else if((key_code & 0xF0) != 0xF0)
-//	{
-//		KEY_LED_ON((key_code >> 4)|0xF0);
-//		KEY_LED0_HIGH;
-//	}
-	led_state = key_code;
+
+	//KEY_EN_HIZ_MODE;
 	
-	Key_Led_Ctrl(key_code);
+	if(key_code != KEYCODE_NONE)
+	{
+		active_key_code = key_code;
+	}
+	led_state = active_key_code;
+	key_raw_data = key_code;
 }
 
-void Key_Led_Ctrl(keycode_t led)
+void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
 
 	KEY_DATA_OUTPUT_MODE;
+	
+	KEY_LED1_5_HIGH;
+	KEY_LED2_6_HIGH;
+	KEY_LED3_7_HIGH;
+	KEY_LED4_HIGH;
 
 	if(stage == KEYLED_STAGE_LEFT)
 	{
 		KEY_LED0_LOW;
-		if((led & 0x0F) != 0x0F)
+		if((led_state & 0x0F) != 0x0F)
 		{
-			KEY_LED_ON(led);
+			KEY_LED_ON(led_state);
 		}
 		KEY_LED1_HIGH;
 
@@ -177,10 +159,9 @@ void Key_Led_Ctrl(keycode_t led)
 	else if(stage == KEYLED_STAGE_RIGHT)
 	{
 		KEY_LED1_LOW;
-		if((led & 0xF0) != 0xF0)
+		if((led_state & 0xF0) != 0xF0)
 		{
-			KEY_LED_ON((u32)((led>>4)|0xFFFFFFF0));
-			//KEY_LED0_HIGH;
+			KEY_LED_ON((u32)((led_state>>4)|0xFFFFFFF0));
 		}
 		KEY_LED0_HIGH;
 		// Change stage for the next time
