@@ -159,7 +159,7 @@ u8 vPAGE = 0;
 u8 vITEM_X = 0;
 u8 vITEM_Y = 0;
 u8 bENTER = 0;
-u8 bSETUP = 0;
+static u8 bSETUP = 0;
 
 u8 vOSD_B[2];
 
@@ -354,13 +354,14 @@ void Erase_Menu_OSD(void)
 //-----------------------------------------------------------------
 // 
 //-----------------------------------------------------------------
-void SetUP(void)
+void Enter_SetUP(void)
 {
 	bSETUP = 1;
 
 	bENTER = 0;
 
-	key_mode = KEY_STATE_REPEAT;
+	//key_mode = KEY_MODE_REPEAT;
+	SetKeyMode(KEY_MODE_REPEAT);
   
 	vITEM_X = 0;
 	vITEM_Y = 0;
@@ -519,7 +520,7 @@ void tPAGE0_KEY(void)
 			Erase_Menu_OSD();                          
 			bSETUP = 0;
 			//bMode_Change = 1;
-			key_mode = KEY_STATE_LONG;
+			SetKeyMode(KEY_MODE_LONG);//key_mode = KEY_MODE_LONG;
 
 			MDINOSD_SetBGBoxColor(RGB(255,255,255));	// set BG-BOX color //���
 			Set_border_line();

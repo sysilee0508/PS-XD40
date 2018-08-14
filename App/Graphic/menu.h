@@ -82,7 +82,7 @@ extern BYTE bSETUP_Change_flag;
 
 void Data_Con(u8 DataC);
 
-void SetUP(void);
+void Enter_SetUP(void);
 //void MenuSelect(u8 Current);  
 void MenuSelect(u8 Current, u8 offset);  
 

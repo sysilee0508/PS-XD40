@@ -36,8 +36,8 @@ int cmode = 0;
 // External Variable 
 // ----------------------------------------------------------------------
 extern BYTE fMenuUpdate;			  				//by hungry 2012.03.06
-extern BYTE Key1stCode;		   						//by hungry 2012.03.15
-extern BOOL fButtonScan;   							//by hungry 2012.03.15
+//extern BYTE Key1stCode;		   						//by hungry 2012.03.15
+//extern BOOL fButtonScan;   							//by hungry 2012.03.15
 
 
 u32 tick_10ms = 0;
@@ -447,7 +447,7 @@ void main(void)
 	MDIN3XX_RST_HIGH;	
 	
 	/* Reset key check(Press and hold the menu button during turning on the power to initialize the EEPROM) */
-	key_mode = KEY_STATE_SHORT;
+	SetKeyMode(KEY_MODE_SHORT);//key_mode = KEY_MODE_SHORT;
 	for(i = 0; i < 10; i++)
 	{
 		Key_Scan();
@@ -478,7 +478,7 @@ void main(void)
 	}
 	//--------------------------------------------
 
-	key_mode = KEY_STATE_LONG;
+	SetKeyMode(KEY_MODE_LONG);//key_mode = KEY_MODE_LONG;
 
 	read_eeprom_all();
 	Data_Load();
@@ -515,12 +515,12 @@ void main(void)
 	sys_status.current_split_mode = SPLIT4_1;
 
 	key_data = KEY_4SPLIT;
-	key_flag = 1;
-	sysenv_split_mode = 5;
+	key_flag = SET;
+	sysenv_split_mode = 5; //OMG! what is 5?!
 #endif
 
 	Set_border_line();
-	bMode_change_flag = 1;
+	bMode_change_flag = SET;
 
 #if 0 //for verify video input source test
 	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
@@ -528,7 +528,7 @@ void main(void)
 
 	while(TRUE)
     { 
-		printf("While start \n");
+//		printf("While start \n");
 
 		NVP6158_VideoDetectionProc();
 
@@ -538,12 +538,14 @@ void main(void)
 		Auto_Seq_Cnt();
 		Auto_Sequence();
 
-//		key_scan();
-//		Key_Check();
-//		Key_LED_Set();
-
-		if(bSETUP)Setup_Process();
-		else Key_Proc();
+		if(SET == bSETUP)
+		{
+			Setup_Process();
+		}
+		else
+		{
+			Key_Proc();
+		}
 
 		Time_Read();
 
@@ -564,7 +566,7 @@ void main(void)
 		VideoHTXCtrlHandler();
 
 		OSG_Display();
-		printf("While end \n");
+//		printf("While end \n");
     }
 }
 
