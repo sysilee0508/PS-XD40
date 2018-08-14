@@ -63,7 +63,7 @@ typedef enum
 //	KEY_FULL_CH8,
 //	KEY_FULL_CH9,
 	KEY_4SPLIT			= 0x15,
-//	KEY_9SPLIT			= 0x16,
+	KEY_9SPLIT			= 0x16,
 	KEY_FREEZE			= 0x19,
 	KEY_AUTO_SEQ		= 0x1A,
 //----Long Keys--------------------------------------
@@ -113,21 +113,17 @@ extern void Key_Led_Ctrl(void);
 // Interface
 extern void SetKeyMode(key_mode_e mode);
 extern key_mode_e GetKeyMode(void);
-extern void SetLedState(keycode_t leds);
-extern keycode_t GetLedState(void);
+extern keycode_t GetKeyCode(keydata_e key);
 
 //=============================================================================
 //  Extern Grobal Variable 
 //=============================================================================
 extern key_mode_e key_mode;
-extern u8 key_flag;
-extern u8 key_data;
-extern u8 pre_key_data;
+extern BOOL key_flag;
+extern keydata_e key_data;
+extern keydata_e pre_key_data;
 
-//extern u16 led_state;
-
-
-extern u8 bFreeze;
+extern BOOL bFreeze;
 
 extern u8 pre_special_mode;
 extern u8 pre_split_mode;

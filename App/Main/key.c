@@ -129,7 +129,7 @@ void Key_LED_Set(void)
 #ifdef __4CH__
 void Key_Scan(void)
 {
-	static keycode_t active_key_code = KEYCODE_NONE;
+//	static keycode_t active_key_code = KEYCODE_NONE;
 	keycode_t key_code = KEYCODE_NONE;
 
 	//Scan KROW0
@@ -174,7 +174,7 @@ void Key_Scan(void)
 void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
-	keycode_t leds = GetKeyCode();
+	keycode_t leds = GetKeyCode(key_data);
 
 	if(leds != KEYCODE_NONE)
 	{
