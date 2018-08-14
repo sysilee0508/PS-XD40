@@ -49,8 +49,7 @@ void TIM2_IRQHandler(void)
 {
 	static unsigned int cnt;
 	
-    TIM2->SR = TIM2->SR & 0xFFFE;			// clear TIM2 update interrupt flag
-
+	TIM2->SR = TIM2->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	cnt++;
 	if(cnt > 10)
@@ -58,10 +57,7 @@ void TIM2_IRQHandler(void)
 		cnt = 0;
 		tick_10ms++;
 	}
-//
-//#ifdef __4CH__
-//	Key_Led_Ctrl();
-//#endif
+
 }
 
 //-----------------------------------------------------------------------------
@@ -71,14 +67,11 @@ void TIM3_IRQHandler(void)
 {
 	static unsigned int cnt;
 
-    TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
+	TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	Key_Scan();
+	Key_Led_Ctrl();
 	Key_Check();
-//	Key_LED_Set();
-#ifdef __4CH__
-//	Key_Led_Ctrl();
-#endif
 }
 
 //-----------------------------------------------------------------------------

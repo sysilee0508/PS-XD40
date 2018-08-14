@@ -24,8 +24,8 @@
 #define KEY_ROW0_LOW	GPIOB->BRR  = 0x00000008
 #define KEY_ROW1_HIGH	GPIOB->BSRR = 0x00000010 	//PB4 //ROW1
 #define KEY_ROW1_LOW		GPIOB->BRR  = 0x00000010
-//#define KEY_EN_HIZ_MODE GPIOB->CRL  = 0x33344333 	//Change PB3, PB4 to Floating input in Input mode
-//#define KEY_ROWS_OUT_MODE GPIOB->CRL  = 0x33333333 	//Change PB3, PB4 to Output mode
+#define KEY_EN_HIZ_MODE GPIOB->CRL  = 0x33344333 	//Change PB3, PB4 to Floating input in Input mode
+#define KEY_ROWS_OUT_MODE GPIOB->CRL  = 0x33333333 	//Change PB3, PB4 to Output mode
 
 #define KEY_LED0_HIGH	GPIOB->BSRR = 0x00000100 	//PB8 //LED0
 #define KEY_LED0_LOW	GPIOB->BRR  = 0x00000100
@@ -42,10 +42,10 @@
 #define KEY_LED4_LOW	GPIOB->BRR  = 0x00008000
 
 #define KEY_DATA_OUTPUT_MODE 	GPIOB->CRH = 0x33334b33 	//Change PB12, PB13, PB14, PB15 to Output mode
-#define KEY_DATA1_5_INPUT 		(GPIOB->IDR >> 12) & 0x01	//GPIOB12 status read
-#define KEY_DATA2_6_INPUT 		(GPIOB->IDR >> 13) & 0x01	//GPIOB13 status read
-#define KEY_DATA3_7_INPUT 		(GPIOB->IDR >> 14) & 0x01 	//GPIOB14 status read
-#define KEY_DATA4_INPUT 		(GPIOB->IDR >> 15) & 0x01 	//GPIOB15 status read
+#define KEY_DATA1_5_INPUT 		((GPIOB->IDR >> 12) & 0x00000001)	//GPIOB12 status read
+#define KEY_DATA2_6_INPUT 		((GPIOB->IDR >> 13) & 0x00000001)	//GPIOB13 status read
+#define KEY_DATA3_7_INPUT 		((GPIOB->IDR >> 14) & 0x00000001) 	//GPIOB14 status read
+#define KEY_DATA4_INPUT 		((GPIOB->IDR >> 15) & 0x00000001) 	//GPIOB15 status read
 #define KEY_DATA_INPUT_MODE  	GPIOB->CRH = 0x88884b33 	//Change PB12, PB13, PB14, PB15 to Input mode
 #endif
 
