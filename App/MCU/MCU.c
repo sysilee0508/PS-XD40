@@ -141,8 +141,8 @@ void IRQ_Init(void)
 	NVIC_Init(&NVIC_InitStructure);
 
 	TIM2->CR1 = 0x0005;				// up-counter enable
-	TIM2->PSC = 639;				// 64MHz/(1+639)/(1+9) = 10000Hz
-	//TIM2->ARR = 9;
+	TIM2->PSC = 639;				
+	//TIM2->ARR = 9;					// 64MHz/(1+639)/(1+9) = 10000Hz
 	TIM2->ARR = 99;					// 64MHz/(1+639)/(1+99) = 1000Hz
 	TIM2->SR = 0x0000;				// clear TIM2 interrupt flags
 	TIM2->DIER = 0x0001;			// enable TIM2 update interrupt
@@ -155,8 +155,8 @@ void IRQ_Init(void)
 	NVIC_Init(&NVIC_InitStructure);
 
 	TIM3->CR1 = 0x0005;				// up-counter enable
-	TIM3->PSC = 639;				// 64MHz/(1+639)/(1+9) = 10000Hz
-	TIM3->ARR = 1999;					// 64MHz/(1+639)/(1+1999) = 1000Hz
+	TIM3->PSC = 639;	
+	TIM3->ARR = 1999;					// 64MHz/(1+639)/(1+1999) = 50Hz  --> 20ms
 	TIM3->SR = 0x0000;				// clear TIM3 interrupt flags
 	TIM3->DIER = 0x0001;			// enable TIM3 update interrupt
 	//Setting timer interrupt 20ms--------------------------------------------

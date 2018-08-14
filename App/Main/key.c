@@ -132,12 +132,18 @@ void Key_Scan(void)
 //	static keycode_t active_key_code = KEYCODE_NONE;
 	keycode_t key_code = KEYCODE_NONE;
 
+	KEY_DATA_INPUT_MODE;
+
+			KEY_LED1_5_HIGH;
+			KEY_LED2_6_HIGH;
+			KEY_LED3_7_HIGH;
+			KEY_LED4_HIGH;
+	
+       
 	//Scan KROW0
 	KEY_ROW1_HIGH;
 	KEY_ROW0_LOW;
 	
-	KEY_DATA_INPUT_MODE;
-       
 	if(LOW == KEY_DATA1_5_INPUT)
 		key_code = KEYCODE_CAM1;
 	else if(LOW== KEY_DATA2_6_INPUT)
@@ -168,7 +174,10 @@ void Key_Scan(void)
 //	led_state = active_key_code;
 
 	// Update current_keycode
+        if(current_keycode != key_code)
+        {
 	current_keycode = key_code;
+        }
 }
 
 void Key_Led_Ctrl(void)
