@@ -4,54 +4,62 @@
 #undef __9CH_DEVICE__
 #define __4CH__
 
-#define cSYSENV_vCORRECT_OFFSET 	 1
-#define cSYSENV_bVECTOR				 2
-#define cSYSENV_bCORRECT		     3
-#define cSYSENV_vDATE_FORMAT		 4
-#define cSYSENV_bTIME_ON			 5
-#define cSYSENV_vTIME_Position		 6
-#define cSYSENV_vCH_NAME			 7	
-#define cSYSENV_bTITLE_ON			 120	
-#define cSYSENV_vDWELL				 121	
-#define cSYSENV_bLossAutoSkip        125 
-#define cSYSENV_bOSD_Display		 126
-#define cSYSENV_vOSD_Position		 127
-#define cSYSENV_border_line			 128
-#define cSYSENV_resolution			 129
-#define cSYSENV_baud_rate		     130
-#define cSYSENV_vREMOCON_ID			 131	
-#define cSYSENV_vLoss_Time			 132
-#define cSYSENV_vLoss_Display		 133
-#define cSYSENV_b9Split_Mode		 134
-#define cEEP_CHK					 200
+#define cSYSENV_vCORRECT_OFFSET 	1
+#define cSYSENV_bVECTOR				2
+#define cSYSENV_bCORRECT		    3
+#define cSYSENV_vDATE_FORMAT		4
+#define cSYSENV_bTIME_ON			5
+#define cSYSENV_vTIME_Position		6
+#define cSYSENV_vCH_NAME			7
+#define cSYSENV_bTITLE_ON			120
+#define cSYSENV_vDWELL				121
+#define cSYSENV_bLossAutoSkip       125
+#define cSYSENV_bOSD_Display		126
+#define cSYSENV_vOSD_Position		127
+#define cSYSENV_border_line			128
+#define cSYSENV_resolution			129
+#define cSYSENV_baud_rate		    130
+#define cSYSENV_vREMOCON_ID			131
+#define cSYSENV_vLoss_Time			132
+#define cSYSENV_vLoss_Display		133
+#define cSYSENV_b9Split_Mode		134
+#define cEEP_CHK					200
 
-#define FULL_1		0x00
-#define FULL_2		0x01
-#define FULL_3		0x02
-#define FULL_4		0x03
-#define FULL_5		0x04
-#define FULL_6		0x05
-#define FULL_7		0x06
-#define FULL_8		0x07
-#define FULL_9		0x08
-#define SPLIT4_1	0x09
-#define SPLIT4_2	0x0A
-#define SPLIT9_1	0x0B
-#define SPLIT9_2	0x0C
-#define SPLIT9_3	0x0D
-#define SPLIT9_4	0x0E
-#define SPLIT9_5	0x0F
-#define SPLIT9_6	0x10
-#define SPLIT9_7	0x11
-#define SPLIT9_8	0x12
-#define SPLIT9_9	0x13
-
-#define NORMAL_VIEW	0
-#define MENU_VIEW	1
+//#define NORMAL_VIEW					0
+//#define MENU_VIEW					1
 
 //-----------------------------------------------------------------------------
 //  ���� �ý��� ���� ����
 //-----------------------------------------------------------------------------
+typedef enum
+{
+	SPLITMODE_FULL_CH1 = 0x00,
+	SPLITMODE_FULL_CH2,
+	SPLITMODE_FULL_CH3,
+	SPLITMODE_FULL_CH4,
+#ifdef __9CH_DEVICES__
+	SPLITMODE_FULL_CH5,
+	SPLITMODE_FULL_CH6,
+	SPLITMODE_FULL_CH7,
+	SPLITMODE_FULL_CH8,
+	SPLITMODE_FULL_CH9,
+#endif
+	SPLITMODE_SPLIT4_1,
+	SPLITMODE_SPLIT4_2,
+#ifdef __9CH_DEVICES__
+	SPLITMODE_SPLIT9_1,
+	SPLITMODE_SPLIT9_2,
+	SPLITMODE_SPLIT9_3,
+	SPLITMODE_SPLIT9_4,
+	SPLITMODE_SPLIT9_5,
+	SPLITMODE_SPLIT9_6,
+	SPLITMODE_SPLIT9_7,
+	SPLITMODE_SPLIT9_8,
+	SPLITMODE_SPLIT9_9,
+#endif
+	SPLITMODE_MAX
+} splitmode_e;
+
 typedef struct
 {
 //	unsigned char output_resolution;		// ����� ��� �ػ�

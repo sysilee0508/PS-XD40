@@ -2,10 +2,10 @@
 #include "Sequence.h"
 
 
-// Dwell timeÀº °¢ Ã¤³Î´ç ºÐÇÒÈ­¸é´ç °¢°¢ ºÎ¿©ÇÑ´Ù.(16ºÐÇÒ, 20ºÐÇÒ Á¦¿Ü)
-// full, 16ºÐÇÒ, 20ºÐÇÒ ÀÏ ¶§´Â 1~20Ã¤³ÎÀ» ¼øÂ÷ÀûÀ¸·Î ÀüÈ¯ÇÑ´Ù.
+// Dwell timeï¿½ï¿½ ï¿½ï¿½ Ã¤ï¿½Î´ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Î¿ï¿½ï¿½Ñ´ï¿½.(16ï¿½ï¿½ï¿½ï¿½, 20ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+// full, 16ï¿½ï¿½ï¿½ï¿½, 20ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 1~20Ã¤ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
 
-u8 bAuto_Seq_Flag = 0;	//Auto Seq ±â´É ON/OFF
+u8 bAuto_Seq_Flag = 0;	//Auto Seq ï¿½ï¿½ï¿½ ON/OFF
 u8 vAuto_Seq_Cnt = 0;	
 u8 vAuto_Seq_Index = 0; 
 
@@ -16,22 +16,22 @@ void Auto_Seq_Init(void)
 	u8 vStart_CH; 
 	u8 vMODE;
 	
-	if(sys_status.current_split_mode <= FULL_9)
+	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
 	{
 		vMODE = FULL_1CH;
 		vStart_CH = sys_status.current_split_mode;
 	}
-	else if(sys_status.current_split_mode == SPLIT4_1)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
 	{
 		vMODE = SPLIT_04;
 		vStart_CH = 0;
 	}
-	else if(sys_status.current_split_mode == SPLIT4_2)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
 	{
 		vMODE = SPLIT_04;
 		vStart_CH = 4;
 	}
-	else if(sys_status.current_split_mode >= SPLIT9_1)
+	else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
 	{
 		vMODE = SPLIT_09;
 		vStart_CH = 0;
@@ -61,8 +61,8 @@ void Auto_Seq_Init(void)
 			{
 
 #ifdef __4CH__
-				if(vAuto_Seq_Index < FULL_4) vAuto_Seq_Index++;
-				else vAuto_Seq_Index = FULL_1;
+				if(vAuto_Seq_Index < SPLITMODE_FULL_CH4) vAuto_Seq_Index++;
+				else vAuto_Seq_Index = SPLITMODE_FULL_CH1;
 #endif
 			}
 			
@@ -73,8 +73,8 @@ void Auto_Seq_Init(void)
 					if(vVideo_Loss&(0x00000001<<vAuto_Seq_Index)) 
 					{
 #ifdef __4CH__
-						if(vAuto_Seq_Index < FULL_4) vAuto_Seq_Index++;
-						else vAuto_Seq_Index = FULL_1;
+						if(vAuto_Seq_Index < SPLITMODE_FULL_CH4) vAuto_Seq_Index++;
+						else vAuto_Seq_Index = SPLITMODE_FULL_CH1;
 #endif
 					}
 					else Index_flag = 1; 
@@ -83,11 +83,11 @@ void Auto_Seq_Init(void)
 				while(Index_flag == 0); 
 			}	
 
-			//Full 1Ã¤³Î ÀüÈ¯	
+			//Full 1Ã¤ï¿½ï¿½ ï¿½ï¿½È¯	
 			vMODE = FULL_1CH; 
-			vStart_CH = FULL_1+vAuto_Seq_Index; 
+			vStart_CH = SPLITMODE_FULL_CH1+vAuto_Seq_Index; 
 
-			if(vStart_CH < FULL_9)
+			if(vStart_CH < SPLITMODE_FULL_CH9)
 			{
 				sys_status.current_split_mode = vStart_CH;
 				aux_display_flag = 0;
@@ -133,16 +133,16 @@ void Auto_Seq_Init(void)
 				while(Index_flag == 0); 
 			}	
 
-			//4ºÐÇÒ ÀüÈ¯
+			//4ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 			vMODE = SPLIT_04; 
 			switch(vAuto_Seq_Index)
 			{
 			}
 
 			if(vAuto_Seq_Index == 0)
-				sys_status.current_split_mode = SPLIT4_2;
+				sys_status.current_split_mode = SPLITMODE_SPLIT4_2;
 			else 
-				sys_status.current_split_mode = SPLIT4_1;
+				sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
 			aux_display_flag = 0;
 #if 0 //Louis
 		    SGQ_4CH_INIT(change_mode[cmode]);
@@ -188,22 +188,22 @@ void Auto_Sequence(void)
 	u8 vStart_CH; 
 	u8 vMODE;
 	
-	if(sys_status.current_split_mode <= FULL_9)
+	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
 	{
 		vMODE = FULL_1CH;
 		vStart_CH = sys_status.current_split_mode;
 	}
-	else if(sys_status.current_split_mode == SPLIT4_1)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
 	{
 		vMODE = SPLIT_04;
 		vStart_CH = 0;
 	}
-	else if(sys_status.current_split_mode == SPLIT4_2)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
 	{
 		vMODE = SPLIT_04;
 		vStart_CH = 4;
 	}
-	else if(sys_status.current_split_mode >= SPLIT9_1)
+	else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
 	{
 		vMODE = SPLIT_09;
 		vStart_CH = 0;
@@ -228,8 +228,8 @@ void Auto_Sequence(void)
 
 					vAuto_Seq_Cnt = sys_env.vDWELL[0];
 #ifdef __4CH__
-					if(vAuto_Seq_Index < FULL_4) vAuto_Seq_Index++;
-					else vAuto_Seq_Index = FULL_1;
+					if(vAuto_Seq_Index < SPLITMODE_FULL_CH4) vAuto_Seq_Index++;
+					else vAuto_Seq_Index = SPLITMODE_FULL_CH1;
 #endif
 					if(sys_env.bLossAutoSkip)
 					{
@@ -238,8 +238,8 @@ void Auto_Sequence(void)
 							if(vVideo_Loss&(0x00000001<<vAuto_Seq_Index)) 
 							{
 #ifdef __4CH__
-								if(vAuto_Seq_Index < FULL_4) vAuto_Seq_Index++;
-								else vAuto_Seq_Index = FULL_1;
+								if(vAuto_Seq_Index < SPLITMODE_FULL_CH4) vAuto_Seq_Index++;
+								else vAuto_Seq_Index = SPLITMODE_FULL_CH1;
 #endif
 							}
 							else Index_flag = 1; 
@@ -248,11 +248,11 @@ void Auto_Sequence(void)
 						while(Index_flag == 0); 
 					}	
 
-					//Ã¤³Î ÀüÈ¯
+					//Ã¤ï¿½ï¿½ ï¿½ï¿½È¯
 					vMODE = FULL_1CH; 
-					vStart_CH = FULL_1+vAuto_Seq_Index; 
+					vStart_CH = SPLITMODE_FULL_CH1+vAuto_Seq_Index; 
 
-					if(vStart_CH < FULL_9)
+					if(vStart_CH < SPLITMODE_FULL_CH9)
 					{
 						sys_status.current_split_mode = vStart_CH;
 #if 0 //Louis
@@ -260,7 +260,7 @@ void Auto_Sequence(void)
 #endif
 						//Set_border_line();
 						aux_display_flag = 0;
-						if(vPre_vStart_CH == FULL_9) DEMO_SetPIPViewWIND(0);	// update pip/pop window
+						if(vPre_vStart_CH == SPLITMODE_FULL_CH9) DEMO_SetPIPViewWIND(0);	// update pip/pop window
 					}
 					else 
 					{
@@ -292,16 +292,16 @@ void Auto_Sequence(void)
 						}
 						while(Index_flag == 0); 
 					}	
-					//4ºÐÇÒ ÀüÈ¯
+					//4ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 					vMODE = SPLIT_04; 
 					switch(vAuto_Seq_Index)
 					{
 					}
 
 					if(vAuto_Seq_Index == 0)
-						sys_status.current_split_mode = SPLIT4_2;
+						sys_status.current_split_mode = SPLITMODE_SPLIT4_2;
 					else 
-						sys_status.current_split_mode = SPLIT4_1;
+						sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
 #if 0 //Louis
 					SGQ_4CH_INIT(change_mode[cmode]);
 #endif

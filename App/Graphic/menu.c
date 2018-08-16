@@ -451,9 +451,9 @@ void Page_Title(void)
 }
 void Setup_Process(void)
 {
-	if(key_flag)
+	if(IsKeyReady())
 	{
-		key_flag = 0;
+		ClearKeyReady();//key_flag = 0;
 
 		switch(vPAGE)
 		{
@@ -494,7 +494,7 @@ void tPAGE0_KEY(void)
 {
 	u8 State=0;		
 
- 	switch(key_data)
+ 	switch(current_key)
 	{
 		case UP_KEY : State=0xff;
 		case DOWN_KEY : 
@@ -771,7 +771,7 @@ void tPAGE1_KEY(void)
 	u8 State=0;		
 	struct tm time_tm;
 
-	switch(key_data)
+	switch(current_key)
 	{
 		case UP_KEY :
 			State=0xff;
@@ -976,7 +976,7 @@ void tPAGE2_KEY(void)
 	u8 State=0;		
 	u8 vFONT;
 
-	switch(key_data)
+	switch(current_key)
 	{
 	  	case UP_KEY  :
 	  		State=0xff;
@@ -1174,7 +1174,7 @@ void tPAGE3_KEY(void)
 {
 	u8 State=0;		
 
-	switch(key_data){
+	switch(current_key){
   	case UP_KEY  :
   		State=0xff;
     case DOWN_KEY  : 
@@ -1347,7 +1347,7 @@ void tPAGE4_KEY(void)
 {
 	u8 State=0;
 
-	switch(key_data){
+	switch(current_key){
 	case UP_KEY : State=0xff;
     case DOWN_KEY : 
 		if(bENTER)
@@ -1390,7 +1390,7 @@ void tPAGE4_KEY(void)
 
 				if(sys_env.b9Split_Mode == 0)
 				{
-					sys_status.current_split_mode = SPLIT9_1;
+					sys_status.current_split_mode = SPLITMODE_SPLIT9_1;
 					aux_display_flag = 1;
 #if 0 //Louis
 				    SGQ_9CH_INIT(change_mode[cmode]);
@@ -1400,7 +1400,7 @@ void tPAGE4_KEY(void)
 				else if((sys_env.b9Split_Mode > 0) && (sys_env.b9Split_Mode < 5)) 
 				{
 					bMode_change_flag = 1;
-					sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
+					sys_status.current_split_mode = SPLITMODE_SPLIT9_1+sys_env.b9Split_Mode;
 					pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
 #if 0 //Louis
 					SGQ_16CH_INIT(change_mode[cmode]);
@@ -1411,7 +1411,7 @@ void tPAGE4_KEY(void)
 				else
 				{
 					bMode_change_flag = 1;
-					sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
+					sys_status.current_split_mode = SPLITMODE_SPLIT9_1+sys_env.b9Split_Mode;
 					pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
 #if 0 //Louis
 					SGQ_9CH_INIT(change_mode[cmode]);
@@ -1620,7 +1620,7 @@ void tPAGE5_KEY(void)
 {
 	u8 State=0;		
 
-	switch(key_data){
+	switch(current_key){
 #if 0
   	case UP_KEY : State=0xff;
     case DOWN_KEY : 
@@ -1781,7 +1781,7 @@ void tPAGE6_KEY(void)
 {
 	u8 State=0;		
 
-	switch(key_data){
+	switch(current_key){
 #if 0
   	case UP_KEY : State=0xff;
     case DOWN_KEY : 
@@ -1937,7 +1937,7 @@ void tPAGE7_KEY(void)
 {
 	u8 State=0;		
 
-	switch(key_data){
+	switch(current_key){
   	case UP_KEY : State=0xff;
     case DOWN_KEY : 
 		if(bENTER)

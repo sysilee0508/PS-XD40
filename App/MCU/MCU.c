@@ -42,11 +42,9 @@ void MCU_init(void)
     GPIOA->CRL = 0x33333333;
     GPIOA->ODR = 0x0000ffff;			//Initialize PAs to High 
     
-#ifdef __4CH__
     GPIOB->CRH = 0x33334b33;			//GPIO10-uart_TX(alternate function), GPIO11-uart_RX
     GPIOB->CRL = 0x33333333;			//
     GPIOB->ODR = 0x0000fff9;			//GPIOB01(ALM_OUT) and GPIOB02(BUZ_OUT) to Low.
-#endif
   
     GPIOC->CRH = 0x33833333;			//GPIOC13 is used for TAMPER-RTC INT
     GPIOC->CRL = 0x33333334;			//GPIOC00 is used for SPI_MISO

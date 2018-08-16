@@ -7,21 +7,19 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
-BOOL key_flag = CLEAR;
-keydata_e key_data = KEY_NONE;
-keydata_e pre_key_data = KEY_NONE;
-//u16 led_state = 0xffff;
 BOOL bFreeze = CLEAR;
-
+//u8 pre_special_mode = LEFT_TOP;
+u8 pre_split_mode = SPLITMODE_FULL_CH1;
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
+keydata_e current_key = KEY_NONE;
 static keycode_t current_keycode = KEYCODE_NONE;
-//static keycode_t led_state = KEYCODE_NONE;
 static key_mode_e key_mode = KEY_MODE_LONG;
 static keystatus_e key_status = KEY_STATUS_RELEASED;
 static BOOL bLongKey = CLEAR;
 static BOOL bRepeatKey = CLEAR;
+static BOOL	bIsKeyReady = CLEAR;
 
 //=============================================================================
 //  Constant Array Declaration (data table)
@@ -51,17 +49,21 @@ const static keydata_e key_table[] =
 	KEY_AUTO_SEQ,
 };
 
-#define NUM_OF_KEYS		sizeof(key_table) //7
+#define NUM_OF_KEYS			sizeof(key_table) //7
 
-#define KEYCOUNT_SHORT		4
-#define KEYCOUNT_REPEAT	40	//400ms
-#define KEYCOUNT_LONG		80	//800ms
-//
-//#define KEYLED_ROW0_EN		KEY_ROW0_LOW; KEY_LED1_HIGH;
-//#define KEYLED_ROW0_DIS		KEY_ROW0_HIGH; KEY_LED1_LOW;
-//#define KEYLED_ROW1_EN		KEY_ROW1_LOW; KEY_LED0_HIGH;
-//#define KEYLED_ROW1_DIS		KEY_ROW1_HIGH; KEY_LED0_LOW;
+#define KEYCOUNT_SHORT		4	//40ms
+#define KEYCOUNT_REPEAT		40	//400ms
+#define KEYCOUNT_LONG		80	//800ms	//need to optimize
 
+//#define SetKeyReady()		bIsKeyReady = SET
+//#define ClearKeyReady()	bIsKeyReady = CLEAR
+//#define IsKeyReady()		(bIsKeyReady == SET)?TRUE:FALSE
+
+#ifdef __9CH_DEVICE__
+#define IS_VALID_LONG_KEY(key)	((key == KEY_FREEZE) || (key == KEY_9SPLIT))?TRUE:FALSE
+#else
+#define IS_VALID_LONG_KEY(key)	(key == KEY_FREEZE)?TRUE:FALSE
+#endif
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -72,24 +74,6 @@ const static keydata_e key_table[] =
 void SetKeyMode(key_mode_e mode)
 {
 	key_mode = mode;
-
-//	switch(mode)
-//	{
-//		case KEY_MODE_SHORT:
-//			bRepeatKey = CLEAR;
-//			bLongKey = CLEAR;
-//			break;
-//
-//		case KEY_MODE_REPEAT:
-//			bRepeatKey = SET;
-//			bLongKey = CLEAR;
-//			break;
-//
-//		case KEY_MODE_LONG:
-//			bRepeatKey = CLEAR;
-//			bLongKey = SET;
-//			break;
-//	}
 }
 
 key_mode_e GetKeyMode(void)
@@ -122,40 +106,38 @@ void UpdateKeyStatus(keystatus_e status)
 {
 	key_status = status; 
 }
+
 keystatus_e GetKeyStatus(void)
 {
 	return key_status;
 }
-
 //-----------------------------------------------------------------------------
-//  ���� ȭ�� ���¿� ���� Ű������ LED�� � ������ �� ���ΰ��� ó���ϴ� �Լ�
-//-----------------------------------------------------------------------------
-void Key_LED_Set(void)
+void UpdateCurrentKey(keydata_e key)
 {
-#if 0
-	//led_state = 0xff;
-	
-	if(bSETUP == 0)
-	{
-#ifdef __4CH__
-		if(sys_status.current_split_mode <= FULL_4) 
-		{
-			led_state = keycode_table[sys_status.current_split_mode];
-		}	
-		else if(sys_status.current_split_mode <= SPLIT4_1)
-		{
-			led_state = keycode_table[4];
-		}
-		
-	    if(bFreeze)
-			led_state &= keycode_table[5];
-	    if(bAuto_Seq_Flag) 
-			led_state &= keycode_table[6];
-#endif
-	}
-#endif
+	current_key = key;
+}
+keydata_e GetCurrentKey(void)
+{
+	return current_key;
 }
 
+void SetKeyReady(void)
+{
+	bIsKeyReady = SET;
+}
+void ClearKeyReady(void)
+{
+	bIsKeyReady = CLEAR;
+}
+BOOL IsKeyReady(void)
+{
+	return (bIsKeyReady == SET)?TRUE:FALSE;
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Key_Scan
+//-----------------------------------------------------------------------------
 void Key_Scan(void)
 {
 	keycode_t key_code = KEYCODE_NONE;
@@ -201,7 +183,7 @@ void Key_Scan(void)
 void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
-	keycode_t leds = GetKeyCode(key_data);
+	keycode_t leds = GetKeyCode(current_key);
 
 	if(leds != KEYCODE_NONE)
 	{
@@ -231,136 +213,150 @@ void Key_Led_Ctrl(void)
 }
 
 //-----------------------------------------------------------------------------
-//	KeyINPUT()�Լ����� ���� ���� ���¿� ���� �ٽ� ó���ϴ� �Լ�	(20ms���� ����)
+// Key_Check() : Find key_data with active keycode. It also handles repeat key and long key
 //-----------------------------------------------------------------------------
 void Key_Check(void)	
 {
 	const keycode_t *pKeyCode;
 	static u8 debounce_cnt = KEYCOUNT_SHORT;
 	static u8 key_cnt = 0;
-	static keydata_e temp_key_data = 0;
+	static keydata_e saved_key = KEY_NONE;
 	u8 i;
 
-	if(current_keycode == KEYCODE_NONE)
+	if(current_keycode != KEYCODE_NONE)
 	{
-		if(SET == bLongKey)
-		{
-			bLongKey = CLEAR;
-			key_flag = SET;
-			key_data = temp_key_data;
-		}
-		
-		bRepeatKey = CLEAR;
-		debounce_cnt = KEYCOUNT_SHORT;
-		key_cnt = 0;
-		UpdateKeyStatus(KEY_STATUS_RELEASED);//key_status = KEY_STATUS_RELEASED;
-		return ; 
-	}
-	else
-	{
+		//We have valid keycode now.
 		pKeyCode = keycode_table;
-		UpdateKeyStatus(KEY_STATUS_PRESSED);//key_status = KEY_STATUS_PRESSED;
-	}
+		UpdateKeyStatus(KEY_STATUS_PRESSED);
+		ClearKeyReady();
 
-	// Find index of key code table
-	for(i=0; i< NUM_OF_KEYS; i++)
-	{
-		if(*(pKeyCode+i) == current_keycode)
+		// Find index of key code table
+		for(i=0; i< NUM_OF_KEYS; i++)
 		{
-			break;
-		}
-	}
-
-	if(i < NUM_OF_KEYS)
-	{
-		if(key_table[i] != temp_key_data)
-		{
-			temp_key_data = key_table[i];
-			key_cnt = 0;
-		}
-		else
-		{
-			key_cnt++;
-		}
-
-		if(key_cnt >= debounce_cnt)
-		{
-			switch (GetKeyMode())
+			if(*(pKeyCode+i) == current_keycode)
 			{
-			case KEY_MODE_SHORT:
-				if(CLEAR == bRepeatKey)
-				{
-					key_flag = SET;
-					bRepeatKey = SET;
-					bLongKey = CLEAR;
-					key_data = temp_key_data;
-				}
-				break;
-
-			case KEY_MODE_REPEAT:
-				key_data = temp_key_data;
-				debounce_cnt = KEYCOUNT_REPEAT;
-				if(SET == bRepeatKey)
-				{
-					if( (key_data != LEFT_KEY) && (key_data != RIGHT_KEY) && (key_data != UP_KEY) && (key_data != DOWN_KEY))
-					{
-						bRepeatKey = SET;
-						key_cnt = 0;
-
-						return;
-					}
-					debounce_cnt = KEYCOUNT_SHORT;
-				}
-				key_flag = SET;
-				bRepeatKey = SET;
-				key_cnt = 0;
-				break;
-
-			case KEY_MODE_LONG:
-				bLongKey = SET;
-				if((key_cnt >= KEYCOUNT_LONG) && (CLEAR == bRepeatKey))
-				{
-					bRepeatKey = SET;
-					bLongKey = CLEAR;
-					key_flag = SET;
-
-					if(temp_key_data == KEY_FREEZE)
-						key_data = KEY_MENU;
-#ifdef __9CH_DEVICE__
-					else if(temp_key_data == KEY_9SPLIT)
-						key_data = KEY_9SPLIT | KEY_LONG;
-#endif //__9CH_DEVICE__
-					else
-						key_data = temp_key_data;
-				}
-				break;
-
-			case KEY_MODE_MAX:
-			default:
-				// Do nothing
 				break;
 			}
 		}
+
+		if(i < NUM_OF_KEYS)
+		{
+			if(key_table[i] != saved_key) // is it a new key?
+			{
+				//update saved key data with current key code
+				saved_key = key_table[i];
+				//reset key count
+				key_cnt = 0;
+			}
+			else
+			{
+				//increase key count if it is not a new key
+				key_cnt++;
+			}
+
+			if(key_cnt >= debounce_cnt)
+			{
+				switch (GetKeyMode())
+				{
+				case KEY_MODE_SHORT:
+					if(CLEAR == bRepeatKey)
+					{
+						bRepeatKey = SET;
+						bLongKey = CLEAR;
+						current_key = saved_key;
+						//SetKeyReady();
+					}
+					break;
+
+				case KEY_MODE_REPEAT:
+					current_key = saved_key;
+					debounce_cnt = KEYCOUNT_REPEAT;
+					if(SET == bRepeatKey)
+					{
+						if((current_key != KEY_FULL_CH1) && (current_key != KEY_FULL_CH2) &&
+							(current_key != KEY_FULL_CH3) && (current_key != KEY_FULL_CH4))
+						{
+							bRepeatKey = SET;
+							key_cnt = 0;
+							return;
+						}
+						debounce_cnt = KEYCOUNT_SHORT;
+					}
+					bRepeatKey = SET;
+					key_cnt = 0;
+					//SetKeyReady();
+					break;
+
+				case KEY_MODE_LONG:
+					bLongKey = SET;
+					if((key_cnt >= KEYCOUNT_LONG) && (CLEAR == bRepeatKey))
+					{
+						bRepeatKey = SET;
+						bLongKey = CLEAR;
+						//SetKeyReady();
+
+						if(IS_VALID_LONG_KEY(saved_key))
+						{
+							current_key = saved_key | KEY_LONG;
+						}
+						else
+						{
+							current_key = saved_key;
+						}
+					}
+					else
+					{
+						current_key = saved_key;
+					}
+					break;
+
+				case KEY_MODE_MAX:
+				default:
+					// Do nothing
+					break;
+				}
+			}
+		}
+		else //reset all flags and count.
+		{
+			bLongKey = CLEAR;
+			bRepeatKey = CLEAR;
+			debounce_cnt = KEYCOUNT_SHORT;
+			key_cnt = 0;
+			//current_key = KEY_NONE;
+			UpdateKeyStatus(KEY_STATUS_RELEASED);
+		}
 	}
-	else //reset all flags and count.
+	else //(current_keycode == KEYCODE_NONE)
 	{
+//		if(SET == bLongKey)
+//		{
+//			bLongKey = CLEAR;
+//			SetKeyReady();
+////			current_key = saved_key;
+//		}
+		// reset all flags and count
 		bLongKey = CLEAR;
 		bRepeatKey = CLEAR;
 		debounce_cnt = KEYCOUNT_SHORT;
 		key_cnt = 0;
 		UpdateKeyStatus(KEY_STATUS_RELEASED);
+		if(current_key != KEY_NONE)
+		{
+			SetKeyReady();
+		}
+		//Do not update current_key here if key count is not reached debounce count (Short or Repeat)
 	}
 }
 
-u8 pre_special_mode = LEFT_TOP;
-u8 pre_split_mode = 0;
 void Key_Proc(void)
 {
-	if(key_flag)
-	{
-		key_flag = 0;
+	static keydata_e previous_key = KEY_NONE;
 
-		switch(key_data)
+	if(IsKeyReady())
+	{
+		ClearKeyReady();
+		switch(current_key)
 		{
 			case KEY_FULL_CH1 : 
 			case KEY_FULL_CH2 : 
@@ -373,7 +369,7 @@ void Key_Proc(void)
 			case KEY_FULL_CH8 : 
 			case KEY_FULL_CH9 :
 #endif
-				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
+				if(previous_key != current_key /*|| SDIRX_change_flag	Louis block*/)
 				{
 					//if(pre_split_mode > FULL_9) //2015.5.23 �ּ�ó��
 					{
@@ -383,9 +379,9 @@ void Key_Proc(void)
 					bAuto_Seq_Flag = RESET;
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = key_data-1;
+					pre_split_mode = sys_status.current_split_mode = current_key-1;
 #ifdef __9CH_DEVICE__
-					if(key_data == KEY_FULL_CH9)
+					if(current_key == KEY_FULL_CH9)
 					{
 						Set_border_line();
 						aux_display_flag = SET;
@@ -397,16 +393,16 @@ void Key_Proc(void)
 					{
 						aux_display_flag = RESET;
 						//MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-						//FullScreen(key_data-1); //blocked by Louis
+						//FullScreen(current_key-1); //blocked by Louis
 						Set_border_line();
 					}
 				}
 				break;
 				
 			case KEY_4SPLIT : 
-				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
+				if(previous_key != current_key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					if(pre_split_mode != SPLIT4_1 || bAuto_Seq_Flag || bFreeze)
+					if(pre_split_mode != SPLITMODE_SPLIT4_1 || bAuto_Seq_Flag || bFreeze)
 					{
 						Erase_OSD();
 					}
@@ -414,7 +410,7 @@ void Key_Proc(void)
 					bAuto_Seq_Flag = CLEAR;
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = SPLIT4_1;
+					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
 					aux_display_flag = RESET;
 					//MDIN3xx_EnableAuxDisplay(&stVideo, OFF); 
 #if 0 //Louis
@@ -426,7 +422,7 @@ void Key_Proc(void)
 
 #ifdef __9CH_DEVICE__ // blocked by kukuri
 			case KEY_9SPLIT : 
-				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
+				if(previous_key != current_key /*|| SDIRX_change_flag	Louis block*/)
 				{
 					if(sys_env.b9Split_Mode == 0)
 					{
@@ -602,7 +598,9 @@ void Key_Proc(void)
 				Enter_SetUP();
 				break;
 		}
-		pre_key_data = key_data & 0x7f;
+		// Save current_key into previous_key and clear current_key with KEY_NONE
+		previous_key = current_key & 0x7f;
+		current_key = KEY_NONE;
 	}
 }
 

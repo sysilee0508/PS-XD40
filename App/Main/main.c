@@ -173,7 +173,8 @@ void USART3_IRQHandler(void)
 		}
 		else if(bETX_FLAG)
 		{
-			if(Data == 3) key_flag = 1;
+			if(Data == 3)
+				SetKeyReady();//key_flag = 1;
 			bSOH_FLAG = 0;
 			bHEADER_FLAG = 0;
 			bSTX_FLAG = 0;
@@ -196,9 +197,9 @@ void USART3_IRQHandler(void)
 				if(rs232_key_table[i] == Data)
 				{
 					if(i == 0x1d)
-						key_data = KEY_9SPLIT+0x80;
+						current_key = KEY_9SPLIT+0x80;
 					else
-						key_data = i;
+						current_key = i;
 					break;
 				}
 			}
@@ -449,10 +450,10 @@ void main(void)
 		Delay_ms(20);
 	}
 	
-	if(key_flag == 1) 
+	if(IsKeyReady())
 	{
-		key_flag = 0;
-		if(key_data == KEY_MENU || key_data == KEY_FREEZE)
+		ClearKeyReady()//key_flag = 0;
+		if(current_key == KEY_MENU || current_key == KEY_FREEZE)
 		{
 			EEP_buf[cEEP_CHK] = 0;
 			write_eeprom_all();
@@ -506,10 +507,10 @@ void main(void)
 #ifdef __4CH__
 	InputSelect = VIDEO_DIGITAL_SDI;
 //	InputSelect = VIDEO_SDI_2HD_POP;
-	sys_status.current_split_mode = SPLIT4_1;
+	sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
 
-	key_data = KEY_4SPLIT;
-	key_flag = SET;
+	UpdateCurrentKey(KEY_4SPLIT);//current_key = KEY_4SPLIT;
+	SetKeyReady();//key_flag = SET;
 	sysenv_split_mode = 5; //OMG! what is 5?!
 #endif
 

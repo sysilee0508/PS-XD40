@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------------
 // Include files
 // -----------------------------------------------------------------------------
-
+#include "key.h"
 
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
@@ -28,33 +28,19 @@
 // Exported Variables
 // ----------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-// Exported function Prototype
-// -----------------------------------------------------------------------------
-WORD GetMenuStatus(BYTE nID, BYTE sID);
-void SetMenuStatus(BYTE nID, BYTE sID, BYTE val);
-WORD GetOSDMenuID(void);
-void SetOSDMenuID(WORD nID);
-void SetOSDCombID(WORD nID);
-void SetMenuDefaultStatus(void);
-
-void OSD_LineClearRemainder(BYTE row, BYTE rem);
-
-void Inc_Dec_Count(u8 Max,u8 Min,u8 Up_Flag,u8 *P);
-
 
 
 //-----------------------------------------------------------------
 //
 //-----------------------------------------------------------------
-#ifdef __4CH__
-#define LEFT_KEY   1
-#define UP_KEY     2
-#define DOWN_KEY   3
-#define RIGHT_KEY  4
-#define ENTER_KEY  0x15
-#define EXIT_KEY   0x19
-#endif
+
+#define LEFT_KEY   KEY_FULL_CH1	//0x01
+#define UP_KEY     KEY_FULL_CH2	//0x02
+#define DOWN_KEY   KEY_FULL_CH3	//0x03
+#define RIGHT_KEY  KEY_FULL_CH4	//0x04
+#define ENTER_KEY  KEY_4SPLIT	//0x15
+#define EXIT_KEY   KEY_FREEZE	//0x19
+
 
 //-----------------------------------------------------------------
 //
@@ -77,6 +63,20 @@ extern u8 bENTER;
 extern const u8 tBIT_CHECK[8];
 extern u16 vMOTION_AREA[16][12]; 
 extern BYTE bSETUP_Change_flag;
+
+// -----------------------------------------------------------------------------
+// Exported function Prototype
+// -----------------------------------------------------------------------------
+WORD GetMenuStatus(BYTE nID, BYTE sID);
+void SetMenuStatus(BYTE nID, BYTE sID, BYTE val);
+WORD GetOSDMenuID(void);
+void SetOSDMenuID(WORD nID);
+void SetOSDCombID(WORD nID);
+void SetMenuDefaultStatus(void);
+
+void OSD_LineClearRemainder(BYTE row, BYTE rem);
+
+void Inc_Dec_Count(u8 Max,u8 Min,u8 Up_Flag,u8 *P);
 
 
 
