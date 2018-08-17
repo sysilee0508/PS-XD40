@@ -107,7 +107,7 @@ extern void Key_Led_Ctrl(void);
 extern void SetKeyMode(key_mode_e mode);
 extern key_mode_e GetKeyMode(void);
 extern keycode_t GetKeyCode(keydata_e key);
-//extern void UpdateCurrentKey(keydata_e key);
+extern void UpdateCurrentKey(keydata_e key);
 extern keydata_e GetCurrentKey(void);
 extern void SetKeyReady(void);
 extern void ClearKeyReady(void);
@@ -117,7 +117,7 @@ extern BOOL IsKeyReady(void);
 //=============================================================================
 extern key_mode_e key_mode;
 //extern BOOL key_flag;
-extern keydata_e current_key;
+//extern keydata_e current_key;
 
 extern BOOL bFreeze;
 

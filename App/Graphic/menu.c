@@ -492,11 +492,13 @@ void Setup_Process(void)
 
 void tPAGE0_KEY(void)
 {
-	u8 State=0;		
+	keydata_e current_key = GetCurrentKey();
+	u8 State=0;
 
  	switch(current_key)
 	{
-		case UP_KEY : State=0xff;
+		case UP_KEY :
+			State=0xff;
 		case DOWN_KEY : 
 			Inc_Dec_Count(6,0,~State,&vITEM_Y);
 			MenuSelect(vITEM_Y,0);
@@ -770,6 +772,7 @@ void tPAGE1_KEY(void)
 {
 	u8 State=0;		
 	struct tm time_tm;
+	keydata_e current_key = GetCurrentKey();
 
 	switch(current_key)
 	{
@@ -975,6 +978,7 @@ void tPAGE2_KEY(void)
 {
 	u8 State=0;		
 	u8 vFONT;
+	keydata_e current_key = GetCurrentKey();
 
 	switch(current_key)
 	{
@@ -1172,7 +1176,8 @@ void tPAGE3_Position(u8 Position)
 
 void tPAGE3_KEY(void)
 {
-	u8 State=0;		
+	u8 State=0;
+	keydata_e current_key = GetCurrentKey();
 
 	switch(current_key){
   	case UP_KEY  :
@@ -1346,6 +1351,7 @@ void PAGE4_TITLE(void)
 void tPAGE4_KEY(void)
 {
 	u8 State=0;
+	keydata_e current_key = GetCurrentKey();
 
 	switch(current_key){
 	case UP_KEY : State=0xff;
@@ -1618,7 +1624,8 @@ void PAGE5_TITLE(void)
 
 void tPAGE5_KEY(void)
 {
-	u8 State=0;		
+	u8 State=0;
+	keydata_e current_key = GetCurrentKey();
 
 	switch(current_key){
 #if 0
@@ -1779,7 +1786,8 @@ void PAGE6_TITLE(void)
 
 void tPAGE6_KEY(void)
 {
-	u8 State=0;		
+	u8 State=0;
+	keydata_e current_key = GetCurrentKey();
 
 	switch(current_key){
 #if 0
@@ -1935,7 +1943,8 @@ void PAGE7_TITLE(void)
 
 void tPAGE7_KEY(void)
 {
-	u8 State=0;		
+	u8 State=0;
+	keydata_e current_key = GetCurrentKey();
 
 	switch(current_key){
   	case UP_KEY : State=0xff;

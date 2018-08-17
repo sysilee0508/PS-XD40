@@ -65,14 +65,11 @@ void TIM2_IRQHandler(void)
 //-----------------------------------------------------------------------------
 void TIM3_IRQHandler(void)
 {
-	static unsigned int cnt;
-
 	TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	Key_Scan();
 	Key_Check();
 	Key_Led_Ctrl();
-
 }
 
 //-----------------------------------------------------------------------------
@@ -197,9 +194,9 @@ void USART3_IRQHandler(void)
 				if(rs232_key_table[i] == Data)
 				{
 					if(i == 0x1d)
-						current_key = KEY_9SPLIT+0x80;
+						UpdateCurrentKey(KEY_9SPLIT | KEY_LONG);//current_key = KEY_9SPLIT+0x80;
 					else
-						current_key = i;
+						UpdateCurrentKey(i);//current_key = i;
 					break;
 				}
 			}
@@ -429,6 +426,7 @@ void Video_Loss_Check(void)
 void main(void)
 {
 	int i;
+	keydata_e key;
 
 	// initialize STM32F103x
 	MCU_init();
@@ -452,8 +450,9 @@ void main(void)
 	
 	if(IsKeyReady())
 	{
-		ClearKeyReady()//key_flag = 0;
-		if(current_key == KEY_MENU || current_key == KEY_FREEZE)
+		ClearKeyReady();//key_flag = 0;
+		key = GetCurrentKey();
+		if(key == KEY_MENU || key == KEY_FREEZE)
 		{
 			EEP_buf[cEEP_CHK] = 0;
 			write_eeprom_all();
