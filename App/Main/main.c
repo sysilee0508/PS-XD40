@@ -11,8 +11,6 @@
 sys_stat_t sys_status;
 sys_env_t sys_env;
 
-
-
 volatile BOOL fUSBXferMode, fZOOMMove, fCROPMove;
 s8 Video1_In_Res_Val = 0x00;
 s8 Video2_In_Res_Val = 0x00;
@@ -27,18 +25,13 @@ BYTE sysenv_split_mode = 0;
 
 u8 aux_display_flag = 0;
 
-
 const unsigned char change_mode[4] = {0x4, 0x2, 0x7, 0x4};
 int cmode = 0;
-
 
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
 extern BYTE fMenuUpdate;			  				//by hungry 2012.03.06
-//extern BYTE Key1stCode;		   						//by hungry 2012.03.15
-//extern BOOL fButtonScan;   							//by hungry 2012.03.15
-
 
 u32 tick_10ms = 0;
 
@@ -57,7 +50,6 @@ void TIM2_IRQHandler(void)
 		cnt = 0;
 		tick_10ms++;
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -65,13 +57,11 @@ void TIM2_IRQHandler(void)
 //-----------------------------------------------------------------------------
 void TIM3_IRQHandler(void)
 {
-	static unsigned int cnt;
-
 	TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	Key_Scan();
-	Key_Check();
 	Key_Led_Ctrl();
+	Key_Check();
 
 }
 
@@ -173,7 +163,8 @@ void USART3_IRQHandler(void)
 		}
 		else if(bETX_FLAG)
 		{
-			if(Data == 3) key_flag = 1;
+			if(Data == 3)
+				SetKeyReady();
 			bSOH_FLAG = 0;
 			bHEADER_FLAG = 0;
 			bSTX_FLAG = 0;
@@ -451,7 +442,7 @@ void main(void)
 	
 	if(key_flag == 1) 
 	{
-		key_flag = 0;
+		ClearKeyReady();//bIsKeyReady = 0;
 		if(key_data == KEY_MENU || key_data == KEY_FREEZE)
 		{
 			EEP_buf[cEEP_CHK] = 0;

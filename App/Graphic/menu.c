@@ -451,9 +451,9 @@ void Page_Title(void)
 }
 void Setup_Process(void)
 {
-	if(key_flag)
+	if(IsKeyReady())
 	{
-		key_flag = 0;
+		ClearKeyReady();
 
 		switch(vPAGE)
 		{

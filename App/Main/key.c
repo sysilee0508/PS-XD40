@@ -7,21 +7,20 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
-BOOL key_flag = CLEAR;
 keydata_e key_data = KEY_NONE;
 keydata_e pre_key_data = KEY_NONE;
-//u16 led_state = 0xffff;
 BOOL bFreeze = CLEAR;
 
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
 static keycode_t current_keycode = KEYCODE_NONE;
-//static keycode_t led_state = KEYCODE_NONE;
+static keycode_t led_keycode = KEYCODE_NONE;
 static key_mode_e key_mode = KEY_MODE_LONG;
 static keystatus_e key_status = KEY_STATUS_RELEASED;
 static BOOL bLongKey = CLEAR;
 static BOOL bRepeatKey = CLEAR;
+static BOOL bIsKeyReady = CLEAR;
 
 //=============================================================================
 //  Constant Array Declaration (data table)
@@ -51,11 +50,11 @@ const static keydata_e key_table[] =
 	KEY_AUTO_SEQ,
 };
 
-#define NUM_OF_KEYS		sizeof(key_table) //7
+#define NUM_OF_KEYS				sizeof(key_table) //7
 
-#define KEYCOUNT_SHORT		4
-#define KEYCOUNT_REPEAT	40	//400ms
-#define KEYCOUNT_LONG		80	//800ms
+#define KEYCOUNT_SHORT			4
+#define KEYCOUNT_REPEAT			40	//400ms
+#define KEYCOUNT_LONG			80	//800ms
 //
 //#define KEYLED_ROW0_EN		KEY_ROW0_LOW; KEY_LED1_HIGH;
 //#define KEYLED_ROW0_DIS		KEY_ROW0_HIGH; KEY_LED1_LOW;
@@ -72,24 +71,6 @@ const static keydata_e key_table[] =
 void SetKeyMode(key_mode_e mode)
 {
 	key_mode = mode;
-
-//	switch(mode)
-//	{
-//		case KEY_MODE_SHORT:
-//			bRepeatKey = CLEAR;
-//			bLongKey = CLEAR;
-//			break;
-//
-//		case KEY_MODE_REPEAT:
-//			bRepeatKey = SET;
-//			bLongKey = CLEAR;
-//			break;
-//
-//		case KEY_MODE_LONG:
-//			bRepeatKey = CLEAR;
-//			bLongKey = SET;
-//			break;
-//	}
 }
 
 key_mode_e GetKeyMode(void)
@@ -126,35 +107,23 @@ keystatus_e GetKeyStatus(void)
 {
 	return key_status;
 }
+//-----------------------------------------------------------------------------
+void SetKeyReady(void)
+{
+	bIsKeyReady = SET;
+}
+void ClearKeyReady(void)
+{
+	bIsKeyReady = CLEAR;
+}
+BOOL IsKeyReady(void)
+{
+	return bIsKeyReady;
+}
 
 //-----------------------------------------------------------------------------
-//  ���� ȭ�� ���¿� ���� Ű������ LED�� � ������ �� ���ΰ��� ó���ϴ� �Լ�
+//  Key Functions
 //-----------------------------------------------------------------------------
-void Key_LED_Set(void)
-{
-#if 0
-	//led_state = 0xff;
-	
-	if(bSETUP == 0)
-	{
-#ifdef __4CH__
-		if(sys_status.current_split_mode <= FULL_4) 
-		{
-			led_state = keycode_table[sys_status.current_split_mode];
-		}	
-		else if(sys_status.current_split_mode <= SPLIT4_1)
-		{
-			led_state = keycode_table[4];
-		}
-		
-	    if(bFreeze)
-			led_state &= keycode_table[5];
-	    if(bAuto_Seq_Flag) 
-			led_state &= keycode_table[6];
-#endif
-	}
-#endif
-}
 
 void Key_Scan(void)
 {
@@ -196,12 +165,30 @@ void Key_Scan(void)
 
 	// Update current_keycode
 	current_keycode = key_code;
+	if(key_code != KEYCODE_NONE)
+	{
+		led_keycode = key_code;
+		UpdateKeyStatus(KEY_STATUS_PRESSED);
+	}
+	else
+	{
+		UpdateKeyStatus(KEY_STATUS_RELEASED);
+	}
 }
 
 void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
-	keycode_t leds = GetKeyCode(key_data);
+	keycode_t leds;// = led_keycode;//GetKeyCode(key_data);
+
+	if(GetKeyStatus == KEY_STATUS_RELEASED)
+	{
+		leds = GetKeyCode(key_data);;
+	}
+	else
+	{
+		leds = led_keycode;
+	}
 
 	if(leds != KEYCODE_NONE)
 	{
@@ -241,114 +228,112 @@ void Key_Check(void)
 	static keydata_e temp_key_data = 0;
 	u8 i;
 
-	if(current_keycode == KEYCODE_NONE)
+	if(current_keycode != KEYCODE_NONE)
+	{
+		pKeyCode = keycode_table;
+		UpdateKeyStatus(KEY_STATUS_PRESSED);//key_status = KEY_STATUS_PRESSED;
+
+		// Find index of key code table
+		for(i=0; i< NUM_OF_KEYS; i++)
+		{
+			if(*(pKeyCode+i) == current_keycode)
+			{
+				break;
+			}
+		}
+
+		if(i < NUM_OF_KEYS)
+		{
+			if(key_table[i] != temp_key_data)
+			{
+				temp_key_data = key_table[i];
+				key_cnt = 0;
+			}
+			else
+			{
+				key_cnt++;
+			}
+
+			if(key_cnt >= debounce_cnt)
+			{
+				switch (GetKeyMode())
+				{
+				case KEY_MODE_SHORT:
+					if(CLEAR == bRepeatKey)
+					{
+						SetKeyReady();//bIsKeyReady = SET;
+						bRepeatKey = SET;
+						bLongKey = CLEAR;
+						key_data = temp_key_data;
+					}
+					break;
+
+				case KEY_MODE_REPEAT:
+					key_data = temp_key_data;
+					debounce_cnt = KEYCOUNT_REPEAT;
+					if(SET == bRepeatKey)
+					{
+						if( (key_data != LEFT_KEY) && (key_data != RIGHT_KEY) && (key_data != UP_KEY) && (key_data != DOWN_KEY))
+						{
+							bRepeatKey = SET;
+							key_cnt = 0;
+
+							return;
+						}
+						debounce_cnt = KEYCOUNT_SHORT;
+					}
+					SetKeyReady();//bIsKeyReady = SET;
+					bRepeatKey = SET;
+					key_cnt = 0;
+					break;
+
+				case KEY_MODE_LONG:
+					bLongKey = SET;
+					if((key_cnt >= KEYCOUNT_LONG) && (CLEAR == bRepeatKey))
+					{
+						bRepeatKey = SET;
+						bLongKey = CLEAR;
+						SetKeyReady();//bIsKeyReady = SET;
+
+						if(temp_key_data == KEY_FREEZE)
+							key_data = KEY_MENU;
+	#ifdef __9CH_DEVICE__
+						else if(temp_key_data == KEY_9SPLIT)
+							key_data = KEY_9SPLIT | KEY_LONG;
+	#endif //__9CH_DEVICE__
+						else
+							key_data = temp_key_data;
+					}
+					break;
+
+				case KEY_MODE_MAX:
+				default:
+					// Do nothing
+					break;
+				}
+			}
+		}
+		else //reset all flags and count.
+		{
+			bLongKey = CLEAR;
+			bRepeatKey = CLEAR;
+			debounce_cnt = KEYCOUNT_SHORT;
+			key_cnt = 0;
+			UpdateKeyStatus(KEY_STATUS_RELEASED);
+		}
+	}
+	else
 	{
 		if(SET == bLongKey)
 		{
 			bLongKey = CLEAR;
-			key_flag = SET;
+			SetKeyReady();//bIsKeyReady = SET;
 			key_data = temp_key_data;
 		}
-		
 		bRepeatKey = CLEAR;
 		debounce_cnt = KEYCOUNT_SHORT;
 		key_cnt = 0;
 		UpdateKeyStatus(KEY_STATUS_RELEASED);//key_status = KEY_STATUS_RELEASED;
-		return ; 
-	}
-	else
-	{
-		pKeyCode = keycode_table;
-		UpdateKeyStatus(KEY_STATUS_PRESSED);//key_status = KEY_STATUS_PRESSED;
-	}
-
-	// Find index of key code table
-	for(i=0; i< NUM_OF_KEYS; i++)
-	{
-		if(*(pKeyCode+i) == current_keycode)
-		{
-			break;
-		}
-	}
-
-	if(i < NUM_OF_KEYS)
-	{
-		if(key_table[i] != temp_key_data)
-		{
-			temp_key_data = key_table[i];
-			key_cnt = 0;
-		}
-		else
-		{
-			key_cnt++;
-		}
-
-		if(key_cnt >= debounce_cnt)
-		{
-			switch (GetKeyMode())
-			{
-			case KEY_MODE_SHORT:
-				if(CLEAR == bRepeatKey)
-				{
-					key_flag = SET;
-					bRepeatKey = SET;
-					bLongKey = CLEAR;
-					key_data = temp_key_data;
-				}
-				break;
-
-			case KEY_MODE_REPEAT:
-				key_data = temp_key_data;
-				debounce_cnt = KEYCOUNT_REPEAT;
-				if(SET == bRepeatKey)
-				{
-					if( (key_data != LEFT_KEY) && (key_data != RIGHT_KEY) && (key_data != UP_KEY) && (key_data != DOWN_KEY))
-					{
-						bRepeatKey = SET;
-						key_cnt = 0;
-
-						return;
-					}
-					debounce_cnt = KEYCOUNT_SHORT;
-				}
-				key_flag = SET;
-				bRepeatKey = SET;
-				key_cnt = 0;
-				break;
-
-			case KEY_MODE_LONG:
-				bLongKey = SET;
-				if((key_cnt >= KEYCOUNT_LONG) && (CLEAR == bRepeatKey))
-				{
-					bRepeatKey = SET;
-					bLongKey = CLEAR;
-					key_flag = SET;
-
-					if(temp_key_data == KEY_FREEZE)
-						key_data = KEY_MENU;
-#ifdef __9CH_DEVICE__
-					else if(temp_key_data == KEY_9SPLIT)
-						key_data = KEY_9SPLIT | KEY_LONG;
-#endif //__9CH_DEVICE__
-					else
-						key_data = temp_key_data;
-				}
-				break;
-
-			case KEY_MODE_MAX:
-			default:
-				// Do nothing
-				break;
-			}
-		}
-	}
-	else //reset all flags and count.
-	{
-		bLongKey = CLEAR;
-		bRepeatKey = CLEAR;
-		debounce_cnt = KEYCOUNT_SHORT;
-		key_cnt = 0;
-		UpdateKeyStatus(KEY_STATUS_RELEASED);
 	}
 }
 
@@ -356,9 +341,9 @@ u8 pre_special_mode = LEFT_TOP;
 u8 pre_split_mode = 0;
 void Key_Proc(void)
 {
-	if(key_flag)
+	if(IsKeyReady())
 	{
-		key_flag = 0;
+		ClearKeyReady();
 
 		switch(key_data)
 		{
