@@ -62,6 +62,9 @@ const static keydata_e key_table[] =
 //#define KEYLED_ROW1_DIS		KEY_ROW1_HIGH; KEY_LED0_LOW;
 
 #define VALID_LONG_KEY(key)		(key == KEY_FREEZE)?TRUE:FALSE
+#define VALID_REPEAT_KEY(key)	\
+	((key == KEY_FULL_CH1) || (key == KEY_FULL_CH2) || \
+	 (key == KEY_FULL_CH3) || (key == KEY_FULL_CH4))?TRUE:FALSE
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -71,7 +74,10 @@ const static keydata_e key_table[] =
 //-----------------------------------------------------------------------------
 void SetKeyMode(key_mode_e mode)
 {
-	key_mode = mode;
+	if(GetKeyStatus() == KEY_STATUS_RELEASED)
+	{
+		key_mode = mode;
+	}
 }
 
 key_mode_e GetKeyMode(void)
@@ -226,13 +232,13 @@ void Key_Check(void)
 	const keycode_t *pKeyCode;
 	static u8 debounce_cnt = KEYCOUNT_SHORT;
 	static u8 key_cnt = 0;
-	static keydata_e temp_key_data = 0;
+	static keydata_e processing_key_data = KEY_NONE;
 	u8 i;
 
 	if(current_keycode != KEYCODE_NONE)
 	{
 		pKeyCode = keycode_table;
-		UpdateKeyStatus(KEY_STATUS_PRESSED);//key_status = KEY_STATUS_PRESSED;
+		UpdateKeyStatus(KEY_STATUS_PRESSED);
 
 		// Find index of key code table
 		for(i=0; i< NUM_OF_KEYS; i++)
@@ -245,9 +251,9 @@ void Key_Check(void)
 
 		if(i < NUM_OF_KEYS)
 		{
-			if(key_table[i] != temp_key_data)
+			if(key_table[i] != processing_key_data)
 			{
-				temp_key_data = key_table[i];
+				processing_key_data = key_table[i];
 				key_cnt = 0;
 			}
 			else
@@ -262,19 +268,19 @@ void Key_Check(void)
 				case KEY_MODE_SHORT:
 					if(CLEAR == bRepeatKey)
 					{
-						SetKeyReady();//bIsKeyReady = SET;
 						bRepeatKey = SET;
 						bLongKey = CLEAR;
-						key_data = temp_key_data;
+						key_data = processing_key_data;
+						SetKeyReady();
 					}
 					break;
 
 				case KEY_MODE_REPEAT:
-					key_data = temp_key_data;
+					key_data = processing_key_data;
 					debounce_cnt = KEYCOUNT_REPEAT;
 					if(SET == bRepeatKey)
 					{
-						if( (key_data != LEFT_KEY) && (key_data != RIGHT_KEY) && (key_data != UP_KEY) && (key_data != DOWN_KEY))
+						if(FALSE == VALID_REPEAT_KEY(key_data))
 						{
 							bRepeatKey = SET;
 							key_cnt = 0;
@@ -289,16 +295,19 @@ void Key_Check(void)
 					break;
 
 				case KEY_MODE_LONG:
-				  	if((VALID_LONG_KEY(temp_key_data)) && (key_cnt > KEYCOUNT_LONG))
+				  	if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
-						key_data = temp_key_data | KEY_LONG;
+				  		bRepeatKey = SET;
+						key_data = processing_key_data | KEY_LONG;
 						SetKeyReady();
 					}
 					else
 					{
 					  	bLongKey = SET;
-						key_data = temp_key_data;
+						key_data = processing_key_data;
 					}
+
+
 					
 					
 
@@ -340,13 +349,12 @@ void Key_Check(void)
 		if(SET == bLongKey)
 		{
 			bLongKey = CLEAR;
-			SetKeyReady();//bIsKeyReady = SET;
-			//key_data = temp_key_data;
+			SetKeyReady();
 		}
 		bRepeatKey = CLEAR;
 		debounce_cnt = KEYCOUNT_SHORT;
 		key_cnt = 0;
-		UpdateKeyStatus(KEY_STATUS_RELEASED);//key_status = KEY_STATUS_RELEASED;
+		UpdateKeyStatus(KEY_STATUS_RELEASED);
 	}
 }
 
