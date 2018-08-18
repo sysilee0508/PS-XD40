@@ -61,6 +61,7 @@ const static keydata_e key_table[] =
 //#define KEYLED_ROW1_EN		KEY_ROW1_LOW; KEY_LED0_HIGH;
 //#define KEYLED_ROW1_DIS		KEY_ROW1_HIGH; KEY_LED0_LOW;
 
+#define VALID_LONG_KEY(key)		(key == KEY_FREEZE)?TRUE:FALSE
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -179,9 +180,9 @@ void Key_Scan(void)
 void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
-	keycode_t leds;// = led_keycode;//GetKeyCode(key_data);
+	keycode_t leds;
 
-	if(GetKeyStatus == KEY_STATUS_RELEASED)
+	if(GetKeyStatus() == KEY_STATUS_RELEASED)
 	{
 		leds = GetKeyCode(key_data);;
 	}
@@ -288,22 +289,34 @@ void Key_Check(void)
 					break;
 
 				case KEY_MODE_LONG:
-					bLongKey = SET;
-					if((key_cnt >= KEYCOUNT_LONG) && (CLEAR == bRepeatKey))
+				  	if((VALID_LONG_KEY(temp_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
-						bRepeatKey = SET;
-						bLongKey = CLEAR;
-						SetKeyReady();//bIsKeyReady = SET;
-
-						if(temp_key_data == KEY_FREEZE)
-							key_data = KEY_MENU;
-	#ifdef __9CH_DEVICE__
-						else if(temp_key_data == KEY_9SPLIT)
-							key_data = KEY_9SPLIT | KEY_LONG;
-	#endif //__9CH_DEVICE__
-						else
-							key_data = temp_key_data;
+						key_data = temp_key_data | KEY_LONG;
+						SetKeyReady();
 					}
+					else
+					{
+					  	bLongKey = SET;
+						key_data = temp_key_data;
+					}
+					
+					
+
+//					if((key_cnt >= KEYCOUNT_LONG) && (CLEAR == bRepeatKey))
+//					{
+//						bRepeatKey = SET;
+//						bLongKey = CLEAR;
+//						SetKeyReady();//bIsKeyReady = SET;
+//
+//						if(temp_key_data == KEY_FREEZE)
+//							key_data = KEY_MENU;
+//	#ifdef __9CH_DEVICE__
+//						else if(temp_key_data == KEY_9SPLIT)
+//							key_data = KEY_9SPLIT | KEY_LONG;
+//	#endif //__9CH_DEVICE__
+//						else
+//							key_data = temp_key_data;
+//					}
 					break;
 
 				case KEY_MODE_MAX:
@@ -328,7 +341,7 @@ void Key_Check(void)
 		{
 			bLongKey = CLEAR;
 			SetKeyReady();//bIsKeyReady = SET;
-			key_data = temp_key_data;
+			//key_data = temp_key_data;
 		}
 		bRepeatKey = CLEAR;
 		debounce_cnt = KEYCOUNT_SHORT;

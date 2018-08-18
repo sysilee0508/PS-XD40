@@ -440,7 +440,7 @@ void main(void)
 		Delay_ms(20);
 	}
 	
-	if(key_flag == 1) 
+	if(IsKeyReady()) 
 	{
 		ClearKeyReady();//bIsKeyReady = 0;
 		if(key_data == KEY_MENU || key_data == KEY_FREEZE)
@@ -500,7 +500,7 @@ void main(void)
 	sys_status.current_split_mode = SPLIT4_1;
 
 	key_data = KEY_4SPLIT;
-	key_flag = SET;
+	SetKeyReady();
 	sysenv_split_mode = 5; //OMG! what is 5?!
 #endif
 
