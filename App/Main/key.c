@@ -17,6 +17,7 @@ BOOL bFreeze = CLEAR;
 static keycode_t current_keycode = KEYCODE_NONE;
 static keycode_t led_keycode = KEYCODE_NONE;
 static key_mode_e key_mode = KEY_MODE_LONG;
+static key_mode_e saved_key_mode = KEY_MODE_LONG;
 static keystatus_e key_status = KEY_STATUS_RELEASED;
 static BOOL bLongKey = CLEAR;
 static BOOL bRepeatKey = CLEAR;
@@ -74,6 +75,7 @@ const static keydata_e key_table[] =
 //-----------------------------------------------------------------------------
 void SetKeyMode(key_mode_e mode)
 {
+	saved_key_mode = mode;
 	if(GetKeyStatus() == KEY_STATUS_RELEASED)
 	{
 		key_mode = mode;
@@ -109,6 +111,10 @@ keycode_t GetKeyCode(keydata_e key)
 void UpdateKeyStatus(keystatus_e status)
 {
 	key_status = status; 
+//	if(status == KEY_STATUS_RELEASED)
+//	{
+//		key_mode = saved_key_mode;
+//	}
 }
 keystatus_e GetKeyStatus(void)
 {
@@ -352,6 +358,10 @@ void Key_Check(void)
 		debounce_cnt = KEYCOUNT_SHORT;
 		key_cnt = 0;
 		UpdateKeyStatus(KEY_STATUS_RELEASED);
+		if(GetKeyMode() != saved_key_mode)
+		{
+			SetKeyMode(saved_key_mode);
+		}
 	}
 }
 
