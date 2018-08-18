@@ -289,13 +289,14 @@ void Key_Check(void)
 						}
 						debounce_cnt = KEYCOUNT_SHORT;
 					}
-					SetKeyReady();//bIsKeyReady = SET;
+					SetKeyReady();
 					bRepeatKey = SET;
 					key_cnt = 0;
 					break;
 
 				case KEY_MODE_LONG:
-				  	if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
+					bLongKey = SET;
+					if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
 				  		bRepeatKey = SET;
 						key_data = processing_key_data | KEY_LONG;
@@ -303,13 +304,9 @@ void Key_Check(void)
 					}
 					else
 					{
-					  	bLongKey = SET;
 						key_data = processing_key_data;
 					}
 
-
-					
-					
 
 //					if((key_cnt >= KEYCOUNT_LONG) && (CLEAR == bRepeatKey))
 //					{
