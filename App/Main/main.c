@@ -11,8 +11,6 @@
 sys_stat_t sys_status;
 sys_env_t sys_env;
 
-
-
 volatile BOOL fUSBXferMode, fZOOMMove, fCROPMove;
 s8 Video1_In_Res_Val = 0x00;
 s8 Video2_In_Res_Val = 0x00;
@@ -27,18 +25,13 @@ BYTE sysenv_split_mode = 0;
 
 u8 aux_display_flag = 0;
 
-
 const unsigned char change_mode[4] = {0x4, 0x2, 0x7, 0x4};
 int cmode = 0;
-
 
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
 extern BYTE fMenuUpdate;			  				//by hungry 2012.03.06
-//extern BYTE Key1stCode;		   						//by hungry 2012.03.15
-//extern BOOL fButtonScan;   							//by hungry 2012.03.15
-
 
 u32 tick_10ms = 0;
 
@@ -57,7 +50,6 @@ void TIM2_IRQHandler(void)
 		cnt = 0;
 		tick_10ms++;
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -68,8 +60,8 @@ void TIM3_IRQHandler(void)
 	TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	Key_Scan();
-	Key_Check();
 	Key_Led_Ctrl();
+	Key_Check();
 }
 
 //-----------------------------------------------------------------------------
@@ -448,11 +440,10 @@ void main(void)
 		Delay_ms(20);
 	}
 	
-	if(IsKeyReady())
+	if(IsKeyReady()) 
 	{
-		ClearKeyReady();//key_flag = 0;
-		key = GetCurrentKey();
-		if(key == KEY_MENU || key == KEY_FREEZE)
+		ClearKeyReady();//bIsKeyReady = 0;
+		if(key_data == KEY_MENU || key_data == KEY_FREEZE)
 		{
 			EEP_buf[cEEP_CHK] = 0;
 			write_eeprom_all();
@@ -508,8 +499,8 @@ void main(void)
 //	InputSelect = VIDEO_SDI_2HD_POP;
 	sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
 
-	UpdateCurrentKey(KEY_4SPLIT);//current_key = KEY_4SPLIT;
-	SetKeyReady();//key_flag = SET;
+	key_data = KEY_4SPLIT;
+	SetKeyReady();
 	sysenv_split_mode = 5; //OMG! what is 5?!
 #endif
 

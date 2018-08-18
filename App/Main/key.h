@@ -9,18 +9,6 @@
 //=============================================================================
 //  define
 //=============================================================================
-//#define DISP_OFF_KEY	0x0D
-//#define FRONT_KEY		0x02
-//#define BACK_KEY		0x04
-//#define LEFT_CAM_KEY	0x05
-//#define RIGHT_CAM_KEY	0x06
-//#define AUX1_KEY		0x07
-//#define AUX2_KEY		0x08
-//#define CAM1_KEY		0x09
-//#define CAM2_KEY		0x0A
-//#define SPLIT_KEY		0x0B
-//#define MENU_KEY		0x0E
-
 // Key Codes
 #define KEYCODE_NONE		0x7F	//0111 1111
 // Left 4keys
@@ -88,12 +76,17 @@ enum
 };
 
 //=============================================================================
-//  Macro
+//  Extern Grobal Variable
 //=============================================================================
-//#define SET_KEY_READY()		bIsKeyReady = SET
-//#define CLEAR_KEY_READY()	bIsKeyReady = CLEAR
-//#define IS_KEY_READY()		(bIsKeyReady == SET)?TRUE:FALSE
+extern key_mode_e key_mode;
+extern BOOL bIsKeyReady;
+extern keydata_e key_data;
+extern keydata_e pre_key_data;
 
+extern BOOL bFreeze;
+
+extern u8 pre_special_mode;
+extern u8 pre_split_mode;
 
 //=============================================================================
 //  Function Prototype
@@ -116,12 +109,15 @@ extern BOOL IsKeyReady(void);
 //  Extern Grobal Variable 
 //=============================================================================
 extern key_mode_e key_mode;
-//extern BOOL key_flag;
-//extern keydata_e current_key;
 
 extern BOOL bFreeze;
 
 extern u8 pre_special_mode;
 extern u8 pre_split_mode;
 
+extern void UpdateKeyStatus(keystatus_e status);
+extern keystatus_e GetKeyStatus(void);
+extern void SetKeyReady(void);
+extern void ClearKeyReady(void);
+extern BOOL IsKeyReady(void);
 #endif
