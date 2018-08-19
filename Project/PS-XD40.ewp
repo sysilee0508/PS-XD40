@@ -723,7 +723,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>D:\01.Work\project\IAR_PS-XD40\Project\stm32f103xC.icf</state>
+          <state>$PROJ_DIR$\..\Project\stm32f103xC.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
