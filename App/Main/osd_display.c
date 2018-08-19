@@ -224,7 +224,7 @@ const u16 tbl_OSG_SPLIT6_4_POSITION_1920x1080[] =
      640, 360, 1280, 360,  1920, 360,  640,1080,  1280,1080,   1920,1080,	//CH09
 };
 #endif //__9CH_DEVICE__
-const BYTE str_Blank[] = "            ";
+BYTE str_Blank[] = "            ";
 //-----------------------------------------------------------------------------
 const u8 str_Freeze[] 		= "FREEZE  ";
 const u8 str_Freeze2[] 		= "FREEZE";
@@ -817,7 +817,7 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 		case 5:
 			switch(vMODE)
 			{
-				case FULL_1CH:
+				case FULL_SCREEN_MODE:
 					//Pos_Val.x = 1920-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24);
 					Pos_Val.x = 1920-2-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
 					//Pos_Val.y = 1080-48;
@@ -1235,9 +1235,8 @@ void OSG_Display_Video_Loss(void)
 					else Pos_Val[CH].y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+180-12;
 				}
 			}
-#endif
 		}
-
+#endif		
 		for(CH=vStart_CH;CH<(vStart_CH+vMAX_Ch);CH++)
 		{
 			if(vVideo_Loss & (0x01<<CH))

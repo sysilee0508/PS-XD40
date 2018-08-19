@@ -26,6 +26,7 @@ void Auto_Seq_Init(void)
 		vMODE = SPLIT_4_MODE;
 		vStart_CH = 0;
 	}
+#ifdef __9CH_DEVICE__
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
 	{
 		vMODE = SPLIT_4_MODE;
@@ -36,21 +37,21 @@ void Auto_Seq_Init(void)
 		vMODE = SPLIT_9_MODE;
 		vStart_CH = 0;
 	}
-
+#endif
 	if(sys_env.bLossAutoSkip)
 	{
-#ifdef __4CH__
-		if((vVideo_Loss&0x0000000f) == 0x0000000f) return; 
-#endif
+		if((vVideo_Loss&0x0000000f) == 0x0000000f) 
+			return; 
 	}
 
 	if(bAuto_Seq_Flag == 0)
 	{
 		vAuto_Seq_Index = 0;
 	}
-#ifdef __4CH__
-	if(vMODE == SPLIT_4_MODE) vMODE = FULL_SCREEN_MODE;
-#endif
+	
+	if(vMODE == SPLIT_4_MODE) 
+		vMODE = FULL_SCREEN_MODE;
+	
 	switch(vMODE)
 	{
 		case FULL_SCREEN_MODE:
@@ -59,11 +60,10 @@ void Auto_Seq_Init(void)
 
 			if(bAuto_Seq_Flag)
 			{
-
-#ifdef __4CH__
-				if(vAuto_Seq_Index < SPLITMODE_FULL_CH4) vAuto_Seq_Index++;
-				else vAuto_Seq_Index = SPLITMODE_FULL_CH1;
-#endif
+				if(vAuto_Seq_Index < SPLITMODE_FULL_CH4) 
+					vAuto_Seq_Index++;
+				else 
+					vAuto_Seq_Index = SPLITMODE_FULL_CH1;
 			}
 			
 			if(sys_env.bLossAutoSkip)
@@ -72,12 +72,13 @@ void Auto_Seq_Init(void)
 				{
 					if(vVideo_Loss&(0x00000001<<vAuto_Seq_Index)) 
 					{
-#ifdef __4CH__
-						if(vAuto_Seq_Index < SPLITMODE_FULL_CH4) vAuto_Seq_Index++;
-						else vAuto_Seq_Index = SPLITMODE_FULL_CH1;
-#endif
+						if(vAuto_Seq_Index < SPLITMODE_FULL_CH4) 
+							vAuto_Seq_Index++;
+						else 
+							vAuto_Seq_Index = SPLITMODE_FULL_CH1;
 					}
-					else Index_flag = 1; 
+					else 
+						Index_flag = 1; 
 				
 				}
 				while(Index_flag == 0); 
@@ -87,13 +88,14 @@ void Auto_Seq_Init(void)
 			vMODE = FULL_SCREEN_MODE; 
 			vStart_CH = SPLITMODE_FULL_CH1+vAuto_Seq_Index; 
 
-			if(vStart_CH < SPLITMODE_FULL_CH9)
+			if(vStart_CH < SPLITMODE_FULL_CH4) //kukuri modified.. full_ch9 --> full_ch4
 			{
 				sys_status.current_split_mode = vStart_CH;
-				aux_display_flag = 0;
-#if 0 //Louis
-				FullScreen(vStart_CH);
-#endif
+				//aux_display_flag = 0;
+
+				// we don't have this function yet.
+				// To Do : Make FullScreen()
+				//FullScreen(vStart_CH);
 				Set_border_line();
 				DEMO_SetPIPViewWIND(0);	// update pip/pop window
 			}
@@ -101,13 +103,16 @@ void Auto_Seq_Init(void)
 			{
 				sys_status.current_split_mode = vStart_CH;
 				Set_border_line();
-				aux_display_flag = 1;
 				DEMO_SetPIPViewWIND(0);	// update pip/pop window
 			}
 			
 			if(sys_env.bOSD_Display)
 			{
-				if(sys_env.bTITLE_ON) {Erase_OSD(); OSG_Display_CH_name();}
+				if(sys_env.bTITLE_ON) 
+				{
+					Erase_OSD(); 
+					OSG_Display_CH_name();
+				}
 			}
 		}
 		break;
@@ -188,7 +193,7 @@ void Auto_Sequence(void)
 	u8 vStart_CH; 
 	u8 vMODE;
 	
-	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
+	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH4)
 	{
 		vMODE = FULL_SCREEN_MODE;
 		vStart_CH = sys_status.current_split_mode;
@@ -198,6 +203,7 @@ void Auto_Sequence(void)
 		vMODE = SPLIT_4_MODE;
 		vStart_CH = 0;
 	}
+#ifdef __9CH_DEVICE__
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
 	{
 		vMODE = SPLIT_4_MODE;
@@ -208,7 +214,7 @@ void Auto_Sequence(void)
 		vMODE = SPLIT_9_MODE;
 		vStart_CH = 0;
 	}
-
+#endif
 	if(bAuto_Seq_Flag == ON)	
 	{
 		if(sys_env.bLossAutoSkip)
@@ -278,6 +284,7 @@ void Auto_Sequence(void)
 				}
 				break;
 
+#ifdef __9CH_DEVICE__
 				case SPLIT_4_MODE:
 				{
 					vAuto_Seq_Cnt = sys_env.vDWELL[1];
@@ -314,6 +321,7 @@ void Auto_Sequence(void)
 					}
 				}
 				break;
+#endif
 			}
 		}
 	}
