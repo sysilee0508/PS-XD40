@@ -1,10 +1,14 @@
 #ifndef __OSD_DISPLAY__
 #define __OSD_DISPLAY__
 
-#define FULL_1CH 0
-#define SPLIT_04 1
-#define SPLIT_09 2
-
+enum
+{
+	FULL_SCREEN_MODE = 0,
+	SPLIT_4_MODE,
+#ifdef __9CH_DEVICE__
+	SPLIT_9_MODE
+#endif
+};
 
 typedef struct tagStPoint 
 {

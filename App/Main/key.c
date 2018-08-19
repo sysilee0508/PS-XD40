@@ -7,7 +7,7 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
-BOOL bFreeze = CLEAR;
+BOOL bScreenFreeze = CLEAR;
 u8 pre_special_mode = LEFT_TOP;
 
 //=============================================================================
@@ -137,6 +137,12 @@ keydata_e GetCurrentKey(void)
 {
 	return current_keydata;
 }
+//-----------------------------------------------------------------------------
+BOOL IsScreenFreeze(void)
+{
+	return bScreenFreeze;
+}
+
 //-----------------------------------------------------------------------------
 //  Key Functions
 //-----------------------------------------------------------------------------
@@ -383,7 +389,7 @@ void Key_Proc(void)
 					{
 						Erase_OSD();
 					}
-					bFreeze = CLEAR;
+					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
@@ -410,11 +416,11 @@ void Key_Proc(void)
 			case KEY_4SPLIT : 
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					if(pre_split_mode != SPLITMODE_SPLIT4_1 || bAuto_Seq_Flag || bFreeze)
+					if(pre_split_mode != SPLITMODE_SPLIT4_1 || bAuto_Seq_Flag || bScreenFreeze)
 					{
 						Erase_OSD();
 					}
-					bFreeze = CLEAR;
+					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
@@ -429,16 +435,16 @@ void Key_Proc(void)
 				break;
 			case KEY_FREEZE :
 				bAuto_Seq_Flag = CLEAR;
-				if(bFreeze == CLEAR)
+				if(bScreenFreeze == CLEAR)
 				{
-					bFreeze = SET;
+					bScreenFreeze = SET;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
 					// don't need aut display for now Right?....by kukuri
 					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 1);	//aux freeze On
 				}
 				else
 				{
-					bFreeze = CLEAR;
+					bScreenFreeze = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					// don't need aut display for now Right?....by kukuri
 					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
@@ -453,7 +459,7 @@ void Key_Proc(void)
 						Erase_OSD();
 					}
 					//bMode_change_flag = SET;
-					bFreeze = CLEAR;
+					bScreenFreeze = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					// don't need aut display for now Right?....by kukuri
 					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
@@ -463,7 +469,7 @@ void Key_Proc(void)
 
 			case KEY_MENU :
 				bAuto_Seq_Flag = CLEAR;
-				bFreeze = SET;
+				bScreenFreeze = SET;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				// don't need aut display for now Right?....by kukuri
 				//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
@@ -480,7 +486,7 @@ void Key_Proc(void)
 						{
 							Erase_OSD();
 						}
-						bFreeze = RESET;
+						bScreenFreeze = RESET;
 						bAuto_Seq_Flag = RESET;
 						bMode_change_flag = SET;
 						//InputSelect = VIDEO_SDI_2HD_POP;
@@ -499,7 +505,7 @@ void Key_Proc(void)
 						{
 							Erase_OSD();
 						}
-						bFreeze = 0;
+						bScreenFreeze = 0;
 						bAuto_Seq_Flag = 0;
 						bMode_change_flag = 1;
 						pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
@@ -518,7 +524,7 @@ void Key_Proc(void)
 						{
 							Erase_OSD();
 						}
-						bFreeze = 0;
+						bScreenFreeze = 0;
 						bAuto_Seq_Flag = 0;
 						bMode_change_flag = 1;
 						pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
@@ -544,7 +550,7 @@ void Key_Proc(void)
 					{
 						Erase_OSD();
 					}
-					bFreeze = 0;
+					bScreenFreeze = 0;
 					bAuto_Seq_Flag = 0;
 					bMode_change_flag = 1;
 					//InputSelect = VIDEO_SDI_2HD_POP;
@@ -563,7 +569,7 @@ void Key_Proc(void)
 					{
 						Erase_OSD();
 					}
-					bFreeze = 0;
+					bScreenFreeze = 0;
 					bAuto_Seq_Flag = 0;
 					bMode_change_flag = 1;
 					pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
@@ -582,7 +588,7 @@ void Key_Proc(void)
 					{
 						Erase_OSD();
 					}
-					bFreeze = 0;
+					bScreenFreeze = 0;
 					bAuto_Seq_Flag = 0;
 					bMode_change_flag = 1;
 					pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;

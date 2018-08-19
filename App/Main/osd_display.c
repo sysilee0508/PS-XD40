@@ -2,7 +2,6 @@
 
 BYTE bMode_change_flag = 0;
 
-
 struct osd_location 
 {
 	u8 state;
@@ -27,6 +26,7 @@ const u16 tbl_OSG_SPLIT4_POSITION_1920x1080[] =
      960, 540, 1440, 540,  1920, 540,  960,1080,  1440,1080,   1920,1080,	//CH04
 };
 
+#ifdef __9CH_DEVICE__
 //-----------------------------------------------------------------------------
 // 9���� OSG ��ġ��
 //-----------------------------------------------------------------------------
@@ -223,7 +223,20 @@ const u16 tbl_OSG_SPLIT6_4_POSITION_1920x1080[] =
        0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH08
      640, 360, 1280, 360,  1920, 360,  640,1080,  1280,1080,   1920,1080,	//CH09
 };
-
+#endif //__9CH_DEVICE__
+const BYTE str_Blank[] = "            ";
+//-----------------------------------------------------------------------------
+const u8 str_Freeze[] 		= "FREEZE  ";
+const u8 str_Freeze2[] 		= "FREEZE";
+const u8 str_Freeze3[] 		= "  FREEZE";
+const u8 str_Freeze_BLK[] 	= "        ";
+const u8 str_Freeze_BLK2[] 	= "      ";
+//-----------------------------------------------------------------------------
+const u8 str_AUTO[] = "AUTO  ";
+const u8 str_AUTO2[] = "AUTO";
+const u8 str_AUTO3[] = "  AUTO";
+const u8 str_AUTO_BLK[] = "      ";
+const u8 str_AUTO_BLK2[] = "    ";
 
 //-----------------------------------------------------------------------------
 //
@@ -253,24 +266,28 @@ void Osd_Init_Erase(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-//BYTE space[] = "                              ";
-BYTE space[] = "            ";
+
 void OSG_Display_Time_Erase(void);
 void OSD_Str_Loss_Erase(void);
 void OSD_Str_Freeze_autoseq_Erase(void);
+
 void Erase_OSD(void)
 {
 	int i = 0;
 
 	OSD_SetFontGAC(SPRITE_INDEX0);
 
-	for(i=0; i<9; i++)
+	for(i=0; i<NUM_OF_CHANNEL; i++)
 	{
 		if(osd_ch_name_location_buf[i].state == 1)
-			MDINGAC_SetDrawXYMode(osd_ch_name_location_buf[i].loc_y, osd_ch_name_location_buf[i].loc_x, space, osd_ch_name_location_buf[i].length, 0);
-
+		{
+			MDINGAC_SetDrawXYMode(osd_ch_name_location_buf[i].loc_y,
+								osd_ch_name_location_buf[i].loc_x,
+								str_Blank,
+								osd_ch_name_location_buf[i].length,
+								0);
+		}
 	}
-
 	OSD_Str_Loss_Erase();
 	if(!bAuto_Seq_Flag) OSD_Str_Freeze_autoseq_Erase();
 	if(bSETUP) OSG_Display_Time_Erase();
@@ -326,11 +343,16 @@ void OSD_Str_Loss_Erase(void)
 {
 	u8 i = 0;
 	
-	for(i=0; i<9; i++)
+	for(i=0; i<NUM_OF_CHANNEL; i++)
 	{
 		if(osd_video_lose_location_buf[i].state == 1)
-			MDINGAC_SetDrawXYMode(osd_video_lose_location_buf[i].loc_y, osd_video_lose_location_buf[i].loc_x, space, osd_video_lose_location_buf[i].length, 0);
-
+		{
+			MDINGAC_SetDrawXYMode(osd_video_lose_location_buf[i].loc_y,
+					osd_video_lose_location_buf[i].loc_x,
+					str_Blank,
+					osd_video_lose_location_buf[i].length,
+					0);
+		}
 	}
 }
 
@@ -358,8 +380,13 @@ void OSD_Str_Freeze_autoseq_Erase(void)
 	//for(i=0; i<1; i++)
 	{
 		if(osd_freeze_autoseq_location_buf[0].state == 1)
-			MDINGAC_SetDrawXYMode(osd_freeze_autoseq_location_buf[0].loc_y, osd_freeze_autoseq_location_buf[0].loc_x, space, osd_freeze_autoseq_location_buf[0].length, 0);
-
+		{
+			MDINGAC_SetDrawXYMode(osd_freeze_autoseq_location_buf[0].loc_y,
+					osd_freeze_autoseq_location_buf[0].loc_x,
+					str_Blank,
+					osd_freeze_autoseq_location_buf[0].length,
+					0);
+		}
 	}
 }
 
@@ -380,22 +407,6 @@ void Print_OSD_Char(u16 PosX, u16 PosY, u8 *FontData, u16 SIZE, u8 ch)
 	osd_ch_name_location_buf[ch].length = SIZE;
 }
 
-
-/*void Print_OSD_Char_Aux(u16 PosX, u16 PosY, u8 *FontData, u16 SIZE, u8 ch)
-{  
-	OSD_SetFontGAC(SPRITE_INDEXA);
-
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, SIZE, 0);
-
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEXA], ON);
-
-	osd_ch_name_location_buf[ch].state = 1;
-	osd_ch_name_location_buf[ch].loc_x = PosX-1;
-	osd_ch_name_location_buf[ch].loc_y = PosY;
-	osd_ch_name_location_buf[ch].length = SIZE+2;
-
-}*/
-
 void Print_OSD_Char_Time(u16 PosX, u16 PosY, u8 *FontData, u16 SIZE)
 {  
 	OSD_SetFontGAC(SPRITE_INDEX0);
@@ -404,7 +415,6 @@ void Print_OSD_Char_Time(u16 PosX, u16 PosY, u8 *FontData, u16 SIZE)
 
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
-
 
 //-----------------------------------------------------------------------------
 //
@@ -425,7 +435,7 @@ void OSG_Display(void)
 		if(sys_env.bTIME_ON && (!bSETUP)) OSG_Display_Time();
 	}
 
-	bMode_change_flag = 0;
+	bMode_change_flag = CLEAR;
 }
 
 //-----------------------------------------------------------------------------
@@ -455,44 +465,45 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 	u8 vMODE;
 	u8 vStart_CH; 
 	
-	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
+	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH4)//SPLITMODE_FULL_CH9)
 	{
-		vMODE = FULL_1CH;
+		vMODE = FULL_SCREEN_MODE;
 		vStart_CH = sys_status.current_split_mode;
 	}
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
 	{
-		vMODE = SPLIT_04;
+		vMODE = SPLIT_4_MODE;
 		vStart_CH = 0;
 	}
+#ifdef __9CH_DEVICE__
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
 	{
-		vMODE = SPLIT_04;
+		vMODE = SPLIT_4_MODE;
 		vStart_CH = 4;
 	}
 	else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
 	{
-		vMODE = SPLIT_09;
+		vMODE = SPLIT_9_MODE;
 		vStart_CH = 0;
 	}
-
+#endif
 	switch(OSD_Pos)
 	{
 		case 0: 
 		{
 			switch(vMODE)
 			{
-				case FULL_1CH:
+				case FULL_SCREEN_MODE:
 					Pos_Val.x = 2;
 					Pos_Val.y = 0;
 				break;
 					
-				case SPLIT_04:
+				case SPLIT_4_MODE:
 					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[CH*12]+2;
 					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[(CH*12)+1];
 				break;
-				
-				case SPLIT_09:
+#ifdef __9CH_DEVICE__
+				case SPLIT_9_MODE:
 					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
 					{
 						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[CH*12]+2;
@@ -539,6 +550,7 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[(CH*12)+1];
 					}
 				break;
+#endif
 			}
 		}
 		break;
@@ -546,17 +558,17 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 		case 1:
 			switch(vMODE)
 			{
-				case FULL_1CH:
+				case FULL_SCREEN_MODE:
 					Pos_Val.x = (1920/2)-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
 					Pos_Val.y = 0;
 				break;
 					
-				case SPLIT_04:
+				case SPLIT_4_MODE:
 					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
 					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[2+(CH*12)+1];
 				break;
-				
-				case SPLIT_09:
+#ifdef __9CH_DEVICE__
+				case SPLIT_9_MODE:
 					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
 					{
 						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
@@ -603,24 +615,25 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[2+(CH*12)+1];
 					} 
 				break;
+#endif
 			}
 		break;
 		
 		case 2:
 			switch(vMODE)
 			{
-				case FULL_1CH:
+				case FULL_SCREEN_MODE:
 					//Pos_Val.x = 1920-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24);
 					Pos_Val.x = 1920-2-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
 					Pos_Val.y = 0;
 				break;
 					
-				case SPLIT_04:
+				case SPLIT_4_MODE:
 					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
 					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[4+(CH*12)+1];
 				break;
-				
-				case SPLIT_09:
+#ifdef __9CH_DEVICE__
+				case SPLIT_9_MODE:
 					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
 					{
 						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
@@ -667,24 +680,25 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[4+(CH*12)+1];
 					}
 				break;
+#endif
 			}
 		break;
 		
 		case 3:
 			switch(vMODE)
 			{
-				case FULL_1CH:
+				case FULL_SCREEN_MODE:
 					Pos_Val.x = 2;
 					//Pos_Val.y = 1080-48;
 					Pos_Val.y = 1080-24;
 				break;
 					
-				case SPLIT_04:
+				case SPLIT_4_MODE:
 					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[6+(CH*12)]+2;
 					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[6+(CH*12)+1]-24;
 				break;
-				
-				case SPLIT_09:
+#ifdef __9CH_DEVICE__
+				case SPLIT_9_MODE:
 					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
 					{
 						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[6+(CH*12)]+2;
@@ -731,24 +745,25 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[6+(CH*12)+1]-24;
 					}
 				break;
+#endif
 			}
 		break;
 
 		case 4:
 			switch(vMODE)
 			{
-				case FULL_1CH:
+				case FULL_SCREEN_MODE:
 					Pos_Val.x = (1920/2)-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
 					//Pos_Val.y = 1080-48;
 					Pos_Val.y = 1080-24;
 				break;
 					
-				case SPLIT_04:
+				case SPLIT_4_MODE:
 					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
 					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[8+(CH*12)+1]-24;
 				break;
-				
-				case SPLIT_09:
+#ifdef __9CH_DEVICE__
+				case SPLIT_9_MODE:
 					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
 					{
 						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
@@ -795,6 +810,7 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[8+(CH*12)+1]-24;
 					} 
 				break;
+#endif
 			}
 		break;
 
@@ -808,12 +824,12 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 					Pos_Val.y = 1080-24;
 				break;
 					
-				case SPLIT_04:
+				case SPLIT_4_MODE:
 					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
 					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[10+(CH*12)+1]-24;
 				break;
-
-				case SPLIT_09:
+#ifdef __9CH_DEVICE__
+				case SPLIT_9_MODE:
 					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
 					{
 						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
@@ -860,18 +876,19 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[10+(CH*12)+1]-24;
 					}
 				break;
+#endif
 			}
 		break;
-#ifdef __4CH__
+
 		case 6:
 			switch(vMODE)
 			{
-				case FULL_1CH:
+				case FULL_SCREEN_MODE:
 					Pos_Val.x = (1920/2)-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
 					Pos_Val.y = 0;
 				break;
 
-				case SPLIT_04:
+				case SPLIT_4_MODE:
 					if(CH >= 2)
 					{
 						Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
@@ -886,9 +903,7 @@ ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
 				break;
 			}
 		break;
-#endif	
 	}
-
 	return Pos_Val;
 }
 
@@ -902,42 +917,44 @@ void OSG_Display_CH_name(void)
 	
 	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
 	{
-		vMODE = FULL_1CH;
+		vMODE = FULL_SCREEN_MODE;
 		vMAX_Ch = 1;
 		vStart_CH = sys_status.current_split_mode;
 	}
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
 	{
-		vMODE = SPLIT_04;
+		vMODE = SPLIT_4_MODE;
 		vMAX_Ch = 4;
 		vStart_CH = 0;
 	}
+#ifdef __9CH_DEVICE__
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
 	{
-		vMODE = SPLIT_04;
+		vMODE = SPLIT_4_MODE;
 		vMAX_Ch = 4;
 		vStart_CH = 4;
 	}
 	else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
 	{
-		vMODE = SPLIT_09;
+		vMODE = SPLIT_9_MODE;
 		vMAX_Ch = 9;
 		vStart_CH = 0;
 	}
-
+#endif
 	for(cnt=0;cnt<vMAX_Ch;cnt++)
 	{
 		Pos = Ext_HV_Pos(cnt, sys_env.vOSD_Position);
 
-		if(vMODE == FULL_1CH)
+		if(vMODE == FULL_SCREEN_MODE)
 		{
 			Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
 		}
-		else if(vMODE == SPLIT_04)
+		else if(vMODE == SPLIT_4_MODE)
 		{
 			Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
-		}	
-		else if(vMODE == SPLIT_09) 
+		}
+#ifdef __9CH_DEVICE__
+		else if(vMODE == SPLIT_9_MODE)
 		{
 			if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
 				Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
@@ -952,6 +969,7 @@ void OSG_Display_CH_name(void)
 					Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
 			}
 		}
+#endif
 	}
 }
 
@@ -959,25 +977,21 @@ void OSG_Display_CH_name(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-const u8 str_Freeze[] 		= "FREEZE  ";
-const u8 str_Freeze2[] 		= "FREEZE";
-const u8 str_Freeze3[] 		= "  FREEZE";
-const u8 str_Freeze_BLK[] 	= "        ";
-const u8 str_Freeze_BLK2[] 	= "      ";
 void OSG_Display_Freeze(void)
 {
 	static u16 tblFreezeDisplayLoc_X[3][3] =
 	{
 		0,
 	};
-
-	static u8 Pre_bFreeze = 0;
+	static BOOL previous_freezeMode = CLEAR;
+	BOOL current_freezeMode = IsScreenFreeze();
 	u16 PosX;
 	u16 PosY;
 
-	if(Pre_bFreeze != bFreeze)
+
+	if(previous_freezeMode != current_freezeMode)
 	{
-		Pre_bFreeze = bFreeze;
+		previous_freezeMode = current_freezeMode;
 
 		if(sys_env.bTIME_ON) 
 		{
@@ -995,12 +1009,21 @@ void OSG_Display_Freeze(void)
 			if(sys_env.vOSD_Position < 3 || sys_env.vOSD_Position == 6) PosY = 1080-24-4;
 			else PosY = 4;
 
-			if(bFreeze) 
+			if(current_freezeMode)
 			{
-				if(sys_env.vTIME_Position < 2) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze3);			
-				else Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze);			
+				if(sys_env.vTIME_Position < 2)
+				{
+					Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze3);
+				}
+				else
+				{
+					Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze);
+				}
 			}
-			else Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze_BLK);				
+			else
+			{
+				Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze_BLK);
+			}
 		}
 		else 
 		{
@@ -1018,7 +1041,7 @@ void OSG_Display_Freeze(void)
 			if(sys_env.vOSD_Position < 3) PosY = 1080-24-4;
 			else PosY = 4;
 
-			if(bFreeze) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze2);			
+			if(current_freezeMode) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze2);
 			else Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze_BLK2);				
 		}
 	}	
@@ -1027,19 +1050,14 @@ void OSG_Display_Freeze(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-const u8 str_AUTO[] = "AUTO  ";
-const u8 str_AUTO2[] = "AUTO";
-const u8 str_AUTO3[] = "  AUTO";
-const u8 str_AUTO_BLK[] = "      ";
-const u8 str_AUTO_BLK2[] = "    ";
 void OSG_Display_AUTO(void)
 {
 	static u16 tblAUTODisplayLoc_X[3][3] =
 	{
 		0,
 	};
-
-	static u8 Pre_bAuto_Seq_Flag = 0;
+	static u8 Pre_bAuto_Seq_Flag = CLEAR;
+	BOOL current_freezeMode = IsScreenFreeze();
 	u16 PosX;
 	u16 PosY = 1080-24-4;
 
@@ -1071,7 +1089,7 @@ void OSG_Display_AUTO(void)
 			}
 			else 
 			{	
-				if(!bFreeze) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO_BLK);				
+				if(!current_freezeMode) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO_BLK);
 			}
 		}
 		else 
@@ -1093,7 +1111,7 @@ void OSG_Display_AUTO(void)
 			if(bAuto_Seq_Flag) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO2);			
 			else 
 			{	
-				if(!bFreeze) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO_BLK2);				
+				if(!current_freezeMode) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO_BLK2);
 			}
 		}
 	}
@@ -1118,38 +1136,39 @@ void OSG_Display_Video_Loss(void)
 
 		if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
 		{
-			vMODE = FULL_1CH;
+			vMODE = FULL_SCREEN_MODE;
 			vMAX_Ch = 1;
 			vStart_CH = sys_status.current_split_mode;
 		}
 		else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
 		{
-			vMODE = SPLIT_04;
+			vMODE = SPLIT_4_MODE;
 			vMAX_Ch = 4;
 			vStart_CH = 0;
 		}
+#ifdef __9CH_DEVICE__
 		else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
 		{
-			vMODE = SPLIT_04;
+			vMODE = SPLIT_4_MODE;
 			vMAX_Ch = 4;
 			vStart_CH = 4;
 		}
 		else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
 		{
-			vMODE = SPLIT_09;
+			vMODE = SPLIT_9_MODE;
 			vMAX_Ch = 9;
 			vStart_CH = 0;
 		}
-
+#endif
 
 		Loss_Event_Flag = 0;
 	
-		if(vMODE == FULL_1CH)
+		if(vMODE == FULL_SCREEN_MODE)
 		{
 			Pos_Val[vStart_CH].x = (1920/2)-(12*5);
 			Pos_Val[vStart_CH].y = (1080/2)-12;
 		}
-		else if(vMODE == SPLIT_04)
+		else if(vMODE == SPLIT_4_MODE)
 		{
 			for(CH=vStart_CH;CH<(vStart_CH+vMAX_Ch);CH++)
 			{
@@ -1157,7 +1176,8 @@ void OSG_Display_Video_Loss(void)
 				Pos_Val[CH].y = tbl_OSG_SPLIT4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+270-12;
 			}
 		}
-		else if(vMODE == SPLIT_09) 
+#ifdef __9CH_DEVICE__
+		else if(vMODE == SPLIT_9_MODE)
 		{
 			for(CH=vStart_CH;CH<(vStart_CH+vMAX_Ch);CH++)
 			{
@@ -1215,6 +1235,7 @@ void OSG_Display_Video_Loss(void)
 					else Pos_Val[CH].y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+180-12;
 				}
 			}
+#endif
 		}
 
 		for(CH=vStart_CH;CH<(vStart_CH+vMAX_Ch);CH++)
@@ -1222,21 +1243,40 @@ void OSG_Display_Video_Loss(void)
 			if(vVideo_Loss & (0x01<<CH))
 			{
 				if(sys_status.current_split_mode <= SPLITMODE_SPLIT9_1)
+				{
 					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO, CH);
-				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_2) && (sys_status.current_split_mode <= SPLITMODE_SPLIT9_5) && (CH != 7)) 
+				}
+				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_2) &&
+						(sys_status.current_split_mode <= SPLITMODE_SPLIT9_5) &&
+						(CH != 7))
+				{
 					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO, CH);
-				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_6) && (sys_status.current_split_mode <= SPLITMODE_SPLIT9_9) && (!((CH >= 5) && (CH <= 7)))) 
+				}
+				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_6) &&
+						(sys_status.current_split_mode <= SPLITMODE_SPLIT9_9) &&
+						(!((CH >= 5) && (CH <= 7))))
+				{
 					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO, CH);
+				}
 				
 			}
 			else 
 			{
 				if(sys_status.current_split_mode <= SPLITMODE_SPLIT9_1)
+				{
 					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO_Blk, CH);
-				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_2) && (sys_status.current_split_mode <= SPLITMODE_SPLIT9_5) && (CH != 7)) 
+				}
+				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_2) &&
+						(sys_status.current_split_mode <= SPLITMODE_SPLIT9_5) &&
+						(CH != 7))
+				{	Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO_Blk, CH);
+				}
+				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_6) &&
+						(sys_status.current_split_mode <= SPLITMODE_SPLIT9_9) &&
+						(!((CH >= 5) && (CH <= 7))))
+				{
 					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO_Blk, CH);
-				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_6) && (sys_status.current_split_mode <= SPLITMODE_SPLIT9_9) && (!((CH >= 5) && (CH <= 7)))) 
-					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO_Blk, CH);
+				}
 			}
 		}
 	}

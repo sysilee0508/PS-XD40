@@ -18,22 +18,22 @@ void Auto_Seq_Init(void)
 	
 	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
 	{
-		vMODE = FULL_1CH;
+		vMODE = FULL_SCREEN_MODE;
 		vStart_CH = sys_status.current_split_mode;
 	}
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
 	{
-		vMODE = SPLIT_04;
+		vMODE = SPLIT_4_MODE;
 		vStart_CH = 0;
 	}
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
 	{
-		vMODE = SPLIT_04;
+		vMODE = SPLIT_4_MODE;
 		vStart_CH = 4;
 	}
 	else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
 	{
-		vMODE = SPLIT_09;
+		vMODE = SPLIT_9_MODE;
 		vStart_CH = 0;
 	}
 
@@ -49,11 +49,11 @@ void Auto_Seq_Init(void)
 		vAuto_Seq_Index = 0;
 	}
 #ifdef __4CH__
-	if(vMODE == SPLIT_04) vMODE = FULL_1CH;
+	if(vMODE == SPLIT_4_MODE) vMODE = FULL_SCREEN_MODE;
 #endif
 	switch(vMODE)
 	{
-		case FULL_1CH:
+		case FULL_SCREEN_MODE:
 		{
 			vAuto_Seq_Cnt = sys_env.vDWELL[0];
 
@@ -84,7 +84,7 @@ void Auto_Seq_Init(void)
 			}	
 
 			//Full 1ä�� ��ȯ	
-			vMODE = FULL_1CH; 
+			vMODE = FULL_SCREEN_MODE; 
 			vStart_CH = SPLITMODE_FULL_CH1+vAuto_Seq_Index; 
 
 			if(vStart_CH < SPLITMODE_FULL_CH9)
@@ -112,7 +112,7 @@ void Auto_Seq_Init(void)
 		}
 		break;
 		
-		case SPLIT_04:
+		case SPLIT_4_MODE:
 		{
 			vAuto_Seq_Cnt = sys_env.vDWELL[1];
 
@@ -134,7 +134,7 @@ void Auto_Seq_Init(void)
 			}	
 
 			//4���� ��ȯ
-			vMODE = SPLIT_04; 
+			vMODE = SPLIT_4_MODE; 
 			switch(vAuto_Seq_Index)
 			{
 			}
@@ -190,22 +190,22 @@ void Auto_Sequence(void)
 	
 	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
 	{
-		vMODE = FULL_1CH;
+		vMODE = FULL_SCREEN_MODE;
 		vStart_CH = sys_status.current_split_mode;
 	}
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
 	{
-		vMODE = SPLIT_04;
+		vMODE = SPLIT_4_MODE;
 		vStart_CH = 0;
 	}
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
 	{
-		vMODE = SPLIT_04;
+		vMODE = SPLIT_4_MODE;
 		vStart_CH = 4;
 	}
 	else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
 	{
-		vMODE = SPLIT_09;
+		vMODE = SPLIT_9_MODE;
 		vStart_CH = 0;
 	}
 
@@ -222,7 +222,7 @@ void Auto_Sequence(void)
 		{
 			switch(vMODE)
 			{
-				case FULL_1CH:  
+				case FULL_SCREEN_MODE:  
 				{
 					if(sys_env.vDWELL[0] == 0) return;
 
@@ -249,7 +249,7 @@ void Auto_Sequence(void)
 					}	
 
 					//ä�� ��ȯ
-					vMODE = FULL_1CH; 
+					vMODE = FULL_SCREEN_MODE; 
 					vStart_CH = SPLITMODE_FULL_CH1+vAuto_Seq_Index; 
 
 					if(vStart_CH < SPLITMODE_FULL_CH9)
@@ -278,7 +278,7 @@ void Auto_Sequence(void)
 				}
 				break;
 
-				case SPLIT_04:
+				case SPLIT_4_MODE:
 				{
 					vAuto_Seq_Cnt = sys_env.vDWELL[1];
 					if(sys_env.bLossAutoSkip)
@@ -293,7 +293,7 @@ void Auto_Sequence(void)
 						while(Index_flag == 0); 
 					}	
 					//4���� ��ȯ
-					vMODE = SPLIT_04; 
+					vMODE = SPLIT_4_MODE; 
 					switch(vAuto_Seq_Index)
 					{
 					}

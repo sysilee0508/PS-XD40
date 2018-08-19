@@ -93,10 +93,9 @@ enum
 //extern key_mode_e key_mode;
 //extern keydata_e current_keydata;
 
-extern BOOL bFreeze;
+//extern BOOL bScreenFreeze;
 
 extern u8 pre_special_mode;
-extern u8 pre_split_mode;
 
 //=============================================================================
 //  Function Prototype
@@ -117,4 +116,5 @@ extern void ClearKeyReady(void);
 extern BOOL IsKeyReady(void);
 extern void UpdateKeyData(keydata_e key);
 extern keydata_e GetCurrentKey(void);
+extern BOOL IsScreenFreeze(void);
 #endif
