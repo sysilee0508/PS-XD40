@@ -66,7 +66,6 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	unsigned char oInterface;
 	unsigned char oClkEdge;
 
-
 	NC_VO_PORT_FMT_S *pPortFmt;		// output
 	decoder_dev_ch_info_s DEV_CH_INFO;
 
@@ -85,9 +84,9 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	}
 	else
 	{
-	iPort = ch%4;
-	oChannel = ch%4;
-	oDevNum = ch/4;
+		iPort = ch%4;
+		oChannel = ch%4;
+		oDevNum = ch/4;
 
 		oMux = VI_1MULTIPLEX_MODE;
 		oInterface = VI_INPUT_MODE_BT656;

@@ -289,8 +289,14 @@ void Erase_OSD(void)
 		}
 	}
 	OSD_Str_Loss_Erase();
-	if(!bAuto_Seq_Flag) OSD_Str_Freeze_autoseq_Erase();
-	if(bSETUP) OSG_Display_Time_Erase();
+	if(!bAuto_Seq_Flag)
+	{
+		OSD_Str_Freeze_autoseq_Erase();
+	}
+	if(bSETUP)
+	{
+		OSG_Display_Time_Erase();
+	}
 }
 
 

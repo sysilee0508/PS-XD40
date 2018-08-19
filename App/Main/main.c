@@ -31,7 +31,7 @@ int cmode = 0;
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
-extern BYTE fMenuUpdate;			  				//by hungry 2012.03.06
+//extern BYTE fMenuUpdate;			  				//by hungry 2012.03.06
 
 u32 tick_10ms = 0;
 
@@ -68,40 +68,70 @@ void TIM3_IRQHandler(void)
 //-----------------------------------------------------------------------------
 //	USART3 Rx Interrupt
 //-----------------------------------------------------------------------------
-#ifdef __4CH__
-u8 rs232_key_table[] =
-{	
-	0x00,	//0x00
-	0x80,	//0x01
-	0x81,	//0x02
-	0x82,	//0x03
-	0x83,	//0x04
-	0x00,	//0x05
-	0x00,	//0x06
-	0x00,	//0x07
-	0x00,	//0x08
-	0x00,	//0x09	
-	0x00,	//0x0a	
-	0x00,	//0x0b	
-	0x00,	//0x0c	
-	0x00,	//0x0d	
-	0x00,	//0x0e	
-	0x00,	//0x0f	
-	0x00,	//0x10	
-	0x00,	//0x11	
-	0x00,	//0x12	
-	0x00,	//0x13	
-	0x00,	//0x14	
-	0x84,	//0x15	
-	0x00,	//0x16	
-	0x00,	//0x17	
-	0x00,	//0x18	
-	0x9a,	//0x19	
-	0x9b,	//0x1a	
-	0x00,	//0x1b	
-	0x8a,	//0x1c	
-};	
-#endif
+
+//u8 rs232_key_table[] =
+//{
+//	0x00,	//0x00
+//	0x80,	//0x01
+//	0x81,	//0x02
+//	0x82,	//0x03
+//	0x83,	//0x04
+//	0x00,	//0x05
+//	0x00,	//0x06
+//	0x00,	//0x07
+//	0x00,	//0x08
+//	0x00,	//0x09
+//	0x00,	//0x0a
+//	0x00,	//0x0b
+//	0x00,	//0x0c
+//	0x00,	//0x0d
+//	0x00,	//0x0e
+//	0x00,	//0x0f
+//	0x00,	//0x10
+//	0x00,	//0x11
+//	0x00,	//0x12
+//	0x00,	//0x13
+//	0x00,	//0x14
+//	0x84,	//0x15
+//	0x00,	//0x16
+//	0x00,	//0x17
+//	0x00,	//0x18
+//	0x9a,	//0x19
+//	0x9b,	//0x1a
+//	0x00,	//0x1b
+//	0x8a,	//0x99
+//};
+typedef struct
+{
+	keydata_e	keydata;
+	u8			virtual_key;
+} VirtualKeys_t;
+
+enum
+{
+	VIRTUAL_KEY_NONE = 0x00,
+	VIRTUAL_KEY_CH1	 = 0x80,
+	VIRTUAL_KEY_CH2,
+	VIRTUAL_KEY_CH3,
+	VIRTUAL_KEY_CH4,
+	VIRTUAL_KEY_4SPLIT,
+	VIRTUAL_KEY_MENU = 0x8A,
+	VIRTUAL_KEY_FREEZE = 0x9A,
+	VIRTUAL_KEY_AUTO_SEQ
+};
+
+VirtualKeys_t virtual_key_tabla[] =
+{
+	{KEY_NONE,			VIRTUAL_KEY_NONE},
+	{KEY_FULL_CH1,		VIRTUAL_KEY_CH1},
+	{KEY_FULL_CH2,		VIRTUAL_KEY_CH2},
+	{KEY_FULL_CH3,		VIRTUAL_KEY_CH3},
+	{KEY_FULL_CH4,		VIRTUAL_KEY_CH4},
+	{KEY_4SPLIT,		VIRTUAL_KEY_4SPLIT},
+	{KEY_FREEZE,		VIRTUAL_KEY_FREEZE},
+	{KEY_AUTO_SEQ,		VIRTUAL_KEY_AUTO_SEQ},
+	{KEY_MENU,			VIRTUAL_KEY_MENU}
+};
 
 void USART3_IRQHandler(void)
 {
@@ -114,45 +144,28 @@ void USART3_IRQHandler(void)
 
 	Data = USART_ReceiveData(USART3);
 
-    //if (USART_GetITStatus(USART3,USART_IT_RXNE) != RESET)
-    {
-        // Clear the USART3 RX interrupt
-        USART_ClearITPendingBit(USART3,USART_IT_RXNE);
+    // Clear the USART3 RX interrupt
+    USART_ClearITPendingBit(USART3,USART_IT_RXNE);
 
-		if(sys_env.vREMOCON_ID != 0)
-		{	
-	 		if(!bSOH_FLAG)
-			{
-	   		  	if(Data == 1) 
-					bSOH_FLAG = 1;
-				else 
-				{
-					bSOH_FLAG = 0;
-					bHEADER_FLAG = 0;
-					bSTX_FLAG = 0;
-					bETX_FLAG = 0;
-				}
-				return;
-			}
-			else if(!bHEADER_FLAG)  
-			{
-				if(Data == sys_env.vREMOCON_ID)
-					bHEADER_FLAG = 1;
-				else 
-				{
-					bSOH_FLAG = 0;
-					bHEADER_FLAG = 0;
-					bSTX_FLAG = 0;
-					bETX_FLAG = 0;
-				}
-				return;
-			}
-		}
-
-		if(!bSTX_FLAG)
+	if(sys_env.vREMOCON_ID != 0)
+	{
+ 		if(!bSOH_FLAG)
 		{
-			if(Data == 2)
-				bSTX_FLAG = 1;
+   		  	if(Data == 1)
+				bSOH_FLAG = 1;
+			else
+			{
+				bSOH_FLAG = 0;
+				bHEADER_FLAG = 0;
+				bSTX_FLAG = 0;
+				bETX_FLAG = 0;
+			}
+			return;
+		}
+		else if(!bHEADER_FLAG)
+		{
+			if(Data == sys_env.vREMOCON_ID)
+				bHEADER_FLAG = 1;
 			else 
 			{
 				bSOH_FLAG = 0;
@@ -160,38 +173,53 @@ void USART3_IRQHandler(void)
 				bSTX_FLAG = 0;
 				bETX_FLAG = 0;
 			}
+			return;
 		}
-		else if(bETX_FLAG)
+	}
+
+	if(!bSTX_FLAG)
+	{
+		if(Data == 2)
+			bSTX_FLAG = 1;
+		else
 		{
-			if(Data == 3)
-				SetKeyReady();
 			bSOH_FLAG = 0;
 			bHEADER_FLAG = 0;
 			bSTX_FLAG = 0;
 			bETX_FLAG = 0;
 		}
-		else 
+	}
+	else if(bETX_FLAG)
+	{
+		if(Data == 3)
+			SetKeyReady();
+		bSOH_FLAG = 0;
+		bHEADER_FLAG = 0;
+		bSTX_FLAG = 0;
+		bETX_FLAG = 0;
+	}
+	else
+	{
+		bETX_FLAG = 1;
+		if((Data >= 0x90) && (Data != VIRTUAL_KEY_FREEZE) && (Data != VIRTUAL_KEY_AUTO_SEQ))
 		{
-			bETX_FLAG = 1;
-#ifdef __4CH__
-			if((Data >= 0x90) && (Data != 0x9a) && (Data != 0x9b))
-				Data -= 0x10;
-			if(bSETUP)
+			Data -= 0x10;
+		}
+
+		if(bSETUP)
+		{
+			if(Data == VIRTUAL_KEY_MENU)
 			{
-				if(Data == 0x8a)
-					Data = 0x9a; //KEY_MENU -> KEY_FREEZE
+				Data = VIRTUAL_KEY_FREEZE; //KEY_MENU -> KEY_FREEZE
 			}
-#endif
-			for(i = 0; i < sizeof(rs232_key_table); i++) 
+		}
+
+		for(i = 0; i < sizeof(virtual_key_tabla)/sizeof(VirtualKeys_t); i++)
+		{
+			if(virtual_key_tabla[i].virtual_key == Data)
 			{
-				if(rs232_key_table[i] == Data)
-				{
-					if(i == 0x1d)
-						UpdateKeyData(KEY_9SPLIT | KEY_LONG);//current_keydata = KEY_9SPLIT+0x80;
-					else
-						UpdateKeyData(i);//current_keydata = i;
-					break;
-				}
+				UpdateKeyData(virtual_key_tabla[i].keydata);
+				break;
 			}
 		}
 	}
