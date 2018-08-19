@@ -7,9 +7,8 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
-keydata_e key_data = KEY_NONE;
-keydata_e pre_key_data = KEY_NONE;
 BOOL bFreeze = CLEAR;
+u8 pre_special_mode = LEFT_TOP;
 
 //=============================================================================
 //  Static Variable Declaration
@@ -19,9 +18,9 @@ static keycode_t led_keycode = KEYCODE_NONE;
 static key_mode_e key_mode = KEY_MODE_LONG;
 static key_mode_e saved_key_mode = KEY_MODE_LONG;
 static keystatus_e key_status = KEY_STATUS_RELEASED;
-static BOOL bLongKey = CLEAR;
-static BOOL bRepeatKey = CLEAR;
-static BOOL bIsKeyReady = CLEAR;
+static BOOL bKeyReady = CLEAR;
+static keydata_e current_keydata = KEY_NONE;
+static u8 pre_split_mode = 0;
 
 //=============================================================================
 //  Constant Array Declaration (data table)
@@ -56,13 +55,13 @@ const static keydata_e key_table[] =
 #define KEYCOUNT_SHORT			4
 #define KEYCOUNT_REPEAT			40	//400ms
 #define KEYCOUNT_LONG			80	//800ms
-//
-//#define KEYLED_ROW0_EN		KEY_ROW0_LOW; KEY_LED1_HIGH;
-//#define KEYLED_ROW0_DIS		KEY_ROW0_HIGH; KEY_LED1_LOW;
-//#define KEYLED_ROW1_EN		KEY_ROW1_LOW; KEY_LED0_HIGH;
-//#define KEYLED_ROW1_DIS		KEY_ROW1_HIGH; KEY_LED0_LOW;
 
+#ifdef __9CH_DEVICE__
+#define VALID_LONG_KEY(key)		((key == KEY_FREEZE) || (key == KEY_9SPLIT))?TRUE:FALSE
+#else
 #define VALID_LONG_KEY(key)		(key == KEY_FREEZE)?TRUE:FALSE
+#endif
+
 #define VALID_REPEAT_KEY(key)	\
 	((key == KEY_FULL_CH1) || (key == KEY_FULL_CH2) || \
 	 (key == KEY_FULL_CH3) || (key == KEY_FULL_CH4))?TRUE:FALSE
@@ -111,10 +110,6 @@ keycode_t GetKeyCode(keydata_e key)
 void UpdateKeyStatus(keystatus_e status)
 {
 	key_status = status; 
-//	if(status == KEY_STATUS_RELEASED)
-//	{
-//		key_mode = saved_key_mode;
-//	}
 }
 keystatus_e GetKeyStatus(void)
 {
@@ -123,17 +118,25 @@ keystatus_e GetKeyStatus(void)
 //-----------------------------------------------------------------------------
 void SetKeyReady(void)
 {
-	bIsKeyReady = SET;
+	bKeyReady = SET;
 }
 void ClearKeyReady(void)
 {
-	bIsKeyReady = CLEAR;
+	bKeyReady = CLEAR;
 }
 BOOL IsKeyReady(void)
 {
-	return bIsKeyReady;
+	return bKeyReady;
 }
-
+//-----------------------------------------------------------------------------
+void UpdateKeyData(keydata_e key)
+{
+	current_keydata = key;
+}
+keydata_e GetCurrentKey(void)
+{
+	return current_keydata;
+}
 //-----------------------------------------------------------------------------
 //  Key Functions
 //-----------------------------------------------------------------------------
@@ -196,7 +199,7 @@ void Key_Led_Ctrl(void)
 
 	if(GetKeyStatus() == KEY_STATUS_RELEASED)
 	{
-		leds = GetKeyCode(key_data);;
+		leds = GetKeyCode(GetCurrentKey());
 	}
 	else
 	{
@@ -236,9 +239,13 @@ void Key_Led_Ctrl(void)
 void Key_Check(void)	
 {
 	const keycode_t *pKeyCode;
+
 	static u8 debounce_cnt = KEYCOUNT_SHORT;
 	static u8 key_cnt = 0;
 	static keydata_e processing_key_data = KEY_NONE;
+	static BOOL bLongKey = CLEAR;
+	static BOOL bRepeatKey = CLEAR;
+
 	u8 i;
 
 	if(current_keycode != KEYCODE_NONE)
@@ -276,21 +283,20 @@ void Key_Check(void)
 					{
 						bRepeatKey = SET;
 						bLongKey = CLEAR;
-						key_data = processing_key_data;
+						UpdateKeyData(processing_key_data);
 						SetKeyReady();
 					}
 					break;
 
 				case KEY_MODE_REPEAT:
-					key_data = processing_key_data;
+					UpdateKeyData(processing_key_data);//current_keydata = processing_key_data;
 					debounce_cnt = KEYCOUNT_REPEAT;
 					if(SET == bRepeatKey)
 					{
-						if(FALSE == VALID_REPEAT_KEY(key_data))
+						if(FALSE == VALID_REPEAT_KEY(processing_key_data))
 						{
 							bRepeatKey = SET;
 							key_cnt = 0;
-
 							return;
 						}
 						debounce_cnt = KEYCOUNT_SHORT;
@@ -305,30 +311,13 @@ void Key_Check(void)
 					if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
 				  		bRepeatKey = SET;
-						key_data = processing_key_data | KEY_LONG;
+				  		UpdateKeyData(processing_key_data | KEY_LONG);
 						SetKeyReady();
 					}
 					else
 					{
-						key_data = processing_key_data;
+						UpdateKeyData(processing_key_data);
 					}
-
-
-//					if((key_cnt >= KEYCOUNT_LONG) && (CLEAR == bRepeatKey))
-//					{
-//						bRepeatKey = SET;
-//						bLongKey = CLEAR;
-//						SetKeyReady();//bIsKeyReady = SET;
-//
-//						if(temp_key_data == KEY_FREEZE)
-//							key_data = KEY_MENU;
-//	#ifdef __9CH_DEVICE__
-//						else if(temp_key_data == KEY_9SPLIT)
-//							key_data = KEY_9SPLIT | KEY_LONG;
-//	#endif //__9CH_DEVICE__
-//						else
-//							key_data = temp_key_data;
-//					}
 					break;
 
 				case KEY_MODE_MAX:
@@ -365,15 +354,16 @@ void Key_Check(void)
 	}
 }
 
-u8 pre_special_mode = LEFT_TOP;
-u8 pre_split_mode = 0;
 void Key_Proc(void)
 {
-	if(IsKeyReady())
+	static keydata_e previous_keydata = KEY_NONE;
+	keydata_e key = GetCurrentKey();
+
+	if(IsKeyReady()==TRUE)
 	{
 		ClearKeyReady();
 
-		switch(key_data)
+		switch(key)
 		{
 			case KEY_FULL_CH1 : 
 			case KEY_FULL_CH2 : 
@@ -386,19 +376,20 @@ void Key_Proc(void)
 			case KEY_FULL_CH8 : 
 			case KEY_FULL_CH9 :
 #endif
-				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
+				// If key is changed...
+				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
 					//if(pre_split_mode > FULL_9) //2015.5.23 �ּ�ó��
 					{
 						Erase_OSD();
 					}
-					bFreeze = RESET;
-					bAuto_Seq_Flag = RESET;
+					bFreeze = CLEAR;
+					bAuto_Seq_Flag = CLEAR;
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = key_data-1;
+					pre_split_mode = sys_status.current_split_mode = key-1;
 #ifdef __9CH_DEVICE__
-					if(key_data == KEY_FULL_CH9)
+					if(key == KEY_FULL_CH9)
 					{
 						Set_border_line();
 						aux_display_flag = SET;
@@ -408,7 +399,7 @@ void Key_Proc(void)
 					else
 #endif
 					{
-						aux_display_flag = RESET;
+						//aux_display_flag = CLEAR;
 						//MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
 						//FullScreen(key_data-1); //blocked by Louis
 						Set_border_line();
@@ -417,9 +408,9 @@ void Key_Proc(void)
 				break;
 				
 			case KEY_4SPLIT : 
-				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
+				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					if(pre_split_mode != SPLIT4_1 || bAuto_Seq_Flag || bFreeze)
+					if(pre_split_mode != SPLITMODE_SPLIT4_1 || bAuto_Seq_Flag || bFreeze)
 					{
 						Erase_OSD();
 					}
@@ -427,8 +418,8 @@ void Key_Proc(void)
 					bAuto_Seq_Flag = CLEAR;
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = SPLIT4_1;
-					aux_display_flag = RESET;
+					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
+					//aux_display_flag = CLEAR;
 					//MDIN3xx_EnableAuxDisplay(&stVideo, OFF); 
 #if 0 //Louis
 				    SGQ_4CH_INIT(change_mode[cmode]);
@@ -436,10 +427,52 @@ void Key_Proc(void)
 					Set_border_line();
 				}
 				break;
+			case KEY_FREEZE :
+				bAuto_Seq_Flag = CLEAR;
+				if(bFreeze == CLEAR)
+				{
+					bFreeze = SET;
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
+					// don't need aut display for now Right?....by kukuri
+					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 1);	//aux freeze On
+				}
+				else
+				{
+					bFreeze = CLEAR;
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					// don't need aut display for now Right?....by kukuri
+					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
+				}
+				break;
+
+			case KEY_AUTO_SEQ :
+				if((CLEAR == sys_env.bLossAutoSkip) || ((vVideo_Loss&0x0000000f) != 0x0000000f))
+				{
+					if(bAuto_Seq_Flag == CLEAR)
+					{
+						Erase_OSD();
+					}
+					//bMode_change_flag = SET;
+					bFreeze = CLEAR;
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					// don't need aut display for now Right?....by kukuri
+					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
+					Auto_Seq_Init();
+				}
+				break;
+
+			case KEY_MENU :
+				bAuto_Seq_Flag = CLEAR;
+				bFreeze = SET;
+				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+				// don't need aut display for now Right?....by kukuri
+				//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
+				Enter_SetUP();
+				break;
 
 #ifdef __9CH_DEVICE__ // blocked by kukuri
 			case KEY_9SPLIT : 
-				if(pre_key_data != key_data /*|| SDIRX_change_flag	Louis block*/)
+				if(pre_key_data != key /*|| SDIRX_change_flag	Louis block*/)
 				{
 					if(sys_env.b9Split_Mode == 0)
 					{
@@ -568,54 +601,8 @@ void Key_Proc(void)
 
 				break;
 #endif // __9CH_DEVICE__
-			case KEY_FREEZE : 
-				bAuto_Seq_Flag = CLEAR;
-				if(bFreeze == CLEAR)
-				{
-					bFreeze = SET;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
-					// don't need aut display for now Right?....by kukuri
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 1);	//aux freeze On
-				}
-				else 
-				{
-					bFreeze = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					// don't need aut display for now Right?....by kukuri
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
-				}
-				break;
-
-			case KEY_AUTO_SEQ :
-				if(sys_env.bLossAutoSkip)
-				{
-					if((vVideo_Loss&0x0000000f) == 0x0000000f)  // what the magic number!!!!
-						break;
-				}
-
-				if(bAuto_Seq_Flag == CLEAR)
-				{
-					Erase_OSD();
-				}
-				//bMode_change_flag = SET;
-				bFreeze = CLEAR;
-				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-				// don't need aut display for now Right?....by kukuri
-				//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
-
-				Auto_Seq_Init();
-				break;
-
-			case KEY_MENU : 
-				bAuto_Seq_Flag = CLEAR;
-				bFreeze = SET;
-				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-				// don't need aut display for now Right?....by kukuri
-				//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
-				Enter_SetUP();
-				break;
 		}
-		pre_key_data = key_data & 0x7f;
+		previous_keydata = key & (~KEY_LONG);
 	}
 }
 

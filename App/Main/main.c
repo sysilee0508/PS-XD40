@@ -187,9 +187,9 @@ void USART3_IRQHandler(void)
 				if(rs232_key_table[i] == Data)
 				{
 					if(i == 0x1d)
-						key_data = KEY_9SPLIT+0x80;
+						UpdateKeyData(KEY_9SPLIT | KEY_LONG);//current_keydata = KEY_9SPLIT+0x80;
 					else
-						key_data = i;
+						UpdateKeyData(i);//current_keydata = i;
 					break;
 				}
 			}
@@ -432,7 +432,7 @@ void main(void)
 	MDIN3XX_RST_HIGH;	
 	
 	/* Reset key check(Press and hold the menu button during turning on the power to initialize the EEPROM) */
-	SetKeyMode(KEY_MODE_SHORT);//key_mode = KEY_MODE_SHORT;
+	SetKeyMode(KEY_MODE_SHORT);
 	for(i = 0; i < 10; i++)
 	{
 		Key_Scan();
@@ -442,8 +442,8 @@ void main(void)
 	
 	if(IsKeyReady()) 
 	{
-		ClearKeyReady();//bIsKeyReady = 0;
-		if(key_data == KEY_MENU || key_data == KEY_FREEZE)
+		ClearKeyReady();
+		if(GetCurrentKey() == KEY_MENU || GetCurrentKey() == KEY_FREEZE)
 		{
 			EEP_buf[cEEP_CHK] = 0;
 			write_eeprom_all();
@@ -463,7 +463,7 @@ void main(void)
 	}
 	//--------------------------------------------
 
-	SetKeyMode(KEY_MODE_LONG);//key_mode = KEY_MODE_LONG;
+	SetKeyMode(KEY_MODE_LONG);
 
 	read_eeprom_all();
 	Data_Load();
@@ -497,9 +497,9 @@ void main(void)
 #ifdef __4CH__
 	InputSelect = VIDEO_DIGITAL_SDI;
 //	InputSelect = VIDEO_SDI_2HD_POP;
-	sys_status.current_split_mode = SPLIT4_1;
+	sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
 
-	key_data = KEY_4SPLIT;
+	UpdateKeyData(KEY_4SPLIT);
 	SetKeyReady();
 	sysenv_split_mode = 5; //OMG! what is 5?!
 #endif

@@ -951,7 +951,7 @@ void SGQ_16CH_INIT(unsigned int mode)
     SGQ_DISPLAY_Terminal_SET(FPGA1, SGQ_ENABLE);
     SGQ_DISPLAY_PBMode_SET(FPGA1, SGQ_DISABLE);
 
-	if(sys_status.current_split_mode == SPLIT9_2)
+	if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
 	{
 	    //8ch position setting
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0xc, SPLIT16);
@@ -964,7 +964,7 @@ void SGQ_16CH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH2, SGQ_ENABLE, 0xf, SPLIT16);
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH3, SGQ_DISABLE, 0x0, SPLIT16);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_3)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3)
 	{
 	    //8ch position setting
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0x0, SPLIT16);
@@ -977,7 +977,7 @@ void SGQ_16CH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH2, SGQ_ENABLE, 0xf, SPLIT16);
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH3, SGQ_DISABLE, 0x0, SPLIT16);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_4)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4)
 	{
 	    //8ch position setting
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0x0, SPLIT16);
@@ -990,7 +990,7 @@ void SGQ_16CH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH2, SGQ_ENABLE, 0xf, SPLIT16);
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH3, SGQ_DISABLE, 0x0, SPLIT16);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_5)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5)
 	{
 	    //8ch position setting
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0x0, SPLIT16);
@@ -1046,7 +1046,7 @@ void SGQ_9CH_INIT(unsigned int mode)
     SGQ_DISPLAY_Terminal_SET(FPGA1, SGQ_ENABLE);
     SGQ_DISPLAY_PBMode_SET(FPGA1, SGQ_DISABLE);
 
-	if(sys_status.current_split_mode == SPLIT9_1)
+	if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
 	{
 		//8ch position setting
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0x0, SPLIT9);
@@ -1058,7 +1058,7 @@ void SGQ_9CH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH2, SGQ_ENABLE, 0x6, SPLIT9);
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH3, SGQ_ENABLE, 0x7, SPLIT9);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_6)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_6)
 	{
 		//8ch position setting
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0x6, SPLIT9);
@@ -1070,7 +1070,7 @@ void SGQ_9CH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH2, SGQ_DISABLE, 0x0, SPLIT9);
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH3, SGQ_DISABLE, 0x0, SPLIT9);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_7)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_7)
 	{
 		//8ch position setting
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0x0, SPLIT9);
@@ -1082,7 +1082,7 @@ void SGQ_9CH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH2, SGQ_DISABLE, 0x0, SPLIT9);
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH3, SGQ_DISABLE, 0x0, SPLIT9);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_8)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_8)
 	{
 		//8ch position setting
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0x0, SPLIT9);
@@ -1094,7 +1094,7 @@ void SGQ_9CH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH2, SGQ_DISABLE, 0x0, SPLIT9);
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH3, SGQ_DISABLE, 0x0, SPLIT9);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_9)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_9)
 	{
 		//8ch position setting
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0x0, SPLIT9);
@@ -1148,7 +1148,7 @@ void SGQ_4CH_INIT(unsigned int mode)
     SGQ_DISPLAY_PBMode_SET(FPGA1, SGQ_DISABLE);
 	
     //4ch position setting
-	if(sys_status.current_split_mode == SPLIT4_1)
+	if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
 	{
 		SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_ENABLE, 0x0, SPLIT4);
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH1, SGQ_ENABLE, 0x1, SPLIT4);
@@ -1160,7 +1160,7 @@ void SGQ_4CH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH2, SGQ_DISABLE, 0x6, SPLIT4);
 	    SGQ_CH_POSITION(FPGA1 | SDI_CH3, SGQ_DISABLE, 0x7, SPLIT4);
 	}
-	else if(sys_status.current_split_mode == SPLIT4_2) 
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2) 
 	{
 		SGQ_CH_POSITION(FPGA0 | SDI_CH0, SGQ_DISABLE, 0x4, SPLIT4);
 	    SGQ_CH_POSITION(FPGA0 | SDI_CH1, SGQ_DISABLE, 0x5, SPLIT4);
@@ -1244,7 +1244,7 @@ void SGQ_SPECIALCH_INIT(unsigned int mode)
 
     //special position setting
 
-	if(sys_status.current_split_mode == SPLIT9_2)
+	if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
     {
 	    SGQ_CH_POSITION_SPECIAL(FPGA0 | SDI_CH0,SPECIAL_ENABLE  ,SGQ_ENABLE, 0x0);
 	    SGQ_CH_POSITION_SPECIAL(FPGA0 | SDI_CH1,SPECIAL_DISABLE ,SGQ_ENABLE, 0xc);
@@ -1256,7 +1256,7 @@ void SGQ_SPECIALCH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION_SPECIAL(FPGA1 | SDI_CH2,SPECIAL_DISABLE ,SGQ_ENABLE, 0xb);
 	    SGQ_CH_POSITION_SPECIAL(FPGA1 | SDI_CH3,SPECIAL_DISABLE ,SGQ_ENABLE, 0xf);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_3)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3)
     {
 	    SGQ_CH_POSITION_SPECIAL(FPGA0 | SDI_CH0,SPECIAL_ENABLE  ,SGQ_ENABLE, 0x1);
 	    SGQ_CH_POSITION_SPECIAL(FPGA0 | SDI_CH1,SPECIAL_DISABLE ,SGQ_ENABLE, 0x0);
@@ -1268,7 +1268,7 @@ void SGQ_SPECIALCH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION_SPECIAL(FPGA1 | SDI_CH2,SPECIAL_DISABLE ,SGQ_ENABLE, 0xe);
 	    SGQ_CH_POSITION_SPECIAL(FPGA1 | SDI_CH3,SPECIAL_DISABLE ,SGQ_ENABLE, 0xf);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_4)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4)
     {
 	    SGQ_CH_POSITION_SPECIAL(FPGA0 | SDI_CH0,SPECIAL_ENABLE  ,SGQ_ENABLE, 0x4);
 	    SGQ_CH_POSITION_SPECIAL(FPGA0 | SDI_CH1,SPECIAL_DISABLE ,SGQ_ENABLE, 0x0);
@@ -1280,7 +1280,7 @@ void SGQ_SPECIALCH_INIT(unsigned int mode)
 	    SGQ_CH_POSITION_SPECIAL(FPGA1 | SDI_CH2,SPECIAL_DISABLE ,SGQ_ENABLE, 0xb);
 	    SGQ_CH_POSITION_SPECIAL(FPGA1 | SDI_CH3,SPECIAL_DISABLE ,SGQ_ENABLE, 0xf);
 	}
-	else if(sys_status.current_split_mode == SPLIT9_5)
+	else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5)
     {
 	    SGQ_CH_POSITION_SPECIAL(FPGA0 | SDI_CH0,SPECIAL_ENABLE  ,SGQ_ENABLE, 0x6);
 	    SGQ_CH_POSITION_SPECIAL(FPGA0 | SDI_CH1,SPECIAL_DISABLE ,SGQ_ENABLE, 0x0);

@@ -90,10 +90,8 @@ enum
 //=============================================================================
 //  Extern Grobal Variable
 //=============================================================================
-extern key_mode_e key_mode;
-extern BOOL bIsKeyReady;
-extern keydata_e key_data;
-extern keydata_e pre_key_data;
+//extern key_mode_e key_mode;
+//extern keydata_e current_keydata;
 
 extern BOOL bFreeze;
 
@@ -117,4 +115,6 @@ extern keystatus_e GetKeyStatus(void);
 extern void SetKeyReady(void);
 extern void ClearKeyReady(void);
 extern BOOL IsKeyReady(void);
+extern void UpdateKeyData(keydata_e key);
+extern keydata_e GetCurrentKey(void);
 #endif
