@@ -88,10 +88,21 @@ enum
 };
 
 //=============================================================================
+//  Extern Grobal Variable
+//=============================================================================
+extern key_mode_e key_mode;
+extern BOOL bIsKeyReady;
+extern keydata_e key_data;
+extern keydata_e pre_key_data;
+
+extern BOOL bFreeze;
+
+extern u8 pre_special_mode;
+extern u8 pre_split_mode;
+
+//=============================================================================
 //  Function Prototype
 //=============================================================================
-//extern void EXTI9_5_IRQHandler(void);
-extern void Key_LED_Set(void);
 extern void Key_Scan(void);
 extern void Key_Check(void);
 extern void Key_Proc(void);
@@ -101,18 +112,9 @@ extern void Key_Led_Ctrl(void);
 extern void SetKeyMode(key_mode_e mode);
 extern key_mode_e GetKeyMode(void);
 extern keycode_t GetKeyCode(keydata_e key);
-
-//=============================================================================
-//  Extern Grobal Variable 
-//=============================================================================
-extern key_mode_e key_mode;
-extern BOOL key_flag;
-extern keydata_e key_data;
-extern keydata_e pre_key_data;
-
-extern BOOL bFreeze;
-
-extern u8 pre_special_mode;
-extern u8 pre_split_mode;
-
+extern void UpdateKeyStatus(keystatus_e status);
+extern keystatus_e GetKeyStatus(void);
+extern void SetKeyReady(void);
+extern void ClearKeyReady(void);
+extern BOOL IsKeyReady(void);
 #endif

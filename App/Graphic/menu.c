@@ -357,10 +357,8 @@ void Erase_Menu_OSD(void)
 void Enter_SetUP(void)
 {
 	bSETUP = 1;
-
 	bENTER = 0;
 
-	//key_mode = KEY_MODE_REPEAT;
 	SetKeyMode(KEY_MODE_REPEAT);
   
 	vITEM_X = 0;
@@ -451,9 +449,9 @@ void Page_Title(void)
 }
 void Setup_Process(void)
 {
-	if(key_flag)
+	if(IsKeyReady())
 	{
-		key_flag = 0;
+		ClearKeyReady();
 
 		switch(vPAGE)
 		{
