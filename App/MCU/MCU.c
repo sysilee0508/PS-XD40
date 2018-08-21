@@ -43,9 +43,8 @@ void MCU_init(void)
     GPIOA->ODR = 0x0000ffff;			//Initialize PAs to High 
     
 #ifdef __4CH__
-    GPIOB->CRH = 0x33334b77;			//GPIO10-uart_TX(alternate function), GPIO11-uart_RX
-    									//GPIO8,9 - output/open-drain
-    GPIOB->CRL = 0x33333333;			//
+    GPIOB->CRH = 0x33334b33;			//GPIO10-uart_TX(alternate function), GPIO11-uart_RX
+    GPIOB->CRL = 0x33377333;			//GPIO3,4 (KROW0,1) --> open-drain
     GPIOB->ODR = 0x0000fff9;			//GPIOB01(ALM_OUT) and GPIOB02(BUZ_OUT) to Low.
 #endif
   
