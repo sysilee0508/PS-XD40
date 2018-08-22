@@ -158,7 +158,7 @@ void Key_Scan(void)
 	KEY_LED4_HIGH;
 
 	KEY_LED0_LOW;
-	KEY_LED1_HIGH;
+	KEY_LED1_LOW;
 
 	KEY_DATA_INPUT_MODE;
        
@@ -324,7 +324,7 @@ void Key_Check(void)
 					if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
 				  		bRepeatKey = SET;
-				  		UpdateKeyData(processing_key_data | KEY_LONG);
+				  		UpdateKeyData(processing_key_data | (keydata_e)KEY_LONG);
 						SetKeyReady();
 					}
 					else
