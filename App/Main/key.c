@@ -151,11 +151,14 @@ void Key_Scan(void)
 {
 	keycode_t key_code = KEYCODE_NONE;
 
-	// Make sure all key columns are HIGH
+	// All key columns are HIGH and LED rows are LOW
 	KEY_LED1_5_HIGH;
 	KEY_LED2_6_HIGH;
 	KEY_LED3_7_HIGH;
 	KEY_LED4_HIGH;
+
+	KEY_LED0_LOW;
+	KEY_LED1_HIGH;
 
 	KEY_DATA_INPUT_MODE;
        
@@ -163,6 +166,8 @@ void Key_Scan(void)
 	KEY_ROW1_HIGH;
 	KEY_ROW0_LOW;
 	
+	Delay_ms(1);
+
 	if(LOW == KEY_DATA1_5_INPUT)
 		key_code = KEYCODE_CH1;
 	else if(LOW== KEY_DATA2_6_INPUT)
@@ -175,6 +180,8 @@ void Key_Scan(void)
 	//Scan KROW1
 	KEY_ROW0_HIGH;
 	KEY_ROW1_LOW;
+
+	Delay_ms(1);
 
 	if(LOW == KEY_DATA1_5_INPUT)
 		key_code = KEYCODE_SPLIT;

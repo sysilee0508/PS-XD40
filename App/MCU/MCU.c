@@ -38,20 +38,36 @@ void MCU_init(void)
     GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);	//PA13,14 REmap
     GPIO_PinRemapConfig(GPIO_Remap_PD01, ENABLE);    		//PD0,1 REmap
 
+    //GPIO A
     GPIOA->CRH = 0x33333333;			//Configure all PAs as OUTPUT 
     GPIOA->CRL = 0x33333333;
-    GPIOA->ODR = 0x0000ffff;			//Initialize PAs to High 
-    
-#ifdef __4CH__
+    GPIOA->ODR = 0x0000FFFF;			//Initialize PAs to High
+//	[GPIO B]
+//  0 : NC
+//	1 : ALM_OUT
+//	2 : BUX_OUT
+//	3 : K_ROW0
+//	4 : K_ROW1
+//	5 : I2C_SCL
+//	6 : I2C_SDA
+//	7 :
+//	8 : K_LED_R0
+//	9 : K_LED_R1
+//	10: TXD(UART3)
+//	11: RXD(UART3)
+//	12: K_CL0_MISO
+//	13: K_CL1_MOSI
+//	14: K_CL2_CLK
+//	15: K_CL3_KCS
     GPIOB->CRH = 0x33334b33;			//GPIO10-uart_TX(alternate function), GPIO11-uart_RX
     GPIOB->CRL = 0x33377333;			//GPIO3,4 (KROW0,1) --> open-drain
-    GPIOB->ODR = 0x0000fff9;			//GPIOB01(ALM_OUT) and GPIOB02(BUZ_OUT) to Low.
-#endif
-  
+    GPIOB->ODR = 0x0000FCF9;			//GPIOB01(ALM_OUT),GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
+
+    //GPIO C
     GPIOC->CRH = 0x33833333;			//GPIOC13 is used for TAMPER-RTC INT
     GPIOC->CRL = 0x33333334;			//GPIOC00 is used for SPI_MISO
     GPIOC->ODR = 0x0000ffff;			//Initialize GPIOC to High  
-
+    //GPIO D
     GPIOD->CRH = 0x33333333;			//Only PD0 and PD1 is used for OSCI and OSCO. They are already remapped.
     GPIOD->CRL = 0x33333333;
     GPIOD->ODR = 0x0000ffff;			//
