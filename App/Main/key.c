@@ -166,7 +166,7 @@ void Key_Scan(void)
 	KEY_ROW1_HIGH;
 	KEY_ROW0_LOW;
 	
-	Delay_ms(1);
+	Delay_us(10);
 
 	if(LOW == KEY_DATA1_5_INPUT)
 		key_code = KEYCODE_CH1;
@@ -181,7 +181,7 @@ void Key_Scan(void)
 	KEY_ROW0_HIGH;
 	KEY_ROW1_LOW;
 
-	Delay_ms(1);
+	Delay_us(10);
 
 	if(LOW == KEY_DATA1_5_INPUT)
 		key_code = KEYCODE_SPLIT;

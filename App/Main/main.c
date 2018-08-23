@@ -455,19 +455,16 @@ void main(void)
 	// initialize RTC
 	RTC_Configuration();
 
+	// Set key mode as short key mode in order to check reset key 
+	SetKeyMode(KEY_MODE_SHORT);
+
 	MDIN3XX_RST_LOW;
 	Delay_ms(500);
 	MDIN3XX_RST_HIGH;	
-	
-	/* Reset key check(Press and hold the menu button during turning on the power to initialize the EEPROM) */
-	SetKeyMode(KEY_MODE_SHORT);
-	for(i = 0; i < 10; i++)
-	{
-		Key_Scan();
-		Key_Check();
-		Delay_ms(20);
-	}
-	
+
+	// Need additional 500us to check reset key
+	// Reset Key Function : Press and hold the menu button during turning on the power to initialize the EEPROM
+	Delay_ms(500);
 	if(IsKeyReady()) 
 	{
 		ClearKeyReady();
@@ -490,7 +487,7 @@ void main(void)
 		}
 	}
 	//--------------------------------------------
-
+	// Set key mode as long key mode 
 	SetKeyMode(KEY_MODE_LONG);
 
 	read_eeprom_all();
@@ -498,7 +495,8 @@ void main(void)
 	// initialize Debug Serial
 	USART3_Init();
 
-	aux_display_flag = 1;
+	// I think we don't need this flag because we don't have aux display
+	//aux_display_flag = SET;
 
 	if(sys_env.vResolution == 0) Video_Out_Res_Val = VIDOUT_1920x1080p60;
 	else if(sys_env.vResolution == 1) Video_Out_Res_Val = VIDOUT_1920x1080p50; 
@@ -512,7 +510,7 @@ void main(void)
 	vs4210_system_init();
 	Delay_ms(10);
 	//NVP6158 device initialization
-    NVP6158_init();
+	NVP6158_init();
 
 	Loss_Check();
 	Delay_ms(100);
