@@ -1320,7 +1320,7 @@ static void VideoFrameProcess(BYTE src)
 	//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
 
 #ifdef __4CH__
-	MDIN3xx_EnableAuxDisplay(&stVideo, ON);
+	MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
 #endif
 
 #if 0 //Louis
