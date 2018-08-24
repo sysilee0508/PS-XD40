@@ -13,6 +13,9 @@
 #define VS4210_ADDR 0x40
 #define  VS4210_INIT_NUMBER 88
 #define  VS4210_INIT_MIN_NUM 25
+#define  CH_IN_NUMBER 4
+#define HDMIRXADR     0x90
+#define HDMIRXADR_B   0x92
 
 #define _Title0          0x00
 #define _Title1          0x01
@@ -123,8 +126,81 @@ typedef struct
     tByte OutputSize ;
 } T_VS4210_JointKind ;
 
+typedef enum
+{
+    _OSD_720X480I60=0,
+    _OSD_720X576I50,
+    _OSD_640X480P,
+    _OSD_720X480P60,
+    _OSD_1920X1080I,
+    _OSD_720X576P50,//5
+    _OSD_8000X600P,
+    _OSD_1280X720P,
+    _OSD_1024X768P,
+    _OSD_1280X768P,
+    _OSD_1360X768P, //10
+    _OSD_1366X768P,
+    _OSD_1280X800P,
+    _OSD_1440X900P,
+    _OSD_1280X1024P,
+    _OSD_1400X1050P,//15
+    _OSD_1680X1050P,
+    _OSD_1920X1080P,
+    _OSD_1600X1200P,
+    _OSD_1920X1200P,
+    _OSD_OUT_OF_RANGE,
+    _OSD_No_Signal
+} HDMI_INPUT_SIZE ;
+
+typedef enum
+{
+    VS4210_1080P_MODE0_w0=0x00,
+    VS4210_1080P_MODE0_w1=0x01,
+    VS4210_1080P_MODE0_w2=0x02,
+    VS4210_1080P_MODE0_w3=0x03,
+    VS4210_1080P_MODE1   =0x10,
+    VS4210_1080P_MODE2   =0x20,
+    VS4210_1080P_MODE6   =0x30,
+    VS4210_1080P_MODE12  =0x40,
+    VS4210_1080P_MODE34  =0x41,
+    VS4210_1080P_MODE_NUMBER
+} HDMI_OUTPUT_MODE ;
+
+typedef enum
+{
+    VS4210_FULL_MODE0 =0x00,
+    VS4210_FULL_MODE1 =0x10,
+    VS4210_FULL_MODE2 =0x20,
+    VS4210_FULL_MODE6 =0x30,
+    VS4210_FULL_MODE12=0x40,
+    VS4210_FULL_MODE_NUMBER
+} HDMI_FULL_OUTPUT_MODE ;
+
+tcByte OSD_720x480I60_param[]=  {10 ,_7,_2,_0,_X,_4,_8,_0,_I,_spc,_spc};
+tcByte OSD_720x480P60_param[]=  {10 ,_7,_2,_0,_X,_4,_8,_0,_P,_spc,_spc};
+tcByte OSD_720x576I50_param[]=  {10 ,_7,_2,_0,_X,_5,_7,_6,_I,_spc,_spc};
+tcByte OSD_720x576P50_param[]=  {10 ,_7,_2,_0,_X,_5,_7,_6,_P,_spc,_spc};
+tcByte OSD_1280x720P_param[] =  {10 ,_1,_2,_8,_0,_X,_7,_2,_0,_P  ,_spc};
 tcByte OSD_1920x1080P_param[]=  {10 ,_1,_9,_2,_0,_X,_1,_0,_8,_0  ,_P  };
+tcByte OSD_1920x1080I_param[]=  {10 ,_1,_9,_2,_0,_X,_1,_0,_8,_0  ,_I  };
+//DVI
+tcByte OSD_640X480P_param[]=   {10 ,_6,_4,_0,_X,_4,_8,_0,_P,_spc,_spc};
+tcByte OSD_8000X600P_param[]=  {10 ,_8,_0,_0,_X,_6,_0,_0,_P,_spc,_spc};
+tcByte OSD_1024X768P_param[]=  {10 ,_1,_0,_2,_4,_X,_7,_6,_8,_P  ,_spc};
+tcByte OSD_1280X768P_param[]=  {10 ,_1,_2,_8,_0,_X,_7,_6,_8,_P  ,_spc};
+tcByte OSD_1360X768P_param[]=  {10 ,_1,_3,_6,_0,_X,_7,_6,_8,_P  ,_spc};
+tcByte OSD_1366X768P_param[]=  {10 ,_1,_3,_6,_6,_X,_7,_6,_8,_P  ,_spc};
+tcByte OSD_1280X800P_param[]=  {10 ,_1,_2,_8,_0,_X,_8,_0,_0,_P  ,_spc};
+tcByte OSD_1440X900P_param[]=  {10 ,_1,_4,_4,_0,_X,_9,_0,_0,_P  ,_spc};
+tcByte OSD_1280X1024P_param[]= {10 ,_1,_2,_8,_0,_X,_1,_0,_2,_4  ,_P  };
+tcByte OSD_1400X1050P_param[]= {10 ,_1,_4,_0,_0,_X,_1,_0,_5,_0  ,_P  };
+tcByte OSD_1680X1050P_param[]= {10 ,_1,_6,_8,_0,_X,_1,_0,_5,_0  ,_P  };
+tcByte OSD_1600X1200P_param[]= {10 ,_1,_6,_0,_0,_X,_1,_2,_0,_0  ,_P  };
+tcByte OSD_1920X1200P_param[]= {10 ,_1,_9,_2,_0,_X,_1,_2,_0,_0  ,_P  };
+
 tcByte OSD_No_Signal_param[]=   {10 ,_N,_o,_spc,_S,_i,_g,_n,_a,_l,_spc};
+tcByte OSD_Out_of_range_param[]= {12,_O,_u,_t,_spc,_o,_f,_spc,_r,_a,_n,_g,_e};
+tcByte OSD_Not_Support_param[]=  {11 ,_N,_o,_t,_spc,_S,_u,_p,_p,_o,_r,_t};
 
 tcByte OSD_CH0_param[]= {6,_C,_H,_spc,_1,_spc,_spc};
 tcByte OSD_CH1_param[]= {6,_C,_H,_spc,_2,_spc,_spc};
@@ -2690,26 +2766,28 @@ tcByte aLineMode720PMode12Lin1[]= {0x01,0x02,0x15,0xE4,0x03,0x5A ,0x83} ;
 // Exported Variables
 // ----------------------------------------------------------------------
 extern unsigned char gbVXIS_OuputModeflg ; 
-//extern tiByte PreVXIS_FULLOuputModeflg ; 
-//extern tiByte gChannel0HDMIindex ; 
-//extern tByte gWindowNum ;
-//extern tiByte gaOpenWindowflg[4] ;
+extern tiByte PreVXIS_FULLOuputModeflg ; 
+extern tiByte gChannel0HDMIindex ; 
+extern tByte gWindowNum ;
+extern tiByte gaOpenWindowflg[4] ;
 
 // -----------------------------------------------------------------------------
 // Exported function Prototype
 // -----------------------------------------------------------------------------
+extern void delay1ms(unsigned short ms);
 extern void msleep(unsigned int i );
 extern tByte I2CRead(unsigned char maddr,unsigned char saddr); 
-extern bit I2CWrite(unsigned char maddr,unsigned char saddr,unsigned char value); 
+extern bit I2CWrite(unsigned char maddr,unsigned char saddr,unsigned char value);
+ 
 extern void VS4210_init_Input_MODE88( tByte out_Mode  ) ;
 extern void VS4210_init_mode(tByte ch , tByte in_mode , tByte out_mode) ;     
-//extern void VS4210_OpenWindowsX(tiByte n) ;
-//extern void VS4210_CloseWindowsX(tiByte n);
-//extern void VS4210_CloseAllWindows(void) ; 
-//extern void VS4210_channel0clear(tByte ch);
+extern void VS4210_OpenWindowsX(tiByte n) ;
+extern void VS4210_CloseWindowsX(tiByte n);
+extern void VS4210_CloseAllWindows(void) ; 
+extern void VS4210_channel0clear(tByte ch);
 extern void VS4210_Line_Clear(void); 
 extern void VS4210_Line_Draw(tiByte mode ) ; 
-//extern tByte VS4210_CheckMode0Status(void)  ;
+extern tByte VS4210_CheckMode0Status(void)  ;
 extern void VS4210_StartInit(void); 
 extern void VS4210_No_Signal_Init(void) ; 
 
@@ -2726,5 +2804,16 @@ extern void VS4210_displayon(void) ;
 
 extern BOOL VS4210_VideoJoin_Output(T_VS4210_JointKind *pVS4210_JointKind1) ;
 extern void OSD_Clear_All(void );
+
+extern tByte HDMIRX_ReadI2C_Byte(tByte RegAddr);
+extern tByte HDMIRX_WriteI2C_Byte(tByte RegAddr,tByte val);
+extern tByte HDMIRX_WriteI2C_ByteN(tByte RegAddr,tcByte *pData,int N);
+extern void InitHDMIRX(bit bFullInit) ;
+extern void GetHDMIstate(void) ; 
+extern bit CheckHDMIRX();
+extern unsigned char GetHDMI_InputMode(unsigned char ch ) ; 
+
+extern void HDMI_Tx_Init(void ) ;
+extern void HDMITX_DevLoopProc(void) ;
 
 #endif 

@@ -561,7 +561,7 @@ void main(void)
 		}
 
 		Time_Read();
-
+		
 		// video process handler
 		VideoProcessHandler();
 
@@ -575,6 +575,8 @@ void main(void)
 			
 			DEMO_SetPIPDisplay(sysenv_split_mode);
 		}
+		vs4210_display_proc();
+
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.
 		VideoHTXCtrlHandler();
 

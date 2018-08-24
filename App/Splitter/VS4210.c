@@ -5,10 +5,7 @@
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
-#define VS4210_FULL_MODE1 0x10
-
-#define _OSD_1920X1080P		17
-#define _OSD_No_Signal		21
+#define DUMP_TIME 10
 
 #define _TitleOn			0x04	//xxxxx100
 #define _ContentOn			0x02	//xxxxx010
@@ -30,7 +27,17 @@ typedef enum
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-T_VS4210_JointKind VS4210_JointKind1 ;
+static tiByte gbAUDO_INDEX = 0  ;
+static tiByte gCloseWindowflg[4]  ;
+static tiByte gbPreVXIS_InputMode[4] ;
+static tiByte gPreAudioSampleFreq ;
+static tiByte gAudioSampleFreq[4] ;
+static unsigned short dump_count=0;
+static tiByte bOldSignal[4];
+static tiByte OutSize30fpsFlg1 = 0 ;
+static int TimeOutCount ;
+
+
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
@@ -41,10 +48,15 @@ tByte gaHDMI_MapWindowIndex[4] = {0,1,2,3} ;
 tiByte gbVXIS_OuputSize =  _OUTPUT_1080P60;
 bool EnDrawOSD = 1 ;
 
+T_VS4210_JointKind VS4210_JointKind1 ;
 
-tByte gHDMI_Index = 0 ;
+tByte gHDMI_Index = 2 ;
 unsigned short gHActive[4], gVActive[4] ;
 unsigned short gHTotal[4], gVTotal[4] ;
+
+extern tiByte PreVState[4] ;
+extern tiByte VState[4] ;
+extern tiByte AState[4] ;
 // ----------------------------------------------------------------------
 // Static Prototype Functions
 // ----------------------------------------------------------------------
@@ -55,6 +67,11 @@ unsigned short gHTotal[4], gVTotal[4] ;
 
 
 //--------------------------------------------------------------------------------------------------------------------------
+void delay1ms(unsigned short ms) 
+{
+	Delay_ms(ms);
+}
+
 void msleep(unsigned int i )
 {
 	Delay_ms(i);
@@ -147,59 +164,136 @@ bit I2CMultiAttribute(unsigned char maddr,unsigned char saddr,unsigned char numb
 	return 1 ;
 }
 
+tByte HDMIRX_ReadI2C_Byte(tByte RegAddr)
+{
+	tByte uc ;
+	tByte Index ;
+	//Index =gaHDMI_MapIndex[gHDMI_Index] ;
+	Index =gHDMI_Index ;
+
+	if (Index == 0 )
+	{
+		uc = I2CRead(HDMIRXADR,RegAddr) ;
+	}
+	else if (Index == 1 )
+	{
+		uc = I2CRead(HDMIRXADR_B,RegAddr) ;
+	}
+	else if (Index == 2 )
+	{
+		uc = I2CRead(HDMIRXADR,RegAddr) ;
+	}
+	else
+	{
+		uc = I2CRead(HDMIRXADR_B,RegAddr) ;
+	}
+
+	return uc ;
+}
+
+tByte HDMIRX_WriteI2C_Byte(tByte RegAddr,tByte val)
+{
+	tByte Index ;
+	//Index =gaHDMI_MapIndex[gHDMI_Index] ;
+	Index =gHDMI_Index ;
+
+	if (Index == 0 )
+	{
+		I2CWrite(HDMIRXADR,RegAddr,val) ;
+	}
+	else if (Index == 1 )
+	{
+		I2CWrite(HDMIRXADR_B,RegAddr,val) ;
+	}
+	else if (Index == 2 )
+	{
+		I2CWrite(HDMIRXADR,RegAddr,val) ;
+	}
+	else
+	{
+		I2CWrite(HDMIRXADR_B,RegAddr,val) ;
+	}
+	return 0 ;
+}
+
+tByte HDMIRX_WriteI2C_ByteN(tByte RegAddr,tcByte *pData,int N)
+{
+	tByte Index ;
+	//Index =gaHDMI_MapIndex[gHDMI_Index] ;
+	Index =gHDMI_Index ;
+
+	if (Index == 0 )
+	{
+		I2CMultiWrite(HDMIRXADR,RegAddr,N,pData) ;
+	}
+	else if (Index == 1 )
+	{
+		I2CMultiWrite(HDMIRXADR_B,RegAddr,N,pData) ;
+	}
+	else if (Index == 2 )
+	{
+		I2CMultiWrite(HDMIRXADR,RegAddr,N,pData) ;
+	}
+	else
+	{
+		I2CMultiWrite(HDMIRXADR_B,RegAddr,N,pData) ;
+	}
+	return 0  ;
+}
+
 //--------------------------------------------------------------------------------------------------------------------------
 void SetOsdSize(tByte block,tByte sizeX,tByte sizeY)
 {
-    tByte temp;
-    switch(block)
-    {
-    case _Title0 :
-        temp=I2CRead(VS4210_ADDR,0x53);
-        I2CWrite(VS4210_ADDR,0x53,temp&0x3f);
-        I2CWrite(VS4210_ADDR,0x53,sizeX&0x3f);
-        break;
-    case _Title1 :
-        temp=I2CRead(VS4210_ADDR,0x53);
-        I2CWrite(VS4210_ADDR,0x53,(temp&0x3f) | 0x40  ) ;
-        I2CWrite(VS4210_ADDR,0x53,(sizeX&0x3f) | 0x40  ) ;
-        break;
-    case _Title2 :
-        temp=I2CRead(VS4210_ADDR,0x53);
-        I2CWrite(VS4210_ADDR,0x53,(temp&0x3f) | 0x80 )  ;
-        I2CWrite(VS4210_ADDR,0x53,(sizeX&0x3f) | 0x80 )  ;
-        break;
-    case _Title3 :
-        temp=I2CRead(VS4210_ADDR,0x53);
-        I2CWrite(VS4210_ADDR,0x53,(temp&0x3f) | 0xC0 )  ;
-        I2CWrite(VS4210_ADDR,0x53,(sizeX&0x3f) | 0xC0 )  ;
-        break;
+	tByte temp;
+	switch(block)
+	{
+	case _Title0 :
+		temp=I2CRead(VS4210_ADDR,0x53);
+		I2CWrite(VS4210_ADDR,0x53,temp&0x3f);
+		I2CWrite(VS4210_ADDR,0x53,sizeX&0x3f);
+		break;
+	case _Title1 :
+		temp=I2CRead(VS4210_ADDR,0x53);
+		I2CWrite(VS4210_ADDR,0x53,(temp&0x3f) | 0x40  ) ;
+		I2CWrite(VS4210_ADDR,0x53,(sizeX&0x3f) | 0x40  ) ;
+		break;
+	case _Title2 :
+		temp=I2CRead(VS4210_ADDR,0x53);
+		I2CWrite(VS4210_ADDR,0x53,(temp&0x3f) | 0x80 )  ;
+		I2CWrite(VS4210_ADDR,0x53,(sizeX&0x3f) | 0x80 )  ;
+		break;
+	case _Title3 :
+		temp=I2CRead(VS4210_ADDR,0x53);
+		I2CWrite(VS4210_ADDR,0x53,(temp&0x3f) | 0xC0 )  ;
+		I2CWrite(VS4210_ADDR,0x53,(sizeX&0x3f) | 0xC0 )  ;
+		break;
 
-    case _Bar0:
-        temp=I2CRead(VS4210_ADDR,0x5E);
-        I2CWrite(VS4210_ADDR,0x5E,temp&0x3f) ;
-        I2CWrite(VS4210_ADDR,0x5E,sizeX&0x3f) ;
-        break;
-    case _Bar1:
-        temp=I2CRead(VS4210_ADDR,0x5E);
-        I2CWrite(VS4210_ADDR,0x5E,(temp&0x3f)| 0x40)  ;
-        I2CWrite(VS4210_ADDR,0x5E,(sizeX&0x3f)| 0x40)  ;
-        break;
-    case _Bar2:
-        temp=I2CRead(VS4210_ADDR,0x5E);
-        I2CWrite(VS4210_ADDR,0x5E,(temp&0x3f) | 0x80);
-        I2CWrite(VS4210_ADDR,0x5E,(sizeX&0x3f) | 0x80);
-        break;
-    case _Bar3:
-        temp=I2CRead(VS4210_ADDR,0x5E);
-        I2CWrite(VS4210_ADDR,0x5E,(temp&0x3f) | 0xC0);
-        I2CWrite(VS4210_ADDR,0x5E,(sizeX&0x3f) | 0xC0);
-        break;
+	case _Bar0:
+		temp=I2CRead(VS4210_ADDR,0x5E);
+		I2CWrite(VS4210_ADDR,0x5E,temp&0x3f) ;
+		I2CWrite(VS4210_ADDR,0x5E,sizeX&0x3f) ;
+		break;
+	case _Bar1:
+		temp=I2CRead(VS4210_ADDR,0x5E);
+		I2CWrite(VS4210_ADDR,0x5E,(temp&0x3f)| 0x40)  ;
+		I2CWrite(VS4210_ADDR,0x5E,(sizeX&0x3f)| 0x40)  ;
+		break;
+	case _Bar2:
+		temp=I2CRead(VS4210_ADDR,0x5E);
+		I2CWrite(VS4210_ADDR,0x5E,(temp&0x3f) | 0x80);
+		I2CWrite(VS4210_ADDR,0x5E,(sizeX&0x3f) | 0x80);
+		break;
+	case _Bar3:
+		temp=I2CRead(VS4210_ADDR,0x5E);
+		I2CWrite(VS4210_ADDR,0x5E,(temp&0x3f) | 0xC0);
+		I2CWrite(VS4210_ADDR,0x5E,(sizeX&0x3f) | 0xC0);
+		break;
 
-    case _Content:
-        I2CWrite(VS4210_ADDR,0x58,sizeX&0x3f);
-        I2CWrite(VS4210_ADDR,0x59,sizeY&0x1f);
-        break;
-    }
+	case _Content:
+		I2CWrite(VS4210_ADDR,0x58,sizeX&0x3f);
+		I2CWrite(VS4210_ADDR,0x59,sizeY&0x1f);
+		break;
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -262,26 +356,37 @@ void OSD_Clear(tByte Win )
 //--------------------------------------------------------------------------------------------------------------------------
 void OSD_Clear_All(void )
 {
-    tByte i ;
-    for (i = 0 ; i < 4 ; i++)
-    {
-        OSD_Clear(i) ;
-    }
+	tByte i ;
+	for (i = 0 ; i < 4 ; i++)
+	{
+		OSD_Clear(i) ;
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 void OSD_Clear_234(void )
 {
+	tByte i ;
+	for (i = 1 ; i < 4 ; i++)
+	{
+		OSD_Clear(i) ;
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 void OSD_Clear_34(void )
 {
+	tByte i ;
+	for (i = 2 ; i < 4 ; i++)
+	{
+		OSD_Clear(i) ;
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 void OSD_Clear_4(void )
 {
+	OSD_Clear(3) ;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -583,69 +688,405 @@ void VX_Write_OSD_In_OutString(tByte ch , tcByte *Str1,tcByte *Str2, int out_mod
 //--------------------------------------------------------------------------------------------------------------------------
 void VXIS_fShowInOutMode0Fast(tiByte ch , tiByte in_mode, tiByte out_mode  )
 {
+    tcByte *ptr1 ;
+    tByte chFix ;
+
+    if (EnDrawOSD == 1 )
+    {
+        if (ch == 0 )
+        {
+            ptr1 = OSD_CH0_param ;
+        }
+        else if (ch == 1 )
+        {
+            ptr1 = OSD_CH1_param ;
+        }
+        else if (ch == 2 )
+        {
+            ptr1 = OSD_CH2_param ;
+        }
+        else
+        {
+            ptr1 = OSD_CH3_param ;
+        }
+
+        chFix = 0  ;
+        switch(in_mode)
+        {
+        case _OSD_720X480I60 :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_720x480I60_param,out_mode) ;
+            break ;
+
+        case _OSD_720X480P60 :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_720x480P60_param,out_mode ) ;
+            break ;
+
+        case _OSD_720X576I50 :
+            VX_Write_OSD_In_OutString(chFix , ptr1,OSD_720x576I50_param,out_mode) ;
+            break ;
+
+        case _OSD_720X576P50 :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_720x576P50_param,out_mode) ;
+            break ;
+
+        case _OSD_1920X1080I :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1920x1080I_param,out_mode) ;
+            break;
+
+        case _OSD_1280X720P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1280x720P_param,out_mode) ;
+            break;
+
+        case _OSD_1920X1080P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1920x1080P_param,out_mode) ;
+            break;
+
+    #ifndef HDMI_ONLY //DVI
+        case _OSD_640X480P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_640X480P_param,out_mode) ;
+            break;
+        case _OSD_8000X600P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_8000X600P_param,out_mode) ;
+            break;
+        case _OSD_1024X768P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1024X768P_param,out_mode) ;
+            break;
+        case _OSD_1280X768P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1280X768P_param,out_mode) ;
+            break;
+        case _OSD_1360X768P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1360X768P_param,out_mode) ;
+            break;
+        case _OSD_1366X768P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1366X768P_param,out_mode) ;
+            break;
+        case _OSD_1280X800P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1280X800P_param,out_mode) ;
+            break;
+        case _OSD_1440X900P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1440X900P_param,out_mode) ;
+            break;
+        case _OSD_1280X1024P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1280X1024P_param,out_mode) ;
+            break;
+        case _OSD_1400X1050P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1400X1050P_param,out_mode) ;
+            break;
+        case _OSD_1680X1050P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1680X1050P_param,out_mode) ;
+            break;
+        case _OSD_1600X1200P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1600X1200P_param,out_mode) ;
+            break;
+        case _OSD_1920X1200P :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_1920X1200P_param,out_mode) ;
+            break;
+    #endif
+
+        case _OSD_OUT_OF_RANGE :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_Out_of_range_param,out_mode) ;
+            break;
+
+        case _OSD_No_Signal :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_No_Signal_param,out_mode) ;
+            break;
+
+        default :
+            VX_Write_OSD_In_OutString(chFix , ptr1, OSD_Not_Support_param,out_mode) ;
+            break;
+        }
+    }
+
+}
+
+void OSD_init()
+{
+	tByte  i ;
+	for (i = 0 ; i< CH_IN_NUMBER ; i++)
+	{
+		gHDMI_Index = i ;
+		VXIS_fShowInOutMode(gaHDMI_MapWindowIndex[gHDMI_Index]  ,  gbVXIS_InputMode[gHDMI_Index] , gbVXIS_OuputModeflg )  ;
+	}
+}
+
+static void dump_vidmode()
+{
+	tByte osdflash = 0;
+	tByte j ;
+
+	gbVXIS_InputMode[gHDMI_Index] = GetHDMI_InputMode(gHDMI_Index ) ;
+
+	if (gbPreVXIS_InputMode[gHDMI_Index] != gbVXIS_InputMode[gHDMI_Index] )
+	{
+		printf("gHDMI_Index =%d,gbVXIS_InputMode=0x%02x,gbVXIS_OuputModeflg=%d \r\n",(int) gaHDMI_MapWindowIndex[gHDMI_Index] , (int) gbVXIS_InputMode[gHDMI_Index], (int)gbVXIS_OuputModeflg ) ;
+		osdflash = VS4210_CheckMode0Status() ;
+
+		if (osdflash == 1)
+		{
+			if (gbVXIS_OuputModeflg <= VS4210_1080P_MODE0_w3 )
+			{
+				VXIS_fShowInOutMode0Fast(gHDMI_Index ,  gbVXIS_InputMode[gHDMI_Index] , gbVXIS_OuputModeflg ) ;
+			}
+			else
+			{
+				for (j = 0 ; j < gWindowNum ; j++)
+				{
+					if (gaHDMI_MapWindowIndex[j]  ==  gHDMI_Index )
+					{
+						if (gaOpenWindowflg[j] == 1 )
+						{
+							VXIS_fShowInOutMode(j, gbVXIS_InputMode[gHDMI_Index] , gbVXIS_OuputModeflg ) ;
+						}
+						else
+						{
+							OSD_Clear(j);
+						}
+					}
+				}
+			}
+		}
+		gbPreVXIS_InputMode[gHDMI_Index] = gbVXIS_InputMode[gHDMI_Index]  ;
+		VS4210_displayon();
+		dump_count = 0 ;
+	}
+}
+
+void HDMI_VideoModeChangeDetect(void)
+{
+	tiByte i ,j ;
+	tByte  int1data2  ;
+	tByte  tmp   ;
+	tmp = gHDMI_Index ;
+	for (i =0 ; i < CH_IN_NUMBER ; i++ )
+	{
+		gHDMI_Index = i ;
+		int1data2 = HDMIRX_ReadI2C_Byte(0x10);
+		if ( (int1data2 & 0x04 ) == 0x00 )
+		{
+			if (gCloseWindowflg[i] == 0   )
+			{
+				gCloseWindowflg[i] = 1  ;
+				if (gbVXIS_OuputModeflg >= VS4210_1080P_MODE1 )
+				{
+					//if ((gbVXIS_OuputModeflg == VS4210_1080P_MODE24) && (gbVXIS_OuputSize == _OUTPUT_1080P60 ))
+					{
+						if (gaHDMI_MapWindowIndex[0] == gHDMI_Index )
+						{
+							if (OutSize30fpsFlg1 ==1 )
+							{
+								VS4210_CloseWindowsX(0);
+							}
+							else
+							{
+								VS4210_CloseWindowsX(0);
+								VS4210_CloseWindowsX(1);
+								VS4210_CloseWindowsX(2);
+							}
+						}
+						else if (gaHDMI_MapWindowIndex[1] == gHDMI_Index )
+						{
+							if (OutSize30fpsFlg1 ==1 )
+							{
+								VS4210_CloseWindowsX(1);
+							}
+							else
+							{
+								VS4210_CloseWindowsX(3);
+							}
+						}
+					}
+					//else
+					//{
+						for ( j = 0 ; j < gWindowNum ; j++)
+						{
+							if (gaHDMI_MapWindowIndex[j] == gHDMI_Index )
+							{
+								VS4210_CloseWindowsX(j);
+							}
+						}
+					//}
+					//printf("@@%s,%d,i=%d,mapi=%d \n", __func__,__LINE__ ,i,gaHDMI_MapWindowIndex[i] ) ;
+				}
+				else
+				{
+					if (gbVXIS_OuputModeflg == i )
+					{
+						VS4210_CloseAllWindows();
+					}
+				}
+				gbPreVXIS_InputMode[i] = 250 ;
+			}
+		}
+		else
+		{
+			gCloseWindowflg[i] = 0  ;
+		}
+	}
+	gHDMI_Index = tmp ;
+}
+
+static void HDMI_Rx_NoSignal(void )
+{
+	tByte j ;
+	if (gbVXIS_InputMode[gHDMI_Index] !=  _OSD_No_Signal  )
+	{
+		gbPreVXIS_InputMode[gHDMI_Index] = 251 ;
+		gbVXIS_InputMode[gHDMI_Index] =_OSD_No_Signal  ;
+
+		if( (gbVXIS_OuputModeflg >= VS4210_1080P_MODE1 ) &&  (gbVXIS_OuputModeflg < VS4210_1080P_MODE_NUMBER ))
+		{
+			for ( j = 0 ; j < gWindowNum ; j++)
+			{
+				if (gaHDMI_MapWindowIndex[j] == gHDMI_Index )
+				{
+					if (gaOpenWindowflg[j] == 1 )
+					{
+						VXIS_fShowInOutMode(j ,  gbVXIS_InputMode[gHDMI_Index] , gbVXIS_OuputModeflg )  ;
+					}
+					else
+					{
+						OSD_Clear(j);
+					}
+				}
+			}
+		}
+
+		else if (gbVXIS_OuputModeflg <=  VS4210_1080P_MODE0_w3 )
+		{
+			if (gHDMI_Index == gbVXIS_OuputModeflg )
+			{
+				VS4210_CloseAllWindows();
+				VXIS_fShowInOutMode0Fast(gHDMI_Index ,  gbVXIS_InputMode[gHDMI_Index] , gbVXIS_OuputModeflg ) ;
+			}
+		}
+
+		if ( bSignal[gaHDMI_MapWindowIndex[0]] == 0  )
+		{
+			VS4210_channel0clear(0 ) ;
+		}
+	}
+}
+
+void vs4210_display_proc()
+{
+
+	TimeOutCount++ ;
+
+	if (TimeOutCount == 10 )
+	{
+		HDMITX_DevLoopProc() ;
+	}
+
+	if (TimeOutCount > 10 )
+	{
+		dump_count ++ ;
+		TimeOutCount = 0 ;
+
+		VS4210_JointKind1.WindowMap.WMap0 = 1 ;
+		VS4210_JointKind1.WindowMap.WMap1 = 2 ;
+		VS4210_JointKind1.WindowMap.WMap2 = 3 ;
+		VS4210_JointKind1.WindowMap.WMap3 = 4 ;
+		VS4210_JointKind1.OutputSize = gbVXIS_OuputSize ;
+		VS4210_JointKind1.OutputMode = VS4210_FULL_MODE1;
+		OutSize30fpsFlg1 = 0 ;
+
+		VS4210_VideoJoin_Output(&VS4210_JointKind1) ;
+		//I2CWrite(VS4210_ADDR, 0x1A, 0x0E);
+
+		for (gHDMI_Index = 0 ; gHDMI_Index < CH_IN_NUMBER ; gHDMI_Index++)
+		{
+			bSignal[gHDMI_Index] = CheckHDMIRX();
+			if (PreVState[gHDMI_Index] != VState[gHDMI_Index]  )
+			{
+				PreVState[gHDMI_Index]  = VState[gHDMI_Index] ;
+			}
+
+			if(bSignal[gHDMI_Index] != bOldSignal[gHDMI_Index] )
+			{
+				bOldSignal[gHDMI_Index] = bSignal[gHDMI_Index] ;
+				// if Changed Mode ...
+				if( bSignal[gHDMI_Index] == 1  )
+				{
+					dump_vidmode();
+				}
+			}
+			else
+			{
+				HDMI_VideoModeChangeDetect();
+			}
+		}
+
+		if( dump_count > DUMP_TIME  )
+		{
+			dump_count = 0 ;
+			for (gHDMI_Index = 0 ; gHDMI_Index < CH_IN_NUMBER ; gHDMI_Index++)
+			{
+				if( bSignal[gHDMI_Index] ==1  )
+				{
+					dump_vidmode();
+				}
+				else
+				{
+					HDMI_Rx_NoSignal()  ;
+				}
+			}
+		}
+	}
+	msleep(5) ;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 void vs4210_system_init()
 {
-	unsigned int i;
-#if 1 //for test
-	unsigned char infmt =0;
-	unsigned char temp =0;
-	unsigned char clk = 0;
 
-#endif
+    tiByte i ;
+    tiByte reg_IN0, reg_IN1, reg_INA, reg_OS0C, reg_OS0D, reg_PT0 = 0;
 
-	I2CWrite(VS4210_ADDR, 0x01 ,0x5A) ;  //reset
-	msleep(100) ;
+    for (i = 0 ; i < CH_IN_NUMBER ; i++)
+    {
+        bSignal[i] = 0 ;
+        gbPreVXIS_InputMode[i] = 251 ;
+        bOldSignal[i] = 0  ;
+        gCloseWindowflg[i] = 0 ;
+    }
+    gPreAudioSampleFreq  = 8 ;
+    PreVXIS_FULLOuputModeflg = 0 ;
+    dump_count = 0 ;
 
-	I2CWrite(VS4210_ADDR, 0x11, 0x83);
-	VS4210_Line_Clear() ;
-	VS4210_Line_Draw(gbVXIS_OuputModeflg ) ;
+    I2CWrite(VS4210_ADDR, 0x01 ,0x5A) ;  //reset
 
-	OSD_Clear_All();
-	VS4210_StartInit();
-	//VS4210_No_Signal_Init();
-#if 1 //for test
+    for (i = 0 ; i < CH_IN_NUMBER ; i++ )
+    {
+        gHDMI_Index = i ;
+        InitHDMIRX(0 );
+        //HDMIRX_WriteI2C_Byte(0x89 ,0x80);
+    }
 
-	//I2CWrite(VS4210_ADDR, 0x03, 0x01);
-	//clk = I2CRead(VS4210_ADDR, 0x03);
-	
+    VS4210_Line_Clear() ;
+    VS4210_Line_Draw(gbVXIS_OuputModeflg ) ;
+    gHDMI_Index = 0 ;
 
-	//infmt = I2CRead(VS4210_ADDR, 0x11);
+    OSD_Clear_All();
+    VS4210_StartInit();
 
-	
+    //reg_IN0 = I2CRead(VS4210_ADDR, 0x10);
+    I2CWrite(VS4210_ADDR, 0x10, 0x80);
+    //reg_IN1 = I2CRead(VS4210_ADDR, 0x11);
+    I2CWrite(VS4210_ADDR, 0x11, /*reg_IN1 |*/ 0x03);
+    //reg_IN1 = I2CRead(VS4210_ADDR, 0x11);
+    //reg_INA = I2CRead(VS4210_ADDR, 0x1A);
+    //I2CWrite(VS4210_ADDR, 0x1A, 0x0E);
 
-	//temp = I2CRead(VS4210_ADDR, 0x11);
-#endif
+    HDMI_Tx_Init();
+    GetHDMIstate();
+    //reg_OS0C = I2CRead(VS4210_ADDR, 0x81);
+    I2CWrite(VS4210_ADDR, 0x81, 0x00);
+    //reg_OS0D = I2CRead(VS4210_ADDR, 0x82);
+    //reg_PT0 = I2CRead(VS4210_ADDR, 0xF0);
+    //I2CWrite(VS4210_ADDR, 0xF0, reg_PT0 | 0x86);
+    //reg_PT0 = I2CRead(VS4210_ADDR, 0xF0);
+    TimeOutCount = 0 ;
 
-	VS4210_JointKind1.WindowMap.WMap0 = 0 ;
-	VS4210_JointKind1.WindowMap.WMap1 = 1 ;
-	VS4210_JointKind1.WindowMap.WMap2 = 2 ;
-	VS4210_JointKind1.WindowMap.WMap3 = 3 ;
-	VS4210_JointKind1.OutputSize = gbVXIS_OuputSize ;
-	VS4210_JointKind1.OutputMode = VS4210_FULL_MODE1;
-
-	VS4210_VideoJoin_Output(&VS4210_JointKind1) ;
-#if 0
-	for (i = 0 ; i < 4 ; i++ )
-	{
-		VS4210_init_mode(i  , _OSD_No_Signal  , gbVXIS_OuputModeflg) ;
-	}
-	//VS4210_No_Signal_Init();
-#endif	
-#if 1//for VS4210 output test
-	for (i = 0; i < 4; i++)
-	{
-		VXIS_fShowInOutMode(i, _OSD_No_Signal , gbVXIS_OuputModeflg ) ;
-
-	}
-
-	VS4210_displayon() ;
-	//VS4210_init_Input_MODE88( gbVXIS_OuputModeflg )  ;
-#endif
-
-	
-
+    OSD_init();
 
 }
