@@ -48,9 +48,9 @@ void MCU_init(void)
 //	2 : BUX_OUT
 //	3 : K_ROW0
 //	4 : K_ROW1
-//	5 : I2C_SCL
-//	6 : I2C_SDA
-//	7 :
+//	5 : MDIN_CE
+//	6 : I2C_SCL
+//	7 : I2C_SDA
 //	8 : K_LED_R0
 //	9 : K_LED_R1
 //	10: TXD(UART3)
