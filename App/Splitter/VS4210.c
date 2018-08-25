@@ -27,11 +27,8 @@ typedef enum
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-static tiByte gbAUDO_INDEX = 0  ;
 static tiByte gCloseWindowflg[4]  ;
 static tiByte gbPreVXIS_InputMode[4] ;
-static tiByte gPreAudioSampleFreq ;
-static tiByte gAudioSampleFreq[4] ;
 static unsigned short dump_count=0;
 static tiByte bOldSignal[4];
 static tiByte OutSize30fpsFlg1 = 0 ;
@@ -80,46 +77,13 @@ void msleep(unsigned int i )
 //--------------------------------------------------------------------------------------------------------------------------
 tByte I2CRead(unsigned char maddr,unsigned char saddr)
 {
-	unsigned char receive_data;
-
-	I2C_Start();
-
-	I2C_P2S(maddr&0xFE);
-	AckDetect();
-
-	I2C_P2S(saddr);
-	AckDetect();
-
-	I2C_Stop();
-
-	I2C_Start(); 
-	I2C_P2S(maddr|0x01);
-	AckDetect();
-
-	receive_data = I2C_S2P();
-	NotAck();
-
-	I2C_Stop();
-
-	return receive_data;
-
+	return I2C_READ(maddr, saddr);
 } 
 
 //--------------------------------------------------------------------------------------------------------------------------
 bit I2CWrite(unsigned char maddr,unsigned char saddr,unsigned char value)
 {
-	I2C_Start();
-
-	I2C_P2S(maddr&0xFE);
-	AckDetect();
-
-	I2C_P2S(saddr);
-	AckDetect();
-
-	I2C_P2S(value);
-	AckDetect();
-	
-	I2C_Stop();
+	I2C_WRITE(maddr, saddr, value);
 	
 	return 1 ;
 }
@@ -1049,7 +1013,6 @@ void vs4210_system_init()
         bOldSignal[i] = 0  ;
         gCloseWindowflg[i] = 0 ;
     }
-    gPreAudioSampleFreq  = 8 ;
     PreVXIS_FULLOuputModeflg = 0 ;
     dump_count = 0 ;
 

@@ -13,8 +13,7 @@ void AckDetect(void);
 void AckSend(void);
 void NotAck(void);          
 unsigned char I2C_S2P(void);
-
-
-
+unsigned char I2C_READ(unsigned char slaveaddr,unsigned char regaddr);
+void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data);
 
 #endif	

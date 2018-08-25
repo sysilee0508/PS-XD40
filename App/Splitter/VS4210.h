@@ -98,7 +98,7 @@
 
 typedef bool bit;
 //typedef bool BOOL ;
-typedef unsigned char BYTE;
+//typedef unsigned char BYTE;
 typedef unsigned char tByte;
 typedef unsigned int  tWord;
 typedef unsigned long tLong;

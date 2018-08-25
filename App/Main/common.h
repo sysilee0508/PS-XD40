@@ -27,7 +27,6 @@
 #include "..\drivers\mdintype.h"
 
 #include "..\main\main.h"
-#include "..\main\SGQ1180.h"
 #include "..\main\key.h"
 #include "..\main\rtc.h"
 #include "..\main\osd_display.h"

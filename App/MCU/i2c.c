@@ -166,6 +166,46 @@ unsigned char I2C_S2P(void)
 	return data;
 }
 
+unsigned char I2C_READ(unsigned char slaveaddr,unsigned char regaddr)
+{
+	unsigned char receive_data;
 
+	I2C_Start();
 
+	I2C_P2S(slaveaddr & 0xFE);
+	AckDetect();
+
+	I2C_P2S(regaddr);
+	AckDetect();
+
+	I2C_Stop();
+
+	I2C_Start(); 
+	I2C_P2S(slaveaddr | 0x01);
+	AckDetect();
+
+	receive_data = I2C_S2P();
+	NotAck();
+
+	I2C_Stop();
+
+	return receive_data;
+
+} 
+
+void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data)
+{
+	I2C_Start();
+
+	I2C_P2S(slaveaddr & 0xFE);
+	AckDetect();
+
+	I2C_P2S(regaddr);
+	AckDetect();
+
+	I2C_P2S(write_data);
+	AckDetect();
+	
+	I2C_Stop();	
+}
 
