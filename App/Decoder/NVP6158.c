@@ -315,6 +315,16 @@ NC_VIVO_CH_FORMATDEF NC_HI_VI_FindFormatDef( NC_FORMAT_STANDARD format_standard,
 	return NC_VIVO_CH_FORMATDEF_UNKNOWN;
 }
 
+void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss)
+{
+	unsigned char 		oLogicalChannel = 0;
+
+	for(oLogicalChannel = 0; oLogicalChannel < 4; oLogicalChannel++ )
+	{
+		*pVideoLoss |= s_raptor3_vfmts.videolosscheck[oLogicalChannel];
+	}
+}
+
 void NVP6158_VideoDetectionProc(void)
 {
 

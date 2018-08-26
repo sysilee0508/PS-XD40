@@ -857,6 +857,7 @@ typedef struct _RAPTOR3_INFORMATION_S
 	unsigned char			vfc[4];
 	unsigned char			debounce[4][5];
 	unsigned char			debounceidx[4];
+	unsigned int 			videolosscheck[4]; //1:Loss 0:Video
 } RAPTOR3_INFORMATION_S;
 
 void NVP6158_init(void);
