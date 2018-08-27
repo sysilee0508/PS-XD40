@@ -45,6 +45,11 @@ int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInfor
 	if( !sNoVideo.novid )
 	{
 		pInformation->curvideoloss[ch] = VIDEO_LOSS_ON;
+		pInformation->videolosscheck[ch] = 0;
+	}
+	else
+	{
+		pInformation->videolosscheck[ch] = 0x1 << ch;
 	}
 
 	return 0;

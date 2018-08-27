@@ -395,24 +395,11 @@ void Loss_Buzzer(void)
 
 void Loss_Check(void)
 {
-	static u32 Pre_Video_Loss = 0;
+	static u32 Pre_Video_Loss = 0xFFFFFFFF;
 
 	vVideo_Loss = 0;
 
-#if 0 //Louis
-	//���� ��ȣ�� ������ 1
-	if(SGQ_READ_CH_FLOCK(0) == 0) vVideo_Loss |= 0x00000001;
-	if(SGQ_READ_CH_FLOCK(1) == 0) vVideo_Loss |= 0x00000002;
-	if(SGQ_READ_CH_FLOCK(2) == 0) vVideo_Loss |= 0x00000004;
-	if(SGQ_READ_CH_FLOCK(3) == 0) vVideo_Loss |= 0x00000008;
-
-	if(SGQ_READ_CH_FLOCK(4) == 0) vVideo_Loss |= 0x00000010;
-	if(SGQ_READ_CH_FLOCK(5) == 0) vVideo_Loss |= 0x00000020;
-	if(SGQ_READ_CH_FLOCK(6) == 0) vVideo_Loss |= 0x00000040;
-	if(SGQ_READ_CH_FLOCK(7) == 0) vVideo_Loss |= 0x00000080;
-#endif
-	if(ch9_loss == 1) vVideo_Loss |= 0x00000100;
-
+	NVP6158_Video_Loss_Check(&vVideo_Loss);
 
 	if(Pre_Video_Loss != vVideo_Loss) 
 	{
@@ -512,11 +499,6 @@ void main(void)
 	//NVP6158 device initialization
 	NVP6158_init();
 
-	Loss_Check();
-	Delay_ms(100);
-
-	Loss_Check();
-	Delay_ms(100);
 	Loss_Event_Flag = 0;
 	Loss_Buzzer_Cnt = 0;
 

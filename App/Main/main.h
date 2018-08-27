@@ -154,8 +154,9 @@ extern BYTE sysenv_split_mode;
 
 extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);
-extern void vs4210_system_init();
-
+extern void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss);
+extern void vs4210_system_init(void);
+extern void vs4210_display_proc(void);
 
 #endif
 
