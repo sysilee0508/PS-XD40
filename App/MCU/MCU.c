@@ -7,7 +7,6 @@
 //-----------------------------------------------------------------------------
 void MCU_init(void)			
 {
-
     /* activate HSI (Internal 8MHz High Speed oscillator) */
     RCC->CR |= 0x00000001;		//HSI on (Use Internal 8MHz clock)
     RCC->CFGR = 0x00000000;		//system clock = HSI
@@ -34,45 +33,84 @@ void MCU_init(void)
     RCC->APB2ENR |= RCC_APB2Periph_GPIOD; 
     RCC->APB2ENR |= RCC_APB2Periph_AFIO; 
 
-    //REmap
-    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);	//PA13,14 REmap
-    GPIO_PinRemapConfig(GPIO_Remap_PD01, ENABLE);    		//PD0,1 REmap
+    //Alternative function remap
+    // SW-DG Enable (JTAG Disable)
+    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE); //PA13,14 REmap
+    // Using HSE Oscillator
+    GPIO_PinRemapConfig(GPIO_Remap_PD01, ENABLE);    		 //PD0,1 REmap
 
-    //GPIO A
-    GPIOA->CRH = 0x33333333;			//Configure all PAs as OUTPUT 
+//	[GPIO A]
+//	 0 : H_AD0
+//	 1 : H_AD1
+//	 2 : H_AD2
+//	 3 : H_AD3
+//	 4 : H_AD4
+//	 5 : H_AD5
+//	 6 : H_AD6
+//	 7 : H_AD7
+//	 8 : H_AD8
+//	 9 : H_AD9
+//	10 : H_AD10
+//	11 : H_AD11
+//	12 : H_RDB // MDIN Read Strobe (active low)
+//	13 : SWDIO
+//	14 : SWCLK
+//	15 : H_WRB //MDIN Write strobe (active low)
+    GPIOA->CRH = 0x33333333;			//Configure all PAs as OUTPUT why?
     GPIOA->CRL = 0x33333333;
     GPIOA->ODR = 0x0000FFFF;			//Initialize PAs to High
+
 //	[GPIO B]
 //  0 : NC
 //	1 : ALM_OUT
 //	2 : BUX_OUT
-//	3 : K_ROW0
-//	4 : K_ROW1
-//	5 : I2C_SCL
-//	6 : I2C_SDA
-//	7 :
-//	8 : K_LED_R0
-//	9 : K_LED_R1
+//	3 : K_ROW0 (active low)
+//	4 : K_ROW1 (active low)
+//	5 : MDIN_CE (active low)
+//	6 : I2C_SCL (active low) /I2C1
+//	7 : I2C_SDA (active low) /I2C1
+//	8 : K_LED_R0 (active high)
+//	9 : K_LED_R1 (active high)
 //	10: TXD(UART3)
 //	11: RXD(UART3)
 //	12: K_CL0_MISO
 //	13: K_CL1_MOSI
 //	14: K_CL2_CLK
 //	15: K_CL3_KCS
-    GPIOB->CRH = 0x33334b33;			//GPIO10-uart_TX(alternate function), GPIO11-uart_RX
-    GPIOB->CRL = 0x33377333;			//GPIO3,4 (KROW0,1) --> open-drain
+    GPIOB->CRH = 0x33334B33;			//PB10 uart_TX(alternate function), GPIO11-uart_RX
+    GPIOB->CRL = 0x33377333; //GPIOB->CRL = 0xBB377333;			//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
     GPIOB->ODR = 0x0000FCF9;			//GPIOB01(ALM_OUT),GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
 
-    //GPIO C
+//	[GPIO C]
+//  0 : SPI_MISO
+//	1 : SPI_MOSI
+//	2 : SPI_CLK
+//	3 : SPI_CS
+//	4 : NC
+//	5 : NC
+//	6 : NC
+//	7 : H_ALE //MDIN HOST_ALE : host address latch enable (active high)
+//	8 : NC
+//	9 : NC
+//	10: NC
+//	11: NC
+//	12: nRST
+//	13: INT (TAMPER_RTC)
+//	14: OSC32I
+//	15: OSC32O
     GPIOC->CRH = 0x33833333;			//GPIOC13 is used for TAMPER-RTC INT
-    GPIOC->CRL = 0x33333334;			//GPIOC00 is used for SPI_MISO
+    GPIOC->CRL = 0x33333334;
     GPIOC->ODR = 0x0000ffff;			//Initialize GPIOC to High  
-    //GPIO D
-    GPIOD->CRH = 0x33333333;			//Only PD0 and PD1 is used for OSCI and OSCO. They are already remapped.
-    GPIOD->CRL = 0x33333333;
-    GPIOD->ODR = 0x0000ffff;			//
 
-    Delay_ms(200);
+//	[GPIO D]
+//  0 : OSCI
+//	1 : OSCO
+//	2 : NC
+//    GPIOD->CRH = 0x33333333;			//Only PD0 and PD1 is used for OSCI and OSCO. They are already remapped.
+//    GPIOD->CRL = 0x33333333;
+//    GPIOD->ODR = 0x0000ffff;			//
+
+    Delay_ms(200); // why we need delay 200ms here?
 }
 
 //-----------------------------------------------------------------------------
