@@ -61,7 +61,7 @@ void MCU_init(void)
     GPIOA->ODR = 0x0000FFFF;			//Initialize PAs to High
 
 //	[GPIO B]
-//  0 : NC
+//    0 : NC
 //	1 : ALM_OUT
 //	2 : BUX_OUT
 //	3 : K_ROW0 (active low)
@@ -79,7 +79,7 @@ void MCU_init(void)
 //	15: K_CL3_KCS
     GPIOB->CRH = 0x33334B33;			//PB10 uart_TX(alternate function), GPIO11-uart_RX
     GPIOB->CRL = 0x33377333; //GPIOB->CRL = 0xBB377333;			//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
-    GPIOB->ODR = 0x0000FCF9;			//GPIOB01(ALM_OUT),GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
+    GPIOB->ODR = 0x0000FCFB;			//GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
 
 //	[GPIO C]
 //  0 : SPI_MISO
