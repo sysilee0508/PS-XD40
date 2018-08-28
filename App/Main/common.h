@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "stm32f10x.h"
+#include "stm32f10x_gpio.h"
 
 #include "..\drivers\mdintype.h"
 
@@ -34,7 +35,7 @@
 
 #include "..\mcu\mcu.h"
 #include "..\mcu\i2c.h"
-#include "..\mcu\spi.h"
+//#include "..\mcu\spi.h"
 
 #include "..\etc\delay.h"
 

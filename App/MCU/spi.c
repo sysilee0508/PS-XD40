@@ -1,6 +1,5 @@
 #include "..\main\common.h"
 
-//#define SPI_DELAY 2
 #define SPI_DELAY 5
 
 #define GV7600	0

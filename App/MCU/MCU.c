@@ -79,7 +79,7 @@ void MCU_init(void)
 //	15: K_CL3_KCS
     GPIOB->CRH = 0x33334B33;			//PB10 uart_TX(alternate function), GPIO11-uart_RX
     GPIOB->CRL = 0x33377333; //GPIOB->CRL = 0xBB377333;			//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
-    GPIOB->ODR = 0x0000FCF9;			//GPIOB01(ALM_OUT),GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
+    GPIOB->ODR = 0x0000FCFB;			//GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
 
 //	[GPIO C]
 //  0 : SPI_MISO
@@ -99,8 +99,8 @@ void MCU_init(void)
 //	14: OSC32I
 //	15: OSC32O
     GPIOC->CRH = 0x33833333;			//GPIOC13 is used for TAMPER-RTC INT
-    GPIOC->CRL = 0x33333334;
-    GPIOC->ODR = 0x0000ffff;			//Initialize GPIOC to High  
+    GPIOC->CRL = 0x33333338;			//PC0 : input(pull-up)
+    GPIOC->ODR = 0x0000fff3;			//spi_clk & spi_cs is low (active high)
 
 //	[GPIO D]
 //  0 : OSCI

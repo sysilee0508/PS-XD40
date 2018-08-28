@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
+#include "alarm_remotekey.h"
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -53,16 +54,29 @@ void TIM2_IRQHandler(void)
 }
 
 //-----------------------------------------------------------------------------
-//	Process Timer interrupt with 20ms - This is to handle keys and LEDs
+//	Process Timer interrupt with 10ms - This is to handle keys and LEDs
 //-----------------------------------------------------------------------------
 void TIM3_IRQHandler(void)
 {
+	static u8 count;
+	u8 i;
+
 	TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	Key_Scan();
 	Key_Led_Ctrl();
 	Key_Check();
 
+	// Check alarm every 20ms if alarm is enabled
+	if((count%2==0) && (GetAlarmRemoteKeyMode() == ALARM_MODE))
+	{
+		for(i = CHANNEL1; i < NUM_OF_CHANNEL; i++)
+		{
+			CheckAlarm();
+		}
+	}
+
+	count = (++count)%2;
 }
 
 //-----------------------------------------------------------------------------
@@ -245,6 +259,7 @@ void RTC_IRQHandler(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
+#define EEP_VALID_CODE		0xA5
 void Load_Data(void)
 {
 	BYTE i;
@@ -258,7 +273,7 @@ void Load_Data(void)
 	sys_env.bTIME_ON = EEP_buf[cSYSENV_bTIME_ON];
 	sys_env.vTIME_Position = EEP_buf[cSYSENV_vTIME_Position];
 
-	for(i = 0; i < 9; i++)
+	for(i = 0; i < NUM_OF_CHANNEL; i++)
 	{
 		sys_env.vCH_NAME[i][0] = EEP_buf[cSYSENV_vCH_NAME+0+(i*12)];
 		sys_env.vCH_NAME[i][1] = EEP_buf[cSYSENV_vCH_NAME+1+(i*12)];
@@ -285,8 +300,8 @@ void Load_Data(void)
 	sys_env.bOSD_Display = EEP_buf[cSYSENV_bOSD_Display];
 	sys_env.vOSD_Position = EEP_buf[cSYSENV_vOSD_Position];
 	sys_env.border_line = EEP_buf[cSYSENV_border_line];
-	//sys_env.vAlarm = (WORD)(EEP_buf[cSYSENV_vAlarm+1]<<8) | (WORD)(EEP_buf[cSYSENV_vAlarm]);
-	//sys_env.vAlarm_Display_Time = EEP_buf[cSYSENV_vAlarm_Display_Time];
+	sys_env.vAlarm = (WORD)(EEP_buf[cSYSENV_vAlarm+1]<<8) | (WORD)(EEP_buf[cSYSENV_vAlarm]);
+	sys_env.vAlarm_Display_Time = EEP_buf[cSYSENV_vAlarm_Display_Time];
 	sys_env.vREMOCON_ID = EEP_buf[cSYSENV_vREMOCON_ID];
 	sys_env.vLoss_Time = EEP_buf[cSYSENV_vLoss_Time];
 	sys_env.vLoss_Display = EEP_buf[cSYSENV_vLoss_Display];
@@ -300,9 +315,10 @@ void Data_Load(void)
 {
 	BYTE i;
 
-#ifdef __4CH__
-	if(EEP_buf[cEEP_CHK] == 0xa5)Load_Data();
-#endif
+	if(EEP_buf[cEEP_CHK] == EEP_VALID_CODE)
+	{
+		Load_Data();
+	}
 	else 
 	{
 		memset(EEP_buf, 0, 2048);
@@ -314,7 +330,7 @@ void Data_Load(void)
 		EEP_buf[cSYSENV_bTIME_ON] = 1;
 		EEP_buf[cSYSENV_vTIME_Position] = 1;
 		
-		for(i=0; i<9; i++)
+		for(i=0; i<NUM_OF_CHANNEL; i++)
 		{
 			EEP_buf[cSYSENV_vCH_NAME+0+(i*12)] = 'C';
 			EEP_buf[cSYSENV_vCH_NAME+1+(i*12)] = 'A';
@@ -339,14 +355,12 @@ void Data_Load(void)
 
 		EEP_buf[cSYSENV_bLossAutoSkip] = 1;
 		EEP_buf[cSYSENV_bOSD_Display] = 1;
-#ifdef __4CH__
 		EEP_buf[cSYSENV_vOSD_Position] = 6;
-#endif
 
 		EEP_buf[cSYSENV_border_line] = 1;
-		//EEP_buf[cSYSENV_vAlarm] = 0;
-		//EEP_buf[cSYSENV_vAlarm+1] = 0;
-		//EEP_buf[cSYSENV_vAlarm_Display_Time] = 0;
+		EEP_buf[cSYSENV_vAlarm] = 0;
+		EEP_buf[cSYSENV_vAlarm+1] = 0;
+		EEP_buf[cSYSENV_vAlarm_Display_Time] = 0;
 		EEP_buf[cSYSENV_vREMOCON_ID] = 0;
 		EEP_buf[cSYSENV_vLoss_Time] = 0;
 		EEP_buf[cSYSENV_vLoss_Display] = 0;
@@ -356,7 +370,7 @@ void Data_Load(void)
 		EEP_buf[cSYSENV_b9Split_Mode] = 0;
 
 #ifdef __4CH__
-		EEP_buf[cEEP_CHK] = 0xa5;
+		EEP_buf[cEEP_CHK] = EEP_VALID_CODE;
 #endif
 
 		write_eeprom_all();

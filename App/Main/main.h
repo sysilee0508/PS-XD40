@@ -17,26 +17,47 @@
 #define cSYSENV_bOSD_Display		126
 #define cSYSENV_vOSD_Position		127
 #define cSYSENV_border_line			128
-#define cSYSENV_resolution			129
-#define cSYSENV_baud_rate		    130
-#define cSYSENV_vREMOCON_ID			131
-#define cSYSENV_vLoss_Time			132
-#define cSYSENV_vLoss_Display		133
-#define cSYSENV_b9Split_Mode		134
+#define cSYSENV_vAlarm				129
+#define cSYSENV_vAlarm_Display_Time	131
+
+
+#define cSYSENV_resolution			122
+#define cSYSENV_baud_rate		    133
+#define cSYSENV_vREMOCON_ID			134
+#define cSYSENV_vLoss_Time			135
+#define cSYSENV_vLoss_Display		136
+#define cSYSENV_b9Split_Mode		137
 #define cEEP_CHK					200
 
-#define NORMAL_VIEW					0
-#define MENU_VIEW					1
+//#define NORMAL_VIEW					0
+//#define MENU_VIEW					1
 
-#ifdef __9CH_DEVICE__
-#define NUM_OF_CHANNEL				9
-#else
-#define NUM_OF_CHANNEL				4
-#endif
+
+//#ifdef __9CH_DEVICE__
+//#define NUM_OF_CHANNEL				9
+//#else
+//#define NUM_OF_CHANNEL				4
+//#endif
 
 //-----------------------------------------------------------------------------
 //  ���� �ý��� ���� ����
 //-----------------------------------------------------------------------------
+typedef enum
+{
+	CHANNEL1 = 0,
+	CHANNEL2,
+	CHANNEL3,
+	CHANNEL4,
+#ifdef __9CH_DEVICE__
+	CHANNEL5,
+	CHANNEL6,
+	CHANNEL7,
+	CHANNEL8,
+	CHANNEL9,
+#endif
+	NUM_OF_CHANNEL
+} eChannel_t;
+
 typedef enum
 {
 	SPLITMODE_FULL_CH1 = 0x00,
@@ -64,7 +85,7 @@ typedef enum
 	SPLITMODE_SPLIT9_9,
 //<-- to here
 	SPLITMODE_MAX
-} splitmode_e;
+} eSplitmode_t;
 
 typedef struct
 {
@@ -73,7 +94,7 @@ typedef struct
 //	unsigned int  output_v_size;			// ������ ���� ũ��
 
 	unsigned char current_mode;				// ���� ���� (���� ���� ���, �޴����)
-	splitmode_e current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
+	eSplitmode_t current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
 	
 } sys_stat_t;
 
@@ -109,8 +130,8 @@ typedef struct
 	
 //	u16 vMOTION_EN;			// ��� ON/OFF		
 //	u8 bMotion_Mode;		// ��� ���(FULL, SPLIT)	
-//	u16 vAlarm;				// �˶� 	
-//	u8 vAlarm_Display_Time; // �˶� ��� ǥ�� ���ӽð�	
+	u16 vAlarm;				// �˶�
+	u8 vAlarm_Display_Time; // �˶� ��� ǥ�� ���ӽð�
 
 	u8 vREMOCON_ID;			// Serial Key ���� ID
 	u8 baud_rate;			// baud_rate

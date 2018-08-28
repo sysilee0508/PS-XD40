@@ -9,18 +9,6 @@
 //=============================================================================
 //  define
 //=============================================================================
-//#define DISP_OFF_KEY	0x0D
-//#define FRONT_KEY		0x02
-//#define BACK_KEY		0x04
-//#define LEFT_CAM_KEY	0x05
-//#define RIGHT_CAM_KEY	0x06
-//#define AUX1_KEY		0x07
-//#define AUX2_KEY		0x08
-//#define CAM1_KEY		0x09
-//#define CAM2_KEY		0x0A
-//#define SPLIT_KEY		0x0B
-//#define MENU_KEY		0x0E
-
 // Key Codes
 #define KEYCODE_NONE		0x7F	//0111 1111
 // Left 4keys
