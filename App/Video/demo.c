@@ -891,7 +891,7 @@ void DEMO_SetMDINSoftReset(void)
 		MDINAUX_SetVideoWindowVIEW(&stVideo, stVIEW);
 	}	
 
-}*/
+}
 static void DEMO_SetPOPViewWIND(WORD nID)
 {
 	MDIN_VIDEO_WINDOW stVIEW;
@@ -962,7 +962,7 @@ static void DEMO_SetPOPViewWIND(WORD nID)
 	//memcpy(&stVIEW, &defPOPViewWND[nID][1], 8);
 	MDINAUX_SetVideoWindowVIEW(&stVideo, stVIEW);
 }
-
+*/
 //--------------------------------------------------------------------------------------------------
 /*static void DEMO_SetPIPCropWIND(WORD nID)
 {

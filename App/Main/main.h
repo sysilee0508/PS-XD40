@@ -13,16 +13,18 @@
 #define cSYSENV_vCH_NAME			7
 #define cSYSENV_bTITLE_ON			120
 #define cSYSENV_vDWELL				121
-#define cSYSENV_bLossAutoSkip       125
+#define cSYSENV_bLossAutoSkip       	125
 #define cSYSENV_bOSD_Display		126
 #define cSYSENV_vOSD_Position		127
 #define cSYSENV_border_line			128
 #define cSYSENV_resolution			129
-#define cSYSENV_baud_rate		    130
-#define cSYSENV_vREMOCON_ID			131
+#define cSYSENV_baud_rate		    	130
+#define cSYSENV_vREMOCON_ID		131
 #define cSYSENV_vLoss_Time			132
 #define cSYSENV_vLoss_Display		133
 #define cSYSENV_b9Split_Mode		134
+#define cSYSENV_vAlarm				135
+#define cSYSENV_vAlarm_Display_Time	136
 #define cEEP_CHK					200
 
 #define NORMAL_VIEW					0
@@ -109,8 +111,9 @@ typedef struct
 	
 //	u16 vMOTION_EN;			// ��� ON/OFF		
 //	u8 bMotion_Mode;		// ��� ���(FULL, SPLIT)	
-//	u16 vAlarm;				// �˶� 	
-//	u8 vAlarm_Display_Time; // �˶� ��� ǥ�� ���ӽð�	
+//	u16 vAlarm;				// �˶� 
+	u8 vAlarm;
+	u8 vAlarm_Display_Time; // �˶� ��� ǥ�� ���ӽð�	
 
 	u8 vREMOCON_ID;			// Serial Key ���� ID
 	u8 baud_rate;			// baud_rate
