@@ -1524,6 +1524,8 @@ const BYTE cMIN6[] = "MIN";
 BYTE vALARM_CHG;
 void Relay_DSP(BYTE Position)
 {
+	u8 temp = 0;
+	
 	if(!sys_env.vAlarm_Display_Time)
 		CodeWriteChar(39, 14, cOFF6, Position, 5);
 	else if(sys_env.vAlarm_Display_Time < 60)
@@ -1533,9 +1535,9 @@ void Relay_DSP(BYTE Position)
 	}
 	else 
 	{
-		vOSD_B[0] = sys_env.vAlarm_Display_Time-59;
-		Hex_Dec_OSD(29, 14, vOSD_B, Position);
-		CodeWriteChar(31, 14, cMIN6, Position, 3);
+		temp = sys_env.vAlarm_Display_Time-59;
+		Hex_Dec_OSD(39, 14, &temp, Position);
+		CodeWriteChar(41, 14, cMIN6, Position, 3);
 	}
 
 }
