@@ -1524,6 +1524,8 @@ const BYTE cMIN6[] = "MIN";
 BYTE vALARM_CHG;
 void Relay_DSP(BYTE Position)
 {
+	u8 temp = 0;
+	
 	if(!sys_env.vAlarm_Display_Time)
 		CodeWriteChar(39, 14, cOFF6, Position, 5);
 	else if(sys_env.vAlarm_Display_Time < 60)
@@ -1533,9 +1535,9 @@ void Relay_DSP(BYTE Position)
 	}
 	else 
 	{
-		vOSD_B[0] = sys_env.vAlarm_Display_Time-59;
-		Hex_Dec_OSD(29, 14, vOSD_B, Position);
-		CodeWriteChar(31, 14, cMIN6, Position, 3);
+		temp = sys_env.vAlarm_Display_Time-59;
+		Hex_Dec_OSD(39, 14, &temp, Position);
+		CodeWriteChar(41, 14, cMIN6, Position, 3);
 	}
 
 }
@@ -1896,57 +1898,38 @@ void tPAGE6_KEY(void)
 //------------------------------------------------------------------
 //   PAGE7 Function
 //------------------------------------------------------------------
-const u8 cON7[]	     = "ON ";
 const u8 cOFF7[]	 = "OFF";
 const u8 cOFF_BLK7[] = "   ";
 void Remocon_Dsp(u8 Position)
 {
-	if(!sys_env.vREMOCON_ID)CodeWriteChar(34,6,cOFF7,Position,3);
+	if(!sys_env.vREMOCON_ID)CodeWriteChar(35,6,cOFF7,Position,3);
 	else
 	{ 
-		CodeWriteChar(34,6,cOFF_BLK7,NULL,3);
-		Hex_Dec_OSD(34,6,&sys_env.vREMOCON_ID,Position);
+		CodeWriteChar(35,6,cOFF_BLK7,NULL,3);
+		Hex_Dec_OSD(35,6,&sys_env.vREMOCON_ID,Position);
 	}
 }
 
-void Loss_Time_Dsp(u8 Position)
+const BYTE cALARM7[]	= "ALARM ";
+const BYTE cREMOTE7[]	= "REMOTE";
+void ALM_REM_DSP(BYTE PX,BYTE PY,BYTE Position,BYTE state)
 {
-	if(!sys_env.vLoss_Time)CodeWriteChar(46,10,cOFF7,Position,3);
-	else
-	{ 
-		CodeWriteChar(46,10,cOFF_BLK7,NULL,3);
-		Hex_Dec_OSD(46,10,&sys_env.vLoss_Time,Position);
-	}
+	if(state)CodeWriteChar(PX,PY,cALARM7,Position, 6);
+	else CodeWriteChar(PX,PY,cREMOTE7,Position, 6);
 }
-
-const u8 cbaud_1200[]  = "1200BPS ";
-const u8 cbaud_2400[]  = "2400BPS ";
-const u8 cbaud_4800[]  = "4800BPS ";
-const u8 cbaud_9600[]  = "9600BPS ";
-const u8 cbaud_19200[] = "19200BPS";
-void Baud_Rate_Dsp(u8 Position)
-{
-	if(sys_env.baud_rate == 0)CodeWriteChar(33,8,cbaud_1200,Position,8);
-	else if(sys_env.baud_rate == 1)CodeWriteChar(33,8,cbaud_2400,Position,8);
-	else if(sys_env.baud_rate == 2)CodeWriteChar(33,8,cbaud_4800,Position,8);
-	else if(sys_env.baud_rate == 3)CodeWriteChar(33,8,cbaud_9600,Position,8);
-	else if(sys_env.baud_rate == 4)CodeWriteChar(33,8,cbaud_19200,Position,8);
-}
-
 
 void tPAGE7_Position(u8 Position)
 {
 	if(vITEM_Y==0) Remocon_Dsp(Position);
-	else if(vITEM_Y==1) Baud_Rate_Dsp(Position);
-	else if(vITEM_Y==2) Loss_Time_Dsp(Position);
-	else if(vITEM_Y==3) ON_OFF_DSP(42,12,Position,sys_env.vLoss_Display);
+	else if(vITEM_Y==1) ON_OFF_DSP(36, 8, Position, sys_env.bOSD_Display);
+	else if(vITEM_Y==2) ALM_REM_DSP(37, 10,Position,sys_env.alarm_remote_sel);
 }
 
 const u8 cMISC7[]            = "- MISCELLANEOUS -";
-const u8 cPREMOCON_ID7[]     =  "1. REMOCON ID:";
-const u8 cBAUDRATE_ID7[]     =  "2. BAUD RATE:";
-const u8 cLOSS_TIME_ID7[]    =  "3. VIDEO LOSS BUZZER TIME:";
-const u8 cLOSS_DISPLAY_ID7[] =  "4. VIDEO LOSS DISPLAY:";
+const u8 cPREMOCON_ID7[]     =  "1. REMOCON ID :";
+const u8 cOSD7[] =         "2. OSD DISPLAY :";
+const u8 cALARM_REMOTE7[] ="3. ALARM/REMOTE :";
+const u8 cSELECT7[] =      "     SELECT    ";
 
 const u8 cSW_VER_7[]         = "F/W: v1.1.1";
 
@@ -1960,19 +1943,18 @@ void PAGE7_TITLE(void)
 
 	CodeWriteChar(23,2,cMISC7,NULL,0);
 
-    CodeWriteChar(19,6,cPREMOCON_ID7,NULL,0);
+	CodeWriteChar(19,6,cPREMOCON_ID7,NULL,0);
 	Remocon_Dsp(NULL);
 
-    CodeWriteChar(19,8,cBAUDRATE_ID7,NULL,0);
-	Baud_Rate_Dsp(NULL);
+	CodeWriteChar(19,8,cOSD7,NULL,0);
+	ON_OFF_DSP(36, 8, NULL, sys_env.bOSD_Display);
 
-    CodeWriteChar(19,10,cLOSS_TIME_ID7,NULL,0);
-	Loss_Time_Dsp(NULL);
+	CodeWriteChar(19,10,cALARM_REMOTE7,NULL,0);
+	ALM_REM_DSP(37, 10,NULL,sys_env.alarm_remote_sel);
 
-    CodeWriteChar(19,12,cLOSS_DISPLAY_ID7,NULL,0);
-	ON_OFF_DSP(42,12,NULL,sys_env.vLoss_Display);
+	CodeWriteChar(19,11,cSELECT7,NULL,0);
 
-    CodeWriteChar(19,18,cSW_VER_7,NULL,0);
+	CodeWriteChar(19,18,cSW_VER_7,NULL,0);
 }
 
 
@@ -1994,27 +1976,19 @@ void tPAGE7_KEY(void)
 			}
    	     	else if(vITEM_Y==1)
 			{
-				Inc_Dec_Count(4,0,State,&sys_env.baud_rate);
-				EEP_buf[cSYSENV_baud_rate] = sys_env.baud_rate;
-
-				USART3_Init();					// initialize Serial
+				Inc_Dec_Count(1,0,State,&sys_env.bOSD_Display);
+				EEP_buf[cSYSENV_bOSD_Display] = sys_env.bOSD_Display;
 			}
    	     	else if(vITEM_Y==2)
 			{
-				Inc_Dec_Count(60,0,State,&sys_env.vLoss_Time);
-				EEP_buf[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
+				Inc_Dec_Count(1,0,State,&sys_env.alarm_remote_sel);
+				EEP_buf[cSYSENV_alarm_remote_sel] = sys_env.alarm_remote_sel;
 			}
-   	     	else if(vITEM_Y==3)
-			{
-				Inc_Dec_Count(1,0,State,&sys_env.vLoss_Display);
-				EEP_buf[cSYSENV_vLoss_Display] = sys_env.vLoss_Display;
-			}
-			
-			tPAGE5_Position(UNDER_BAR);
+			tPAGE7_Position(UNDER_BAR);
 		}
 		else
 		{
-			Inc_Dec_Count(3,0,~State,&vITEM_Y);
+			Inc_Dec_Count(2,0,~State,&vITEM_Y);
 			MenuSelect(vITEM_Y,0);
 		}
   		break;
@@ -2023,23 +1997,23 @@ void tPAGE7_KEY(void)
        if(bENTER)
 		{
 			bENTER = 0;
-			tPAGE5_Position(NULL);
+			tPAGE7_Position(NULL);
 		}
 		else 
 		{
 			bENTER = 1;
-			tPAGE5_Position(UNDER_BAR);
+			tPAGE7_Position(UNDER_BAR);
 		}
-		break; 	
+		break;
 	case EXIT_KEY : 
-       if(bENTER)
+		if(bENTER)
 		{
 			bENTER = 0;
-			tPAGE5_Position(NULL);
+			tPAGE7_Position(NULL);
 		}
 		else 
 		{
-           vITEM_Y = vPAGE -1;   
+			vITEM_Y = vPAGE -1;
 			SetupMenu();
 		}
 		break; 	

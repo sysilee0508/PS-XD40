@@ -294,6 +294,7 @@ void Load_Data(void)
 	sys_env.vResolution = EEP_buf[cSYSENV_resolution];
 	sys_env.baud_rate = EEP_buf[cSYSENV_baud_rate];
 	sys_env.b9Split_Mode = EEP_buf[cSYSENV_b9Split_Mode];
+	sys_env.alarm_remote_sel= EEP_buf[cSYSENV_alarm_remote_sel];
 }
 
 void Data_Load(void)
@@ -353,7 +354,7 @@ void Data_Load(void)
 		EEP_buf[cSYSENV_resolution] = 0;
 		EEP_buf[cSYSENV_baud_rate] = 3;
 		EEP_buf[cSYSENV_b9Split_Mode] = 0;
-
+		EEP_buf[cSYSENV_alarm_remote_sel] = 0xff;
 #ifdef __4CH__
 		EEP_buf[cEEP_CHK] = 0xa5;
 #endif
