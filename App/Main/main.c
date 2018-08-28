@@ -285,8 +285,8 @@ void Load_Data(void)
 	sys_env.bOSD_Display = EEP_buf[cSYSENV_bOSD_Display];
 	sys_env.vOSD_Position = EEP_buf[cSYSENV_vOSD_Position];
 	sys_env.border_line = EEP_buf[cSYSENV_border_line];
-	//sys_env.vAlarm = (WORD)(EEP_buf[cSYSENV_vAlarm+1]<<8) | (WORD)(EEP_buf[cSYSENV_vAlarm]);
-	//sys_env.vAlarm_Display_Time = EEP_buf[cSYSENV_vAlarm_Display_Time];
+	sys_env.vAlarm = EEP_buf[cSYSENV_vAlarm];
+	sys_env.vAlarm_Display_Time = EEP_buf[cSYSENV_vAlarm_Display_Time];
 	sys_env.vREMOCON_ID = EEP_buf[cSYSENV_vREMOCON_ID];
 	sys_env.vLoss_Time = EEP_buf[cSYSENV_vLoss_Time];
 	sys_env.vLoss_Display = EEP_buf[cSYSENV_vLoss_Display];
@@ -344,12 +344,11 @@ void Data_Load(void)
 #endif
 
 		EEP_buf[cSYSENV_border_line] = 1;
-		//EEP_buf[cSYSENV_vAlarm] = 0;
-		//EEP_buf[cSYSENV_vAlarm+1] = 0;
-		//EEP_buf[cSYSENV_vAlarm_Display_Time] = 0;
+		EEP_buf[cSYSENV_vAlarm] = 0;
+		EEP_buf[cSYSENV_vAlarm_Display_Time] = 0;
 		EEP_buf[cSYSENV_vREMOCON_ID] = 0;
-		EEP_buf[cSYSENV_vLoss_Time] = 0;
-		EEP_buf[cSYSENV_vLoss_Display] = 0;
+		EEP_buf[cSYSENV_vLoss_Time] = 3;
+		EEP_buf[cSYSENV_vLoss_Display] = 0xff;
 
 		EEP_buf[cSYSENV_resolution] = 0;
 		EEP_buf[cSYSENV_baud_rate] = 3;
