@@ -25,6 +25,7 @@
 #define cSYSENV_b9Split_Mode		134
 #define cSYSENV_vAlarm				135
 #define cSYSENV_vAlarm_Display_Time	136
+#define cSYSENV_alarm_remote_sel		137
 #define cEEP_CHK					200
 
 #define NORMAL_VIEW					0
@@ -122,7 +123,7 @@ typedef struct
 	u8 vLoss_Display;		// Video Loss Display ǥ�� ON/OFF 
 
 	u8 b9Split_Mode;    	// 9���� ��忡�� 9����,8���� ����
-
+	u8 alarm_remote_sel;
 
 //    unsigned short crc;
 }sys_env_t;
