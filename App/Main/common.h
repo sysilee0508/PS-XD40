@@ -25,29 +25,28 @@
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 
-#include "..\drivers\mdintype.h"
+#include "mdintype.h"
 
-#include "..\main\main.h"
-#include "..\main\key.h"
-#include "..\main\rtc.h"
-#include "..\main\osd_display.h"
-#include "..\main\Sequence.h"
+#include "main.h"
+#include "key.h"
+#include "Rtc.h"
+#include "osd_display.h"
+#include "sequence.h"
 
-#include "..\mcu\mcu.h"
-#include "..\mcu\i2c.h"
-//#include "..\mcu\spi.h"
+#include "MCU.h"
+#include "i2c.h"
 
-#include "..\etc\delay.h"
+#include "delay.h"
 
-#include "..\drivers\mdin3xx.h"
+#include "mdin3xx.h"
 
-#include "..\video\video.h"
-#include "..\video\mfccoef.h"
+#include "video.h"
+#include "mfccoef.h"
 
-#include "..\graphic\osd.h"
-#include "..\graphic\osdmenu.h"
-#include "..\graphic\menu.h"
-#include "..\graphic\item.h"
+#include "osd.h"
+#include "osdmenu.h"
+#include "menu.h"
+#include "item.h"
 
 
 // msg.c

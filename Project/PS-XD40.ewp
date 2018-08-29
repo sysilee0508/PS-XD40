@@ -2044,6 +2044,12 @@
     <group>
       <name>Main</name>
       <file>
+        <name>$PROJ_DIR$\..\App\Main\alarm_remotekey.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\App\Main\alarm_remotekey.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\App\Main\common.h</name>
       </file>
       <file>

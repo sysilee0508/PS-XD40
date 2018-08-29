@@ -307,7 +307,7 @@ void Print_OSD_Str(u16 PosX, u16 PosY, const u8 *FontData, u8 ch)
 {  
 	OSD_SetFontGAC(SPRITE_INDEX0);
 
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen(FontData), 0);
+	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen((const char *)FontData), 0);
 
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 
@@ -316,14 +316,14 @@ void Print_OSD_Str(u16 PosX, u16 PosY, const u8 *FontData, u8 ch)
 	osd_ch_name_location_buf[ch].loc_x = PosX;
 	osd_ch_name_location_buf[ch].loc_y = PosY;
 	//osd_ch_name_location_buf[ch].length = strlen(FontData)+2;
-	osd_ch_name_location_buf[ch].length = strlen(FontData);
+	osd_ch_name_location_buf[ch].length = strlen((const char *)FontData);
 }
 
 void Print_OSD_Str2(u16 PosX, u16 PosY, const u8 *FontData)
 {  
 	OSD_SetFontGAC(SPRITE_INDEX0);
 
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen(FontData), 0);
+	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen((const char *)FontData), 0);
 
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
@@ -332,7 +332,7 @@ void Print_OSD_Str_Loss(u16 PosX, u16 PosY, const u8 *FontData, u8 ch)
 {  
 	OSD_SetFontGAC(SPRITE_INDEX0);
 
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen(FontData), 0);
+	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen((const char *)FontData), 0);
 
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 
@@ -341,7 +341,7 @@ void Print_OSD_Str_Loss(u16 PosX, u16 PosY, const u8 *FontData, u8 ch)
 	osd_video_lose_location_buf[ch].loc_x = PosX;
 	osd_video_lose_location_buf[ch].loc_y = PosY;
 	//osd_video_lose_location_buf[ch].length = strlen(FontData)+2;
-	osd_video_lose_location_buf[ch].length = strlen(FontData);
+	osd_video_lose_location_buf[ch].length = strlen((const char *)FontData);
 }
 
 BYTE space2[] = "          ";
@@ -366,7 +366,7 @@ void Print_OSD_Str_Freeze_Autoseq(u16 PosX, u16 PosY, const u8 *FontData)
 {  
 	OSD_SetFontGAC(SPRITE_INDEX0);
 
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen(FontData), 0);
+	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen((const char *)FontData), 0);
 
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 
@@ -375,7 +375,7 @@ void Print_OSD_Str_Freeze_Autoseq(u16 PosX, u16 PosY, const u8 *FontData)
 	osd_freeze_autoseq_location_buf[0].loc_x = PosX;
 	osd_freeze_autoseq_location_buf[0].loc_y = PosY;
 	//osd_freeze_autoseq_location_buf[0].length = strlen(FontData)+2;
-	osd_freeze_autoseq_location_buf[0].length = strlen(FontData);
+	osd_freeze_autoseq_location_buf[0].length = strlen((const char *)FontData);
 }
 
 BYTE space3[] = "        ";

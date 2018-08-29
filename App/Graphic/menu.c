@@ -277,7 +277,7 @@ void Print_Str(u16 PosX, u16 PosY, const u8 *FontData)
 {  
 	OSD_SetFontGAC(SPRITE_INDEX0);
 
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen(FontData), 0);
+	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen((const char *)FontData), 0);
 
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }

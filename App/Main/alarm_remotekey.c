@@ -50,10 +50,10 @@ static BYTE ReadDataBit(void)
 
 static BYTE ReadSpiDataByte(void)
 {
-	u8 i;
+	s8 i;
 	BYTE spiDataByte;
 
-	for(i = sizeof(BYTE)-1; i >= 0; i--)
+	for(i = 7; i >= 0; i--)
 	{
 		spiDataByte |= ReadDataBit()<<i;
 	}

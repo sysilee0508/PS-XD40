@@ -72,7 +72,7 @@ void TIM3_IRQHandler(void)
 	{
 		for(i = CHANNEL1; i < NUM_OF_CHANNEL; i++)
 		{
-			CheckAlarm();
+			CheckAlarm((eChannel_t)i);
 		}
 	}
 
@@ -447,8 +447,6 @@ void Video_Loss_Check(void)
 //=============================================================================
 void main(void)
 {
-	int i;
-
 	// initialize STM32F103x
 	MCU_init();
 	// initialize interrupt
