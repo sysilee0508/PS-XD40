@@ -93,7 +93,4 @@ extern int fputc(int ch, FILE *f);
 extern void IRQ_Init(void);
 extern void RTC_Configuration(void);
 
-extern void write_eeprom_all(void);
-extern void read_eeprom_all(void);
-
 #endif

@@ -16,7 +16,7 @@ s8 Video1_In_Res_Val = 0x00;
 s8 Video2_In_Res_Val = 0x00;
 s8 Video_Out_Res_Val = VIDOUT_1920x1080p60;
 
-u8 SDI_IN_Display_Flag = 0;
+//u8 SDI_IN_Display_Flag = 0;
 
 u8 PIP_mode = 5;
 u8 Pre_PIP_mode = 0xff;
@@ -25,8 +25,8 @@ BYTE sysenv_split_mode = 0;
 
 u8 aux_display_flag = 0;
 
-const unsigned char change_mode[4] = {0x4, 0x2, 0x7, 0x4};
-int cmode = 0;
+//const unsigned char change_mode[4] = {0x4, 0x2, 0x7, 0x4};
+//int cmode = 0;
 
 // ----------------------------------------------------------------------
 // External Variable 
