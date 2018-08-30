@@ -61,7 +61,7 @@ void MCU_init(void)
     GPIOA->ODR = 0x0000FFFF;			//Initialize PAs to High
 
 //	[GPIO B]
-//  0 : NC
+//    0 : NC
 //	1 : ALM_OUT
 //	2 : BUX_OUT
 //	3 : K_ROW0 (active low)

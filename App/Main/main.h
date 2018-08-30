@@ -4,40 +4,32 @@
 #undef __9CH_DEVICE__
 #define __4CH__
 
-#define cSYSENV_vCORRECT_OFFSET 	1
-#define cSYSENV_bVECTOR				2
-#define cSYSENV_bCORRECT		    3
-#define cSYSENV_vDATE_FORMAT		4
-#define cSYSENV_bTIME_ON			5
-#define cSYSENV_vTIME_Position		6
-#define cSYSENV_vCH_NAME			7
-#define cSYSENV_bTITLE_ON			120
-#define cSYSENV_vDWELL				121
-#define cSYSENV_bLossAutoSkip       125
-#define cSYSENV_bOSD_Display		126
-#define cSYSENV_vOSD_Position		127
-#define cSYSENV_border_line			128
-#define cSYSENV_vAlarm				129
-#define cSYSENV_vAlarm_Display_Time	131
-
-
-#define cSYSENV_resolution			122
-#define cSYSENV_baud_rate		    133
-#define cSYSENV_vREMOCON_ID			134
-#define cSYSENV_vLoss_Time			135
-#define cSYSENV_vLoss_Display		136
-#define cSYSENV_b9Split_Mode		137
-#define cEEP_CHK					200
+#define cSYSENV_vCORRECT_OFFSET 			1
+#define cSYSENV_bVECTOR						2
+#define cSYSENV_bCORRECT		    		3
+#define cSYSENV_vDATE_FORMAT				4
+#define cSYSENV_bTIME_ON					5
+#define cSYSENV_vTIME_Position				6
+#define cSYSENV_vCH_NAME					7
+#define cSYSENV_bTITLE_ON					120
+#define cSYSENV_vDWELL						121
+#define cSYSENV_bLossAutoSkip       		125
+#define cSYSENV_bOSD_Display				126
+#define cSYSENV_vOSD_Position				127
+#define cSYSENV_border_line					128
+#define cSYSENV_resolution					129
+#define cSYSENV_baud_rate		    		130
+#define cSYSENV_vREMOCON_ID					131
+#define cSYSENV_vLoss_Time					132
+#define cSYSENV_vLoss_Display				133
+#define cSYSENV_b9Split_Mode				134
+#define cSYSENV_vAlarm						135
+#define cSYSENV_vAlarm_Display_Time			136
+#define cSYSENV_alarm_remote_sel			137
+#define cEEP_CHK							200
 
 //#define NORMAL_VIEW					0
 //#define MENU_VIEW					1
-
-
-//#ifdef __9CH_DEVICE__
-//#define NUM_OF_CHANNEL				9
-//#else
-//#define NUM_OF_CHANNEL				4
-//#endif
 
 //-----------------------------------------------------------------------------
 //  ���� �ý��� ���� ����
@@ -130,8 +122,9 @@ typedef struct
 	
 //	u16 vMOTION_EN;			// ��� ON/OFF		
 //	u8 bMotion_Mode;		// ��� ���(FULL, SPLIT)	
-	u16 vAlarm;				// �˶�
-	u8 vAlarm_Display_Time; // �˶� ��� ǥ�� ���ӽð�
+//	u16 vAlarm;				// �˶� 
+	u8 vAlarm;
+	u8 vAlarm_Display_Time; // �˶� ��� ǥ�� ���ӽð�	
 
 	u8 vREMOCON_ID;			// Serial Key ���� ID
 	u8 baud_rate;			// baud_rate
@@ -140,7 +133,7 @@ typedef struct
 	u8 vLoss_Display;		// Video Loss Display ǥ�� ON/OFF 
 
 	u8 b9Split_Mode;    	// 9���� ��忡�� 9����,8���� ����
-
+	u8 alarm_remote_sel;
 
 //    unsigned short crc;
 }sys_env_t;
