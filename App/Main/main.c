@@ -301,7 +301,7 @@ void Load_Data(void)
 	sys_env.vOSD_Position = EEP_buf[cSYSENV_vOSD_Position];
 	sys_env.border_line = EEP_buf[cSYSENV_border_line];
 	sys_env.vAlarm = EEP_buf[cSYSENV_vAlarm];
-	sys_env.vAlarm_Display_Time = EEP_buf[cSYSENV_vAlarm_Display_Time];
+	sys_env.vAlarmOutTime = EEP_buf[cSYSENV_vAlarm_Display_Time];
 	sys_env.vREMOCON_ID = EEP_buf[cSYSENV_vREMOCON_ID];
 	sys_env.vLoss_Time = EEP_buf[cSYSENV_vLoss_Time];
 	sys_env.vLoss_Display = EEP_buf[cSYSENV_vLoss_Display];

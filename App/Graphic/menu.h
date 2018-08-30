@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------------
 // Include files
 // -----------------------------------------------------------------------------
-
+#include "constants.h"
 
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
@@ -47,28 +47,24 @@ void Inc_Dec_Count(u8 Max,u8 Min,u8 Up_Flag,u8 *P);
 //-----------------------------------------------------------------
 //
 //-----------------------------------------------------------------
-#ifdef __4CH__
-#define LEFT_KEY   1
-#define UP_KEY     2
-#define DOWN_KEY   3
-#define RIGHT_KEY  4
-#define ENTER_KEY  0x15
-#define EXIT_KEY   0x19
-#endif
+#define LEFT_KEY   			KEY_FULL_CH1//1
+#define UP_KEY     			KEY_FULL_CH2//2
+#define DOWN_KEY   			KEY_FULL_CH3//3
+#define RIGHT_KEY  			KEY_FULL_CH4//4
+#define ENTER_KEY  			KEY_4SPLIT//0x15
+#define EXIT_KEY   			KEY_FREEZE//0x19
 
 //-----------------------------------------------------------------
 //
 //-----------------------------------------------------------------
-#define MENU_WIDTH	792//800
-#define MENU_HEIGHT	672//700
-//#define MENU_H_START (scrsize.cx/2)-(MENU_WIDTH/2)
-//#define MENU_V_START (scrsize.cy/2)-(MENU_HEIGHT/2)
-#define MENU_H_START (1920/2)-(MENU_WIDTH/2)
-#define MENU_V_START (1080/2)-(MENU_HEIGHT/2)
+#define MENU_WIDTH			792//800
+#define MENU_HEIGHT			672//700
+#define MENU_H_START 		(SCREEN_WIDTH/2)-(MENU_WIDTH/2)
+#define MENU_V_START 		(SCREEN_HIGHT/2)-(MENU_HEIGHT/2)
 
-#define CHAR_WIDTH_E	12	
-#define CHAR_WIDTH_K	24
-#define CHAR_HEIGHT		24
+#define CHAR_WIDTH_E		12
+#define CHAR_WIDTH_K		24
+#define CHAR_HEIGHT			24
 
 
 extern u8 vOSD_B[2];
@@ -101,14 +97,14 @@ void RTC_DateCon(u8 Select,u8 Position,u8 opt);
 void Data_Run(void);
 void Data_Format(u8 Position);
 void Year_Format(u8 Position);
-void PAGE1_TITLE(void);
-void tPAGE1_Position(u8 Position);
-void tPAGE1_KEY(void);
+void TimeDateSetup_TITLE(void);
+void TimeDateSetup_Position(u8 Position);
+void TimeDateSetup_KEY(void);
 
 void PAGE2_TITLE(void);
 void tPAGE2_KEY(void);
 
-void Hex_Dec_OSD(u8 PX,u8 PY,u8 *P,u8 Position);
+void Int2Char_OSD(u8 PX,u8 PY,u8 *P,u8 Position);
 void Off_Check(u8 PX,u8 PY,u8 Chenal,u8 Position);
 void PAGE3_TITLE(void);
 void tPAGE3_Position(u8 Position);

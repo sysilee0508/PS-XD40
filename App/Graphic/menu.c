@@ -15,19 +15,20 @@
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
-#include "..\main\common.h"
-#include "..\main\key.h"
+#include "common.h"
+#include "menu_string.h"
+
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
-#define		INC			1
-#define		DEC			0
+//#define		INC			1
+//#define		DEC			0
 
-#if CPU_ALIGN_BIG_ENDIAN == 1
-#define		pID(x)		pID[((x)? 1:0)]
-#else
-#define		pID(x)		pID[((x)? 0:1)]
-#endif
+//#if CPU_ALIGN_BIG_ENDIAN == 1
+//#define		pID(x)		pID[((x)? 1:0)]
+//#else
+//#define		pID(x)		pID[((x)? 0:1)]
+//#endif
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -187,29 +188,18 @@ const u16 tBIT_CHECK16[16]={0x0001,0x0002,0x0004,0x0008,0x0010,0x0020,0x0040,0x0
 
 
 //-----------------------------------------------------------------
-//
-//-----------------------------------------------------------------
-const u8 BLAN[]=" ";
-const u8 ArrowL[]= {0x80,0x00};
-
-//-----------------------------------------------------------------
 // Menu ȭ��ǥ ��ġ��    
 //-----------------------------------------------------------------
 const u8 tMenu_P[8][25] = 
-{{ 5,7,9,11,13,15,17,19},
- { 5,7,9,11,13,15,17,19,21},
-
- { 5,7,9,11,13,15,17,19,21,23},
-
- { 6,8,10,12},
-
- { 6,8,10,12,14,16,18},
-
- { 6,8,10,12,14,16,18},
-
- { 6,8,10,12,14,16},
-
- { 6,8,10,12,14,16},
+{
+	{ 5,7,9,11,13,15,17,19},
+	{ 5,7,9,11,13,15,17,19,21},
+	{ 5,7,9,11,13,15,17,19,21,23},
+	{ 6,8,10,12},
+	{ 6,8,10,12,14,16,18},
+	{ 6,8,10,12,14,16,18},
+	{ 6,8,10,12,14,16},
+	{ 6,8,10,12,14,16},
 };
 
 
@@ -252,14 +242,17 @@ void Inc_Dec_Count(u8 Max,u8 Min,u8 Up_Flag,u8 *P)
 	if(Up_Flag)
 	{
 		if(*P<Max)
-		(*P)++;
-		else *P = Min;}
+			(*P)++;
+		else
+			*P = Min;
+	}
 	else 
 	{
 		if(*P>Min)
 			(*P)--;
 		else
-			*P = Max;}
+			*P = Max;
+	}
 }
 
 void INC_Dec_Hex(u8 Max,u8 Min,u8 Up_Flag,u8 *P) // 16������ ��ȯ �� Inc_Dec_Count�� ���� �� �ٽ� 10������ ��ȯ�Ѵ�.
@@ -294,23 +287,29 @@ void Print_Char(u16 PosX, u16 PosY, u8 *FontData, u16 SIZE)
 //--------------------------------------------------------------------------------------
 //
 //--------------------------------------------------------------------------------------
-void CodeWriteChar(u16 PosX, u16 PosY, const u8 *FontData, u8 Attrib, u16 SIZE)
+void CodeWriteChar(u16 PosX, u16 PosY, const u8 *FontData, u8 Attrib, u16 size)
 {
 	u16 i;
-	BYTE ch_buf[MENU_WIDTH/12];
+	BYTE ch_buf[MENU_WIDTH/CHAR_WIDTH_E];
 	
 	Print_Str(MENU_H_START+(PosX*CHAR_WIDTH_E), MENU_V_START+(PosY*CHAR_HEIGHT), FontData);
 
 	if(Attrib != NULL)
 	{
-		for(i=0;i<SIZE;i++) ch_buf[i] = 0x7f;
+		for(i=0;i<size;i++)
+		{
+			ch_buf[i] = 0x7f; // What is the meaning of 0x7F?
+		}
 	}	
 	else 
 	{
-		for(i=0;i<SIZE;i++) ch_buf[i] = 0x20;
+		for(i=0;i<size;i++)
+		{
+			ch_buf[i] = 0x20; // What is the meaning of 0x20?
+		}
 	}
 
-	Print_Char(MENU_H_START+(PosX*CHAR_WIDTH_E), MENU_V_START+((PosY+1)*CHAR_HEIGHT), ch_buf, SIZE);
+	Print_Char(MENU_H_START+(PosX*CHAR_WIDTH_E), MENU_V_START+((PosY+1)*CHAR_HEIGHT), ch_buf, size);
 }
 
 void WriteChar(u16 PosX, u16 PosY, u8 *FontData, u8 Attrib, u16 SIZE)
@@ -378,7 +377,7 @@ void MenuSelect(u8 Current, u8 offset)
 	static u8 pre_H_loc;
 	static u8 pre_V_loc;
 
-  	Print_Str(MENU_H_START+(pre_H_loc*CHAR_WIDTH_E),MENU_V_START+(pre_V_loc*CHAR_HEIGHT),BLAN);
+  	Print_Str(MENU_H_START+(pre_H_loc*CHAR_WIDTH_E),MENU_V_START+(pre_V_loc*CHAR_HEIGHT),WHITE_SPACE);
   	Print_Str(MENU_H_START+((tMenu_S[vPAGE]+offset)*CHAR_WIDTH_E),MENU_V_START+(tMenu_P[vPAGE][(Current)]*CHAR_HEIGHT),ArrowL);
 
 	pre_H_loc = tMenu_S[vPAGE] + offset;
@@ -390,14 +389,6 @@ void MenuSelect(u8 Current, u8 offset)
 //------------------------------------------------------------------
 //   PAGE0 Function
 //------------------------------------------------------------------
-const BYTE cMAIN_MENU[]		= "- MAIN MENU -";
-const BYTE cTIME_DATE[]		= "1. TIME/DATE";
-const BYTE cCAMERA_TITLE[]		= "2. CAMERA TITLE";
-const BYTE cAUTO_SEQUENCE[]	= "3. AUTO SEQUENCE";
-const BYTE cDISPLAY[]			= "4. DISPLAY";
-const BYTE cALARM_SET[]        = "5. ALARM SET";
-const BYTE cMOTION_DETECTION[]	= "6. MOTION DETECTION";
-const BYTE cMISCELLANEOUS[]	= "7. MISCELLANEOUS";
   
 void SetupMenu(void)
 {   
@@ -423,21 +414,21 @@ void SetupMenu(void)
 	//------------------------------------------------
 
 	MenuSelect(vITEM_Y,0);
-	CodeWriteChar(24,2,cMAIN_MENU,NULL, 0);
-	CodeWriteChar(22,5,cTIME_DATE,NULL, 0);
-	CodeWriteChar(22,7,cCAMERA_TITLE,NULL, 0);
-	CodeWriteChar(22,9,cAUTO_SEQUENCE,NULL, 0);
-	CodeWriteChar(22,11,cDISPLAY,NULL, 0);
-	CodeWriteChar(22,13,cALARM_SET,NULL, 0);
-	CodeWriteChar(22,15,cMOTION_DETECTION,NULL, 0);
-	CodeWriteChar(22,17,cMISCELLANEOUS,NULL, 0);
+	CodeWriteChar(24,2,MAIN_MENU,NULL, 0);
+	CodeWriteChar(22,5,TIME_DATE,NULL, 0);
+	CodeWriteChar(22,7,CAMERA_TITLE,NULL, 0);
+	CodeWriteChar(22,9,AUTO_SEQUENCE,NULL, 0);
+	CodeWriteChar(22,11,DISPLAY,NULL, 0);
+	CodeWriteChar(22,13,ALARM_SET,NULL, 0);
+	CodeWriteChar(22,15,MOTION_DETECTION,NULL, 0);
+	CodeWriteChar(22,17,MISCELLANEOUS,NULL, 0);
 }
 
 void Page_Title(void)
 {
  	switch(vITEM_Y)
  	{
-  		case 1 : PAGE1_TITLE(); break;
+  		case 1 : TimeDateSetup_TITLE(); break;
  		case 2 : PAGE2_TITLE(); break;
   		case 3 : PAGE3_TITLE(); break;
  		case 4 : PAGE4_TITLE(); break;
@@ -456,7 +447,7 @@ void Setup_Process(void)
 		switch(vPAGE)
 		{
      	 case 0 : tPAGE0_KEY(); break;
-     	 case 1 : tPAGE1_KEY(); break;
+     	 case 1 : TimeDateSetup_KEY(); break;
       	 case 2 : tPAGE2_KEY(); break;
       	 case 3 : tPAGE3_KEY(); break;
       	 case 4 : tPAGE4_KEY(); break;
@@ -474,9 +465,24 @@ void Setup_Process(void)
 	    		sec_flag = 0;
 		   		if((vITEM_Y==0)&(bENTER))
 		   		{
-          		 	if(vITEM_X == 0){RTC_TimeCon(D_P_HOUR,UNDER_BAR,0);RTC_TimeCon(D_P_MIN,NULL,0);RTC_TimeCon(D_P_SEC,NULL,0);}
-              		if(vITEM_X == 1){RTC_TimeCon(D_P_HOUR,NULL,0);RTC_TimeCon(D_P_MIN,UNDER_BAR,0);RTC_TimeCon(D_P_SEC,NULL,0);}
-              		if(vITEM_X == 2){RTC_TimeCon(D_P_HOUR,NULL,0);RTC_TimeCon(D_P_MIN,NULL,0);RTC_TimeCon(D_P_SEC,UNDER_BAR,0);}
+          		 	if(vITEM_X == 0)
+          		 	{
+          		 		RTC_TimeCon(D_P_HOUR,UNDER_BAR,0);
+          		 		RTC_TimeCon(D_P_MIN,NULL,0);
+          		 		RTC_TimeCon(D_P_SEC,NULL,0);
+          		 	}
+              		if(vITEM_X == 1)
+              		{
+              			RTC_TimeCon(D_P_HOUR,NULL,0);
+              			RTC_TimeCon(D_P_MIN,UNDER_BAR,0);
+              			RTC_TimeCon(D_P_SEC,NULL,0);
+              		}
+              		if(vITEM_X == 2)
+              		{
+              			RTC_TimeCon(D_P_HOUR,NULL,0);
+              			RTC_TimeCon(D_P_MIN,NULL,0);
+              			RTC_TimeCon(D_P_SEC,UNDER_BAR,0);
+              		}
 		  		}
           		else 
 				{
@@ -658,18 +664,11 @@ void Data_Run(void)
 	RTC_DateCon(D_P_YEAR|D_P_MON|D_P_DAY,NULL,1);
 }
 
-
-const u8 cASIA[]	= "ASIA";
-const u8 cUS[]	= "U.S ";
-const u8 cEURO[]	= "EURO";
-const u8 cYMD[]	= "(YY-MM-DD)";
-const u8 cMDY[]	= "(MM-DD-YY)";
-const u8 cDMY[]	= "(DD-MM-YY)";
 void Data_Format(u8 Position)
 {
-	if(sys_env.vDATE_FORMAT==0){CodeWriteChar(35,11,cASIA,Position,4);CodeWriteChar(35,7,cYMD,NULL,0);}
-	if(sys_env.vDATE_FORMAT==1){CodeWriteChar(35,11,cUS,Position,4);CodeWriteChar(35,7,cMDY,NULL,0);}
-	if(sys_env.vDATE_FORMAT==2){CodeWriteChar(35,11,cEURO,Position,4);CodeWriteChar(35,7,cDMY,NULL,0);}
+	if(sys_env.vDATE_FORMAT==0){CodeWriteChar(35,11,cASIA,Position,4);CodeWriteChar(35,7,strDateFormatYMD,NULL,0);}
+	if(sys_env.vDATE_FORMAT==1){CodeWriteChar(35,11,cUS,Position,4);CodeWriteChar(35,7,strDateFormatMDY,NULL,0);}
+	if(sys_env.vDATE_FORMAT==2){CodeWriteChar(35,11,cEURO,Position,4);CodeWriteChar(35,7,strDateFormatDMY,NULL,0);}
 }
 
 
@@ -699,19 +698,7 @@ void TIME_LOC_Dsp(u8 res, u8 Position)
 	}
 }
 
-
-
-
-const u8 cTIME_DATE1[]		= "- TIME/DATE -";
-const u8 cTIME1[]			= "1. TIME:";
-const u8 cDATE1[]			= "2. DATE:";
-const u8 cTIME_DISPLAY1[] 	= "3. TIME/DATE DISPLAY:";
-const u8 cDATE_FORMAT_1[]  	= "4. DATE FORMAT  :";           
-const u8 cTIME_CORRECT1[] 	= "5. TIME CORRECT :    SEC/ ";
-const u8 cTIME_OSD_SIZE1[] 	= "6. TIME/DATE OSD SIZE:";         
-const u8 cTIME_OSD_LOC1[] 	= "6. TIME/DATE OSD LOCATION:";
-const u8 cHMS[]				= "(HH:MM:SS)";
-void PAGE1_TITLE(void)
+void TimeDateSetup_TITLE(void)
 {   
 	vPAGE = 1;
 	Erase_Menu_OSD();                          
@@ -744,28 +731,38 @@ void PAGE1_TITLE(void)
 }
 
 const u8 tRTC_POSITION[3][3]={{0x01,0x02,0x04},{0x02,0x04,0x02},{0x04,0x01,0x01}};
-void tPAGE1_Position(u8 Position)
+void TimeDateSetup_Position(u8 Position)
 {
 	u8 Select;
 
  	switch(vITEM_Y)
  	{
- 	    case 0 : Select = tBIT_CHECK[vITEM_X];
-				 RTC_TimeCon(Select,Position,1);
-				 break;
- 	    case 1 : Select = tRTC_POSITION[vITEM_X][sys_env.vDATE_FORMAT]; 
-				 RTC_DateCon(Select,Position,1);
-				 break;
- 	    case 2 : ON_OFF_DSP(39,9,Position,sys_env.bTIME_ON);break;
- 	    case 3 : Data_Format(Position);Data_Run();break;
- 		case 4 : Select = tBIT_CHECK[vITEM_X];
-				 Time_Correct_Con(Select,Position);break;	
-// 		case 5 : TIME_SIZE_Dsp(sys_env.vTIME_Size,Position);break;	
- 		case 5 : TIME_LOC_Dsp(sys_env.vTIME_Position,Position);break;	
+ 	    case 0 :
+ 	    	Select = tBIT_CHECK[vITEM_X];
+ 	    	RTC_TimeCon(Select,Position,1);
+			break;
+ 	    case 1 :
+ 	    	Select = tRTC_POSITION[vITEM_X][sys_env.vDATE_FORMAT];
+			RTC_DateCon(Select,Position,1);
+			break;
+ 	    case 2 :
+ 	    	ON_OFF_DSP(39,9,Position,sys_env.bTIME_ON);
+ 	    	break;
+ 	    case 3 :
+ 	    	Data_Format(Position);
+ 	    	Data_Run();
+ 	    	break;
+ 		case 4 :
+ 			Select = tBIT_CHECK[vITEM_X];
+			Time_Correct_Con(Select,Position);
+			break;
+ 		case 5 :
+ 			TIME_LOC_Dsp(sys_env.vTIME_Position,Position);
+ 			break;
 	}
 }
 
-void tPAGE1_KEY(void)
+void TimeDateSetup_KEY(void)
 {
 	u8 State=0;		
 	struct tm time_tm;
@@ -873,21 +870,21 @@ void tPAGE1_KEY(void)
 			{
 			  	if(vITEM_Y==0)
 				{
-					tPAGE1_Position(NULL);
+					TimeDateSetup_Position(NULL);
 					Inc_Dec_Count(2,0,State,&vITEM_X);
-					tPAGE1_Position(UNDER_BAR);
+					TimeDateSetup_Position(UNDER_BAR);
 				}
 			  	else if(vITEM_Y==1)
 				{
-					tPAGE1_Position(NULL);
+					TimeDateSetup_Position(NULL);
 					Inc_Dec_Count(2,0,State,&vITEM_X);
-					tPAGE1_Position(UNDER_BAR);
+					TimeDateSetup_Position(UNDER_BAR);
 				}
 				else if(vITEM_Y==4)
 				{
-					tPAGE1_Position(NULL);
+					TimeDateSetup_Position(NULL);
 					Inc_Dec_Count(2,0,State,&vITEM_X);
-					tPAGE1_Position(UNDER_BAR);
+					TimeDateSetup_Position(UNDER_BAR);
 				}
 			}
 			break;
@@ -895,13 +892,13 @@ void tPAGE1_KEY(void)
 		case ENTER_KEY :
 	       if(bENTER)
 			{
-				tPAGE1_Position(NULL);
+				TimeDateSetup_Position(NULL);
 				vITEM_X	= 0;
 	       	bENTER = 0; 
 			}
 	       else 
 			{
-				tPAGE1_Position(UNDER_BAR);
+				TimeDateSetup_Position(UNDER_BAR);
 				vITEM_X = 0;
 	       	bENTER = 1; 
 			}
@@ -910,7 +907,7 @@ void tPAGE1_KEY(void)
 		case EXIT_KEY : 
 	       if(bENTER)
 			{
-				tPAGE1_Position(NULL);
+				TimeDateSetup_Position(NULL);
 				vITEM_X	= 0;
 	       	bENTER = 0; 
 			}
@@ -1080,7 +1077,7 @@ void tPAGE2_KEY(void)
 				else if(vITEM_Y==4)
 					ON_OFF_DSP(41,13,NULL,sys_env.bTITLE_ON);	     
 				else 
-					PAGE1_TITLE();	
+					TimeDateSetup_TITLE();
 
 				MenuSelect(vITEM_Y,0);	
 #endif
@@ -1101,7 +1098,7 @@ void tPAGE2_KEY(void)
 #define SEQ_FULL	0
 #define SEQ_4SPLIT	1
 
-void Hex_Dec_OSD(u8 PX,u8 PY,u8 *P,u8 Position)
+void Int2Char_OSD(u8 PX,u8 PY,u8 *P,u8 Position)
 {
 	vOSD_B[0] = (*P/10)+'0'; 
 	vOSD_B[1] = (*P%10)+'0';
@@ -1116,7 +1113,7 @@ void Off_Check(u8 PX,u8 PY,u8 Split_mode,u8 Position)
 	if(sys_env.vDWELL[Split_mode]==0) CodeWriteChar(PX,PY,cOFF3,Position,5);
 	else
 	{ 	
-		Hex_Dec_OSD(PX,PY,&sys_env.vDWELL[Split_mode],Position); 
+		Int2Char_OSD(PX,PY,&sys_env.vDWELL[Split_mode],Position);
 	   	CodeWriteChar(PX+2,PY,cSEC3,Position,3);
 	}
 }
@@ -1518,25 +1515,23 @@ void tPAGE4_KEY(void)
 //------------------------------------------------------------------
 //   PAGE5 Function
 //------------------------------------------------------------------
-const BYTE cOFF6[] = "OFF  ";
-const BYTE cSEC6[] = "SEC";
-const BYTE cMIN6[] = "MIN";
-BYTE vALARM_CHG;
-void Relay_DSP(BYTE Position)
+void SetupMenu_AlarmOutTime(BYTE Position)
 {
 	u8 temp = 0;
 	
-	if(!sys_env.vAlarm_Display_Time)
-		CodeWriteChar(39, 14, cOFF6, Position, 5);
-	else if(sys_env.vAlarm_Display_Time < 60)
+	if(sys_env.vAlarmOutTime == 0)
 	{
-		Hex_Dec_OSD(39,14,&sys_env.vAlarm_Display_Time, Position);
+		CodeWriteChar(39, 14, cOFF6, Position, 5);
+	}
+	else if(sys_env.vAlarmOutTime < 60)
+	{
+		Int2Char_OSD(39,14,&sys_env.vAlarmOutTime, Position);
 		CodeWriteChar(41, 14, cSEC6, Position, 3);
 	}
 	else 
 	{
-		temp = sys_env.vAlarm_Display_Time-59;
-		Hex_Dec_OSD(39, 14, &temp, Position);
+		temp = sys_env.vAlarmOutTime-59;
+		Int2Char_OSD(39, 14, &temp, Position);
 		CodeWriteChar(41, 14, cMIN6, Position, 3);
 	}
 
@@ -1548,22 +1543,31 @@ void Buzzer_DSP(BYTE Position)
 		CodeWriteChar(37, 16, cOFF6, Position, 5);
 	else
 	{
-		Hex_Dec_OSD(37, 16, &sys_env.vLoss_Time, Position);
+		Int2Char_OSD(37, 16, &sys_env.vLoss_Time, Position);
 		CodeWriteChar(39, 16, cSEC6, Position, 3);
 	}
 }
 
-const BYTE cOFF_6[] = "OFF";
-const BYTE cNC6[] = "N.C";
-const BYTE cNO6[] = "N.O";
-void NONC_DSP(BYTE OSD_Y,BYTE Position)
+//const BYTE cOFF_6[] = "OFF";
+//const BYTE cNC6[] = "N.C";
+//const BYTE cNO6[] = "N.O";
+
+void NONC_DSP(BYTE channel,BYTE Position)
 {
-	if(vALARM_CHG & tBIT_CHECK[OSD_Y+4])
-		CodeWriteChar(28, 6+(OSD_Y*2), cOFF_6, Position, 3);
-	else if(vALARM_CHG & tBIT_CHECK[OSD_Y])
-		CodeWriteChar(28,6+(OSD_Y*2),cNC6,Position, 3);
-	else 
-		CodeWriteChar(28,6+(OSD_Y*2),cNO6,Position, 3);
+	eAlarmOption_t option = GetAlarmOption(channel);
+
+	switch(option)
+	{
+		case ALARM_OPTION_OFF:
+			CodeWriteChar(28, 6+(channel*2),(const u8 *)"OFF", Position, 3);
+			break;
+		case ALARM_OPTION_NC:
+			CodeWriteChar(28, 6+(channel*2),"N.C", Position, 3);
+			break;
+		case ALARM_OPTION_NO:
+			CodeWriteChar(28,6+(channel*2),"N.O",Position, 3);
+			break;
+	}
 }
 
 const BYTE cALARM6[] = "- ALARM -";
@@ -1579,7 +1583,6 @@ const BYTE cVIDEO_LOSS_BUZZER6[] = "7. VIDEO LOSS BUZZER :";
 void PAGE5_TITLE(void)
 {
 	vPAGE = 5;
-	vALARM_CHG = sys_env.vAlarm;
 	Erase_Menu_OSD();                          
 
 	MenuSelect(0,0);
@@ -1591,11 +1594,11 @@ void PAGE5_TITLE(void)
 	CodeWriteChar(19,14,cALARM_OUT_TIME6,NULL,0);
 	CodeWriteChar(19,16,cALARM_BUZZER6,NULL,0);
 	CodeWriteChar(19,18,cVIDEO_LOSS_BUZZER6,NULL,0);
-	NONC_DSP(0,NULL);
-	NONC_DSP(1,NULL);
-	NONC_DSP(2,NULL);
-	NONC_DSP(3,NULL);
-	Relay_DSP(NULL);
+	NONC_DSP(CHANNEL1,NULL);
+	NONC_DSP(CHANNEL2,NULL);
+	NONC_DSP(CHANNEL3,NULL);
+	NONC_DSP(CHANNEL4,NULL);
+	SetupMenu_AlarmOutTime(NULL);
 	Buzzer_DSP(NULL);
 	ON_OFF_DSP(42, 18,NULL, sys_env.vLoss_Display);
 }
@@ -1604,48 +1607,21 @@ void tPAGE5_Position(u8 Position)
 {
  	switch(vITEM_Y)
  	{
-		case 0 : 
+		case CHANNEL1 :
+ 	  	case CHANNEL2 :
+		case CHANNEL3 :
+		case CHANNEL4 :
 			if(vITEM_X == 0) 
 			{
-				NONC_DSP(0,Position); 
-			} 
-			else 
-			{
-				NONC_DSP(0,NULL); 
-			} 
-			break; 
- 	  	case 1 : 
-			if(vITEM_X == 0) 
-			{
-				NONC_DSP(1,Position); 
+				NONC_DSP(vITEM_Y,Position);
 			}  
 			else 
 			{
-				NONC_DSP(1,NULL); 
-			} 
-			break; 
-		case 2 : 
-			if(vITEM_X == 0) 
-			{
-				NONC_DSP(2,Position); 
-			}  
-			else 
-			{
-				NONC_DSP(2,NULL); 
-			} 
-			break; 
-		case 3 : 
-			if(vITEM_X == 0) 
-			{
-				NONC_DSP(3,Position); 
-			}  
-			else 
-			{
-				NONC_DSP(3,NULL); 
+				NONC_DSP(vITEM_Y,NULL);
 			} 
 			break; 
 		case 4 : 
-			Relay_DSP(Position);  
+			SetupMenu_AlarmOutTime(Position);
 			break; 
  		case 5 : 
 			Buzzer_DSP(Position); 
@@ -1658,54 +1634,51 @@ void tPAGE5_Position(u8 Position)
 
 void tPAGE5_KEY(void)
 {
-	u8 State=0;		
+	BOOL direction = DOWN;
+	eAlarmOption_t option;
 
 	switch(GetCurrentKey()){
-		case UP_KEY : State=0xff;
-    		case DOWN_KEY : 
-			 if(bENTER)
+		case UP_KEY :
+			direction = UP;
+    	case DOWN_KEY :
+			if(bENTER)
 			{
-				bSETUP_Change_flag = 1;
-				if(vITEM_Y<4)					
+				bSETUP_Change_flag = SET;
+				switch (vITEM_Y)
 				{
-					//if(vITEM_X == 0)
-					{
-						if(!(vALARM_CHG & tBIT_CHECK[vITEM_Y]))
-							vALARM_CHG |= tBIT_CHECK[vITEM_Y]; 
-						else if(!(vALARM_CHG & tBIT_CHECK[vITEM_Y+4]))
-							vALARM_CHG |= tBIT_CHECK[vITEM_Y+4]; 
-						else 
-						{
-							vALARM_CHG &= ~tBIT_CHECK[vITEM_Y]; 
-							vALARM_CHG &= ~tBIT_CHECK[vITEM_Y+4];
-						}
-						EEP_buf[cSYSENV_vAlarm] = vALARM_CHG;
-					}				
-				}
-				else if(vITEM_Y == 4)
-				{					
-					Inc_Dec_Count(89, 0, State, &sys_env.vAlarm_Display_Time);
-					EEP_buf[cSYSENV_vAlarm_Display_Time] = sys_env.vAlarm_Display_Time;
-				}
-				else if(vITEM_Y == 5)
-				{					
-					Inc_Dec_Count(99, 0, State, &sys_env.vLoss_Time);
-					EEP_buf[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
-				}
-				else //if(vITEM_Y == 6)
-				{					
-					sys_env.vLoss_Display =~ sys_env.vLoss_Display;
-					EEP_buf[cSYSENV_vLoss_Display] = sys_env.vLoss_Display;
+					case CHANNEL1:
+					case CHANNEL2:
+					case CHANNEL3:
+					case CHANNEL4:
+						option = GetAlarmOption((eChannel_t)vITEM_Y);
+						option = (++option) % ALARM_OPTION_MAX;
+						SetAlarmOption((eChannel_t)vITEM_Y, option);
+						break;
+
+					case CHANNEL4+1:
+						Inc_Dec_Count(89, 0, direction, &sys_env.vAlarmOutTime);
+						EEP_buf[cSYSENV_vAlarm_Display_Time] = sys_env.vAlarmOutTime;
+						break;
+
+					case CHANNEL4+2:
+						Inc_Dec_Count(99, 0, direction, &sys_env.vLoss_Time);
+						EEP_buf[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
+						break;
+					case CHANNEL4+3:
+						sys_env.vLoss_Display =~ sys_env.vLoss_Display;
+						EEP_buf[cSYSENV_vLoss_Display] = sys_env.vLoss_Display;
+						break;
 				}
 				tPAGE5_Position(UNDER_BAR);
 			}
 			else 
 			{
-				Inc_Dec_Count(6, 0, ~State, &vITEM_Y);
+				Inc_Dec_Count(6, 0, ~direction, &vITEM_Y);
 				MenuSelect(vITEM_Y,0);
 			}
   			break;	
-    		case ENTER_KEY :
+
+    	case ENTER_KEY :
 			if(bENTER)
 			{
 				bENTER = 0;
@@ -1717,6 +1690,7 @@ void tPAGE5_KEY(void)
 				tPAGE5_Position(UNDER_BAR);
 			}
 			break; 	
+
 		case EXIT_KEY : 
        		if(bENTER)
 			{
@@ -1725,9 +1699,9 @@ void tPAGE5_KEY(void)
 			}
 			else 
 			{
-           			vITEM_Y = vPAGE -1;   
+           		vITEM_Y = vPAGE -1;
 				SetupMenu();
-				sys_env.vAlarm = vALARM_CHG;
+				//sys_env.vAlarm = vALARM_CHG;
 			}
 			break; 	
 	}
@@ -1746,7 +1720,7 @@ void Remocon_Dsp(u8 Position)
 	else
 	{ 
 		CodeWriteChar(34,6,cOFF_BLK7,NULL,3);
-		Hex_Dec_OSD(34,6,&sys_env.vREMOCON_ID,Position);
+		Int2Char_OSD(34,6,&sys_env.vREMOCON_ID,Position);
 	}
 }
 
@@ -1756,7 +1730,7 @@ void Loss_Time_Dsp(u8 Position)
 	else
 	{ 
 		CodeWriteChar(46,10,cOFF_BLK7,NULL,3);
-		Hex_Dec_OSD(46,10,&sys_env.vLoss_Time,Position);
+		Int2Char_OSD(46,10,&sys_env.vLoss_Time,Position);
 	}
 }
 
@@ -1906,7 +1880,7 @@ void Remocon_Dsp(u8 Position)
 	else
 	{ 
 		CodeWriteChar(35,6,cOFF_BLK7,NULL,3);
-		Hex_Dec_OSD(35,6,&sys_env.vREMOCON_ID,Position);
+		Int2Char_OSD(35,6,&sys_env.vREMOCON_ID,Position);
 	}
 }
 

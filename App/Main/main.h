@@ -124,7 +124,7 @@ typedef struct
 //	u8 bMotion_Mode;		// ��� ���(FULL, SPLIT)	
 //	u16 vAlarm;				// �˶� 
 	u8 vAlarm;
-	u8 vAlarm_Display_Time; // �˶� ��� ǥ�� ���ӽð�	
+	u8 vAlarmOutTime; // �˶� ��� ǥ�� ���ӽð�	
 
 	u8 vREMOCON_ID;			// Serial Key ���� ID
 	u8 baud_rate;			// baud_rate

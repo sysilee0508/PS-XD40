@@ -24,11 +24,11 @@ static BYTE alarm_remotekey_mode = ALARM_MODE;
 //=============================================================================
 static sAlarmInfo_t alarmInfo[NUM_OF_CHANNEL] =
 {
-//	option				status
-	{ALARM_OPTION_OFF, 	ALARM_CLEAR},
-	{ALARM_OPTION_OFF, 	ALARM_CLEAR},
-	{ALARM_OPTION_OFF, 	ALARM_CLEAR},
-	{ALARM_OPTION_OFF, 	ALARM_CLEAR},
+//	option				status			raw_data		previous_data		debounce_count
+	{ALARM_OPTION_OFF, 	ALARM_CLEAR,	0xFF,			0xFF,				0},
+	{ALARM_OPTION_OFF, 	ALARM_CLEAR,	0xFF,			0xFF,				0},
+	{ALARM_OPTION_OFF, 	ALARM_CLEAR,	0xFF,			0xFF,				0},
+	{ALARM_OPTION_OFF, 	ALARM_CLEAR,	0xFF,			0xFF,				0}
 };
 
 //=============================================================================

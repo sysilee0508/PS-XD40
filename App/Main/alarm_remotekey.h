@@ -27,7 +27,8 @@ typedef enum
 {
 	ALARM_OPTION_OFF = 0,
 	ALARM_OPTION_NO,	//active low
-	ALARM_OPTION_NC		//active high
+	ALARM_OPTION_NC,	//active high
+	ALARM_OPTION_MAX
 } eAlarmOption_t;
 
 //=============================================================================
@@ -36,12 +37,10 @@ typedef enum
 typedef struct
 {
 	eAlarmOption_t option;
-
+	BOOL alarm_status;
 	BOOL raw_data;
 	BOOL previous_data;
 	u8 debounce_count;
-
-	BOOL alarm_status;
 } sAlarmInfo_t;
 
 //=============================================================================

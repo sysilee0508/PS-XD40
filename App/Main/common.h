@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "constants.h"
+
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 
@@ -63,15 +65,6 @@ typedef enum {
 #define TIME_BEFORE(unknown,known)	(((long)(unknown)-(long)(known))<0)
 
 #define NOP()	asm("NOP")
-
-#define LOW		0
-#define HIGH	1
-
-#define FALSE	0
-#define TRUE	1
-
-#define CLEAR	0
-#define SET		1
 
 // -----------------------------------------------------------------------------
 // External Variables declaration
