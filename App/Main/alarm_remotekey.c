@@ -35,28 +35,40 @@ static sAlarmInfo_t alarmInfo[NUM_OF_CHANNEL] =
 //  Function Definition
 //=============================================================================
 
-static BYTE ReadDataBit(void)
-{
-	BYTE bit;
-
-	SPI_CS_HIGH;
-	SPI_DELAY;
-	bit = SPI_MISO_DATA;
-	SPI_CS_LOW;
-	SPI_DELAY;
-
-	return bit;
-}
+//static BYTE ReadDataBit(void)
+//{
+//	BYTE bit;
+//
+//	SPI_CS_HIGH;
+//	SPI_CLK_LOW;
+//	SPI_DELAY;
+//	SPI_CLK_HIGH;
+//	SPI_DELAY;
+//	bit = SPI_MISO_DATA;
+//	SPI_CLK_LOW;
+//	//SPI_CS_LOW;
+//	//SPI_DELAY;
+//
+//	return bit;
+//}
 
 static BYTE ReadSpiDataByte(void)
 {
 	s8 i;
-	BYTE spiDataByte;
+	BYTE spiDataByte = 0x00;
+	BYTE bit;
 
+	SPI_CS_HIGH;
 	for(i = 7; i >= 0; i--)
 	{
-		spiDataByte |= ReadDataBit()<<i;
+		SPI_CLK_LOW;
+		SPI_DELAY;
+		SPI_CLK_HIGH;
+		SPI_DELAY;
+		bit = SPI_MISO_DATA;
+		spiDataByte |= bit<<i;
 	}
+	SPI_CS_LOW;
 
 	return spiDataByte;
 }
