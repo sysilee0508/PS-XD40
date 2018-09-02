@@ -4,11 +4,11 @@
 //=============================================================================
 //  MACRO
 //=============================================================================
-#define SPI_CS_HIGH					GPIOC->BSRR |= GPIO_Pin_3
-#define SPI_CS_LOW					GPIOC->BRR |= GPIO_Pin_3
-#define SPI_CLK_HIGH				GPIOC->BSRR |= GPIO_Pin_2
-#define SPI_CLK_LOW					GPIOC->BRR |= GPIO_Pin_2
-#define SPI_MISO_DATA				GPIOC->IDR & GPIO_Pin_0
+#define SPI_CS_HIGH					GPIOC->BSRR = GPIO_Pin_3
+#define SPI_CS_LOW					GPIOC->BRR = GPIO_Pin_3
+#define SPI_CLK_HIGH				GPIOC->BSRR = GPIO_Pin_2
+#define SPI_CLK_LOW					GPIOC->BRR = GPIO_Pin_2
+#define SPI_MISO_DATA				((GPIOC->IDR & 0x00000001)?1:0)
 
 #define SPI_DELAY					Delay_us(1)
 //=============================================================================
@@ -58,5 +58,5 @@ extern BYTE GetAlarmRemoteKeyMode(void);
 extern void ChangeAlarmRemoteKeyMode(BYTE mode);
 extern eAlarmOption_t GetAlarmOption(eChannel_t channel);
 extern void SetAlarmOption(eChannel_t channel, eAlarmOption_t option);
-extern void CheckAlarm(eChannel_t channel);
+extern void CheckAlarm(void);//eChannel_t channel);
 #endif

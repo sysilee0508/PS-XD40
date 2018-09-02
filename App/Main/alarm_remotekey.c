@@ -31,6 +31,11 @@ static sAlarmInfo_t alarmInfo[NUM_OF_CHANNEL] =
 	{ALARM_OPTION_OFF, 	ALARM_CLEAR,	0xFF,			0xFF,				0}
 };
 
+
+static u8 spiDataMask[NUM_OF_CHANNEL] = { 0x01, 0x02, 0x04, 0x08 };
+
+static u8 spiFakeData[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFF, 0xFF};
+
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -54,21 +59,37 @@ static sAlarmInfo_t alarmInfo[NUM_OF_CHANNEL] =
 
 static BYTE ReadSpiDataByte(void)
 {
-	s8 i;
+	//u8 i;
 	BYTE spiDataByte = 0x00;
-	BYTE bit;
-
-	SPI_CS_HIGH;
-	for(i = 7; i >= 0; i--)
+	//static BYTE temp;
+#if 0
+	SPI_CS_LOW;
+	
+	for(i = 0; i < 8; i++)
 	{
 		SPI_CLK_LOW;
+		//SPI_DELAY;
+		spiDataByte <<= 1;
+		if(SPI_MISO_DATA == 1)
+		{
+			spiDataByte |= 0x01;
+		}
+		//SPI_CLK_LOW;
 		SPI_DELAY;
 		SPI_CLK_HIGH;
 		SPI_DELAY;
-		bit = SPI_MISO_DATA;
-		spiDataByte |= bit<<i;
+		//temp = SPI_MISO_DATA;
+		//spiDataByte |= SPI_MISO_DATA<<i;
 	}
-	SPI_CS_LOW;
+	SPI_CS_HIGH;
+#else
+	u8 fakeBufSize = sizeof(spiFakeData);
+	static u8 index = 0;
+
+	index = index % fakeBufSize;
+	spiDataByte = spiFakeData[index];
+	index++;
+#endif
 
 	return spiDataByte;
 }
@@ -96,50 +117,58 @@ void SetAlarmOption(eChannel_t channel, eAlarmOption_t option)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-void CheckAlarm(eChannel_t channel)
+void CheckAlarm(void)//eChannel_t channel)
 {
-	alarmInfo[channel].raw_data = (ReadSpiDataByte() & (0x01 << channel)) >> channel;
+	u8 spiData = ReadSpiDataByte();
+	u8 channel;
 
-	switch(alarmInfo[channel].option)
+	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
-		case ALARM_OPTION_OFF:
-			alarmInfo[channel].alarm_status = ALARM_CLEAR;
-			alarmInfo[channel].debounce_count = 0;
-			break;
+		alarmInfo[channel].raw_data = spiData & spiDataMask[channel];
 
-		case ALARM_OPTION_NO:
-			if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
-				(alarmInfo[channel].raw_data == HIGH))
-			{
+		switch(alarmInfo[channel].option)
+		{
+			case ALARM_OPTION_OFF:
+				alarmInfo[channel].alarm_status = ALARM_CLEAR;
 				alarmInfo[channel].debounce_count = 0;
-			}
-			else
-			{
-				alarmInfo[channel].debounce_count++;
-			}
-			break;
+				break;
 
-		case ALARM_OPTION_NC:
-			if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
-				(alarmInfo[channel].raw_data == LOW))
-			{
+			case ALARM_OPTION_NO:
+				if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
+					(alarmInfo[channel].raw_data == spiDataMask[channel]))
+				{
+					alarmInfo[channel].debounce_count = 0;
+				}
+				else
+				{
+					alarmInfo[channel].debounce_count++;
+				}
+				break;
+
+			case ALARM_OPTION_NC:
+				if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
+					(alarmInfo[channel].raw_data == LOW))
+				{
+					alarmInfo[channel].debounce_count = 0;
+				}
+				else
+				{
+					alarmInfo[channel].debounce_count++;
+				}
+				break;
+
+			default:
 				alarmInfo[channel].debounce_count = 0;
-			}
-			else
-			{
-				alarmInfo[channel].debounce_count++;
-			}
-			break;
+				break;
+		}
 
-		default:
+		if(alarmInfo[channel].debounce_count > ALARM_DEBOUNCE_MAX_COUNT)
+		{
+			alarmInfo[channel].alarm_status = ALARM_SET;
 			alarmInfo[channel].debounce_count = 0;
-			break;
+		}
+
+		alarmInfo[channel].previous_data = alarmInfo[channel].raw_data;
 	}
 
-	if(alarmInfo[channel].debounce_count > ALARM_DEBOUNCE_MAX_COUNT)
-	{
-		alarmInfo[channel].alarm_status = ALARM_SET;
-	}
-
-	alarmInfo[channel].previous_data = alarmInfo[channel].raw_data;
 }

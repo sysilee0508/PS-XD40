@@ -16,6 +16,7 @@
 // Include files
 // ----------------------------------------------------------------------
 #include "common.h"
+#include "alarm_remotekey.h"
 #include "menu_string.h"
 
 // -----------------------------------------------------------------------------
@@ -419,7 +420,7 @@ void SetupMenu(void)
 	CodeWriteChar(22,7,CAMERA_TITLE,NULL, 0);
 	CodeWriteChar(22,9,AUTO_SEQUENCE,NULL, 0);
 	CodeWriteChar(22,11,DISPLAY,NULL, 0);
-	CodeWriteChar(22,13,ALARM_SET,NULL, 0);
+	CodeWriteChar(22,13,"5. ALARM SET",NULL, 0);
 	CodeWriteChar(22,15,MOTION_DETECTION,NULL, 0);
 	CodeWriteChar(22,17,MISCELLANEOUS,NULL, 0);
 }
@@ -708,7 +709,7 @@ void TimeDateSetup_TITLE(void)
 
     CodeWriteChar(17,5,cTIME1,NULL,0);
 	RTC_TimeCon(D_P_HOUR|D_P_MIN|D_P_SEC,NULL,1);
-	CodeWriteChar(35,5,cHMS,NULL,0);
+	CodeWriteChar(35,5,strTimeFormatHMS,NULL,0);
 
     CodeWriteChar(17,7,cDATE1,NULL,0);
 	Data_Run();
@@ -852,7 +853,7 @@ void TimeDateSetup_KEY(void)
 					EEP_buf[cSYSENV_vTIME_Position] = sys_env.vTIME_Position;
 				}
 				
-				tPAGE1_Position(UNDER_BAR);
+				TimeDateSetup_Position(UNDER_BAR);
 			}
 			else
 			{

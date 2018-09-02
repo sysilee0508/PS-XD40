@@ -70,10 +70,11 @@ void TIM3_IRQHandler(void)
 	// Check alarm every 20ms if alarm is enabled
 	if((count%2==0) && (GetAlarmRemoteKeyMode() == ALARM_MODE))
 	{
-		for(i = CHANNEL1; i < NUM_OF_CHANNEL; i++)
-		{
-			CheckAlarm((eChannel_t)i);
-		}
+		CheckAlarm();
+		//for(i = CHANNEL1; i < NUM_OF_CHANNEL; i++)
+		//{
+		//	CheckAlarm((eChannel_t)i);
+		//}
 	}
 
 	count = (++count)%2;

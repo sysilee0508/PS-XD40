@@ -100,7 +100,7 @@ void MCU_init(void)
 //	15: OSC32O
     GPIOC->CRH = 0x33833333;			//GPIOC13 is used for TAMPER-RTC INT
     GPIOC->CRL = 0x33333338;			//PC0 : input(pull-up)
-    GPIOC->ODR = 0x0000fff3;			//spi_clk & spi_cs is low (active high)
+    GPIOC->ODR = 0x0000FFFF;			//spi_clk & spi_cs is low (active high)
 
 //	[GPIO D]
 //  0 : OSCI
