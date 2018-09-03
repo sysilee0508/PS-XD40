@@ -22,6 +22,7 @@ static BOOL bKeyReady = CLEAR;
 static keydata_e current_keydata = KEY_NONE;
 static u8 pre_split_mode = 0;
 
+
 //=============================================================================
 //  Constant Array Declaration (data table)
 //=============================================================================

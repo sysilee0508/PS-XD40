@@ -343,10 +343,10 @@ u32 alarmBuzzerCount = 0;
 void CheckBuzzer(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
-	static sSystemTick_t previousSystemTime;
+	static u32 previousSystemTimeIn100ms;
 	u32 buzzerCount = MAX(videoLossBuzzerCount, alarmBuzzerCount);
 
-	if(TIME_AFTER(currentSystemTime->tickCount_100ms,previousSystemTime.tickCount_100ms,5))
+	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
 	{
 		//execute below lines every 500ms
 		if(buzzerCount > 0)
@@ -368,8 +368,8 @@ void CheckBuzzer(void)
 		{
 			BUZZER_LOW;
 		}
+		previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
 	}
-	memcpy(&previousSystemTime,currentSystemTime, sizeof(sSystemTick_t));
 }
 
 void Loss_Check(void)
@@ -397,14 +397,14 @@ void Loss_Check(void)
 void Video_Loss_Check(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
-	static sSystemTick_t previousSystemTime;
+	static u32 previousSystemTimeIn100ms;
 
-	if(TIME_AFTER(currentSystemTime->tickCount_100ms,previousSystemTime.tickCount_100ms,5))
+	if(TIME_AFTER(currentSystemTime->tickCount_100ms,previousSystemTimeIn100ms,5))
 	{
 		Loss_Check();
+		previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
 	}
 
-	memcpy(&previousSystemTime,currentSystemTime, sizeof(sSystemTick_t));
 }
 
 

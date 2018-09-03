@@ -14,8 +14,8 @@
 #define CLEAR						RESET
 //#define SET							1
 
-#define UP							1
-#define DOWN						0
+#define UP							0xFF
+#define DOWN						0x00
 
 #define SCREEN_WIDTH				1920
 #define SCREEN_HIGHT				1080

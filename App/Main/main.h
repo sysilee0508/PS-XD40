@@ -158,8 +158,9 @@ extern u8 aux_display_flag;
 extern u32 vVideo_Loss;
 extern u8 ch9_loss;
 extern u8 Loss_Event_Flag;
-extern u8 videoLossBuzzerCount;
+extern u32 videoLossBuzzerCount;
 
+extern u32 alarmBuzzerCount;
 
 extern BYTE sysenv_split_mode;
 

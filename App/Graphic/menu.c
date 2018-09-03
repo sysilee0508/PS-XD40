@@ -445,6 +445,11 @@ void Setup_Process(void)
 	{
 		ClearKeyReady();
 
+		if(GetCurrentKey() == KEY_ALARM)
+		{
+			alarmBuzzerCount = sys_env.vAlarmBuzzerTime * 2;
+		}
+
 		switch(vPAGE)
 		{
      	 case 0 : tPAGE0_KEY(); break;
@@ -1540,13 +1545,31 @@ void SetupMenu_AlarmOutTime(BYTE Position)
 
 void Buzzer_DSP(BYTE Position)
 {
- 	if(!sys_env.vAlarmBuzzerTime)
-		CodeWriteChar(37, 16, cOFF6, Position, 5);
-	else
+	u8 temp = 0;
+	
+	if(sys_env.vAlarmBuzzerTime == 0)
 	{
-		Int2Char_OSD(37, 16, &sys_env.vLoss_Time, Position);
+		CodeWriteChar(37, 16, cOFF6, Position, 5);
+	}
+	else if(sys_env.vAlarmBuzzerTime < 60)
+	{
+		Int2Char_OSD(37,16,&sys_env.vAlarmBuzzerTime, Position);
 		CodeWriteChar(39, 16, cSEC6, Position, 3);
 	}
+	else 
+	{
+		temp = sys_env.vAlarmBuzzerTime-59;
+		Int2Char_OSD(37, 16, &temp, Position);
+		CodeWriteChar(39, 16, cMIN6, Position, 3);
+	}
+//
+//	if(!sys_env.vAlarmBuzzerTime)
+//		CodeWriteChar(37, 16, cOFF6, Position, 5);
+//	else
+//	{
+//		Int2Char_OSD(37, 16, &sys_env.vLoss_Time, Position);
+//		CodeWriteChar(39, 16, cSEC6, Position, 3);
+//	}
 }
 
 //const BYTE cOFF_6[] = "OFF";

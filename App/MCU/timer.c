@@ -13,20 +13,20 @@ void TIM2_IRQHandler(void)
 	TIM2->SR = TIM2->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	systemTick.tickCount_1ms++;
-	if(systemTick.tickCount_1ms/10 > 0)
+	if(systemTick.tickCount_1ms%10 == 0)
 	{
 		systemTick.tickCount_10ms++;
-		systemTick.tickCount_1ms %= 10;
+		//systemTick.tickCount_1ms %= 10;
 	}
-	if(systemTick.tickCount_10ms/10 > 0)
+	if(systemTick.tickCount_1ms%100 == 0)
 	{
 		systemTick.tickCount_100ms++;
-		systemTick.tickCount_10ms %= 10;
+		//systemTick.tickCount_10ms %= 10;
 	}
-	if(systemTick.tickCount_100ms/10 > 0)
+	if(systemTick.tickCount_1ms%1000 == 0)
 	{
 		systemTick.tickCount_1s++;
-		systemTick.tickCount_100ms %= 10;
+		//systemTick.tickCount_100ms %= 10;
 	}
 }
 

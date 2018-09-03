@@ -153,11 +153,13 @@ void CheckAlarm(void)//eChannel_t channel)
 
 		if(alarmInfo[channel].debounce_count > ALARM_DEBOUNCE_MAX_COUNT)
 		{
-			alarmInfo[channel].alarm_status = ALARM_SET;
-			alarmInfo[channel].debounce_count = 0;
-			UpdateKeyData(KEY_ALARM);
-			SetKeyReady();
-
+			if(alarmInfo[channel].alarm_status == ALARM_CLEAR)
+			{
+				alarmInfo[channel].alarm_status = ALARM_SET;
+				alarmInfo[channel].debounce_count = 0;
+				UpdateKeyData(KEY_ALARM);
+				SetKeyReady();
+			}
 		}
 
 		alarmInfo[channel].previous_data = alarmInfo[channel].raw_data;
