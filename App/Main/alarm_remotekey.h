@@ -40,7 +40,7 @@ typedef struct
 	BOOL alarm_status;
 	BOOL raw_data;
 	BOOL previous_data;
-	u8 debounce_count;
+	u8 check_count;
 } sAlarmInfo_t;
 
 //=============================================================================

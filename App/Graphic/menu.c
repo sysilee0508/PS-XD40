@@ -71,7 +71,6 @@ static BYTE demoAudio[sizeof(defAudioSize)];	   //by hungry 2012.03.14
 // ----------------------------------------------------------------------
 // Static functions
 // ----------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------------------
 //static void OSD_LineClearRemainder(BYTE row, BYTE rem)
 void OSD_LineClearRemainder(BYTE row, BYTE rem)
 {
@@ -237,26 +236,35 @@ void Hex_Dec_Function(u8 *P)
 	*P=(((*P/10)<<4)|(*P%10));
 }
 
-void Inc_Dec_Count(u8 Max,u8 Min,u8 Up_Flag,u8 *P)
-
+void Inc_Dec_Count(u8 Max,u8 Min,eDirection_t direction,u8 *count)
 {
-	if(Up_Flag)
+	switch(direction)
 	{
-		if(*P<Max)
-			(*P)++;
-		else
-			*P = Min;
-	}
-	else 
-	{
-		if(*P>Min)
-			(*P)--;
-		else
-			*P = Max;
+		case DIRECTION_UP:
+			if(*count<Max)
+			{
+				(*count)++;
+			}
+			else
+			{
+				*count = Min;
+			}
+			break;
+
+		case DIRECTION_DOWN:
+			if(*count>Min)
+			{
+				(*count)--;
+			}
+			else
+			{
+				*count = Max;
+			}
+			break;
 	}
 }
 
-void INC_Dec_Hex(u8 Max,u8 Min,u8 Up_Flag,u8 *P) // 16������ ��ȯ �� Inc_Dec_Count�� ���� �� �ٽ� 10������ ��ȯ�Ѵ�.
+void INC_Dec_Hex(u8 Max,u8 Min,u8 Up_Flag,u8 *P)
 {
 	Dec_Hex_Function(P);
 	Inc_Dec_Count(Max,Min,Up_Flag,P);
@@ -502,14 +510,14 @@ void Setup_Process(void)
 
 void tPAGE0_KEY(void)
 {
-	u8 State=0;		
+	eDirection_t direction = DIRECTION_DOWN;
 
  	switch(GetCurrentKey())
 	{
 		case UP_KEY :
-			State=0xff;
+			direction = DIRECTION_UP;
 		case DOWN_KEY : 
-			Inc_Dec_Count(6,0,~State,&vITEM_Y);
+			Inc_Dec_Count(6,0,~direction,&vITEM_Y);
 			MenuSelect(vITEM_Y,0);
 			break;              
 
@@ -770,13 +778,13 @@ void TimeDateSetup_Position(u8 Position)
 
 void TimeDateSetup_KEY(void)
 {
-	u8 State=0;		
+	u8 direction = DIRECTION_DOWN;
 	struct tm time_tm;
 
 	switch(GetCurrentKey())
 	{
 		case UP_KEY :
-			State=0xff;
+			direction = DIRECTION_UP;
 		case DOWN_KEY : 
 			if(bENTER)
 			{
@@ -784,9 +792,9 @@ void TimeDateSetup_KEY(void)
 
 				if(vITEM_Y==0)
 				{
-					if(vITEM_X==0) INC_Dec_Hex(23,0,State,&rtc_hour);
-					if(vITEM_X==1) INC_Dec_Hex(59,0,State,&rtc_min);	 		 					
-					if(vITEM_X==2) INC_Dec_Hex(59,0,State,&rtc_sec);		 		 									
+					if(vITEM_X==0) INC_Dec_Hex(23,0,direction,&rtc_hour);
+					if(vITEM_X==1) INC_Dec_Hex(59,0,direction,&rtc_min);
+					if(vITEM_X==2) INC_Dec_Hex(59,0,direction,&rtc_sec);
 
 					time_tm.tm_year = Bcd2Hex(rtc_year);
 				    time_tm.tm_mon  = Bcd2Hex(rtc_month)-1;
@@ -800,21 +808,21 @@ void TimeDateSetup_KEY(void)
 				{
 					if(vITEM_X==0)
 					{
-						if(sys_env.vDATE_FORMAT==0) INC_Dec_Hex(99,00,State,&rtc_year);
-						if(sys_env.vDATE_FORMAT==1) INC_Dec_Hex(12,01,State,&rtc_month);
-						if(sys_env.vDATE_FORMAT==2) INC_Dec_Hex(31,01,State,&rtc_day);
+						if(sys_env.vDATE_FORMAT==0) INC_Dec_Hex(99,00,direction,&rtc_year);
+						if(sys_env.vDATE_FORMAT==1) INC_Dec_Hex(12,01,direction,&rtc_month);
+						if(sys_env.vDATE_FORMAT==2) INC_Dec_Hex(31,01,direction,&rtc_day);
 					}
 					else if(vITEM_X==1)
 					{
-						if(sys_env.vDATE_FORMAT==0) INC_Dec_Hex(12,01,State,&rtc_month);
-						if(sys_env.vDATE_FORMAT==1) INC_Dec_Hex(31,01,State,&rtc_day);
-						if(sys_env.vDATE_FORMAT==2) INC_Dec_Hex(12,01,State,&rtc_month);
+						if(sys_env.vDATE_FORMAT==0) INC_Dec_Hex(12,01,direction,&rtc_month);
+						if(sys_env.vDATE_FORMAT==1) INC_Dec_Hex(31,01,direction,&rtc_day);
+						if(sys_env.vDATE_FORMAT==2) INC_Dec_Hex(12,01,direction,&rtc_month);
 					}
 					else if(vITEM_X==2)
 					{
-						if(sys_env.vDATE_FORMAT==0) INC_Dec_Hex(31,01,State,&rtc_day);
-						if(sys_env.vDATE_FORMAT==1) INC_Dec_Hex(50,00,State,&rtc_year);
-						if(sys_env.vDATE_FORMAT==2) INC_Dec_Hex(50,00,State,&rtc_year);
+						if(sys_env.vDATE_FORMAT==0) INC_Dec_Hex(31,01,direction,&rtc_day);
+						if(sys_env.vDATE_FORMAT==1) INC_Dec_Hex(50,00,direction,&rtc_year);
+						if(sys_env.vDATE_FORMAT==2) INC_Dec_Hex(50,00,direction,&rtc_year);
 					}
 
 					time_tm.tm_year = Bcd2Hex(rtc_year);
@@ -827,19 +835,19 @@ void TimeDateSetup_KEY(void)
 				}		
 				else if(vITEM_Y==2)
 				{
-					INC_Dec_Hex(1,0,State,&sys_env.bTIME_ON);
+					INC_Dec_Hex(1,0,direction,&sys_env.bTIME_ON);
 					EEP_buf[cSYSENV_bTIME_ON] = sys_env.bTIME_ON;
 				}
 				else if(vITEM_Y==3)
 				{
-					Inc_Dec_Count(2,0,State,&sys_env.vDATE_FORMAT);
+					Inc_Dec_Count(2,0,direction,&sys_env.vDATE_FORMAT);
 					EEP_buf[cSYSENV_vDATE_FORMAT] = sys_env.vDATE_FORMAT;
 				}
 				else if(vITEM_Y==4)
 				{
-	               	if(vITEM_X==0) {INC_Dec_Hex(1,0,State,&sys_env.bVECTOR); EEP_buf[cSYSENV_bVECTOR] = sys_env.bVECTOR;}	 		 					
-					if(vITEM_X==1) {INC_Dec_Hex(59,0,State,&sys_env.vCORRECT_OFFSET); EEP_buf[cSYSENV_vCORRECT_OFFSET] = sys_env.vCORRECT_OFFSET;}	 		 						
-				    if(vITEM_X==2) {INC_Dec_Hex(1,0,State,&sys_env.bCORRECT); EEP_buf[cSYSENV_bCORRECT] = sys_env.bCORRECT;}	 		 					 
+	               	if(vITEM_X==0) {INC_Dec_Hex(1,0,direction,&sys_env.bVECTOR); EEP_buf[cSYSENV_bVECTOR] = sys_env.bVECTOR;}
+					if(vITEM_X==1) {INC_Dec_Hex(59,0,direction,&sys_env.vCORRECT_OFFSET); EEP_buf[cSYSENV_vCORRECT_OFFSET] = sys_env.vCORRECT_OFFSET;}
+				    if(vITEM_X==2) {INC_Dec_Hex(1,0,direction,&sys_env.bCORRECT); EEP_buf[cSYSENV_bCORRECT] = sys_env.bCORRECT;}
 				}
 /*				else if(vITEM_Y==5)
 				{
@@ -851,7 +859,7 @@ void TimeDateSetup_KEY(void)
 				}
 */				else if(vITEM_Y==5)
 				{
-					Inc_Dec_Count(2,0,State,&sys_env.vTIME_Position);
+					Inc_Dec_Count(2,0,direction,&sys_env.vTIME_Position);
 					//if(sys_env.vOSD_Position < 3) OSG_block_fill(0,scrsize.cy-80, 1920,80, 0xffff);
 					//else OSG_block_fill(0,0, 1920,80, 0xffff);
 					//if(sys_env.bTIME_ON) OSG_Display_Time_NOW();
@@ -863,33 +871,33 @@ void TimeDateSetup_KEY(void)
 			else
 			{
 				if(!vITEM_Y)RTC_DateCon(D_P_YEAR|D_P_MON|D_P_DAY,NULL,0);
-				Inc_Dec_Count(5,0,~State,&vITEM_Y);
+				Inc_Dec_Count(5,0,~direction,&vITEM_Y);
 				MenuSelect(vITEM_Y,0);
 				if(!vITEM_Y)RTC_DateCon(D_P_YEAR|D_P_MON|D_P_DAY,NULL,0);
 			}
 			break;
 
 		case RIGHT_KEY :
-			State=0xff;
+			direction = DIRECTION_UP;
 		case LEFT_KEY  : 
 			if(bENTER)
 			{
 			  	if(vITEM_Y==0)
 				{
 					TimeDateSetup_Position(NULL);
-					Inc_Dec_Count(2,0,State,&vITEM_X);
+					Inc_Dec_Count(2,0,direction,&vITEM_X);
 					TimeDateSetup_Position(UNDER_BAR);
 				}
 			  	else if(vITEM_Y==1)
 				{
 					TimeDateSetup_Position(NULL);
-					Inc_Dec_Count(2,0,State,&vITEM_X);
+					Inc_Dec_Count(2,0,direction,&vITEM_X);
 					TimeDateSetup_Position(UNDER_BAR);
 				}
 				else if(vITEM_Y==4)
 				{
 					TimeDateSetup_Position(NULL);
-					Inc_Dec_Count(2,0,State,&vITEM_X);
+					Inc_Dec_Count(2,0,direction,&vITEM_X);
 					TimeDateSetup_Position(UNDER_BAR);
 				}
 			}
@@ -1571,10 +1579,6 @@ void Buzzer_DSP(BYTE Position)
 //		CodeWriteChar(39, 16, cSEC6, Position, 3);
 //	}
 }
-
-//const BYTE cOFF_6[] = "OFF";
-//const BYTE cNC6[] = "N.C";
-//const BYTE cNO6[] = "N.O";
 
 void NONC_DSP(BYTE channel,BYTE Position)
 {

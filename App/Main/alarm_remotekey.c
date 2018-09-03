@@ -3,44 +3,39 @@
 //=============================================================================
 #include <stdio.h>
 #include "common.h"
-#include "alarm_remotekey.h"
 
 //=============================================================================
 //  Define & MACRO
 //=============================================================================
-//#define ALARM_DATA_MASK				0x0F //LSB 4 bits
-//#define ALARM_CH(ch)					0x01 << ch
-#define ALARM_DEBOUNCE_MAX_COUNT		5
+#define ALARM_DEBOUNCE_COUNT_MAX		5
 
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
 static BYTE alarm_remotekey_mode = ALARM_MODE;
-//static BYTE previous_alarm_data;
-//static BYTE current_alarm_data;
 
 //=============================================================================
 //  Array Declaration (data table)
 //=============================================================================
 static sAlarmInfo_t alarmInfo[NUM_OF_CHANNEL] =
 {
-//	option				status			raw_data		previous_data		debounce_count
-	{ALARM_OPTION_OFF, 	ALARM_CLEAR,	0xFF,			0xFF,				0},
-	{ALARM_OPTION_OFF, 	ALARM_CLEAR,	0xFF,			0xFF,				0},
-	{ALARM_OPTION_OFF, 	ALARM_CLEAR,	0xFF,			0xFF,				0},
-	{ALARM_OPTION_OFF, 	ALARM_CLEAR,	0xFF,			0xFF,				0}
+//	option				status			raw_data		previous_data		check_count
+	{ALARM_OPTION_NO, 	ALARM_CLEAR,	0xFF,			0xFF,				0},
+	{ALARM_OPTION_NO, 	ALARM_CLEAR,	0xFF,			0xFF,				0},
+	{ALARM_OPTION_NO, 	ALARM_CLEAR,	0xFF,			0xFF,				0},
+	{ALARM_OPTION_NO, 	ALARM_CLEAR,	0xFF,			0xFF,				0}
 };
 
 
 static u8 spiDataMask[NUM_OF_CHANNEL] = { 0x01, 0x02, 0x04, 0x08 };
-
-static u8 spiFakeData[] =
-{
-	0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE,
-	0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD,
-	0xFF, 0xFF
-};
+//
+//static u8 spiFakeData[] =
+//{
+//	0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+//	0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE,
+//	0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD,
+//	0xFF, 0xFF
+//};
 
 //=============================================================================
 //  Function Definition
@@ -48,29 +43,27 @@ static u8 spiFakeData[] =
 
 static BYTE ReadSpiDataByte(void)
 {
-	//u8 i;
+	u8 index;
 	BYTE spiDataByte = 0x00;
 	//static BYTE temp;
-#if 0
-	SPI_CS_LOW;
+#if 1
+	SPI_CS_HIGH;
 	
-	for(i = 0; i < 8; i++)
+	for(index = 0; index < 8; index++)
 	{
-		SPI_CLK_LOW;
+		//SPI_CLK_LOW;
 		//SPI_DELAY;
 		spiDataByte <<= 1;
 		if(SPI_MISO_DATA == 1)
 		{
 			spiDataByte |= 0x01;
 		}
-		//SPI_CLK_LOW;
+		SPI_CLK_LOW;
 		SPI_DELAY;
 		SPI_CLK_HIGH;
-		SPI_DELAY;
-		//temp = SPI_MISO_DATA;
-		//spiDataByte |= SPI_MISO_DATA<<i;
+		//SPI_DELAY;
 	}
-	SPI_CS_HIGH;
+	SPI_CS_LOW;
 #else
 	u8 fakeBufSize = sizeof(spiFakeData);
 	static u8 index = 0;
@@ -119,18 +112,18 @@ void CheckAlarm(void)//eChannel_t channel)
 		{
 			case ALARM_OPTION_OFF:
 				alarmInfo[channel].alarm_status = ALARM_CLEAR;
-				alarmInfo[channel].debounce_count = 0;
+				alarmInfo[channel].check_count = 0;
 				break;
 
 			case ALARM_OPTION_NO:
 				if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
 					(alarmInfo[channel].raw_data == spiDataMask[channel]))
 				{
-					alarmInfo[channel].debounce_count = 0;
+					alarmInfo[channel].check_count = 0;
 				}
 				else
 				{
-					alarmInfo[channel].debounce_count++;
+					alarmInfo[channel].check_count++;
 				}
 				break;
 
@@ -138,25 +131,25 @@ void CheckAlarm(void)//eChannel_t channel)
 				if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
 					(alarmInfo[channel].raw_data == LOW))
 				{
-					alarmInfo[channel].debounce_count = 0;
+					alarmInfo[channel].check_count = 0;
 				}
 				else
 				{
-					alarmInfo[channel].debounce_count++;
+					alarmInfo[channel].check_count++;
 				}
 				break;
 
 			default:
-				alarmInfo[channel].debounce_count = 0;
+				alarmInfo[channel].check_count = 0;
 				break;
 		}
 
-		if(alarmInfo[channel].debounce_count > ALARM_DEBOUNCE_MAX_COUNT)
+		if(alarmInfo[channel].check_count > ALARM_DEBOUNCE_COUNT_MAX)
 		{
 			if(alarmInfo[channel].alarm_status == ALARM_CLEAR)
 			{
 				alarmInfo[channel].alarm_status = ALARM_SET;
-				alarmInfo[channel].debounce_count = 0;
+				alarmInfo[channel].check_count = 0;
 				UpdateKeyData(KEY_ALARM);
 				SetKeyReady();
 			}
