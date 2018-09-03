@@ -483,6 +483,15 @@ void Key_Proc(void)
 				Enter_SetUP();
 				break;
 
+			case KEY_ALARM :
+				// Sound out beep for configured time(in sec)
+				alarmBuzzerCount = sys_env.vAlarmBuzzerTime * 2;
+				// To Do
+				// Display alarmed channel on the full screen.
+				// If there are more than 1 channel to display, they will be displayed one by one.
+
+				break;
+
 #ifdef __9CH_DEVICE__ // blocked by kukuri
 			case KEY_9SPLIT : 
 				if(pre_key_data != key /*|| SDIRX_change_flag	Louis block*/)

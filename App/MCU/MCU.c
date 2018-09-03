@@ -188,6 +188,7 @@ void IRQ_Init(void)
 
 	NVIC_InitTypeDef NVIC_InitStructure;		// initialize interrupt
 
+	// Timer2
 	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 7;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
@@ -202,6 +203,7 @@ void IRQ_Init(void)
 	TIM2->DIER = 0x0001;			// enable TIM2 update interrupt
 	//Setting timer interrupt 1ms--------------------------------------------
 
+	// Timer3
 	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;

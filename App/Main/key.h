@@ -54,10 +54,11 @@ typedef enum
 	KEY_9SPLIT			= 0x16,
 	KEY_FREEZE			= 0x19,
 	KEY_AUTO_SEQ		= 0x1A,
+//----Function Keys-----------------------------------
+	KEY_ALARM			= 0x51,
 //----Long Keys--------------------------------------
 	KEY_FREEZE_LONG		= KEY_FREEZE | KEY_LONG,	//0x99
 	KEY_MENU			= KEY_FREEZE_LONG,
-//---------------------------------------------------
 	KEY_MAX				= 0xFF
 } keydata_e;
 

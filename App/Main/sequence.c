@@ -170,17 +170,18 @@ void Auto_Seq_Init(void)
 
 void Auto_Seq_Cnt(void)
 {
-    static u32 timeout = 0;
+	sSystemTick_t* currentSystemTime = GetSystemTime();
+	static sSystemTick_t previousSystemTime;
 
-    if(!TIME_AFTER(tick_10ms,timeout))
-        return;
-
-    timeout = tick_10ms + 100; // 10ms * 100 = 1S
-
-	if(vAuto_Seq_Cnt)  
+	if(TIME_AFTER(currentSystemTime->tickCount_1s,previousSystemTime.tickCount_1s,1))
 	{
-		vAuto_Seq_Cnt--;
+		if(vAuto_Seq_Cnt)
+		{
+			vAuto_Seq_Cnt--;
+		}
 	}
+
+	memcpy(&previousSystemTime,currentSystemTime, sizeof(sSystemTick_t));
 }
 
 

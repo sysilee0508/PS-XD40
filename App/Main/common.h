@@ -50,6 +50,9 @@
 #include "menu.h"
 #include "item.h"
 
+#include "alarm_remotekey.h"
+#include "timer.h"
+
 
 // msg.c
 typedef enum {
@@ -61,8 +64,8 @@ typedef enum {
 } 	MSG_EXE_SPEED;
 
 
-#define TIME_AFTER(unknown,known)	(((long)(known)-(long)(unknown))<0)
-#define TIME_BEFORE(unknown,known)	(((long)(unknown)-(long)(known))<0)
+//#define TIME_AFTER(unknown,known)	(((long)(known)-(long)(unknown))<0)
+//#define TIME_BEFORE(unknown,known)	(((long)(unknown)-(long)(known))<0)
 
 #define NOP()	asm("NOP")
 

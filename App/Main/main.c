@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
-#include "alarm_remotekey.h"
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -28,57 +27,6 @@ u8 aux_display_flag = 0;
 
 const unsigned char change_mode[4] = {0x4, 0x2, 0x7, 0x4};
 int cmode = 0;
-
-// ----------------------------------------------------------------------
-// External Variable 
-// ----------------------------------------------------------------------
-//extern BYTE fMenuUpdate;			  				//by hungry 2012.03.06
-
-u32 tick_10ms = 0;
-
-//-----------------------------------------------------------------------------
-//	Process Timer interrupt with 1ms
-//-----------------------------------------------------------------------------
-void TIM2_IRQHandler(void)
-{
-	static unsigned int cnt;
-	
-	TIM2->SR = TIM2->SR & 0xFFFE;			// clear TIM2 update interrupt flag
-
-	cnt++;
-	if(cnt > 10)
-	{
-		cnt = 0;
-		tick_10ms++;
-	}
-}
-
-//-----------------------------------------------------------------------------
-//	Process Timer interrupt with 10ms - This is to handle keys and LEDs
-//-----------------------------------------------------------------------------
-void TIM3_IRQHandler(void)
-{
-	static u8 count;
-	u8 i;
-
-	TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
-
-	Key_Scan();
-	Key_Led_Ctrl();
-	Key_Check();
-
-	// Check alarm every 20ms if alarm is enabled
-	if((count%2==0) && (GetAlarmRemoteKeyMode() == ALARM_MODE))
-	{
-		CheckAlarm();
-		//for(i = CHANNEL1; i < NUM_OF_CHANNEL; i++)
-		//{
-		//	CheckAlarm((eChannel_t)i);
-		//}
-	}
-
-	count = (++count)%2;
-}
 
 //-----------------------------------------------------------------------------
 //	USART3 Rx Interrupt
@@ -303,6 +251,7 @@ void Load_Data(void)
 	sys_env.border_line = EEP_buf[cSYSENV_border_line];
 	sys_env.vAlarm = EEP_buf[cSYSENV_vAlarm];
 	sys_env.vAlarmOutTime = EEP_buf[cSYSENV_vAlarm_Display_Time];
+	sys_env.vAlarmBuzzerTime = EEP_buf[cSYSENV_vAlarm_Buzzer_Time];
 	sys_env.vREMOCON_ID = EEP_buf[cSYSENV_vREMOCON_ID];
 	sys_env.vLoss_Time = EEP_buf[cSYSENV_vLoss_Time];
 	sys_env.vLoss_Display = EEP_buf[cSYSENV_vLoss_Display];
@@ -362,6 +311,7 @@ void Data_Load(void)
 		EEP_buf[cSYSENV_border_line] = 1;
 		EEP_buf[cSYSENV_vAlarm] = 0;
 		EEP_buf[cSYSENV_vAlarm_Display_Time] = 0;
+		EEP_buf[cSYSENV_vAlarm_Buzzer_Time] = 5;
 		EEP_buf[cSYSENV_vREMOCON_ID] = 0;
 		EEP_buf[cSYSENV_vLoss_Time] = 3;
 		EEP_buf[cSYSENV_vLoss_Display] = 0xff;
@@ -386,26 +336,40 @@ void Data_Load(void)
 u32 vVideo_Loss = 0; //1:Loss 0:Video
 u8 ch9_loss = 0;
 u8 Loss_Event_Flag = 0;
-u8 Loss_Buzzer_Cnt = 0;
+u32 videoLossBuzzerCount = 0;
+u32 alarmBuzzerCount = 0;
 
-void Loss_Buzzer(void)
+
+void CheckBuzzer(void)
 {
-	static u32 timeout= 0;
+	sSystemTick_t* currentSystemTime = GetSystemTime();
+	static sSystemTick_t previousSystemTime;
+	u32 buzzerCount = MAX(videoLossBuzzerCount, alarmBuzzerCount);
 
-	if(!TIME_AFTER(tick_10ms,timeout))
-		return;
-
-	timeout = tick_10ms + 50; // 10ms * 50 = 500ms
-
-	if(Loss_Buzzer_Cnt)
+	if(TIME_AFTER(currentSystemTime->tickCount_100ms,previousSystemTime.tickCount_100ms,5))
 	{
-		if(Loss_Buzzer_Cnt%2) BUZZER_LOW;
-		else BUZZER_HIGH;
-
-		if(Loss_Buzzer_Cnt > 0) Loss_Buzzer_Cnt--;
-
-		if(Loss_Buzzer_Cnt == 0) BUZZER_LOW;
+		//execute below lines every 500ms
+		if(buzzerCount > 0)
+		{
+			if(buzzerCount%2)
+				BUZZER_LOW;
+			else
+				BUZZER_HIGH;
+			if(videoLossBuzzerCount > 0)
+			{
+				videoLossBuzzerCount--;
+			}
+			if(alarmBuzzerCount > 0)
+			{
+				alarmBuzzerCount--;
+			}
+		}
+		else
+		{
+			BUZZER_LOW;
+		}
 	}
+	memcpy(&previousSystemTime,currentSystemTime, sizeof(sSystemTick_t));
 }
 
 void Loss_Check(void)
@@ -423,7 +387,7 @@ void Loss_Check(void)
 
 	if(Pre_Video_Loss < vVideo_Loss) 
 	{
-		Loss_Buzzer_Cnt = sys_env.vLoss_Time*2;
+		videoLossBuzzerCount = sys_env.vLoss_Time*2;
 	}
 	
 	Pre_Video_Loss = vVideo_Loss;			
@@ -432,14 +396,15 @@ void Loss_Check(void)
 
 void Video_Loss_Check(void)
 {
-    static u32 timeout = 0;
+	sSystemTick_t* currentSystemTime = GetSystemTime();
+	static sSystemTick_t previousSystemTime;
 
-    if(!TIME_AFTER(tick_10ms,timeout))
-        return;
+	if(TIME_AFTER(currentSystemTime->tickCount_100ms,previousSystemTime.tickCount_100ms,5))
+	{
+		Loss_Check();
+	}
 
-    timeout = tick_10ms + 50; // 10ms * 50 = 500ms
-
-	Loss_Check();
+	memcpy(&previousSystemTime,currentSystemTime, sizeof(sSystemTick_t));
 }
 
 
@@ -513,7 +478,7 @@ void main(void)
 	NVP6158_init();
 
 	Loss_Event_Flag = 0;
-	Loss_Buzzer_Cnt = 0;
+	videoLossBuzzerCount = 0;
 
 #ifdef __4CH__
 	InputSelect = VIDEO_DIGITAL_SDI;
@@ -539,7 +504,7 @@ void main(void)
 		NVP6158_VideoDetectionProc();
 
 		Video_Loss_Check();
-		Loss_Buzzer();
+		CheckBuzzer();
 
 		Auto_Seq_Cnt();
 		Auto_Sequence();

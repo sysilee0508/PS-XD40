@@ -34,28 +34,17 @@ static sAlarmInfo_t alarmInfo[NUM_OF_CHANNEL] =
 
 static u8 spiDataMask[NUM_OF_CHANNEL] = { 0x01, 0x02, 0x04, 0x08 };
 
-static u8 spiFakeData[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFF, 0xFF};
+static u8 spiFakeData[] =
+{
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE,
+	0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD,
+	0xFF, 0xFF
+};
 
 //=============================================================================
 //  Function Definition
 //=============================================================================
-
-//static BYTE ReadDataBit(void)
-//{
-//	BYTE bit;
-//
-//	SPI_CS_HIGH;
-//	SPI_CLK_LOW;
-//	SPI_DELAY;
-//	SPI_CLK_HIGH;
-//	SPI_DELAY;
-//	bit = SPI_MISO_DATA;
-//	SPI_CLK_LOW;
-//	//SPI_CS_LOW;
-//	//SPI_DELAY;
-//
-//	return bit;
-//}
 
 static BYTE ReadSpiDataByte(void)
 {
@@ -166,6 +155,9 @@ void CheckAlarm(void)//eChannel_t channel)
 		{
 			alarmInfo[channel].alarm_status = ALARM_SET;
 			alarmInfo[channel].debounce_count = 0;
+			UpdateKeyData(KEY_ALARM);
+			SetKeyReady();
+
 		}
 
 		alarmInfo[channel].previous_data = alarmInfo[channel].raw_data;

@@ -1540,7 +1540,7 @@ void SetupMenu_AlarmOutTime(BYTE Position)
 
 void Buzzer_DSP(BYTE Position)
 {
- 	if(!sys_env.vLoss_Time)
+ 	if(!sys_env.vAlarmBuzzerTime)
 		CodeWriteChar(37, 16, cOFF6, Position, 5);
 	else
 	{
@@ -1662,8 +1662,8 @@ void tPAGE5_KEY(void)
 						break;
 
 					case CHANNEL4+2:
-						Inc_Dec_Count(99, 0, direction, &sys_env.vLoss_Time);
-						EEP_buf[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
+						Inc_Dec_Count(99, 0, direction, &sys_env.vAlarmBuzzerTime);
+						EEP_buf[cSYSENV_vAlarm_Buzzer_Time] = sys_env.vAlarmBuzzerTime;
 						break;
 					case CHANNEL4+3:
 						sys_env.vLoss_Display =~ sys_env.vLoss_Display;

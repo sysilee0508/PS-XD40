@@ -25,7 +25,8 @@
 #define cSYSENV_b9Split_Mode				134
 #define cSYSENV_vAlarm						135
 #define cSYSENV_vAlarm_Display_Time			136
-#define cSYSENV_alarm_remote_sel			137
+#define cSYSENV_vAlarm_Buzzer_Time			137
+#define cSYSENV_alarm_remote_sel			138
 #define cEEP_CHK							200
 
 //#define NORMAL_VIEW					0
@@ -125,6 +126,7 @@ typedef struct
 //	u16 vAlarm;				// �˶� 
 	u8 vAlarm;
 	u8 vAlarmOutTime; // �˶� ��� ǥ�� ���ӽð�	
+	u8 vAlarmBuzzerTime;
 
 	u8 vREMOCON_ID;			// Serial Key ���� ID
 	u8 baud_rate;			// baud_rate
@@ -142,17 +144,12 @@ typedef struct
 extern sys_stat_t sys_status;
 extern sys_env_t sys_env;
 
-//extern BYTE sysenv_out_resolution;
-
-extern u32 tick_10ms;
 extern s8 Video1_In_Res_Val;
 extern s8 Video2_In_Res_Val;
 
 extern s8 Video_Out_Res_Val;
 
 extern const unsigned char change_mode[4];
-
-extern unsigned long count_100us;
 
 extern int cmode;
 
@@ -161,7 +158,7 @@ extern u8 aux_display_flag;
 extern u32 vVideo_Loss;
 extern u8 ch9_loss;
 extern u8 Loss_Event_Flag;
-extern u8 Loss_Buzzer_Cnt;
+extern u8 videoLossBuzzerCount;
 
 
 extern BYTE sysenv_split_mode;

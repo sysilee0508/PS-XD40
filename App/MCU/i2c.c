@@ -1,4 +1,4 @@
-#include "..\main\common.h"
+#include "common.h"
 
 #define I2C_DELAY 3
 
