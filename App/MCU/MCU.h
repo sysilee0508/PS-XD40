@@ -23,7 +23,6 @@
 	GPIOB->CRL &= 0x0fffffff; 	\
 	GPIOB->CRL |= 0x30000000
 
-#ifdef __4CH__
 #define KEY_ROW0_HIGH				GPIOB->BSRR = 0x00000008 	//PB3 //ROW0
 #define KEY_ROW0_LOW				GPIOB->BRR  = 0x00000008
 #define KEY_ROW1_HIGH				GPIOB->BSRR = 0x00000010 	//PB4 //ROW1
@@ -51,18 +50,18 @@
 #define KEY_DATA3_7_INPUT 			((GPIOB->IDR >> 14) & 0x00000001) 	//GPIOB14 status read
 #define KEY_DATA4_INPUT 			((GPIOB->IDR >> 15) & 0x00000001) 	//GPIOB15 status read
 #define KEY_DATA_INPUT_MODE  		GPIOB->CRH = 0x88884b33 	//Change PB12, PB13, PB14, PB15 to Input mode
-#endif
 
 #define BUZZER_HIGH					GPIOB->BSRR = 0x00000004 	//PB2
 #define BUZZER_LOW					GPIOB->BRR  = 0x00000004
 
-//#define SPI_SCK_HIGH				GPIOC->BSRR = 0x00000004 	//PC2
-//#define SPI_SCK_LOW 				GPIOC->BRR  = 0x00000004
-//#define SPI_SDO_HIGH				GPIOC->BSRR = 0x00000002 	//PC1
-//#define SPI_SDO_LOW 				GPIOC->BRR  = 0x00000002
-//#define SPI_SDI_INPUT 				(GPIOC->IDR & 0x00000001)	//PC0
-//#define SPI_GV7601_CS_HIGH			GPIOC->BSRR = 0x00000008 	//PC3
-//#define SPI_GV7601_CS_LOW 			GPIOC->BRR  = 0x00000008
+#define SPI_CS_HIGH					GPIOC->BSRR = GPIO_Pin_3
+#define SPI_CS_LOW					GPIOC->BRR = GPIO_Pin_3
+#define SPI_CLK_HIGH				GPIOC->BSRR = GPIO_Pin_2
+#define SPI_CLK_LOW					GPIOC->BRR = GPIO_Pin_2
+#define SPI_MISO_DATA				(GPIOC->IDR & 0x00000001)
+#define SPI_MISO_INPUT_MODE()		\
+		GPIOC->CRL &= 0xFFFFFFF0;	\
+		GPIOC->CRL |= 0x00000008
 
 #define MDIN3xx_CS_HIGH				GPIOB->BSRR = 0x00000020 	//PB5
 #define MDIN3xx_CS_LOW 				GPIOB->BRR  = 0x00000020

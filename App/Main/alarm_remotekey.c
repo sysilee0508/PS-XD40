@@ -47,14 +47,14 @@ static BYTE ReadSpiDataByte(void)
 	BYTE spiDataByte = 0x00;
 	//static BYTE temp;
 #if 1
+	SPI_MISO_INPUT_MODE();
 	SPI_CS_HIGH;
-	
 	for(index = 0; index < 8; index++)
 	{
 		//SPI_CLK_LOW;
 		//SPI_DELAY;
 		spiDataByte <<= 1;
-		if(SPI_MISO_DATA == 1)
+		if(SPI_MISO_DATA == SPI_MISO_HIGH)
 		{
 			spiDataByte |= 0x01;
 		}
