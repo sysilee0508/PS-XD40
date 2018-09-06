@@ -77,7 +77,11 @@ eAlarmOption_t GetAlarmOption(eChannel_t channel)
 
 void SetAlarmOption(eChannel_t channel, eAlarmOption_t option)
 {
-	alarmInfo[channel].option = option;
+	if(option != alarmInfo[channel].option)
+	{
+		alarmInfo[channel].alarm_status = ALARM_CLEAR;
+		alarmInfo[channel].option = option;
+	}
 }
 
 void StartStopAlarm(BOOL start_stop)
@@ -166,19 +170,11 @@ void CheckAlarm(void)//eChannel_t channel)
 
 void CheckAlarmClearCondition(void)
 {
-	//
-	eChannel_t channel;
-	BOOL all_alarm_clear = ALARM_CLEAR;
 	sSystemTick_t* currentSystemTime = GetSystemTime();
-	static u32 previousSystemTimeIn1s;
+	static u32 previousSystemTimeIn1s = 0;
 
-	if(TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1) && (alarmOutTimeCountInSec>0))
+	if((TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1)) && (alarmOutTimeCountInSec !=0))
 	{
-//		for(channel = CHANNEL1; channel<NUM_OF_CHANNEL; channel++)
-//		{
-//			all_alarm_clear |= alarmInfo[channel].alarm_status;
-//		}
-
 		alarmOutTimeCountInSec--;
 	}
 
@@ -186,17 +182,7 @@ void CheckAlarmClearCondition(void)
 	{
 		StartStopAlarm(ALARM_STOP);
 	}
-
-//		if((all_alarm_clear == ALARM_CLEAR) || (alarmOutTimeCountInSec==0))
-//		{
-//			StartStopAlarm(ALARM_STOP);
-//		}
-//		else
-//		{
-//			alarmOutTimeCountInSec--;
-//		}
-//	}
-
+	previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
 }
 
 void ClearAllAlarm(void)

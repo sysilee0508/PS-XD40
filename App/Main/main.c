@@ -504,6 +504,7 @@ void main(void)
 		NVP6158_VideoDetectionProc();
 
 		Video_Loss_Check();
+		CheckAlarmClearCondition();
 		CheckBuzzer();
 
 		Auto_Seq_Cnt();
