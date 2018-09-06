@@ -8,11 +8,15 @@
 //  Define & MACRO
 //=============================================================================
 #define ALARM_DEBOUNCE_COUNT_MAX		5
+//#define ALL_ALARM_STATE
+#define ALARM_START						1
+#define ALARM_STOP						0
 
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
 static BYTE alarm_remotekey_mode = ALARM_MODE;
+static u32 alarmOutTimeCountInSec = 0;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -26,16 +30,7 @@ static sAlarmInfo_t alarmInfo[NUM_OF_CHANNEL] =
 	{ALARM_OPTION_NO, 	ALARM_CLEAR,	0xFF,			0xFF,				0}
 };
 
-
 static u8 spiDataMask[NUM_OF_CHANNEL] = { 0x01, 0x02, 0x04, 0x08 };
-//
-//static u8 spiFakeData[] =
-//{
-//	0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-//	0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE,
-//	0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD, 0xFD,
-//	0xFF, 0xFF
-//};
 
 //=============================================================================
 //  Function Definition
@@ -45,14 +40,11 @@ static BYTE ReadSpiDataByte(void)
 {
 	u8 index;
 	BYTE spiDataByte = 0x00;
-	//static BYTE temp;
-#if 1
-	SPI_MISO_INPUT_MODE();
+
+	//	SPI_MISO_INPUT_MODE();
 	SPI_CS_HIGH;
 	for(index = 0; index < 8; index++)
 	{
-		//SPI_CLK_LOW;
-		//SPI_DELAY;
 		spiDataByte <<= 1;
 		if(SPI_MISO_DATA == SPI_MISO_HIGH)
 		{
@@ -61,17 +53,8 @@ static BYTE ReadSpiDataByte(void)
 		SPI_CLK_LOW;
 		SPI_DELAY;
 		SPI_CLK_HIGH;
-		//SPI_DELAY;
 	}
 	SPI_CS_LOW;
-#else
-	u8 fakeBufSize = sizeof(spiFakeData);
-	static u8 index = 0;
-
-	index = index % fakeBufSize;
-	spiDataByte = spiFakeData[index];
-	index++;
-#endif
 
 	return spiDataByte;
 }
@@ -96,6 +79,24 @@ void SetAlarmOption(eChannel_t channel, eAlarmOption_t option)
 {
 	alarmInfo[channel].option = option;
 }
+
+void StartStopAlarm(BOOL start_stop)
+{
+	if(start_stop == ALARM_START)
+	{
+		alarmBuzzerCountIn500ms = sys_env.vAlarmBuzzerTime * 2;
+		alarmOutTimeCountInSec = sys_env.vAlarmOutTime;
+		ALARMOUT_LOW;
+	}
+	else
+	{
+		//alarmBuzzerCountIn500ms = 0;
+		alarmOutTimeCountInSec = 0;
+		ClearAllAlarm();
+		ALARMOUT_HIGH;
+	}
+}
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -150,12 +151,60 @@ void CheckAlarm(void)//eChannel_t channel)
 			{
 				alarmInfo[channel].alarm_status = ALARM_SET;
 				alarmInfo[channel].check_count = 0;
+				//Occur key data (key_alarm) to display alarm screen
 				UpdateKeyData(KEY_ALARM);
 				SetKeyReady();
+				//buzzer & alarm output
+				StartStopAlarm(ALARM_START);
 			}
 		}
 
 		alarmInfo[channel].previous_data = alarmInfo[channel].raw_data;
 	}
 
+}
+
+void CheckAlarmClearCondition(void)
+{
+	//
+	eChannel_t channel;
+	BOOL all_alarm_clear = ALARM_CLEAR;
+	sSystemTick_t* currentSystemTime = GetSystemTime();
+	static u32 previousSystemTimeIn1s;
+
+	if(TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1) && (alarmOutTimeCountInSec>0))
+	{
+//		for(channel = CHANNEL1; channel<NUM_OF_CHANNEL; channel++)
+//		{
+//			all_alarm_clear |= alarmInfo[channel].alarm_status;
+//		}
+
+		alarmOutTimeCountInSec--;
+	}
+
+	if(alarmOutTimeCountInSec == 0)
+	{
+		StartStopAlarm(ALARM_STOP);
+	}
+
+//		if((all_alarm_clear == ALARM_CLEAR) || (alarmOutTimeCountInSec==0))
+//		{
+//			StartStopAlarm(ALARM_STOP);
+//		}
+//		else
+//		{
+//			alarmOutTimeCountInSec--;
+//		}
+//	}
+
+}
+
+void ClearAllAlarm(void)
+{
+	eChannel_t channel;
+
+	for(channel = CHANNEL1; channel<NUM_OF_CHANNEL; channel++)
+	{
+		alarmInfo[channel].alarm_status = ALARM_CLEAR;
+	}
 }

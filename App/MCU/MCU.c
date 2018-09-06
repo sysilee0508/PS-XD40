@@ -77,9 +77,9 @@ void MCU_init(void)
 //	13: K_CL1_MOSI
 //	14: K_CL2_CLK
 //	15: K_CL3_KCS
-    GPIOB->CRH = 0x33334B33;			//PB10 uart_TX(alternate function), GPIO11-uart_RX
-    GPIOB->CRL = 0x33377333; //GPIOB->CRL = 0xBB377333;			//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
-    GPIOB->ODR = 0x0000FCFB;			//GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
+    GPIOB->CRH = 0x33334B33;		//PB10 uart_TX(alternate function), GPIO11-uart_RX
+    GPIOB->CRL = 0x33377333; 		//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
+    GPIOB->ODR = 0x0000FCFB;		//GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
 
 //	[GPIO C]
 //  0 : SPI_MISO

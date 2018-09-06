@@ -160,7 +160,7 @@ extern u8 ch9_loss;
 extern u8 Loss_Event_Flag;
 extern u32 videoLossBuzzerCount;
 
-extern u32 alarmBuzzerCount;
+extern u32 alarmBuzzerCountIn500ms;
 
 extern BYTE sysenv_split_mode;
 

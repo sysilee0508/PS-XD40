@@ -455,7 +455,7 @@ void Setup_Process(void)
 
 		if(GetCurrentKey() == KEY_ALARM)
 		{
-			alarmBuzzerCount = sys_env.vAlarmBuzzerTime * 2;
+			alarmBuzzerCountIn500ms = sys_env.vAlarmBuzzerTime * 2;
 		}
 
 		switch(vPAGE)

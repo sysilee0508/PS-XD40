@@ -56,5 +56,8 @@ extern BYTE GetAlarmRemoteKeyMode(void);
 extern void ChangeAlarmRemoteKeyMode(BYTE mode);
 extern eAlarmOption_t GetAlarmOption(eChannel_t channel);
 extern void SetAlarmOption(eChannel_t channel, eAlarmOption_t option);
-extern void CheckAlarm(void);//eChannel_t channel);
+extern void StartStopAlarm(BOOL start_stop);
+extern void CheckAlarm(void);
+extern void CheckAlarmClearCondition(void);
+extern void ClearAllAlarm(void);
 #endif
