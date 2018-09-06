@@ -41,7 +41,6 @@ static BYTE ReadSpiDataByte(void)
 	u8 index;
 	BYTE spiDataByte = 0x00;
 
-	//	SPI_MISO_INPUT_MODE();
 	SPI_CS_HIGH;
 	for(index = 0; index < 8; index++)
 	{
@@ -104,7 +103,7 @@ void StartStopAlarm(BOOL start_stop)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-void CheckAlarm(void)//eChannel_t channel)
+void CheckAlarm(void)
 {
 	u8 spiData = ReadSpiDataByte();
 	u8 channel;
@@ -122,7 +121,7 @@ void CheckAlarm(void)//eChannel_t channel)
 
 			case ALARM_OPTION_NO:
 				if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
-					(alarmInfo[channel].raw_data == spiDataMask[channel]))
+					(alarmInfo[channel].raw_data == spiDataMask[channel])) //high
 				{
 					alarmInfo[channel].check_count = 0;
 				}
@@ -156,8 +155,8 @@ void CheckAlarm(void)//eChannel_t channel)
 				alarmInfo[channel].alarm_status = ALARM_SET;
 				alarmInfo[channel].check_count = 0;
 				//Occur key data (key_alarm) to display alarm screen
-				UpdateKeyData(KEY_ALARM);
-				SetKeyReady();
+//				UpdateKeyData(KEY_ALARM);
+//				SetKeyReady();
 				//buzzer & alarm output
 				StartStopAlarm(ALARM_START);
 			}
@@ -165,7 +164,6 @@ void CheckAlarm(void)//eChannel_t channel)
 
 		alarmInfo[channel].previous_data = alarmInfo[channel].raw_data;
 	}
-
 }
 
 void CheckAlarmClearCondition(void)
