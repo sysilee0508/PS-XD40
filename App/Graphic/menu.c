@@ -236,11 +236,11 @@ void Hex_Dec_Function(u8 *P)
 	*P=(((*P/10)<<4)|(*P%10));
 }
 
-void Inc_Dec_Count(u8 Max,u8 Min,eDirection_t direction,u8 *count)
+void Inc_Dec_Count(u8 Max,u8 Min,u8 direction,u8 *count)
 {
 	switch(direction)
 	{
-		case DIRECTION_UP:
+		case UP:
 			if(*count<Max)
 			{
 				(*count)++;
@@ -251,7 +251,7 @@ void Inc_Dec_Count(u8 Max,u8 Min,eDirection_t direction,u8 *count)
 			}
 			break;
 
-		case DIRECTION_DOWN:
+		case DOWN:
 			if(*count>Min)
 			{
 				(*count)--;
@@ -510,12 +510,12 @@ void Setup_Process(void)
 
 void tPAGE0_KEY(void)
 {
-	eDirection_t direction = DIRECTION_DOWN;
+	u8 direction = DOWN;
 
  	switch(GetCurrentKey())
 	{
 		case UP_KEY :
-			direction = DIRECTION_UP;
+			direction = UP;
 		case DOWN_KEY : 
 			Inc_Dec_Count(6,0,~direction,&vITEM_Y);
 			MenuSelect(vITEM_Y,0);
@@ -778,13 +778,13 @@ void TimeDateSetup_Position(u8 Position)
 
 void TimeDateSetup_KEY(void)
 {
-	u8 direction = DIRECTION_DOWN;
+	u8 direction = DOWN;
 	struct tm time_tm;
 
 	switch(GetCurrentKey())
 	{
 		case UP_KEY :
-			direction = DIRECTION_UP;
+			direction = UP;
 		case DOWN_KEY : 
 			if(bENTER)
 			{
@@ -878,7 +878,7 @@ void TimeDateSetup_KEY(void)
 			break;
 
 		case RIGHT_KEY :
-			direction = DIRECTION_UP;
+			direction = UP;
 		case LEFT_KEY  : 
 			if(bENTER)
 			{
@@ -1662,7 +1662,7 @@ void tPAGE5_Position(u8 Position)
 
 void tPAGE5_KEY(void)
 {
-	BOOL direction = DOWN;
+	u8 direction = DOWN;
 	eAlarmOption_t option;
 
 	switch(GetCurrentKey()){

@@ -24,8 +24,8 @@
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
 
-#define DIRECTION_UP					0xFF
-#define DIRECTION_DOWN					0x00
+#define UP					0xFF
+#define DOWN					0x00
 
 
 // ----------------------------------------------------------------------

@@ -2100,6 +2100,12 @@
       <file>
         <name>$PROJ_DIR$\..\App\MCU\stm32f10x_conf.h</name>
       </file>
+      <file>
+        <name>$PROJ_DIR$\..\App\MCU\timer.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\App\MCU\timer.h</name>
+      </file>
     </group>
     <group>
       <name>Splitter</name>
