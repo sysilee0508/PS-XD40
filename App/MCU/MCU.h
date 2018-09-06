@@ -54,14 +54,14 @@
 #define BUZZER_HIGH					GPIOB->BSRR = 0x00000004 	//PB2
 #define BUZZER_LOW					GPIOB->BRR  = 0x00000004
 
+#define ALARMOUT_HIGH				GPIOB->BSRR = GPIO_Pin_1
+#define ALARMOUT_LOW 				GPIOB->BRR  = GPIO_Pin_1
+
 #define SPI_CS_HIGH					GPIOC->BSRR = GPIO_Pin_3
-#define SPI_CS_LOW					GPIOC->BRR = GPIO_Pin_3
+#define SPI_CS_LOW					GPIOC->BRR  = GPIO_Pin_3
 #define SPI_CLK_HIGH				GPIOC->BSRR = GPIO_Pin_2
-#define SPI_CLK_LOW					GPIOC->BRR = GPIO_Pin_2
+#define SPI_CLK_LOW					GPIOC->BRR  = GPIO_Pin_2
 #define SPI_MISO_DATA				(GPIOC->IDR & 0x00000001)
-#define SPI_MISO_INPUT_MODE()		\
-		GPIOC->CRL &= 0xFFFFFFF0;	\
-		GPIOC->CRL |= 0x00000008
 
 #define MDIN3xx_CS_HIGH				GPIOB->BSRR = 0x00000020 	//PB5
 #define MDIN3xx_CS_LOW 				GPIOB->BRR  = 0x00000020

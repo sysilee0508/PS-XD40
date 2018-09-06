@@ -486,7 +486,7 @@ void Key_Proc(void)
 
 			case KEY_ALARM :
 				// Sound out beep for configured time(in sec)
-				alarmBuzzerCount = sys_env.vAlarmBuzzerTime * 2;
+//				alarmBuzzerCount = sys_env.vAlarmBuzzerTime * 2;
 				// To Do
 				// Display alarmed channel on the full screen.
 				// If there are more than 1 channel to display, they will be displayed one by one.

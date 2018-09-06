@@ -337,14 +337,14 @@ u32 vVideo_Loss = 0; //1:Loss 0:Video
 u8 ch9_loss = 0;
 u8 Loss_Event_Flag = 0;
 u32 videoLossBuzzerCount = 0;
-u32 alarmBuzzerCount = 0;
+u32 alarmBuzzerCountIn500ms = 0;
 
 
 void CheckBuzzer(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn100ms;
-	u32 buzzerCount = MAX(videoLossBuzzerCount, alarmBuzzerCount);
+	u32 buzzerCount = MAX(videoLossBuzzerCount, alarmBuzzerCountIn500ms);
 
 	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
 	{
@@ -359,9 +359,9 @@ void CheckBuzzer(void)
 			{
 				videoLossBuzzerCount--;
 			}
-			if(alarmBuzzerCount > 0)
+			if(alarmBuzzerCountIn500ms > 0)
 			{
-				alarmBuzzerCount--;
+				alarmBuzzerCountIn500ms--;
 			}
 		}
 		else
