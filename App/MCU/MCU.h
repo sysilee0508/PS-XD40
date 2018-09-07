@@ -85,7 +85,7 @@
 #define MDIN3xx_ADDR_DATA_INPUT_MODE  	GPIOA->CRH = 0x44444444; GPIOA->CRL = 0x44444444 //floating
 
 
-extern BYTE EEP_buf[2048];
+extern BYTE nv_buffer[2048];
 
 extern void MCU_init(void);			
 extern void USART3_Init(void);

@@ -54,54 +54,6 @@ typedef struct
 } sys_stat_t;
 
 
-typedef struct
-{
-//	u8 bVideo_format;		// ���� �Է� ����(NTSC, PAL)
-//	SCR_MODE vSCR_MODE; 	// ����� �ػ�
-
-	u8 vCORRECT_OFFSET; 	// RTC �ð� ���� offset��
-	u8 bVECTOR;				// RTC ���� +, - ����
-	u8 bCORRECT;			// RTC �ð� ���� ���� day, mon
-	u8 vDATE_FORMAT;		// �ƽþ�, �̱�, ���� ������� �ð� ǥ��
-//	u8 bYEAR_FORMAT;		// ���� ǥ�ø� 4�ڸ��� ���� 2�ڸ��� ���� ����
-	u8 bTIME_ON;			// �ð�ǥ�� ON/OFF
-//	u8 vTIME_Size;      	// ȭ�鿡 ǥ�õǴ� �ð��� ���� ũ�� 
-	u8 vTIME_Position;  	// ȭ�鿡 ǥ�õǴ� �ð��� ��ġ  
-
-	u8 vCH_NAME[9][12]; 	// ä�θ� ����
-	u8 bTITLE_ON;		 	// ä�θ� ǥ�� ON/OFF
-
-	u8 vDWELL[3];	    	// SEQ Dwell time(FULL,4split,9split)
-	u8 bLossAutoSkip;   	// �Է� ���� ä�� SEQ ���� ����
-
-	u8 vResolution;			// ����� �ػ�
-//	u8 vSPOT_type;			// SPOT type ���� FULL, QUAD ���� 
-//	u8 vSPOT_mode_FULL[4]; 	// SPOT Ÿ���� FULL�϶� mode 
-//	u8 vSPOT_mode_QUAD[4]; 	// SPOT Ÿ���� QUAD�϶� mode 
-	u8 bOSD_Display;		// ȭ�鿡 ���� ǥ�� ON/OFF
-//	u8 vOSD_Size;	    	// ���� ũ�� ���� 0:�� 1:�� 2:��
-	u8 vOSD_Position;		// ���� ��ġ
-	u8 border_line;			// �������� ����
-	
-//	u16 vMOTION_EN;			// ��� ON/OFF		
-//	u8 bMotion_Mode;		// ��� ���(FULL, SPLIT)	
-//	u16 vAlarm;				// �˶� 
-	u8 vAlarm;
-	u8 vAlarm_Display_Time; // �˶� ��� ǥ�� ���ӽð�	
-
-	u8 vREMOCON_ID;			// Serial Key ���� ID
-	u8 baud_rate;			// baud_rate
-//	u8 bLang_sel;			// ��� ����(0:����, 1:�ѱ�)
-	u8 vLoss_Time;			// Video Loss �� ������ ���ӽð� 
-	u8 vLoss_Display;		// Video Loss Display ǥ�� ON/OFF 
-
-	u8 b9Split_Mode;    	// 9���� ��忡�� 9����,8���� ����
-	u8 alarm_remote_sel;
-
-//    unsigned short crc;
-}sys_env_t;
-
-
 extern sys_stat_t sys_status;
 extern sys_env_t sys_env;
 

@@ -513,7 +513,7 @@ void tPAGE0_KEY(void)
 			if(bSETUP_Change_flag) 
 			{
 				bSETUP_Change_flag = 0;
-				write_eeprom_all();
+				StoreNvData();
 			}	
 
 			Erase_Menu_OSD();                          
@@ -825,18 +825,18 @@ void tPAGE1_KEY(void)
 				else if(vITEM_Y==2)
 				{
 					INC_Dec_Hex(1,0,State,&sys_env.bTIME_ON);
-					EEP_buf[cSYSENV_bTIME_ON] = sys_env.bTIME_ON;
+					nv_buffer[cSYSENV_bTIME_ON] = sys_env.bTIME_ON;
 				}
 				else if(vITEM_Y==3)
 				{
 					Inc_Dec_Count(2,0,State,&sys_env.vDATE_FORMAT);
-					EEP_buf[cSYSENV_vDATE_FORMAT] = sys_env.vDATE_FORMAT;
+					nv_buffer[cSYSENV_vDATE_FORMAT] = sys_env.vDATE_FORMAT;
 				}
 				else if(vITEM_Y==4)
 				{
-	               	if(vITEM_X==0) {INC_Dec_Hex(1,0,State,&sys_env.bVECTOR); EEP_buf[cSYSENV_bVECTOR] = sys_env.bVECTOR;}	 		 					
-					if(vITEM_X==1) {INC_Dec_Hex(59,0,State,&sys_env.vCORRECT_OFFSET); EEP_buf[cSYSENV_vCORRECT_OFFSET] = sys_env.vCORRECT_OFFSET;}	 		 						
-				    if(vITEM_X==2) {INC_Dec_Hex(1,0,State,&sys_env.bCORRECT); EEP_buf[cSYSENV_bCORRECT] = sys_env.bCORRECT;}	 		 					 
+	               	if(vITEM_X==0) {INC_Dec_Hex(1,0,State,&sys_env.bVECTOR); nv_buffer[cSYSENV_bVECTOR] = sys_env.bVECTOR;}	 		 					
+					if(vITEM_X==1) {INC_Dec_Hex(59,0,State,&sys_env.vCORRECT_OFFSET); nv_buffer[cSYSENV_vCORRECT_OFFSET] = sys_env.vCORRECT_OFFSET;}	 		 						
+				    if(vITEM_X==2) {INC_Dec_Hex(1,0,State,&sys_env.bCORRECT); nv_buffer[cSYSENV_bCORRECT] = sys_env.bCORRECT;}	 		 					 
 				}
 /*				else if(vITEM_Y==5)
 				{
@@ -852,7 +852,7 @@ void tPAGE1_KEY(void)
 					//if(sys_env.vOSD_Position < 3) OSG_block_fill(0,scrsize.cy-80, 1920,80, 0xffff);
 					//else OSG_block_fill(0,0, 1920,80, 0xffff);
 					//if(sys_env.bTIME_ON) OSG_Display_Time_NOW();
-					EEP_buf[cSYSENV_vTIME_Position] = sys_env.vTIME_Position;
+					nv_buffer[cSYSENV_vTIME_Position] = sys_env.vTIME_Position;
 				}
 				
 				tPAGE1_Position(UNDER_BAR);
@@ -978,14 +978,14 @@ void tPAGE2_KEY(void)
 					vFONT = sys_env.vCH_NAME[vITEM_Y][vITEM_X];
 					Inc_Dec_Count(0x7e,0x20,State,&vFONT);
 					sys_env.vCH_NAME[vITEM_Y][vITEM_X] = vFONT;						
-					EEP_buf[cSYSENV_vCH_NAME+vITEM_X+(vITEM_Y*12)] = sys_env.vCH_NAME[vITEM_Y][vITEM_X];
+					nv_buffer[cSYSENV_vCH_NAME+vITEM_X+(vITEM_Y*12)] = sys_env.vCH_NAME[vITEM_Y][vITEM_X];
 
 					WriteChar(35+vITEM_X,5+(vITEM_Y*2),&sys_env.vCH_NAME[vITEM_Y][vITEM_X],UNDER_BAR,1);
 				}				
 			  	else if(vITEM_Y==4)
 				{
 					INC_Dec_Hex(1,0,State,&sys_env.bTITLE_ON);
-					EEP_buf[cSYSENV_bTITLE_ON] = sys_env.bTITLE_ON;
+					nv_buffer[cSYSENV_bTITLE_ON] = sys_env.bTITLE_ON;
 					ON_OFF_DSP(41,13,UNDER_BAR,sys_env.bTITLE_ON);	
 				}
 #endif
@@ -1173,8 +1173,8 @@ void tPAGE3_KEY(void)
 			switch(vITEM_Y)
  			{
 #ifdef __4CH__
-      			case 0 : Inc_Dec_Count(60,0,State,&sys_env.vDWELL[vITEM_Y]); EEP_buf[cSYSENV_vDWELL+vITEM_Y] = sys_env.vDWELL[vITEM_Y]; break;
-       			case 1 : Inc_Dec_Count(1,0,State,&sys_env.bLossAutoSkip); EEP_buf[cSYSENV_bLossAutoSkip] = sys_env.bLossAutoSkip; break;
+      			case 0 : Inc_Dec_Count(60,0,State,&sys_env.vDWELL[vITEM_Y]); nv_buffer[cSYSENV_vDWELL+vITEM_Y] = sys_env.vDWELL[vITEM_Y]; break;
+       			case 1 : Inc_Dec_Count(1,0,State,&sys_env.bLossAutoSkip); nv_buffer[cSYSENV_bLossAutoSkip] = sys_env.bLossAutoSkip; break;
 #endif
 			}
 			
@@ -1346,12 +1346,12 @@ void tPAGE4_KEY(void)
 			{
 				Inc_Dec_Count(1,0,State,&sys_env.vResolution);
 				Resolution_Dsp(sys_env.vResolution,UNDER_BAR);
-				EEP_buf[cSYSENV_resolution] = sys_env.vResolution;
+				nv_buffer[cSYSENV_resolution] = sys_env.vResolution;
 			}
 			else if(vITEM_Y==1)
 			{
 				Inc_Dec_Count(1,0,State,&sys_env.bOSD_Display);
-				EEP_buf[cSYSENV_bOSD_Display] = sys_env.bOSD_Display;
+				nv_buffer[cSYSENV_bOSD_Display] = sys_env.bOSD_Display;
 				ON_OFF_DSP(38,8,UNDER_BAR,sys_env.bOSD_Display);	
 			}
 			else if(vITEM_Y==2)					
@@ -1359,14 +1359,14 @@ void tPAGE4_KEY(void)
 #ifdef __4CH__
 				Inc_Dec_Count(6,0,State,&sys_env.vOSD_Position);
 #endif
-				EEP_buf[cSYSENV_vOSD_Position] = sys_env.vOSD_Position;
+				nv_buffer[cSYSENV_vOSD_Position] = sys_env.vOSD_Position;
 
 				OSD_Position_Dsp(sys_env.vOSD_Position,UNDER_BAR);
 			}
 			else if(vITEM_Y==3)					
 			{
 				Inc_Dec_Count(1,0,State,&sys_env.border_line);
-				EEP_buf[cSYSENV_border_line] = sys_env.border_line;
+				nv_buffer[cSYSENV_border_line] = sys_env.border_line;
 				ON_OFF_DSP(38,12,UNDER_BAR,sys_env.border_line);
 			}
 			else if(vITEM_Y==4)					
@@ -1374,7 +1374,7 @@ void tPAGE4_KEY(void)
 				Inc_Dec_Count(8,0,State,&sys_env.b9Split_Mode);
 				Mode_9Split(sys_env.b9Split_Mode,UNDER_BAR);
 
-				EEP_buf[cSYSENV_b9Split_Mode] = sys_env.b9Split_Mode;
+				nv_buffer[cSYSENV_b9Split_Mode] = sys_env.b9Split_Mode;
 
 				if(sys_env.b9Split_Mode == 0)
 				{
@@ -1679,23 +1679,23 @@ void tPAGE5_KEY(void)
 							vALARM_CHG &= ~tBIT_CHECK[vITEM_Y]; 
 							vALARM_CHG &= ~tBIT_CHECK[vITEM_Y+4];
 						}
-						EEP_buf[cSYSENV_vAlarm] = vALARM_CHG;
+						nv_buffer[cSYSENV_vAlarm] = vALARM_CHG;
 					}				
 				}
 				else if(vITEM_Y == 4)
 				{					
 					Inc_Dec_Count(89, 0, State, &sys_env.vAlarm_Display_Time);
-					EEP_buf[cSYSENV_vAlarm_Display_Time] = sys_env.vAlarm_Display_Time;
+					nv_buffer[cSYSENV_vAlarm_Display_Time] = sys_env.vAlarm_Display_Time;
 				}
 				else if(vITEM_Y == 5)
 				{					
 					Inc_Dec_Count(99, 0, State, &sys_env.vLoss_Time);
-					EEP_buf[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
+					nv_buffer[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
 				}
 				else //if(vITEM_Y == 6)
 				{					
 					sys_env.vLoss_Display =~ sys_env.vLoss_Display;
-					EEP_buf[cSYSENV_vLoss_Display] = sys_env.vLoss_Display;
+					nv_buffer[cSYSENV_vLoss_Display] = sys_env.vLoss_Display;
 				}
 				tPAGE5_Position(UNDER_BAR);
 			}
@@ -1837,24 +1837,24 @@ void tPAGE6_KEY(void)
        	 	if(vITEM_Y==0)
 			{
 				Inc_Dec_Count(99,0,State,&sys_env.vREMOCON_ID);
-				EEP_buf[cSYSENV_vREMOCON_ID] = sys_env.vREMOCON_ID;
+				nv_buffer[cSYSENV_vREMOCON_ID] = sys_env.vREMOCON_ID;
 			}
    	     	else if(vITEM_Y==1)
 			{
 				Inc_Dec_Count(4,0,State,&sys_env.baud_rate);
-				EEP_buf[cSYSENV_baud_rate] = sys_env.baud_rate;
+				nv_buffer[cSYSENV_baud_rate] = sys_env.baud_rate;
 
 				USART3_Init();					// initialize Serial
 			}
    	     	else if(vITEM_Y==2)
 			{
 				Inc_Dec_Count(60,0,State,&sys_env.vLoss_Time);
-				EEP_buf[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
+				nv_buffer[cSYSENV_vLoss_Time] = sys_env.vLoss_Time;
 			}
    	     	else if(vITEM_Y==3)
 			{
 				Inc_Dec_Count(1,0,State,&sys_env.vLoss_Display);
-				EEP_buf[cSYSENV_vLoss_Display] = sys_env.vLoss_Display;
+				nv_buffer[cSYSENV_vLoss_Display] = sys_env.vLoss_Display;
 			}
 			
 			tPAGE5_Position(UNDER_BAR);
@@ -1972,17 +1972,17 @@ void tPAGE7_KEY(void)
        	 	if(vITEM_Y==0)
 			{
 				Inc_Dec_Count(99,0,State,&sys_env.vREMOCON_ID);
-				EEP_buf[cSYSENV_vREMOCON_ID] = sys_env.vREMOCON_ID;
+				nv_buffer[cSYSENV_vREMOCON_ID] = sys_env.vREMOCON_ID;
 			}
    	     	else if(vITEM_Y==1)
 			{
 				Inc_Dec_Count(1,0,State,&sys_env.bOSD_Display);
-				EEP_buf[cSYSENV_bOSD_Display] = sys_env.bOSD_Display;
+				nv_buffer[cSYSENV_bOSD_Display] = sys_env.bOSD_Display;
 			}
    	     	else if(vITEM_Y==2)
 			{
 				Inc_Dec_Count(1,0,State,&sys_env.alarm_remote_sel);
-				EEP_buf[cSYSENV_alarm_remote_sel] = sys_env.alarm_remote_sel;
+				nv_buffer[cSYSENV_alarm_remote_sel] = sys_env.alarm_remote_sel;
 			}
 			tPAGE7_Position(UNDER_BAR);
 		}

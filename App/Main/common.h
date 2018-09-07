@@ -24,29 +24,28 @@
 
 #include "stm32f10x.h"
 
-#include "..\drivers\mdintype.h"
+#include "mdintype.h"
 
-#include "..\main\main.h"
-#include "..\main\key.h"
-#include "..\main\rtc.h"
-#include "..\main\osd_display.h"
-#include "..\main\Sequence.h"
+#include "main.h"
+#include "key.h"
+#include "rtc.h"
+#include "osd_display.h"
+#include "Sequence.h"
 
-#include "..\mcu\mcu.h"
-#include "..\mcu\i2c.h"
-#include "..\mcu\spi.h"
+#include "mcu.h"
+#include "i2c.h"
 
-#include "..\etc\delay.h"
+#include "delay.h"
 
-#include "..\drivers\mdin3xx.h"
+#include "mdin3xx.h"
 
-#include "..\video\video.h"
-#include "..\video\mfccoef.h"
+#include "video.h"
+#include "mfccoef.h"
 
-#include "..\graphic\osd.h"
-#include "..\graphic\osdmenu.h"
-#include "..\graphic\menu.h"
-#include "..\graphic\item.h"
+#include "osd.h"
+#include "osdmenu.h"
+#include "menu.h"
+#include "item.h"
 
 
 // msg.c
@@ -60,7 +59,6 @@ typedef enum {
 
 
 #define TIME_AFTER(unknown,known)	(((long)(known)-(long)(unknown))<0)
-#define TIME_BEFORE(unknown,known)	(((long)(unknown)-(long)(known))<0)
 
 #define NOP()	asm("NOP")
 
@@ -76,7 +74,7 @@ typedef enum {
 // -----------------------------------------------------------------------------
 // External Variables declaration
 // -----------------------------------------------------------------------------
-extern volatile BOOL fUSBXferMode, fZOOMMove, fCROPMove;
+extern volatile BOOL fZOOMMove, fCROPMove;
 
 // -----------------------------------------------------------------------------
 // Exported function Prototype

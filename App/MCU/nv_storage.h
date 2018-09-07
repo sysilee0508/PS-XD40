@@ -1,88 +1,84 @@
 #ifndef __NV_STORAGE_H__
 #define __NV_STORAGE_H__
 
+#include "main.h"
 #include "mdintype.h"
 
+//=============================================================================
+//  Define
+//=============================================================================
+#define FLASH_PAGE_SIZE					0x800//2048 //page size is 2k
+#define FLASH_START_ADDR				0x08000000
+#define FLASH_END_ADDR					0x080FFFFF
 
-#define cSYSENV_vCORRECT_OFFSET 	1
-#define cSYSENV_bVECTOR				2
-#define cSYSENV_bCORRECT		    3
-#define cSYSENV_vDATE_FORMAT		4
-#define cSYSENV_bTIME_ON			5
-#define cSYSENV_vTIME_Position		6
-#define cSYSENV_vCH_NAME			7
-#define cSYSENV_bTITLE_ON			120
-#define cSYSENV_vDWELL				121
-#define cSYSENV_bLossAutoSkip       	125
-#define cSYSENV_bOSD_Display		126
-#define cSYSENV_vOSD_Position		127
-#define cSYSENV_border_line			128
-#define cSYSENV_resolution			129
-#define cSYSENV_baud_rate		    	130
-#define cSYSENV_vREMOCON_ID		131
-#define cSYSENV_vLoss_Time			132
-#define cSYSENV_vLoss_Display		133
-#define cSYSENV_b9Split_Mode		134
-#define cSYSENV_vAlarm				135
-#define cSYSENV_vAlarm_Display_Time	136
-#define cSYSENV_alarm_remote_sel		137
-#define cEEP_CHK					200
+#define FLASH_ADDRESS_PAGE(x)			x * FLASH_PAGE_SIZE + FLASH_START_ADDR
+#define	NV_STORAGE_START_ADDR			FLASH_ADDRESS_PAGE(128)//0x080400000
 
+#define NVSTORAGE_START_CHECK			0xA5A5A5A5
+#define NVSTORAGE_END_CHECK				0x5A5A5A5A
 
-#define NVSTORAGE_START_CHECKSUM		0xA5A5A5A5
-#define NVSTORAGE_END_CHECKSUM			0x5A5A5A5A
+#define NV_VERSION_MAJOR				(u16)0x0001
+#define NV_VERSION_MINOR				(u16)0x0000
+#define NV_VERSION						(NV_VERSION_MAJOR << 16) | NV_VERSION_MINOR
 
 #define CHANNEL_NEME_LENGTH_MAX			12
 
+#define NV_SUCCESS						TRUE
+#define NV_FAIL							FALSE
+
+//=============================================================================
+//  Type definitions - enum, struct
+//=============================================================================
 
 typedef enum
 {
-	NV_STORAGE_START_CHECK = 0,
+	NV_ITEM_START_CHECK = 0,
+	NV_ITEM_VERSION,
+//-- user setting data (MENU) --------------------------------------------------
+	NV_ITEM_TIME_CORRECT_OFFSET,
+	NV_ITEM_TIME_CORRECT_DIRECTION,
+	NV_ITEM_TIME_CORRECT_UNIT,
+	NV_ITEM_DATE_FORMAT,
+	NV_ITEM_TIME_ON,
+	NV_ITEM_TIME_POSITION,
+	NV_ITEM_CHANNEL_NAME,
+	NV_ITEM_TITLE_DISPLAY_ON,
+	NV_ITEM_AUTO_SEQ_TIME,
+	NV_ITEM_AUTO_SEQ_LOSS_SKIP,
+	NV_ITEM_OUTPUT_RESOLUTION,
+	NV_ITEM_OSD_DISPLAY,
+	NV_ITEM_OSD_POSITION,
+	NV_ITEM_BORDER_LINE,
+	NV_ITEM_USER_ALARM_OPTION,
+	NV_ITEM_USER_ALARMOUT_TIME,
+	NV_ITEM_USER_ALARM_BUZZER_TIME,
+	NV_ITEM_VIDEO_LOSS_ALARM_ON,
+	NV_ITEM_VIDEO_LOSS_BUZZER_TIME,
+	NV_ITEM_VIDEO_LOSS_DISPLAY_ON,
+	NV_ITEM_REMOCON_ID,
+	NV_ITEM_ALARM_REMOCON_SELECT,
+//-- system data ---------------------------------------------------------------
+//	If you want to store any system data (item) in NV memory, it comes here
+	NV_ITEM_DISPLAY_MODE,
+//	NV_ITEM_INPUT_VIDEO_FORMAT,
 //------------------------------------------------------------------------------
-	NV_STORAGE_TIME_CORRECT_OFFSET, //cSYSENV_vCORRECT_OFFSET
-	NV_STORAGE_TIME_CORRECT_DIRECTION,
-	NV_STORAGE_TIME_CORRECT_UNIT,
-	NV_STORAGE_DATE_FORMAT,
-	NV_STORAGE_TIME_ON,
-	NV_STORAGE_TIME_POSITION,
-	NV_STORAGE_CHANNEL_NAME_1,
-	NV_STORAGE_CHANNEL_NAME_2,
-	NV_STORAGE_CHANNEL_NAME_3,
-	NV_STORAGE_CHANNEL_NAME_4,
-	NV_STORAGE_TITLE_DISPLAY,
-	NV_STORAGE_AUTO_SKIP,
-	NV_STORAGE_OSD_DISPLAY,
-	NV_STORAGE_OSD_POSITION,
-	NV_STORAGE_BORDER_LINE,
-	NV_STORAGE_RESOLUTION,
-	NV_STORAGE_BAUD_RATE,
-	NV_STORAGE_REMOCON_ID,
-	NV_STORAGE_LOSS_TIME,
-	NV_STORAGE_LOSS_DISPLAY,
-	NV_STORAGE_CHANNEL_ALARM_1,
-	NV_STORAGE_CHANNEL_ALARM_2,
-	NV_STORAGE_CHANNEL_ALARM_3,
-	NV_STORAGE_CHANNEL_ALARM_4,
-	NV_STORAGE_ALARMOUT_TIME,
-	NV_STORAGE_ALARM_BUZZER_TIME,
-	NV_STORAGE_ALARM_REMOCON_SELECT,
-//------------------------------------------------------------------------------
-	NV_STORAGE_END_CHECK,
-	NV_STORAGE_MAX
-} eNvStorageItems_t;
-
-typedef struct
-{
-	eNvStorageItems_t	item;
-	u8					size;
-} sNvStorageItemInfo_t;
+	NV_ITEM_END_CHECK,
+	NV_ITEM_MAX
+} eNvItems_t;
 
 typedef enum
 {
-	TIME_POSISION_CENTER,
-	TIME_POSISION_LEFT,
-	TIME_POSISION_RIGHT,
-} eTimeDisplayPositon_t;
+	DISPLAY_POSITION_LEFT_TOP,
+	DISPLAY_POSITION_MIDDLE_TOP,
+	DISPLAY_POSITION_RIGHT_TOP,
+	DISPLAY_POSITION_LEFT_CENTER,
+	DISPLAY_POSITION_MIDDLE_CENTER,
+	DISPLAY_POSITION_RIGHT_CENTER,
+	DISPLAY_POSITION_LEFT_BOTTOM,
+	DISPLAY_POSITION_MIDDLE_BOTTOM,
+	DISPLAY_POSITION_RIGHT_BOTTOM,
+	DISPLAY_POSITION_MAX
+} eDisplayPositon_t;
 
 typedef enum
 {
@@ -92,83 +88,101 @@ typedef enum
 	DATE_FORMAT_MAX
 } eDateFormat_t;
 
-#define PLUS			UP
-#define MINUS			DOWN
+typedef enum
+{
+	DIRECTION_LEFT,
+	DIRECTION_RIGHT,
+	DIRECTION_UP,
+	DIRECTION_DOWN,
+	DIRECTION_MAX
+} eDirection_t;
+
+typedef enum
+{
+	TIME_UNIT_SEC = 0,
+	TIME_UNIT_MIN,
+	TIME_UNIT_HOUR,
+	TIME_UNIT_DAY,
+	TIME_UNIT_MONTH,
+	TIME_UNIT_YEAR,
+	TIME_UNIT_MAX
+} eTimeUnit_t;
+
+typedef enum
+{
+	DISPLAY_MODE_FULL_SCREEN,	// full screen mode for any channel
+	DISPLAY_MODE_4SPLIT,		// 4 split screen
+	DISPLAY_MODE_MAX
+} eDisplayMode_t;
+
+typedef enum
+{
+	RESOLUTION_1920_1080_50P,
+	RESOLUTION_1920_1080_60P,
+	RESOLUTION_MAX
+} eResolution_t;
+
+typedef enum
+{
+	ALARM_OPTION_OFF,
+	ALARM_OPTION_NO,
+	ALARM_OPTION_NC,
+	ALARM_OPTION_MAX
+} eAlarmOption_t;
+
+//--------------------------------------------------------------------------------------
+typedef struct
+{
+	const eNvItems_t	item;
+	const size_t		size;
+	BOOL		dirty;
+} sNvItemInfo_t;
 
 typedef struct
 {
-	u8 						timeCorrecOffset;
-	BOOL 					timeCorrectDirection;	// +,-
-	u8 						timeCorrectUint;		// SEC/DAY
+	uint32_t				storageStartCheck;
+	uint32_t				version;
+
+	uint8_t 				timeCorrecOffset;
+	eDirection_t 			timeCorrectDirection;
+	eTimeUnit_t 			timeCorrectUint;
 	eDateFormat_t			dateFormat;
-	BOOL			 		timeDisplyOn;			// �ð�ǥ�� ON/OFF
-	eTimeDisplayPositon_t	timeDisplayPosition;  	// ȭ�鿡 ǥ�õǴ� �ð��� ��ġ
+	BOOL			 		timeDisplayOn;
+	eDisplayPositon_t		timeDisplayPosition;
+	uint8_t 				channelName[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX];
+	BOOL 					titleDisplayOn;
+	uint8_t					autoSeqTime;
+	BOOL					autoSeqLossSkip;
+	eResolution_t 			outputResolution;
+	BOOL					osdOn;
+	eDisplayPositon_t 		osdPosition;
+	BOOL					borderLineOn;
+	eAlarmOption_t 			alarmOption[NUM_OF_CHANNEL];
+	uint8_t 				alarmOutTime;
+	uint8_t					alarmBuzzerTime;
+	BOOL					videoLossAlarmOn[NUM_OF_CHANNEL];
+	uint8_t					videoLossBuzzerTime;
+	BOOL					videoLossDisplayOn;
+	uint8_t 				remoconId;
+	BOOL					alarm_remote_sel;
 
-	u8 						channelName[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX];
-	u8 bTITLE_ON;		 	// ä�θ� ǥ�� ON/OFF
+//	uint8_t baud_rate;			// baud_rate
+	eDisplayMode_t			displayMode;
 
-//	u8 vDWELL[3];	    	// SEQ Dwell time(FULL,4split,9split)
-	u8 bLossAutoSkip;   	// �Է� ���� ä�� SEQ ���� ����
-
-	u8 vResolution;			// ����� �ػ�
-	u8 bOSD_Display;		// ȭ�鿡 ���� ǥ�� ON/OFF
-	u8 vOSD_Position;		// ���� ��ġ
-	u8 border_line;			// �������� ����
-
-	u8 vAlarm;
-	u8 vAlarm_Display_Time; // �˶� ��� ǥ�� ���ӽð�
-
-	u8 vREMOCON_ID;			// Serial Key ���� ID
-	u8 baud_rate;			// baud_rate
-	u8 vLoss_Time;			// Video Loss �� ������ ���ӽð�
-	u8 vLoss_Display;		// Video Loss Display ǥ�� ON/OFF
-
-	u8 b9Split_Mode;    	// 9���� ��忡�� 9����,8���� ����
-	u8 alarm_remote_sel;
-
-//    unsigned short crc;
-}sys_env_t;
-
-
-const struct nv_storage_items [NV_STORAGE_MAX] =
-{
-//		 item(name)								size
-		{NV_STORAGE_START_CHECK,				sizeof(u32)},
-		{NV_STORAGE_TIME_CORRECT_OFFSET,		sizeof(u8)},
-		{NV_STORAGE_VECTOR,						sizeof(u8)},
-		{NV_STORAGE_CORRECT,					sizeof(u8)},
-		{NV_STORAGE_DATE_FORMAT,				sizeof(u8)},
-		{NV_STORAGE_TIME_ON,					sizeof(BOOL)},
-		{NV_STORAGE_TIME_POSITION,				sizeof(eTimeDisplayPositon_t)},
-		{NV_STORAGE_CHANNEL_NAME_1,				CAMERA_NEME_LENGTH_MAX},
-		{NV_STORAGE_CHANNEL_NAME_2,				CAMERA_NEME_LENGTH_MAX},
-		{NV_STORAGE_CHANNEL_NAME_3,				CAMERA_NEME_LENGTH_MAX},
-		{NV_STORAGE_CHANNEL_NAME_4,				CAMERA_NEME_LENGTH_MAX},
-		{NV_STORAGE_TITLE_DISPLAY,				sizeof(BOOL)},
-		{NV_STORAGE_AUTO_SKIP					,
-		{NV_STORAGE_OSD_DISPLAY,
-		{NV_STORAGE_OSD_POSITION,
-		{NV_STORAGE_BORDER_LINE,
-		{NV_STORAGE_RESOLUTION,
-		{NV_STORAGE_BAUD_RATE,
-		{NV_STORAGE_REMOCON_ID,
-		{NV_STORAGE_LOSS_TIME,
-		{NV_STORAGE_LOSS_DISPLAY,
-		{NV_STORAGE_CHANNEL_ALARM_1,
-		{NV_STORAGE_CHANNEL_ALARM_2,
-		{NV_STORAGE_CHANNEL_ALARM_3,
-		{NV_STORAGE_CHANNEL_ALARM_4,
-		{NV_STORAGE_ALARMOUT_TIME,
-		{NV_STORAGE_ALARM_BUZZER_TIME,
-		{NV_STORAGE_ALARM_REMOCON_SELECT,
-
-} sNvStorage_t;
+	uint32_t				storageEndCheck;
+} sNvData_t;
 
 
 
-extern void write_eeprom_all(void);
-extern void read_eeprom_all(void);
 
 
+
+//=============================================================================
+//  Function Prototype
+//=============================================================================
+extern void StoreNvDataToStorage(void);
+extern void LoadNvDataFromStorage(void);
+extern BOOL	ReadNvItem(eNvItems_t item, void * pData);
+extern BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size);
 
 #endif

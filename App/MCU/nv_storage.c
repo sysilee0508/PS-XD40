@@ -1,179 +1,229 @@
-#include "nv_storage.h"
-
-#include "..\main\common.h"
+#include "common.h"
 #include "stm32f10x_flash.h"
-
-//-----------------------------------------------------------------------------
-// Functions
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------
-// Flash Programming (like EEPROM)
-//-----------------------------------------------------------------------------------
-#define ProgramTimeout        	((uint32_t)0x00002000)
-#define FLASH_START_ADDR			0x08000000
-#define	EEPROM_ADDR				0x08040000 //256K  why here?
-BYTE EEP_buf[2048];
-
-void write_eeprom_all(void)
-{
-	DWORD *pEEP_buf;
-	WORD i;
-
-	pEEP_buf = (DWORD *)EEP_buf;
-
-	FLASH_Unlock();
-
-	FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP| FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
-	FLASH_ErasePage(EEPROM_ADDR);
-
-	for(i = 0; i < 512; i++)
-	{
-		FLASH_ProgramWord(EEPROM_ADDR+(i*4),pEEP_buf[i]);
-	}
-}
-
-void read_eeprom_all(void)
-{
-	vu32 Addr;
-	DWORD *pEEP_buf;
-	WORD i;
-
-	pEEP_buf = (DWORD *)EEP_buf;
-
-	Addr = EEPROM_ADDR;
-
-	for(i = 0; i < 512; i++)
-	{
-		*pEEP_buf = *((vu32 *)Addr);
-		Addr += 4;
-		pEEP_buf++;
-	}
-}
-
-
+#include "nv_storage.h"
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void Load_Data(void)
+static union uNvData
 {
-	BYTE i;
+	BYTE buffer[FLASH_PAGE_SIZE];
+	sNvData_t data;
+} nv_data;
 
-	read_eeprom_all();
-
-	sys_env.vCORRECT_OFFSET = EEP_buf[cSYSENV_vCORRECT_OFFSET];
-	sys_env.bVECTOR = EEP_buf[cSYSENV_bVECTOR];
-	sys_env.bCORRECT = EEP_buf[cSYSENV_bCORRECT];
-	sys_env.vDATE_FORMAT = EEP_buf[cSYSENV_vDATE_FORMAT];
-	sys_env.bTIME_ON = EEP_buf[cSYSENV_bTIME_ON];
-	sys_env.vTIME_Position = EEP_buf[cSYSENV_vTIME_Position];
-
-	for(i = 0; i < 9; i++)
-	{
-		sys_env.vCH_NAME[i][0] = EEP_buf[cSYSENV_vCH_NAME+0+(i*12)];
-		sys_env.vCH_NAME[i][1] = EEP_buf[cSYSENV_vCH_NAME+1+(i*12)];
-		sys_env.vCH_NAME[i][2] = EEP_buf[cSYSENV_vCH_NAME+2+(i*12)];
-		sys_env.vCH_NAME[i][3] = EEP_buf[cSYSENV_vCH_NAME+3+(i*12)];
-		sys_env.vCH_NAME[i][4] = EEP_buf[cSYSENV_vCH_NAME+4+(i*12)];
-		sys_env.vCH_NAME[i][5] = EEP_buf[cSYSENV_vCH_NAME+5+(i*12)];
-		sys_env.vCH_NAME[i][6] = EEP_buf[cSYSENV_vCH_NAME+6+(i*12)];
-		sys_env.vCH_NAME[i][7] = EEP_buf[cSYSENV_vCH_NAME+7+(i*12)];
-		sys_env.vCH_NAME[i][8] = EEP_buf[cSYSENV_vCH_NAME+8+(i*12)];
-		sys_env.vCH_NAME[i][9] = EEP_buf[cSYSENV_vCH_NAME+9+(i*12)];
-		sys_env.vCH_NAME[i][10] = EEP_buf[cSYSENV_vCH_NAME+10+(i*12)];
-		sys_env.vCH_NAME[i][11] = EEP_buf[cSYSENV_vCH_NAME+11+(i*12)];
-	}
-
-	sys_env.bTITLE_ON = EEP_buf[cSYSENV_bTITLE_ON];
-
-	for(i=0; i<4; i++)
-	{
-		sys_env.vDWELL[i] = EEP_buf[cSYSENV_vDWELL+i];
-	}
-
-	sys_env.bLossAutoSkip = EEP_buf[cSYSENV_bLossAutoSkip];
-	sys_env.bOSD_Display = EEP_buf[cSYSENV_bOSD_Display];
-	sys_env.vOSD_Position = EEP_buf[cSYSENV_vOSD_Position];
-	sys_env.border_line = EEP_buf[cSYSENV_border_line];
-	sys_env.vAlarm = EEP_buf[cSYSENV_vAlarm];
-	sys_env.vAlarm_Display_Time = EEP_buf[cSYSENV_vAlarm_Display_Time];
-	sys_env.vREMOCON_ID = EEP_buf[cSYSENV_vREMOCON_ID];
-	sys_env.vLoss_Time = EEP_buf[cSYSENV_vLoss_Time];
-	sys_env.vLoss_Display = EEP_buf[cSYSENV_vLoss_Display];
-
-	sys_env.vResolution = EEP_buf[cSYSENV_resolution];
-	sys_env.baud_rate = EEP_buf[cSYSENV_baud_rate];
-	sys_env.b9Split_Mode = EEP_buf[cSYSENV_b9Split_Mode];
-	sys_env.alarm_remote_sel= EEP_buf[cSYSENV_alarm_remote_sel];
-}
-
-void Data_Load(void)
+static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 {
-	BYTE i;
+//		item(name),						size of data,								dirty
+		{NV_ITEM_START_CHECK,			sizeof(uint32_t),							CLEAR},
+		{NV_ITEM_VERSION,				sizeof(uint32_t),							CLEAR},
+		{NV_ITEM_TIME_CORRECT_OFFSET,	sizeof(uint8_t),							CLEAR},
+		{NV_ITEM_TIME_CORRECT_DIRECTION,sizeof(eDirection_t),						CLEAR},
+		{NV_ITEM_TIME_CORRECT_UNIT,		sizeof(eTimeUnit_t),						CLEAR},
+		{NV_ITEM_DATE_FORMAT,			sizeof(eDateFormat_t),						CLEAR},
+		{NV_ITEM_TIME_ON,				sizeof(BOOL),								CLEAR},
+		{NV_ITEM_TIME_POSITION,			sizeof(eDisplayPositon_t),					CLEAR},
+		{NV_ITEM_CHANNEL_NAME,			(NUM_OF_CHANNEL * CHANNEL_NEME_LENGTH_MAX),	CLEAR},
+		{NV_ITEM_TITLE_DISPLAY_ON,		sizeof(BOOL),								CLEAR},
+		{NV_ITEM_AUTO_SEQ_TIME,			sizeof(uint8_t),							CLEAR},
+		{NV_ITEM_AUTO_SEQ_LOSS_SKIP,	sizeof(BOOL),								CLEAR},
+		{NV_ITEM_OUTPUT_RESOLUTION,		sizeof(eResolution_t),						CLEAR},
+		{NV_ITEM_OSD_DISPLAY,			sizeof(BOOL),								CLEAR},
+		{NV_ITEM_OSD_POSITION,			sizeof(eDisplayPositon_t),					CLEAR},
+		{NV_ITEM_BORDER_LINE,			sizeof(BOOL),								CLEAR},
+		{NV_ITEM_USER_ALARM_OPTION, 	sizeof(eAlarmOption_t),						CLEAR},
+		{NV_ITEM_USER_ALARMOUT_TIME,	sizeof(uint8_t),							CLEAR},
+		{NV_ITEM_USER_ALARM_BUZZER_TIME,sizeof(uint8_t),							CLEAR},
+		{NV_ITEM_VIDEO_LOSS_ALARM_ON,	NUM_OF_CHANNEL,								CLEAR},
+		{NV_ITEM_VIDEO_LOSS_BUZZER_TIME,sizeof(uint8_t),							CLEAR},
+		{NV_ITEM_VIDEO_LOSS_DISPLAY_ON,	sizeof(BOOL),								CLEAR},
+		{NV_ITEM_REMOCON_ID,			sizeof(uint8_t),							CLEAR},
+		{NV_ITEM_ALARM_REMOCON_SELECT,	sizeof(BOOL),								CLEAR},
+		{NV_ITEM_DISPLAY_MODE,			sizeof(eDisplayMode_t),						CLEAR},
+		{NV_ITEM_END_CHECK,				sizeof(uint32_t),							CLEAR}
+};
 
-#ifdef __4CH__
-	if(EEP_buf[cEEP_CHK] == 0xa5)Load_Data();
-#endif
-	else
+//-----------------------------------------------------------------------------------
+// Static Functions
+//-----------------------------------------------------------------------------------
+static void CreateDefaultChannelTitle(void)
+{
+	uint8_t index;
+
+	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
-		memset(EEP_buf, 0, 2048);
-
-		EEP_buf[cSYSENV_vCORRECT_OFFSET] = 0;
-		EEP_buf[cSYSENV_bVECTOR] = 1;
-		EEP_buf[cSYSENV_bCORRECT] = 0;
-		EEP_buf[cSYSENV_vDATE_FORMAT] = 0;
-		EEP_buf[cSYSENV_bTIME_ON] = 1;
-		EEP_buf[cSYSENV_vTIME_Position] = 1;
-
-		for(i=0; i<9; i++)
-		{
-			EEP_buf[cSYSENV_vCH_NAME+0+(i*12)] = 'C';
-			EEP_buf[cSYSENV_vCH_NAME+1+(i*12)] = 'A';
-			EEP_buf[cSYSENV_vCH_NAME+2+(i*12)] = 'M';
-			EEP_buf[cSYSENV_vCH_NAME+3+(i*12)] = '1'+i;
-			EEP_buf[cSYSENV_vCH_NAME+4+(i*12)] = ' ';
-			EEP_buf[cSYSENV_vCH_NAME+5+(i*12)] = ' ';
-			EEP_buf[cSYSENV_vCH_NAME+6+(i*12)] = ' ';
-			EEP_buf[cSYSENV_vCH_NAME+7+(i*12)] = ' ';
-			EEP_buf[cSYSENV_vCH_NAME+8+(i*12)] = ' ';
-			EEP_buf[cSYSENV_vCH_NAME+9+(i*12)] = ' ';
-			EEP_buf[cSYSENV_vCH_NAME+10+(i*12)] = ' ';
-			EEP_buf[cSYSENV_vCH_NAME+11+(i*12)] = ' ';
-		}
-
-		EEP_buf[cSYSENV_bTITLE_ON] = 1;
-
-		for(i=0; i<4; i++)
-		{
-			EEP_buf[cSYSENV_vDWELL+i] = 3;
-		}
-
-		EEP_buf[cSYSENV_bLossAutoSkip] = 1;
-		EEP_buf[cSYSENV_bOSD_Display] = 1;
-#ifdef __4CH__
-		EEP_buf[cSYSENV_vOSD_Position] = 6;
-#endif
-
-		EEP_buf[cSYSENV_border_line] = 1;
-		EEP_buf[cSYSENV_vAlarm] = 0;
-		EEP_buf[cSYSENV_vAlarm_Display_Time] = 0;
-		EEP_buf[cSYSENV_vREMOCON_ID] = 0;
-		EEP_buf[cSYSENV_vLoss_Time] = 3;
-		EEP_buf[cSYSENV_vLoss_Display] = 0xff;
-
-		EEP_buf[cSYSENV_resolution] = 0;
-		EEP_buf[cSYSENV_baud_rate] = 3;
-		EEP_buf[cSYSENV_b9Split_Mode] = 0;
-		EEP_buf[cSYSENV_alarm_remote_sel] = 0xff;
-#ifdef __4CH__
-		EEP_buf[cEEP_CHK] = 0xa5;
-#endif
-
-		write_eeprom_all();
-
-		Load_Data();
+		strncpy(nv_data.data.channelName[index], "CAM", 3);
+		nv_data.data.channelName[index][3] = '1'+i;
 	}
 }
 
+static BOOL CheckNvStorage(void)
+{
+	BOOL result = FALSE;
 
-//---------------------------------------------------------------------------------------------
+	if((nv_data.data.storageStartCheck == NVSTORAGE_START_CHECK) &&
+		(nv_data.data.storageEndCheck == NVSTORAGE_END_CHECK) &&
+		(nv_data.data.version == NV_VERSION))
+	{
+		result = TRUE;
+	}
+
+	return result;
+}
+
+static BOOL CheckNvBufferDirty(void)
+{
+	uint8_t index;
+	BOOL dirty = CLEAR;
+
+	for(index = 0; index < NV_ITEM_MAX; index++)
+	{
+		dirty |= nvInfo[index].dirty;
+	}
+
+	return dirty;
+}
+
+static void LoadDefaultNvData(void)
+{
+	uint8_t index;
+	//clear buffer
+	memset(nv_data.buffer, 0x00, FLASH_PAGE_SIZE);
+
+	// Make default nv data
+	nv_data.data.storageStartCheck = NVSTORAGE_START_CHECK;
+	nv_data.data.storageEndCheck = NVSTORAGE_END_CHECK;
+
+	nv_data.data.version = NV_VERSION;
+
+	nv_data.data.timeCorrecOffset = 0;
+	nv_data.data.timeCorrectDirection = DIRECTION_UP;
+	nv_data.data.timeCorrectUint = TIME_UNIT_SEC;
+	nv_data.data.dateFormat = DATE_FORMAT_YMD;
+	nv_data.data.timeDisplayOn = ON;
+	nv_data.data.timeDisplayPosition = DISPLAY_POSITION_MIDDLE_BOTTOM;
+	CreateDefaultChannelTitle();
+//	nv_data.data.channelName[0] = "CAM1";
+//	nv_data.data.channelName[1] = "CAM2";
+//	nv_data.data.channelName[2] = "CAM3";
+//	nv_data.data.channelName[3] = "CAM4";
+	nv_data.data.titleDisplayOn = ON;
+	nv_data.data.autoSeqTime = 3;
+	nv_data.data.autoSeqLossSkip = ON;
+	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
+	nv_data.data.osdOn = ON;
+	nv_data.data.osdPosition = DISPLAY_POSITION_LEFT_BOTTOM;
+	nv_data.data.borderLineOn = ON;
+	for(index = 0; index < NUM_OF_CHANNEL; index++)
+	{
+		nv_data.data.alarmOption[index] = ALARM_OPTION_NO;
+	}
+	nv_data.data.alarmOutTime = 3;
+	nv_data.data.alarmBuzzerTime = 3;
+	for(index = 0; index < NUM_OF_CHANNEL; index++)
+	{
+		nv_data.data.videoLossAlarmOn[index] = OFF;
+	}
+	nv_data.data.videoLossBuzzerTime = 3;
+	nv_data.data.videoLossDisplayOn = ON;
+	nv_data.data.remoconId = 0;
+	nv_data.data.alarm_remote_sel = 0;
+	nv_data.data.displayMode = DISPLAY_MODE_4SPLIT;
+
+	// set anyone of nv items dirty in order to write nv data to flash
+	nvInfo[NV_ITEM_END_CHECK].dirty = SET;
+	// Write nv data to Flash
+	StoreNvDataToStorage();
+}
+
+//-----------------------------------------------------------------------------------
+// Functions
+//-----------------------------------------------------------------------------------
+
+// Store/Load NV data to/from flash memory (storage)------------------------------
+void StoreNvDataToStorage(void)
+{
+	uint32_t *pData = (uint32_t *)nv_data.buffer;
+	uint8_t index;
+
+	if(CheckNvBufferDirty() == SET)
+	{
+		FLASH_Unlock();
+		FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP| FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
+		FLASH_ErasePage(NV_STORAGE_START_ADDR);
+		for(index = 0; index < FLASH_PAGE_SIZE/sizeof(uint32_t); index++)
+		{
+			FLASH_ProgramWord(NV_STORAGE_START_ADDR+(index*sizeof(uint32_t)),*(pData+index));
+		}
+		FLASH_Lock();
+	}
+}
+
+//--------------------------------------------------------------------------------
+void LoadNvDataFromStorage(void)
+{
+	memcpy((void *)nv_data.buffer, (void *)NV_STORAGE_START_ADDR, FLASH_PAGE_SIZE);
+
+	if(CheckNvStorage() == FALSE)
+	{
+		LoadDefaultNvData();
+	}
+}
+
+// read or write each NV Item------------------------------------------------------
+BOOL ReadNvItem(eNvItems_t item, void * pData)
+{
+	uint8_t	index;
+	uint16_t offset = 0;
+	BOOL result = NV_FAIL;
+
+	if(TRUE == CheckNvStorage())
+	{
+		for(index = 0; index < NV_ITEM_MAX; index++)
+		{
+			if(nvInfo[index].item < item)
+			{
+				offset += nvInfo[index].size;
+			}
+			else if(nvInfo[index].item == item)
+			{
+				break;
+			}
+		}
+		if(index < NV_ITEM_MAX )
+		{
+			*pData = nv_data.buffer[offset];
+			result = NV_SUCCESS;
+		}
+	}
+
+	return result;
+}
+
+BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size)
+{
+	uint8_t	index;
+	uint16_t offset = 0;
+	BOOL result = NV_FAIL;
+
+	if(TRUE == CheckNvStorage())
+	{
+		for(index = 0; index < NV_ITEM_MAX; index++)
+		{
+			if(nvInfo[index].item < item)
+			{
+				offset += nvInfo[index].size;
+			}
+			else if(nvInfo[index].item == item)
+			{
+				break;
+			}
+		}
+		if(index < NV_ITEM_MAX )
+		{
+			memcpy(&nv_data.buffer[offset], pData, size);
+			nvInfo[index].dirty = SET;
+			result = NV_SUCCESS;
+		}
+	}
+
+	return result;
+}
