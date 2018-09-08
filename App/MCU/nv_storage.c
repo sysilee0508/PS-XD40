@@ -50,7 +50,7 @@ static void CreateDefaultChannelTitle(void)
 
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
-		strncpy(&(nv_data.data.channelName[index]), "CAM", 3);
+		strncpy((char *)&(nv_data.data.channelName[index]), "CAM", 3);
 		nv_data.data.channelName[index][3] = '1'+index;
 	}
 }
@@ -142,7 +142,7 @@ static void LoadDefaultNvData(void)
 void StoreNvDataToStorage(void)
 {
 	uint32_t *pData = (uint32_t *)nv_data.buffer;
-	uint8_t index;
+	uint16_t index;
 
 	if(CheckNvBufferDirty() == SET)
 	{
