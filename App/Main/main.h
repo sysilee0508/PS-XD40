@@ -44,10 +44,6 @@ typedef enum
 
 typedef struct
 {
-//	unsigned char output_resolution;		// ����� ��� �ػ�
-//	unsigned int  output_h_size;			// ����ػ� ���� ũ��
-//	unsigned int  output_v_size;			// ������ ���� ũ��
-
 	unsigned char current_mode;				// ���� ���� (���� ���� ���, �޴����)
 	splitmode_e current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
 	
@@ -55,7 +51,6 @@ typedef struct
 
 
 extern sys_stat_t sys_status;
-extern sys_env_t sys_env;
 
 //extern BYTE sysenv_out_resolution;
 

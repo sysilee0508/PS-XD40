@@ -50,8 +50,8 @@ static void CreateDefaultChannelTitle(void)
 
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
-		strncpy(nv_data.data.channelName[index], "CAM", 3);
-		nv_data.data.channelName[index][3] = '1'+i;
+		strncpy(&(nv_data.data.channelName[index]), "CAM", 3);
+		nv_data.data.channelName[index][3] = '1'+index;
 	}
 }
 
@@ -149,7 +149,7 @@ void StoreNvDataToStorage(void)
 		FLASH_Unlock();
 		FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP| FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
 		FLASH_ErasePage(NV_STORAGE_START_ADDR);
-		for(index = 0; index < FLASH_PAGE_SIZE/sizeof(uint32_t); index++)
+		for(index = 0; index < (FLASH_PAGE_SIZE/sizeof(uint32_t)); index++)
 		{
 			FLASH_ProgramWord(NV_STORAGE_START_ADDR+(index*sizeof(uint32_t)),*(pData+index));
 		}
@@ -160,7 +160,7 @@ void StoreNvDataToStorage(void)
 //--------------------------------------------------------------------------------
 void LoadNvDataFromStorage(void)
 {
-	memcpy((void *)nv_data.buffer, (void *)NV_STORAGE_START_ADDR, FLASH_PAGE_SIZE);
+	memcpy((void *)nv_data.buffer, (void *)(NV_STORAGE_START_ADDR), FLASH_PAGE_SIZE);
 
 	if(CheckNvStorage() == FALSE)
 	{
@@ -190,7 +190,7 @@ BOOL ReadNvItem(eNvItems_t item, void * pData)
 		}
 		if(index < NV_ITEM_MAX )
 		{
-			*pData = nv_data.buffer[offset];
+			*(uint8_t *)pData = nv_data.buffer[offset];
 			result = NV_SUCCESS;
 		}
 	}
