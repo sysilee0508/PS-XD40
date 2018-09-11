@@ -132,13 +132,15 @@ void USART3_Init(void)
     //-Flow control None.
     //-Receive and transmit enabled
 
-//    USART_InitStructure.USART_BaudRate      = 115200;
+#if 0
 	if(sys_env.baud_rate == 0) USART_InitStructure.USART_BaudRate = 1200;
 	else if(sys_env.baud_rate == 1) USART_InitStructure.USART_BaudRate = 2400;
 	else if(sys_env.baud_rate == 2) USART_InitStructure.USART_BaudRate = 4800;
 	else if(sys_env.baud_rate == 3) USART_InitStructure.USART_BaudRate = 9600;
 	else if(sys_env.baud_rate == 4) USART_InitStructure.USART_BaudRate = 19200;
-
+#else
+	USART_InitStructure.USART_BaudRate = 19200; // this is temporary. we need to check requested baud rate
+#endif
     USART_InitStructure.USART_WordLength    = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits      = USART_StopBits_1;
     USART_InitStructure.USART_Parity        = USART_Parity_No; 

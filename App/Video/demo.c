@@ -1,7 +1,8 @@
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
-#include	"..\main\common.h"
+#include "common.h"
+#include "nv_storage.h"
 
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
@@ -1165,8 +1166,46 @@ void DEMO_SetRectBGBOX(MDIN_VIDEO_WINDOW stRECT, BYTE thk)
 //--------------------------------------------------------------------------------------------------
 void Set_border_line(void)
 {
-	if(sys_env.border_line != 0)
+	BOOL border_line;
+
+	ReadNvItem(NV_ITEM_BORDER_LINE, (void *)&border_line);
+	if(border_line == ON)
 	{
+		switch(sys_status.current_split_mode)
+		{
+			case SPLITMODE_FULL_CH1:
+			case SPLITMODE_FULL_CH2:
+			case SPLITMODE_FULL_CH3:
+			case SPLITMODE_FULL_CH4:
+				MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+
+				break;
+
+			case SPLITMODE_SPLIT4:
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 540-1, 1920, 2);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 960-1, 0, 2, 1080);
+
+				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+				break;
+
+
+
+		}
+#ifdef __9CH_DEVICE__
 		if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1) 
 		{
 			//1920X1080
@@ -1413,6 +1452,7 @@ void Set_border_line(void)
 				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
 			}
 		}
+#endif
 	}
 	else 
 	{

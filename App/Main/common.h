@@ -47,6 +47,8 @@
 #include "menu.h"
 #include "item.h"
 
+#include "nv_storage.h"
+
 
 // msg.c
 typedef enum {
@@ -70,6 +72,8 @@ typedef enum {
 
 #define CLEAR	0
 #define SET		1
+
+//#define ELEMENTS_IN_TABLE(table,element)	sizeof(table)/sizeof(element)
 
 // -----------------------------------------------------------------------------
 // External Variables declaration

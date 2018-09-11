@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
-#include "nv_storage.h"
+#include "video_loss.h"
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -137,13 +137,16 @@ void USART3_IRQHandler(void)
 	static u8 bETX_FLAG = 0;
 	u8 Data;
 	u8 i;
+	u8 remoconId;
 
 	Data = USART_ReceiveData(USART3);
 
     // Clear the USART3 RX interrupt
     USART_ClearITPendingBit(USART3,USART_IT_RXNE);
 
-	if(sys_env.vREMOCON_ID != 0)
+    ReadNvItem(NV_ITEM_REMOCON_ID, &remoconId, sizeof(remoconId));
+
+	if(remoconId != 0)
 	{
  		if(!bSOH_FLAG)
 		{
@@ -160,7 +163,7 @@ void USART3_IRQHandler(void)
 		}
 		else if(!bHEADER_FLAG)
 		{
-			if(Data == sys_env.vREMOCON_ID)
+			if(Data == remoconId)
 				bHEADER_FLAG = 1;
 			else 
 			{
@@ -238,76 +241,13 @@ void RTC_IRQHandler(void)
 	}
 }
 
-
-//-----------------------------------------------------------------------------
-//	Video Loss Check
-//-----------------------------------------------------------------------------
-u32 vVideo_Loss = 0; //1:Loss 0:Video
-u8 ch9_loss = 0;
-u8 Loss_Event_Flag = 0;
-u8 Loss_Buzzer_Cnt = 0;
-
-void Loss_Buzzer(void)
-{
-	static u32 timeout= 0;
-
-	if(!TIME_AFTER(tick_10ms,timeout))
-		return;
-
-	timeout = tick_10ms + 50; // 10ms * 50 = 500ms
-
-	if(Loss_Buzzer_Cnt)
-	{
-		if(Loss_Buzzer_Cnt%2) BUZZER_LOW;
-		else BUZZER_HIGH;
-
-		if(Loss_Buzzer_Cnt > 0) Loss_Buzzer_Cnt--;
-
-		if(Loss_Buzzer_Cnt == 0) BUZZER_LOW;
-	}
-}
-
-void Loss_Check(void)
-{
-	static u32 Pre_Video_Loss = 0xFFFFFFFF;
-
-	vVideo_Loss = 0;
-
-	NVP6158_Video_Loss_Check(&vVideo_Loss);
-
-	if(Pre_Video_Loss != vVideo_Loss) 
-	{
-		Loss_Event_Flag = 1;
-	}
-
-	if(Pre_Video_Loss < vVideo_Loss) 
-	{
-		Loss_Buzzer_Cnt = sys_env.vLoss_Time*2;
-	}
-	
-	Pre_Video_Loss = vVideo_Loss;			
-
-}
-
-void Video_Loss_Check(void)
-{
-    static u32 timeout = 0;
-
-    if(!TIME_AFTER(tick_10ms,timeout))
-        return;
-
-    timeout = tick_10ms + 50; // 10ms * 50 = 500ms
-
-	Loss_Check();
-}
-
-
 //=============================================================================
 //  main function
 //=============================================================================
 void main(void)
 {
-	int i;
+	eResolution_t videoOutResolution;
+	u32 nvReset = 0xFFFFFFFF;
 
 	// initialize STM32F103x
 	MCU_init();
@@ -331,8 +271,7 @@ void main(void)
 		ClearKeyReady();
 		if(GetCurrentKey() == KEY_MENU || GetCurrentKey() == KEY_FREEZE)
 		{
-			nv_buffer[cEEP_CHK] = 0;
-			StoreNvData();
+			InitializeNvData();
 
 			BUZZER_HIGH;
 			Delay_ms(100);
@@ -359,9 +298,20 @@ void main(void)
 
 	// I think we don't need this flag because we don't have aux display
 	//aux_display_flag = SET;
+	ReadNvItem(NV_ITEM_OUTPUT_RESOLUTION, &videoOutResolution, sizeof(videoOutResolution));
 
-	if(sys_env.vResolution == 0) Video_Out_Res_Val = VIDOUT_1920x1080p60;
-	else if(sys_env.vResolution == 1) Video_Out_Res_Val = VIDOUT_1920x1080p50; 
+	if(videoOutResolution == RESOLUTION_1920_1080_60P)
+	{
+		Video_Out_Res_Val = VIDOUT_1920x1080p60;
+	}
+	else if(videoOutResolution == RESOLUTION_1920_1080_50P)
+	{
+		Video_Out_Res_Val = VIDOUT_1920x1080p50;
+	}
+	else
+	{
+		// Are there only 2 resolution options?
+	}
 
 	CreateVideoInstance();
 	CreateOSDInstance();
@@ -380,7 +330,7 @@ void main(void)
 #ifdef __4CH__
 	InputSelect = VIDEO_DIGITAL_SDI;
 //	InputSelect = VIDEO_SDI_2HD_POP;
-	sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
+	sys_status.current_split_mode = SPLITMODE_SPLIT4;
 
 	UpdateKeyData(KEY_4SPLIT);
 	SetKeyReady();
@@ -435,7 +385,7 @@ void main(void)
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.
 		VideoHTXCtrlHandler();
 
-		OSG_Display();
+		OSD_Display();
 //		printf("While end \n");
     }
 }

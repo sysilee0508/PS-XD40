@@ -56,11 +56,7 @@ const static keydata_e key_table[] =
 #define KEYCOUNT_REPEAT			40	//400ms
 #define KEYCOUNT_LONG			80	//800ms
 
-#ifdef __9CH_DEVICE__
-#define VALID_LONG_KEY(key)		((key == KEY_FREEZE) || (key == KEY_9SPLIT))?TRUE:FALSE
-#else
 #define VALID_LONG_KEY(key)		(key == KEY_FREEZE)?TRUE:FALSE
-#endif
 
 #define VALID_REPEAT_KEY(key)	\
 	((key == KEY_FULL_CH1) || (key == KEY_FULL_CH2) || \
@@ -247,7 +243,7 @@ void Key_Led_Ctrl(void)
 }
 
 //-----------------------------------------------------------------------------
-//	KeyINPUT()�Լ����� ���� ���� ���¿� ���� �ٽ� ó���ϴ� �Լ�	(20ms���� ����)
+//
 //-----------------------------------------------------------------------------
 void Key_Check(void)	
 {
@@ -371,6 +367,8 @@ void Key_Proc(void)
 {
 	static keydata_e previous_keydata = KEY_NONE;
 	keydata_e key = GetCurrentKey();
+	BOOL autoSeq_skipNoVideoChannel;
+
 
 	if(IsKeyReady()==TRUE)
 	{
@@ -382,48 +380,23 @@ void Key_Proc(void)
 			case KEY_FULL_CH2 : 
 			case KEY_FULL_CH3 : 
 			case KEY_FULL_CH4 : 
-#ifdef __9CH_DEVICE__
-			case KEY_FULL_CH5 : 
-			case KEY_FULL_CH6 : 
-			case KEY_FULL_CH7 : 
-			case KEY_FULL_CH8 : 
-			case KEY_FULL_CH9 :
-#endif
 				// If key is changed...
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					//if(pre_split_mode > FULL_9) //2015.5.23 �ּ�ó��
-					{
-						Erase_OSD();
-					}
+					Erase_OSD();
 					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = key-1;
-#ifdef __9CH_DEVICE__
-					if(key == KEY_FULL_CH9)
-					{
-						Set_border_line();
-						aux_display_flag = SET;
-						//MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-						DEMO_SetPIPViewWIND(0);	// update pip/pop window
-					}
-					else
-#endif
-					{
-						//aux_display_flag = CLEAR;
-						//MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-						//FullScreen(key_data-1); //blocked by Louis
-						Set_border_line();
-					}
+					Set_border_line();
 				}
 				break;
 				
 			case KEY_4SPLIT : 
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					if(pre_split_mode != SPLITMODE_SPLIT4_1 || bAuto_Seq_Flag || bScreenFreeze)
+					if(pre_split_mode != SPLITMODE_SPLIT4 || bAuto_Seq_Flag || bScreenFreeze)
 					{
 						Erase_OSD();
 					}
@@ -431,9 +404,7 @@ void Key_Proc(void)
 					bAuto_Seq_Flag = CLEAR;
 					bMode_change_flag = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
-					//aux_display_flag = CLEAR;
-					//MDIN3xx_EnableAuxDisplay(&stVideo, OFF); 
+					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
 #if 0 //Louis
 				    SGQ_4CH_INIT(change_mode[cmode]);
 #endif
@@ -446,20 +417,17 @@ void Key_Proc(void)
 				{
 					bScreenFreeze = SET;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
-					// don't need aut display for now Right?....by kukuri
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 1);	//aux freeze On
 				}
 				else
 				{
 					bScreenFreeze = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					// don't need aut display for now Right?....by kukuri
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
 				}
 				break;
 
 			case KEY_AUTO_SEQ :
-				if((CLEAR == sys_env.bLossAutoSkip) || ((vVideo_Loss&0x0000000f) != 0x0000000f))
+				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
+				if((OFF == autoSeq_skipNoVideoChannel) || ((vVideo_Loss&0x0000000f) != 0x0000000f))
 				{
 					if(bAuto_Seq_Flag == CLEAR)
 					{
@@ -468,8 +436,6 @@ void Key_Proc(void)
 					//bMode_change_flag = SET;
 					bScreenFreeze = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					// don't need aut display for now Right?....by kukuri
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
 					Auto_Seq_Init();
 				}
 				break;
@@ -478,142 +444,9 @@ void Key_Proc(void)
 				bAuto_Seq_Flag = CLEAR;
 				bScreenFreeze = SET;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-				// don't need aut display for now Right?....by kukuri
-				//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
 				Enter_SetUP();
 				break;
 
-#ifdef __9CH_DEVICE__ // blocked by kukuri
-			case KEY_9SPLIT : 
-				if(pre_key_data != key /*|| SDIRX_change_flag	Louis block*/)
-				{
-					if(sys_env.b9Split_Mode == 0)
-					{
-						if(pre_split_mode != SPLIT9_1 || bAuto_Seq_Flag)
-						{
-							Erase_OSD();
-						}
-						bScreenFreeze = RESET;
-						bAuto_Seq_Flag = RESET;
-						bMode_change_flag = SET;
-						//InputSelect = VIDEO_SDI_2HD_POP;
-						pre_split_mode = sys_status.current_split_mode = SPLIT9_1;
-						aux_display_flag = SET;
-						//MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-#if 0 //Louis
-					    SGQ_9CH_INIT(change_mode[cmode]);
-#endif
-						Set_border_line();
-						DEMO_SetPIPViewWIND(0);	// update pip/pop window
-					}
-					else if((sys_env.b9Split_Mode > 0) && (sys_env.b9Split_Mode < 5))  
-					{
-						if(pre_split_mode != (SPLIT9_1+sys_env.b9Split_Mode) || bAuto_Seq_Flag)
-						{
-							Erase_OSD();
-						}
-						bScreenFreeze = 0;
-						bAuto_Seq_Flag = 0;
-						bMode_change_flag = 1;
-						pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
-						pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
-#if 0 //Louis
-						SGQ_16CH_INIT(change_mode[cmode]);
-#endif
-						//aux_display_flag = 0;
-						aux_display_flag = 1;
-						Set_border_line();
-						DEMO_SetPIPViewWIND(0);	// update pip/pop window
-					}
-					else 
-					{
-						if(pre_split_mode != (SPLIT9_1+sys_env.b9Split_Mode) || bAuto_Seq_Flag)
-						{
-							Erase_OSD();
-						}
-						bScreenFreeze = 0;
-						bAuto_Seq_Flag = 0;
-						bMode_change_flag = 1;
-						pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
-						pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
-#if 0 //Louis
-						SGQ_9CH_INIT(change_mode[cmode]);
-#endif
-						//aux_display_flag = 0;
-						aux_display_flag = 1;
-						Set_border_line();
-						DEMO_SetPIPViewWIND(0);	// update pip/pop window
-					}
-				}
-				break;
-
-			case KEY_9SPLIT + 0x80 : 
-				
-				Inc_Dec_Count(8,0,1,&sys_env.b9Split_Mode);
-				
-				if(sys_env.b9Split_Mode == 0)
-				{
-					if(pre_split_mode != SPLIT9_1 || bAuto_Seq_Flag)
-					{
-						Erase_OSD();
-					}
-					bScreenFreeze = 0;
-					bAuto_Seq_Flag = 0;
-					bMode_change_flag = 1;
-					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = SPLIT9_1;
-					aux_display_flag = 1;
-					//MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-#if 0 //Louis
-				    SGQ_9CH_INIT(change_mode[cmode]);
-#endif
-					Set_border_line();
-					DEMO_SetPIPViewWIND(0);	// update pip/pop window
-				}
-				else if((sys_env.b9Split_Mode > 0) && (sys_env.b9Split_Mode < 5))  
-				{
-					if(pre_split_mode != (SPLIT9_1+sys_env.b9Split_Mode) || bAuto_Seq_Flag)
-					{
-						Erase_OSD();
-					}
-					bScreenFreeze = 0;
-					bAuto_Seq_Flag = 0;
-					bMode_change_flag = 1;
-					pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
-					pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
-#if 0 //Louis
-					SGQ_16CH_INIT(change_mode[cmode]);
-#endif
-					//aux_display_flag = 0;
-					aux_display_flag = 1;
-					Set_border_line();
-					DEMO_SetPIPViewWIND(0);	// update pip/pop window
-				}
-				else 
-				{
-					if(pre_split_mode != (SPLIT9_1+sys_env.b9Split_Mode) || bAuto_Seq_Flag)
-					{
-						Erase_OSD();
-					}
-					bScreenFreeze = 0;
-					bAuto_Seq_Flag = 0;
-					bMode_change_flag = 1;
-					pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
-					pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
-#if 0 //Louis
-					SGQ_9CH_INIT(change_mode[cmode]);
-#endif
-					//aux_display_flag = 0;
-					aux_display_flag = 1;
-					Set_border_line();
-					DEMO_SetPIPViewWIND(0);	// update pip/pop window
-				}
-
-				EEP_buf[cSYSENV_b9Split_Mode] = sys_env.b9Split_Mode;
-				write_eeprom_all();
-
-				break;
-#endif // __9CH_DEVICE__
 		}
 		previous_keydata = key & (~KEY_LONG);
 	}

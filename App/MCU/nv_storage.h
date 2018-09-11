@@ -21,8 +21,6 @@
 #define NV_VERSION_MINOR				(u16)0x0000
 #define NV_VERSION						(NV_VERSION_MAJOR << 16) | NV_VERSION_MINOR
 
-#define CHANNEL_NEME_LENGTH_MAX			12
-
 #define NV_SUCCESS						TRUE
 #define NV_FAIL							FALSE
 
@@ -35,19 +33,17 @@ typedef enum
 	NV_ITEM_START_CHECK = 0,
 	NV_ITEM_VERSION,
 //-- user setting data (MENU) --------------------------------------------------
-	NV_ITEM_TIME_CORRECT_OFFSET,
-	NV_ITEM_TIME_CORRECT_DIRECTION,
-	NV_ITEM_TIME_CORRECT_UNIT,
+	NV_ITEM_TIME_CORRECT,
 	NV_ITEM_DATE_FORMAT,
 	NV_ITEM_TIME_ON,
 	NV_ITEM_TIME_POSITION,
 	NV_ITEM_CHANNEL_NAME,
 	NV_ITEM_TITLE_DISPLAY_ON,
+	NV_ITEM_TITLE_POSITION,
 	NV_ITEM_AUTO_SEQ_TIME,
 	NV_ITEM_AUTO_SEQ_LOSS_SKIP,
 	NV_ITEM_OUTPUT_RESOLUTION,
 	NV_ITEM_OSD_DISPLAY,
-	NV_ITEM_OSD_POSITION,
 	NV_ITEM_BORDER_LINE,
 	NV_ITEM_USER_ALARM_OPTION,
 	NV_ITEM_USER_ALARMOUT_TIME,
@@ -69,14 +65,12 @@ typedef enum
 typedef enum
 {
 	DISPLAY_POSITION_LEFT_TOP,
-	DISPLAY_POSITION_MIDDLE_TOP,
+	DISPLAY_POSITION_CENTER_TOP,
 	DISPLAY_POSITION_RIGHT_TOP,
-	DISPLAY_POSITION_LEFT_CENTER,
-	DISPLAY_POSITION_MIDDLE_CENTER,
-	DISPLAY_POSITION_RIGHT_CENTER,
 	DISPLAY_POSITION_LEFT_BOTTOM,
-	DISPLAY_POSITION_MIDDLE_BOTTOM,
+	DISPLAY_POSITION_CENTER_BOTTOM,
 	DISPLAY_POSITION_RIGHT_BOTTOM,
+	DISPLAY_POSITION_CENTER_4SPILIT,//CH1&CH2 --> center_bottom  / CH3&CH4 --> center_top
 	DISPLAY_POSITION_MAX
 } eDisplayPositon_t;
 
@@ -117,8 +111,8 @@ typedef enum
 
 typedef enum
 {
-	RESOLUTION_1920_1080_50P,
 	RESOLUTION_1920_1080_60P,
+	RESOLUTION_1920_1080_50P,
 	RESOLUTION_MAX
 } eResolution_t;
 
@@ -129,6 +123,13 @@ typedef enum
 	ALARM_OPTION_NC,
 	ALARM_OPTION_MAX
 } eAlarmOption_t;
+
+typedef struct
+{
+	uint8_t 				timeCorrecOffset;
+	eDirection_t 			timeCorrectDirection;
+	eTimeUnit_t 			timeCorrectUint;
+} sTimeCorrect_t;
 
 //--------------------------------------------------------------------------------------
 typedef struct
@@ -143,19 +144,17 @@ typedef struct
 	uint32_t				storageStartCheck;
 	uint32_t				version;
 
-	uint8_t 				timeCorrecOffset;
-	eDirection_t 			timeCorrectDirection;
-	eTimeUnit_t 			timeCorrectUint;
+	sTimeCorrect_t			timeCorrection;
 	eDateFormat_t			dateFormat;
 	BOOL			 		timeDisplayOn;
 	eDisplayPositon_t		timeDisplayPosition;
 	uint8_t 				channelName[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX];
 	BOOL 					titleDisplayOn;
+	eDisplayPositon_t 		titlePosition;
 	uint8_t					autoSeqTime;
 	BOOL					autoSeqLossSkip;
 	eResolution_t 			outputResolution;
 	BOOL					osdOn;
-	eDisplayPositon_t 		osdPosition;
 	BOOL					borderLineOn;
 	eAlarmOption_t 			alarmOption[NUM_OF_CHANNEL];
 	uint8_t 				alarmOutTime;
@@ -172,17 +171,34 @@ typedef struct
 	uint32_t				storageEndCheck;
 } sNvData_t;
 
-
-
-
-
-
 //=============================================================================
 //  Function Prototype
 //=============================================================================
 extern void StoreNvDataToStorage(void);
 extern void LoadNvDataFromStorage(void);
-extern BOOL	ReadNvItem(eNvItems_t item, void * pData);
+extern void InitializeNvData(void);
+
+extern BOOL	ReadNvItem(eNvItems_t item, void * pData, size_t size);
 extern BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size);
 
+extern void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData);
+extern void Write_NvItem_TimeCorrect(sTimeCorrect_t *pData);
+extern void Read_NvItem_VideoLossBuzzerTime(uint8_t *pData);
+extern void Write_NvItem_VideoLossBuzzerTime(uint8_t *pData);
+extern void Read_NvItem_AutoSeqTime(u8* pData);
+extern void Write_NvItem_AutoSeqTime(u8* pData);
+extern void Read_NvItem_AutoSeqLossSkip(BOOL* pData);
+extern void Write_NvItem_AutoSeqLossSkip(BOOL *pData);
+extern void Read_NvItem_OsdOn(BOOL* pData);
+extern void Write_NvItem_OsdOn(BOOL *pData);
+extern void Read_NvItem_TitleDispalyOn(BOOL *pData);
+extern void Write_NvItem_TitleDispalyOn(BOOL *pData);
+extern void Read_NvItem_TitlePosition(eDisplayPositon_t *pData);
+extern void Write_NvItem_TitlePosition(eDisplayPositon_t *pData);
+extern void Read_NvItem_TimeDisplayOn(BOOL* pData);
+extern void Write_NvItem_TimeDisplayOn(BOOL *pData);
+extern void Read_NvItem_TimePosition(eDisplayPositon_t *pData);
+extern void Write_NvItem_TimePosition(eDisplayPositon_t *pData);
+extern void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel);
+extern void Write_NvItem_ChannelName(uint8_t* pData, eChannel_t channel);
 #endif

@@ -4,11 +4,21 @@
 #undef __9CH_DEVICE__
 #define __4CH__
 
+typedef enum
+{
+	CHANNEL1 = 0,
+	CHANNEL2,
+	CHANNEL3,
+	CHANNEL4,
 #ifdef __9CH_DEVICE__
-#define NUM_OF_CHANNEL				9
-#else
-#define NUM_OF_CHANNEL				4
+	CHANNEL5,
+	CHANNEL6,
+	CHANNEL7,
+	CHANNEL8,
+	CHANNEL9,
 #endif
+	NUM_OF_CHANNEL
+} eChannel_t;
 
 //-----------------------------------------------------------------------------
 //  ���� �ý��� ���� ����
@@ -19,33 +29,14 @@ typedef enum
 	SPLITMODE_FULL_CH2,
 	SPLITMODE_FULL_CH3,
 	SPLITMODE_FULL_CH4,
-	// Do we need these split mode?? kukuri
-	SPLITMODE_FULL_CH5,
-	SPLITMODE_FULL_CH6,
-	SPLITMODE_FULL_CH7,
-	SPLITMODE_FULL_CH8,
-	SPLITMODE_FULL_CH9,
-	// <--- to here
-	SPLITMODE_SPLIT4_1,
-	SPLITMODE_SPLIT4_2,
-	// I think we don't need belows, too.  kukuri
-	SPLITMODE_SPLIT9_1,
-	SPLITMODE_SPLIT9_2,
-	SPLITMODE_SPLIT9_3,
-	SPLITMODE_SPLIT9_4,
-	SPLITMODE_SPLIT9_5,
-	SPLITMODE_SPLIT9_6,
-	SPLITMODE_SPLIT9_7,
-	SPLITMODE_SPLIT9_8,
-	SPLITMODE_SPLIT9_9,
-//<-- to here
+	SPLITMODE_SPLIT4,
 	SPLITMODE_MAX
-} splitmode_e;
+} eSplitmode_t;
 
 typedef struct
 {
 	unsigned char current_mode;				// ���� ���� (���� ���� ���, �޴����)
-	splitmode_e current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
+	eSplitmode_t current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
 	
 } sys_stat_t;
 
@@ -78,7 +69,7 @@ extern BYTE sysenv_split_mode;
 
 extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);
-extern void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss);
+
 extern void vs4210_system_init(void);
 extern void vs4210_display_proc(void);
 

@@ -1124,9 +1124,7 @@ void Off_Check(u8 PX,u8 PY,u8 Split_mode,u8 Position)
 
 const u8 cAUTO_SEQUENCE3[] = "- AUTO SEQUENCE -";
 const u8 cFULL_3[]		   = "1. FULL   : ";
-#ifdef __4CH__
 const u8 cLOSS_AUTO_SKIP3[] = "2. LOSS AUTO SKIP: ";
-#endif
 
 void PAGE3_TITLE()
 {
@@ -1140,10 +1138,8 @@ void PAGE3_TITLE()
     CodeWriteChar(23,6,cFULL_3,NULL,0);
 	Off_Check(35,6,SEQ_FULL,NULL);
 
-#ifdef __4CH__
     CodeWriteChar(23,8,cLOSS_AUTO_SKIP3,NULL,0);
 	ON_OFF_DSP(42,8,NULL,sys_env.bLossAutoSkip);
-#endif
 }
 
 
@@ -1151,10 +1147,12 @@ void tPAGE3_Position(u8 Position)
 {
 	switch(vITEM_Y)
 	{
-    	case 0 : Off_Check(35,6,CH1,Position); break; 
-#ifdef __4CH__
-    	case 1 : ON_OFF_DSP(42,8,Position,sys_env.bLossAutoSkip); break; 
-#endif
+    	case 0 :
+    		Off_Check(35,6,CH1,Position);
+    		break;
+    	case 1 :
+    		ON_OFF_DSP(42,8,Position,sys_env.bLossAutoSkip);
+    		break;
  	}
 }
 
@@ -1172,10 +1170,14 @@ void tPAGE3_KEY(void)
 
 			switch(vITEM_Y)
  			{
-#ifdef __4CH__
-      			case 0 : Inc_Dec_Count(60,0,State,&sys_env.vDWELL[vITEM_Y]); nv_buffer[cSYSENV_vDWELL+vITEM_Y] = sys_env.vDWELL[vITEM_Y]; break;
-       			case 1 : Inc_Dec_Count(1,0,State,&sys_env.bLossAutoSkip); nv_buffer[cSYSENV_bLossAutoSkip] = sys_env.bLossAutoSkip; break;
-#endif
+      			case 0 :
+      				Inc_Dec_Count(60,0,State,&sys_env.vDWELL[vITEM_Y]);
+      				nv_buffer[cSYSENV_vDWELL+vITEM_Y] = sys_env.vDWELL[vITEM_Y];
+      				break;
+       			case 1 :
+       				Inc_Dec_Count(1,0,State,&sys_env.bLossAutoSkip);
+       				nv_buffer[cSYSENV_bLossAutoSkip] = sys_env.bLossAutoSkip;
+       				break;
 			}
 			
 			tPAGE3_Position(UNDER_BAR);
