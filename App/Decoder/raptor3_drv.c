@@ -845,12 +845,6 @@ void video_output_port_mux_mode_set(video_output_port_mux_mode *vout_port_mux_mo
 {
 	unsigned char val;
 
-	#if 0
-	printk("[DRV] vout_port_mux_mode->port = %x\n", vout_port_mux_mode->port);
-	printk("[DRV] vout_port_mux_mode->mode = %x\n", vout_port_mux_mode->mode);
-	printk("[DRV] vout_port_mux_mode->devnum = %x\n", vout_port_mux_mode->devnum);
-	#endif
-
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x01);
 	switch(vout_port_mux_mode->port)
 	{
@@ -955,674 +949,252 @@ void video_input_manual_agc_stable_endi(decoder_dev_ch_info_s *decoder_info, int
 	}
 }
 
-void video_input_sam_val_read(video_input_sam_val *vin_sam_val ) 
+/**************************************************************************************
+* @desc
+* 	RAPTOR3's
+*
+* @param_in		(motion_mode *)p_param->channel                  FW Update channel
+*
+* @return   	void  		       								 None
+*
+* ioctl : IOC_VDEC_MOTION_SET
+***************************************************************************************/
+void motion_detection_get(motion_mode *motion_set)
 {
-	unsigned char val1, val2;
+	//BANK2_MOTION
+	unsigned char ReadVal = 0;
+	unsigned char ch_mask = 1;
+	unsigned char ch = motion_set->ch;
+	unsigned char ret = 0;
 
-	// Channel Change Sequence
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x13);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2B, vin_sam_val->ch);
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x13); /* + vin_sam_val->ch ); */
-	//B13 0xC9 [7:0] SAM Value
-	val1 = NVP6158_I2C_READ(NVP6158_ADDR, 0xC9) ;
-	//B13 0xC8 [9:8] SAM Value
-	val2 = NVP6158_I2C_READ(NVP6158_ADDR, 0xC8) & 0x3;
-
-	vin_sam_val->sam_val = ((val2 << 8) | val1);
-}
-
-void video_input_hsync_accum_read(video_input_hsync_accum *vin_hsync_accum )
-{
-	unsigned char val01, val02, val03, val04;
-	unsigned char val11, val12, val13, val14;
-
-	unsigned char h_lock;
-	unsigned int val_1;
-	unsigned int val_2;
-	unsigned int val_result;
+	ch_mask = ch_mask<<ch;
 
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00);
-	h_lock = (NVP6158_I2C_READ(NVP6158_ADDR, 0xE2) >> vin_hsync_accum->ch) & 0x1;
+	ReadVal = NVP6158_I2C_READ(NVP6158_ADDR, 0xA9);
 
-	vin_hsync_accum->h_lock = h_lock;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x13);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2B, vin_hsync_accum->ch);
-
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x13); 	/* + vin_sam_val->ch  */
-
-	//B13 0xB4 [ 7:0] Hsync Accumulation Value
-	val01 = NVP6158_I2C_READ(NVP6158_ADDR, 0xD0);	// 170214 0xB4 -> 0xD0 Fix
-	//B13 0xB5 [15:8] Hsync Accumulation Value
-	val02 = NVP6158_I2C_READ(NVP6158_ADDR, 0xD1);	// 170214 0xB5 -> 0xD1 Fix
-	//B13 0xB6 [23:16] Hsync Accumulation Value
-	val03 = NVP6158_I2C_READ(NVP6158_ADDR, 0xD2);	// 170214 0xB6 -> 0xD2 Fix
-	//B13 0xB7 [31:24] Hsync Accumulation Value
-	val04 = NVP6158_I2C_READ(NVP6158_ADDR, 0xD3);	// 170214 0xB7 -> 0xD3 Fix
-
-	//B13 0xB4 [ 7:0] Hsync Accumulation Value
-	val11 = NVP6158_I2C_READ(NVP6158_ADDR, 0xD4);	// 170214 0xB8 -> 0xD4 Fix
-	//B13 0xB5 [15:8] Hsync Accumulation Value
-	val12 = NVP6158_I2C_READ(NVP6158_ADDR, 0xD5);	// 170214 0xB9 -> 0xD5 Fix
-	//B13 0xB6 [23:16] Hsync Accumulation Value
-	val13 = NVP6158_I2C_READ(NVP6158_ADDR, 0xD6);	// 170214 0xBA -> 0xD6 Fix
-	//B13 0xB7 [31:24] Hsync Accumulation Value
-	val14 = NVP6158_I2C_READ(NVP6158_ADDR, 0xD7);	// 170214 0xBB -> 0xD7 Fix
-
-	val_1 = ((val04 << 24) | (val03 << 16) | (val02 << 8) | val01);
-	val_2 = ((val14 << 24) | (val13 << 16) | (val12 << 8) | val11);
-
-	val_result = val_1 - val_2;
-
-	vin_hsync_accum->hsync_accum_val1 = val_1;
-	vin_hsync_accum->hsync_accum_val2 = val_2;
-	vin_hsync_accum->hsync_accum_result = val_result;
+	ret = ReadVal&ch_mask;
+	motion_set->set_val = ret;
 }
 
-void video_input_agc_val_read(video_input_agc_val *vin_agc_val) 
+void motion_onoff_set(motion_mode *motion_set)
 {
-	unsigned char agc_lock;
+	//BANK2_MOTION
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x02);
 
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00);
-	agc_lock = (NVP6158_I2C_READ(NVP6158_ADDR, 0xE0) >> vin_agc_val->ch) & 0x1;
+	if(motion_set->fmtdef == TVI_3M_18P || motion_set->fmtdef == TVI_5M_12_5P || motion_set->fmtdef == TVI_5M_20P)
+	{
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x00 + (0x07 * motion_set->ch), 0x0C);
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x02 + (0x07 * motion_set->ch), 0x23);
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x28 + (0x06 * motion_set->ch), 0x11);
 
-	 vin_agc_val->agc_lock = agc_lock;
+		if(motion_set->fmtdef == TVI_3M_18P)
+		{
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x29 + (0x06 * motion_set->ch), 0x78);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2A + (0x06 * motion_set->ch), 0x40);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C + (0x06 * motion_set->ch), 0x72);
+		}
+		else if(motion_set->fmtdef == TVI_5M_12_5P)
+		{
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x29 + (0x06 * motion_set->ch), 0xA2);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2A + (0x06 * motion_set->ch), 0x51);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C + (0x06 * motion_set->ch), 0x9c);
+		}
+		else if(motion_set->fmtdef == TVI_5M_20P)
+		{
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x29 + (0x06 * motion_set->ch), 0xA0);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2A + (0x06 * motion_set->ch), 0x51);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C + (0x06 * motion_set->ch), 0x9a);
+		}
 
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x13);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2B, vin_agc_val->ch);
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2B + (0x06 * motion_set->ch), 0x6);
 
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x13); /* + vin_sam_val->ch ); */
-
-	//B13 0xB8 [ 7:0] Hsync Accumulation Value
-	vin_agc_val->agc_val = NVP6158_I2C_READ(NVP6158_ADDR, 0xC4); // 170213 0xA9 -> 0xC5 // 170310 0xC5 -> 0xC4
-}
-
-void video_input_acc_gain_val_read(video_input_acc_gain_val *vin_acc_gain) // 170215 acc gain read
-{
-	unsigned char val1, val2;
-
-	if(vin_acc_gain->func_sel == ACC_GAIN_NORMAL) {
-
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + vin_acc_gain->ch);
-
-		val1 = NVP6158_I2C_READ(NVP6158_ADDR,0xE2) & 0x7; // B5 0xE2 acc gain [10:8]
-		val2 = NVP6158_I2C_READ(NVP6158_ADDR,0xE3); 		 // B5 0xE3 acc gain [7:0]
-	}
-	else if(vin_acc_gain->func_sel == ACC_GAIN_DEBUG) { 	// DEBUG
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00);
-		val1 = 0;
-		val2 = NVP6158_I2C_READ(NVP6158_ADDR,0xD8 + vin_acc_gain->ch); // B13 0xC6 acc gain [9:8]
 	}
 	else
 	{
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05);
-
-		val1 = NVP6158_I2C_READ(NVP6158_ADDR,0xE2) & 0x7; // B5 0xE2 acc gain [10:8]
-		val2 = NVP6158_I2C_READ(NVP6158_ADDR,0xE3); 		 // B5 0xE3 acc gain [7:0]
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x28 + (0x06 * motion_set->ch), 0x00);
 	}
 
-	vin_acc_gain->acc_gain_val = val1 << 8 | val2;
-}
-
-unsigned int __get_acc_gain(unsigned char ch, unsigned char devnum)
-{
-	unsigned int acc_gain_status;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF,0x05+ch%4);
-	acc_gain_status = NVP6158_I2C_READ(NVP6158_ADDR,0xE2);
-	acc_gain_status <<= 8;
-	acc_gain_status |= NVP6158_I2C_READ(NVP6158_ADDR,0xE3);
-
-	return acc_gain_status;
-}
-
-unsigned int __get_yplus_slope(unsigned char ch, unsigned char devnum)
-{
-	unsigned int y_plus_slp_status;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF,0x05+ch%4);
-	y_plus_slp_status = NVP6158_I2C_READ(NVP6158_ADDR,0xE8)&0x07;
-	y_plus_slp_status <<= 8;
-	y_plus_slp_status |= NVP6158_I2C_READ(NVP6158_ADDR,0xE9);
-
-	return y_plus_slp_status;
-}
-
-unsigned int __get_yminus_slope(unsigned char ch, unsigned char devnum)
-{
-	unsigned int y_minus_slp_status;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF,0x05+ch%4);
-	y_minus_slp_status = NVP6158_I2C_READ(NVP6158_ADDR,0xEA)&0x07;
-	y_minus_slp_status <<= 8;
-	y_minus_slp_status |= NVP6158_I2C_READ(NVP6158_ADDR,0xEB);
-
-	return y_minus_slp_status;
-}
-
-unsigned int __get_sync_width( unsigned char ch, unsigned char devnum )
-{
-	unsigned char	 reg_B0_E0 = 0;
-	unsigned char	 agc_stable = 0;
-	unsigned int	 sync_width = 0;
-	unsigned int 	 check_timeout = 0;
-
-	while(agc_stable == 0)
+	if(motion_set->set_val<0 || motion_set->set_val>1)
 	{
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00);
-		reg_B0_E0 = NVP6158_I2C_READ(NVP6158_ADDR, 0xE0 )&0xF;
-		agc_stable = reg_B0_E0 & (0x01 << (ch%4));
-
-		if( check_timeout++ > 100 )
-		{
-			break;
-		}
-		Delay_ms(1);
+		return;
 	}
 
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05+(ch%4));
-	sync_width = NVP6158_I2C_READ(NVP6158_ADDR, 0xC4)&0x0F;
-	sync_width <<=8;
-	sync_width |= NVP6158_I2C_READ(NVP6158_ADDR, 0xC5);
-	sync_width = sync_width & 0x0FFF;
-
-	return sync_width;
-}
-
-unsigned char __video_cable_manualdistance( unsigned char cabletype, video_input_hsync_accum *pvin_hsync_accum, video_input_acc_gain_val *pvin_acc_val, video_equalizer_distance_table_s *pdistance_value )
-{
-	int i = 0;
-	unsigned char distance = 0; /* default : short(0) */
-
-	/* for coaxial */
-	if( cabletype == 0 )
+	switch(motion_set->set_val)
 	{
-		for( i = 0; i < 6; i++ )
-		{
-				if( (pvin_hsync_accum->hsync_accum_result > pdistance_value->hsync_stage.hsync_stage[i]) )
-			{
-				distance = i;
-				break;
-			}
-
-		}
-		if( i == 6 )
-		{
-			distance = 5;
-		}
+		case FUNC_OFF : NVP6158_I2C_WRITE(NVP6158_ADDR, (0x00 + (0x07 * motion_set->ch)), 0x0D);
+						NVP6158_I2C_WRITE(NVP6158_ADDR, 0x28 + (0x06 * motion_set->ch), 0x00);
+			break;
+		case FUNC_ON : NVP6158_I2C_WRITE(NVP6158_ADDR, (0x00 + (0x07 * motion_set->ch)), 0x0C);
+			break;
 	}
 
-	if( pvin_hsync_accum->hsync_accum_result == 0 )
+
+}
+
+void motion_pixel_all_onoff_set(motion_mode *motion_set)
+{
+	int ii=0;
+	unsigned char addr = 0;
+
+	//BANK2_MOTION
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x02);
+
+	if(motion_set->fmtdef == TVI_3M_18P || motion_set->fmtdef == TVI_5M_12_5P || motion_set->fmtdef == TVI_5M_20P)
 	{
-		distance = 0; /* set default value(short:0) */
-	}
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x00 + (0x07 * motion_set->ch), 0x0C);
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x02 + (0x07 * motion_set->ch), 0x23);
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x28 + (0x06 * motion_set->ch), 0x11);
 
-	return distance;
-}
-
-void __eq_base_set_value( video_equalizer_info_s *pvin_eq_set, video_equalizer_base_s *pbase )
-{
-	unsigned char ch = pvin_eq_set->Ch;
-	unsigned char dist = pvin_eq_set->distance;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + ch );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x01, pbase->eq_bypass[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58, pbase->eq_band_sel[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5C, pbase->eq_gain_sel[dist] );
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, (ch < 2 ? 0x0a : 0x0b) );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3d + (ch%2 * 0x80), pbase->deq_a_on[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + (ch%2 * 0x80), pbase->deq_a_sel[dist] );
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x09 );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x80 + (ch * 0x20), pbase->deq_b_sel[dist] );
-}
-
-void __eq_coeff_set_value( video_equalizer_info_s *pvin_eq_set, video_equalizer_coeff_s *pcoeff )
-{
-	unsigned char ch = pvin_eq_set->Ch;
-	unsigned char dist = pvin_eq_set->distance;
-
-//	unsigned char val_0x30;
-//	unsigned char val_0x31;
-//	unsigned char val_0x32;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, (ch < 2 ? 0x0a : 0x0b) );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x30 + (ch%2 * 0x80), pcoeff->deqA_01[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x31 + (ch%2 * 0x80), pcoeff->deqA_02[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x32 + (ch%2 * 0x80), pcoeff->deqA_03[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x33 + (ch%2 * 0x80), pcoeff->deqA_04[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x34 + (ch%2 * 0x80), pcoeff->deqA_05[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x35 + (ch%2 * 0x80), pcoeff->deqA_06[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x36 + (ch%2 * 0x80), pcoeff->deqA_07[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x37 + (ch%2 * 0x80), pcoeff->deqA_08[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x38 + (ch%2 * 0x80), pcoeff->deqA_09[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x39 + (ch%2 * 0x80), pcoeff->deqA_10[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3a + (ch%2 * 0x80), pcoeff->deqA_11[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3b + (ch%2 * 0x80), pcoeff->deqA_12[dist] );
-
-//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x13 );
-//	val_0x30 = NVP6158_I2C_READ(NVP6158_ADDR, 0x30);
-//	val_0x31 = NVP6158_I2C_READ(NVP6158_ADDR, 0x31);
-//	val_0x32 = NVP6158_I2C_READ(NVP6158_ADDR, 0x32);
-//	val_0x30 |= ((1 << (ch + 4)) | (1 << ch));
-//	val_0x31 |= ((1 << (ch + 4)) | (1 << ch));
-//	val_0x32 |= ((1 << ch) & 0xF);
-//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x30, val_0x30);
-//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x31, val_0x31);
-//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x32, val_0x32);
-}
-
-void __eq_color_set_value( video_equalizer_info_s *pvin_eq_set, video_equalizer_color_s *pcolor )
-{
-	unsigned char ch = pvin_eq_set->Ch;
-	unsigned char dist = pvin_eq_set->distance;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x10 + ch, pcolor->contrast[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x18 + ch, pcolor->h_peaking[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x21 + ch*4, pcolor->c_filter[dist] );
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x40 + ch, pcolor->hue[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x44 + ch, pcolor->u_gain[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x48 + ch, pcolor->v_gain[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x4C + ch, pcolor->u_offset[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x50 + ch, pcolor->v_offset[dist] );
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x05 + ch);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x20, pcolor->black_level[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x27, pcolor->acc_ref[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x28, pcolor->cti_delay[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2b, pcolor->sub_saturation[dist] );
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x24, pcolor->burst_dec_a[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5f, pcolor->burst_dec_b[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xd1, pcolor->burst_dec_c[dist] );
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xd5, pcolor->c_option[dist] );
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, (ch < 2 ? 0x0a : 0x0b) );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x25 + (ch%2 * 0x80), pcolor->y_filter_b[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x27 + (ch%2 * 0x80), pcolor->y_filter_b_sel[dist] );
-
-#ifdef __FOR_IDIS_TVI_2M
-	if(pvin_eq_set->FmtDef == TVI_FHD_25P || pvin_eq_set->FmtDef == TVI_FHD_30P)
-	{
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
-
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ch, 0x12 );
-		switch(dist)
+		if(motion_set->fmtdef == TVI_3M_18P)
 		{
-		case 0 :  NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0x90 );
-			break;
-		case 1 : NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0xa0 );
-			break;
-		case 2 : NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0xb0 );
-			break;
-		case 3 : NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0xb0 );
-			break;
-		case 4 : NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0x90 );
-			break;
-		case 5 : NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0x80 );
-			break;
-
-		default : NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0x90 );
-			break;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x29 + (0x06 * motion_set->ch), 0x78);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2A + (0x06 * motion_set->ch), 0x40);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C + (0x06 * motion_set->ch), 0x72);
 		}
+		else if(motion_set->fmtdef == TVI_5M_12_5P)
+		{
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x29 + (0x06 * motion_set->ch), 0xA2);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2A + (0x06 * motion_set->ch), 0x51);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C + (0x06 * motion_set->ch), 0x9c);
+		}
+		else if(motion_set->fmtdef == TVI_5M_20P)
+		{
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x29 + (0x06 * motion_set->ch), 0xA0);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2A + (0x06 * motion_set->ch), 0x51);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C + (0x06 * motion_set->ch), 0x9a);
+		}
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2B + (0x06 * motion_set->ch), 0x6);
+
 	}
 	else
 	{
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
-
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ch, 0x00 );
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0x80 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x28 + (0x06 * motion_set->ch), 0x00);
 	}
-#elif __FOR_HIK_DEMO_180208
 
-	if( pvin_eq_set->FmtDef == TVI_4M_25P )
+	for(ii=0; ii<24; ii++)
 	{
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
-
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ch, 0x00 );
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0x80 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, (0x40 +(0x18 *motion_set->ch)) + ii, motion_set->set_val);
+		addr = (0x40 +(0x18 *motion_set->ch)) + ii;
 	}
-	else if(pvin_eq_set->FmtDef == TVI_FHD_25P )
+}
+
+void motion_pixel_onoff_set(motion_mode *motion_set)
+{
+	unsigned char val = 0x80;
+	unsigned char ReadVal;
+	unsigned char on;
+
+	unsigned char ch      = motion_set->ch;
+	unsigned char SetPix  = motion_set->set_val/8;
+	unsigned char SetVal  = motion_set->set_val%8;
+
+	val = val >> SetVal;
+
+	//BANK2_MOTION
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x02);
+
+	if(motion_set->fmtdef == TVI_3M_18P || motion_set->fmtdef == TVI_5M_12_5P || motion_set->fmtdef == TVI_5M_20P)
 	{
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x00 + (0x07 * motion_set->ch), 0x0C);
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x02 + (0x07 * motion_set->ch), 0x23);
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x28 + (0x06 * motion_set->ch), 0x11);
 
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0x80 );
-
-		switch(dist)
+		if(motion_set->fmtdef == TVI_3M_18P)
 		{
-			case 0 :
-			case 1 :
-			case 2 :
-			case 3 : NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ch, 0x00 );
-				break;
-			case 4 :
-			case 5 : NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ch, 0xf0 );
-				break;
-			default : NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ch, 0x00 );
-				break;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x29 + (0x06 * motion_set->ch), 0x78);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2A + (0x06 * motion_set->ch), 0x40);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C + (0x06 * motion_set->ch), 0x72);
 		}
-	}
-	else if( pvin_eq_set->FmtDef == TVI_HD_B_25P_EX )
-	{
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
+		else if(motion_set->fmtdef == TVI_5M_12_5P)
+		{
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x29 + (0x06 * motion_set->ch), 0xA2);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2A + (0x06 * motion_set->ch), 0x51);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C + (0x06 * motion_set->ch), 0x9c);
+		}
+		else if(motion_set->fmtdef == TVI_5M_20P)
+		{
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x29 + (0x06 * motion_set->ch), 0xA0);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2A + (0x06 * motion_set->ch), 0x51);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C + (0x06 * motion_set->ch), 0x9a);
+		}
 
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ch, 0xf0 );
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0x90 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2B + (0x06 * motion_set->ch), 0x6);
+
 	}
 	else
 	{
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
-
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ch, 0x00 );
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x3c + ch, 0x80 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x28 + (0x06 * motion_set->ch), 0x00);
 	}
 
-#else
-
-#endif
-}
-
-void __eq_timing_a_set_value( video_equalizer_info_s *pvin_eq_set, video_equalizer_timing_a_s *ptiming_a )
-{
-	unsigned char ch = pvin_eq_set->Ch;
-	unsigned char dist = pvin_eq_set->distance;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00 );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + ch, ptiming_a->h_delay_a[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x89 + ch, ptiming_a->h_delay_b[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8e + ch, ptiming_a->h_delay_c[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xa0 + ch, ptiming_a->y_delay[dist] );
-}
-
-void __eq_clk_set_value( video_equalizer_info_s *pvin_eq_set, video_equalizer_clk_s *pclk )
-{
-	unsigned char ch = pvin_eq_set->Ch;
-	unsigned char dist = pvin_eq_set->distance;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x01 );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x84 + ch, pclk->clk_adc[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8C + ch, pclk->clk_dec[dist] );
-}
-void __eq_timing_b_set_value( video_equalizer_info_s *pvin_eq_set, video_equalizer_timing_b_s *ptiming_b )
-{
-	unsigned char ch = pvin_eq_set->Ch;
-	unsigned char dist = pvin_eq_set->distance;
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x09 );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x96 + (ch * 0x20), ptiming_b->h_scaler1[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x97 + (ch * 0x20), ptiming_b->h_scaler2[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x98 + (ch * 0x20), ptiming_b->h_scaler3[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x99 + (ch * 0x20), ptiming_b->h_scaler4[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x9A + (ch * 0x20), ptiming_b->h_scaler5[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x9B + (ch * 0x20), ptiming_b->h_scaler6[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x9C + (ch * 0x20), ptiming_b->h_scaler7[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x9D + (ch * 0x20), ptiming_b->h_scaler8[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x9E + (ch * 0x20), ptiming_b->h_scaler9[dist] );
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x40 + ch , 		 ptiming_b->pn_auto[dist] );
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x05 + ch );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x90, ptiming_b->comb_mode[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xb9, ptiming_b->h_pll_op_a[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x57, ptiming_b->mem_path[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x25, ptiming_b->fsc_lock_speed[dist] );
-
-
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x81 + ch, ptiming_b->format_set1[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x85 + ch, ptiming_b->format_set2[dist] );
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x64 + ch, ptiming_b->v_delay[dist] );
-
-}
-
-void video_input_eq_val_set(video_equalizer_info_s *pvin_eq_set)
-{
-	unsigned char val_13x30;
-	unsigned char val_13x31;
-	unsigned char val_0x54;
-	unsigned char val_5678x69;
-	unsigned char val_9x44;
-
-	unsigned char ch = pvin_eq_set->Ch;
-
-	if( pvin_eq_set->FmtDef == CVI_4M_25P  || pvin_eq_set->FmtDef == CVI_4M_30P  ||
-	    pvin_eq_set->FmtDef == CVI_FHD_25P || pvin_eq_set->FmtDef == CVI_FHD_30P ||
-	    pvin_eq_set->FmtDef == CVI_8M_12_5P			   || pvin_eq_set->FmtDef == CVI_8M_15P  			||
-	    pvin_eq_set->FmtDef == TVI_4M_25P  || pvin_eq_set->FmtDef == TVI_4M_30P  ||
-		pvin_eq_set->FmtDef == AHD30_3M_18P			   || pvin_eq_set->FmtDef == AHD30_3M_25P 			||
-		pvin_eq_set->FmtDef == AHD30_3M_30P			   || pvin_eq_set->FmtDef == AHD30_4M_15P 		    ||
-	    pvin_eq_set->FmtDef == AHD30_4M_25P			   || pvin_eq_set->FmtDef == AHD30_4M_30P 			||
-		pvin_eq_set->FmtDef == AHD30_5M_12_5P		   || pvin_eq_set->FmtDef == AHD30_5M_20P			   ||
-		pvin_eq_set->FmtDef == TVI_5M_12_5P			   || pvin_eq_set->FmtDef == TVI_3M_18P 			||
-		pvin_eq_set->FmtDef == AHD20_1080P_30P         || pvin_eq_set->FmtDef == AHD20_1080P_25P 		||
-		pvin_eq_set->FmtDef == TVI_FHD_30P             || pvin_eq_set->FmtDef == TVI_FHD_25P			||
-		pvin_eq_set->FmtDef == AHD20_720P_30P_EX_Btype || pvin_eq_set->FmtDef == AHD20_720P_25P_EX_Btype ||
-	    pvin_eq_set->FmtDef == CVI_HD_30P_EX           || pvin_eq_set->FmtDef == CVI_HD_25P_EX			||
-		pvin_eq_set->FmtDef == CVI_HD_30P              || pvin_eq_set->FmtDef == CVI_HD_25P  			||
-		pvin_eq_set->FmtDef == CVI_HD_60P              || pvin_eq_set->FmtDef == CVI_HD_50P   			||
-	    pvin_eq_set->FmtDef == TVI_HD_30P			   || pvin_eq_set->FmtDef == TVI_HD_25P			    ||
-	    pvin_eq_set->FmtDef == TVI_HD_30P_EX		   || pvin_eq_set->FmtDef == TVI_HD_25P_EX			||
-	    pvin_eq_set->FmtDef == TVI_HD_B_30P			   || pvin_eq_set->FmtDef == TVI_HD_B_25P 			||
-	    pvin_eq_set->FmtDef == TVI_HD_B_30P_EX		   || pvin_eq_set->FmtDef == TVI_HD_B_25P_EX		||
-		pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_NT || pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_PAL ||
-
-		pvin_eq_set->FmtDef == AHD20_1080P_60P         || pvin_eq_set->FmtDef == AHD20_1080P_50P		||
-
-		 pvin_eq_set->FmtDef == AHD30_8M_12_5P			   || pvin_eq_set->FmtDef == AHD30_8M_15P  			||
-		 pvin_eq_set->FmtDef == AHD30_8M_7_5P			   ||
-
-		pvin_eq_set->FmtDef == TVI_5M_20P				  || pvin_eq_set->FmtDef == AHD30_5_3M_20P		||
-		pvin_eq_set->FmtDef == TVI_4M_15P
-		/* and all format */
-		)
+	ReadVal = NVP6158_I2C_READ(NVP6158_ADDR, (0x40 +(0x18 *ch)) + SetPix);
+	on = val&ReadVal;
+	if(on)
 	{
-		/* cable type => 0:coaxial, 1:utp, 2:reserved1, 3:reserved2 */
-		video_equalizer_value_table_s eq_value = equalizer_value_fmtdef[pvin_eq_set->FmtDef];
-
-                /* for verification by edward */
-
-		if(pvin_eq_set->FmtDef == AHD20_720P_30P_EX_Btype || pvin_eq_set->FmtDef == AHD20_720P_25P_EX_Btype ||
-		   pvin_eq_set->FmtDef == CVI_HD_30P_EX           || pvin_eq_set->FmtDef == CVI_HD_25P_EX			||
-		   pvin_eq_set->FmtDef == CVI_HD_30P              || pvin_eq_set->FmtDef == CVI_HD_25P  			||
-		   pvin_eq_set->FmtDef == TVI_HD_30P			  || pvin_eq_set->FmtDef == TVI_HD_25P			    ||
-		   pvin_eq_set->FmtDef == TVI_HD_30P_EX			  || pvin_eq_set->FmtDef == TVI_HD_25P_EX			||
-		   pvin_eq_set->FmtDef == TVI_HD_B_30P			  || pvin_eq_set->FmtDef == TVI_HD_B_25P 			||
-		   pvin_eq_set->FmtDef == TVI_HD_B_30P_EX		  || pvin_eq_set->FmtDef == TVI_HD_B_25P_EX   	    
-		   
-		  )
-		{
-
-		}
-		else
-		{
-			if(pvin_eq_set->distance > 5)
-			{
-				pvin_eq_set->distance = 5;
-			}
-		}
-
-		/* set eq value */
-		__eq_base_set_value( pvin_eq_set, &eq_value.eq_base );
-		__eq_coeff_set_value( pvin_eq_set, &eq_value.eq_coeff );
-		__eq_color_set_value( pvin_eq_set, &eq_value.eq_color);
-		__eq_timing_a_set_value( pvin_eq_set, &eq_value.eq_timing_a );
-		__eq_clk_set_value( pvin_eq_set, &eq_value.eq_clk );
-		__eq_timing_b_set_value( pvin_eq_set, &eq_value.eq_timing_b );
-
-		if( pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_NT || pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_PAL )
-		{
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00);
-
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x34 + ch, 0x01);		/* line_mem_mode Enable */
-
-			if( pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_NT )
-			{
-				val_0x54 = NVP6158_I2C_READ(NVP6158_ADDR, 0x54);
-				val_0x54 &= ~((0x1 << (ch+4)));
-				val_0x54 |= ((0x1 << (ch+4)));
-				NVP6158_I2C_WRITE(NVP6158_ADDR, 0x54, val_0x54);  /* Enable FLD_INV for CVBS NT format */
-
-				NVP6158_I2C_WRITE(NVP6158_ADDR, 0x08 + ch, 0xa0);
-				NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5c + ch, 0xd0); /* Set V_Delay */
-			}
-			else if( pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_PAL )
-			{
-				val_0x54 = NVP6158_I2C_READ(NVP6158_ADDR, 0x54);
-				val_0x54 &= ~((0x1 << (ch+4)));
-				NVP6158_I2C_WRITE(NVP6158_ADDR, 0x54, val_0x54);  /* Disable FLD_INV for CVBS PAL format */
-
-				NVP6158_I2C_WRITE(NVP6158_ADDR, 0x08 + ch, 0xdd);
-				NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5c + ch, 0xbf);  /* Set V_Delay */
-
-			}
-
-			NVP6158_I2C_WRITE( NVP6158_ADDR, 0xff, 0x05 + ch );
-			NVP6158_I2C_WRITE( NVP6158_ADDR, 0x64, 0x01 );         /* Enable Mem_Path */
-			val_5678x69 = NVP6158_I2C_READ(NVP6158_ADDR, 0x69);
-			val_5678x69 &= ~(0x1);
-			val_5678x69 |= 0x1;
-			NVP6158_I2C_WRITE( NVP6158_ADDR, 0x69, val_5678x69 );	/* Enable sd_freq_sel */
-		}
-		else
-		{
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x34 + ch, 0x00);		/* line_mem_mode Disable */
-			val_0x54 = NVP6158_I2C_READ(NVP6158_ADDR, 0x54);
-			val_0x54 &= ~((0x1 << (ch+4)));
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x54, val_0x54);	/* Disable FLD_INV */
-
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x08 + ch, 0x00);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5c + ch, 0x80);	/* Recovery V_Delay */
-
-			NVP6158_I2C_WRITE( NVP6158_ADDR, 0xff, 0x05 + ch );
-			NVP6158_I2C_WRITE( NVP6158_ADDR, 0x64, 0x00 );        /* Disable Mem_Path */
-
-			val_5678x69 = NVP6158_I2C_READ(NVP6158_ADDR, 0x69);
-			val_5678x69 &= ~(0x1);
-			NVP6158_I2C_WRITE( NVP6158_ADDR, 0x69, val_5678x69 );	/* Disable sd_freq_sel */
-		}
-
-		if( 	pvin_eq_set->FmtDef == CVI_4M_25P  			   || pvin_eq_set->FmtDef == CVI_4M_30P  			||
-		   pvin_eq_set->FmtDef == CVI_FHD_25P || pvin_eq_set->FmtDef == CVI_FHD_30P ||
-			pvin_eq_set->FmtDef == CVI_8M_12_5P			   || pvin_eq_set->FmtDef == CVI_8M_15P  			||
-		   pvin_eq_set->FmtDef == TVI_4M_25P  || pvin_eq_set->FmtDef == TVI_4M_30P  ||
-				pvin_eq_set->FmtDef == AHD30_3M_18P			   || pvin_eq_set->FmtDef == AHD30_3M_25P 			||
-				pvin_eq_set->FmtDef == AHD30_3M_30P			   || pvin_eq_set->FmtDef == AHD30_4M_15P 		    ||
-			pvin_eq_set->FmtDef == AHD30_4M_25P			   || pvin_eq_set->FmtDef == AHD30_4M_30P 			||
-				pvin_eq_set->FmtDef == AHD30_5M_12_5P		   || pvin_eq_set->FmtDef == AHD30_5M_20P			   ||
-			pvin_eq_set->FmtDef == TVI_5M_12_5P			   || pvin_eq_set->FmtDef == TVI_3M_18P 			||
-			pvin_eq_set->FmtDef == AHD20_1080P_30P         || pvin_eq_set->FmtDef == AHD20_1080P_25P 		||
-			pvin_eq_set->FmtDef == TVI_FHD_30P             || pvin_eq_set->FmtDef == TVI_FHD_25P			||
-			pvin_eq_set->FmtDef == AHD20_720P_30P_EX_Btype || pvin_eq_set->FmtDef == AHD20_720P_25P_EX_Btype ||
-			pvin_eq_set->FmtDef == CVI_HD_30P_EX           || pvin_eq_set->FmtDef == CVI_HD_25P_EX			||
-			pvin_eq_set->FmtDef == CVI_HD_30P              || pvin_eq_set->FmtDef == CVI_HD_25P  			||
-			pvin_eq_set->FmtDef == CVI_HD_60P              || pvin_eq_set->FmtDef == CVI_HD_50P   			||
-			pvin_eq_set->FmtDef == TVI_HD_30P			   || pvin_eq_set->FmtDef == TVI_HD_25P			    ||
-			pvin_eq_set->FmtDef == TVI_HD_30P_EX		   || pvin_eq_set->FmtDef == TVI_HD_25P_EX			||
-			pvin_eq_set->FmtDef == TVI_HD_B_30P			   || pvin_eq_set->FmtDef == TVI_HD_B_25P 			||
-			pvin_eq_set->FmtDef == TVI_HD_B_30P_EX		   || pvin_eq_set->FmtDef == TVI_HD_B_25P_EX		||
-				pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_NT || pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_PAL ||
-				pvin_eq_set->FmtDef == AHD20_1080P_60P         || pvin_eq_set->FmtDef == AHD20_1080P_50P ||
-
-			 pvin_eq_set->FmtDef == AHD30_8M_12_5P		   || pvin_eq_set->FmtDef == AHD30_8M_15P  			||
-			 pvin_eq_set->FmtDef == AHD30_8M_7_5P		   || pvin_eq_set->FmtDef == TVI_5M_20P				||
-			pvin_eq_set->FmtDef == AHD30_5_3M_20P		   || pvin_eq_set->FmtDef == TVI_4M_15P
-		   )
-		{	/* Auto Mode Off */
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x13 );
-			val_13x30 = NVP6158_I2C_READ(NVP6158_ADDR, 0x30);
-			val_13x30 &= ~(0x11 << pvin_eq_set->Ch);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x30, val_13x30 );
-
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x13 );
-			val_13x31 = NVP6158_I2C_READ(NVP6158_ADDR, 0x31);
-			val_13x31 &= ~(0x11 << pvin_eq_set->Ch);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x31, val_13x31 );
-
-            NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x05 + ch);
-            NVP6158_I2C_WRITE(NVP6158_ADDR, 0x59, 0x00 );
-
-		}
-		else
-		{   /* Auto Mode ON */
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x13 );
-			val_13x30 = NVP6158_I2C_READ(NVP6158_ADDR, 0x30);
-			val_13x30 |= (0x11 << pvin_eq_set->Ch);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x30, val_13x30 );
-
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x13 );
-			val_13x31 = NVP6158_I2C_READ(NVP6158_ADDR, 0x31);
-			val_13x31 |= (0x11 << pvin_eq_set->Ch);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x31, val_13x31 );
-		}
-
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00);
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x23 + (pvin_eq_set->Ch * 4), 0x41);
-	}
-
-	if( pvin_eq_set->FmtDef == TVI_5M_20P || pvin_eq_set->FmtDef == TVI_5M_12_5P ||
-			pvin_eq_set->FmtDef == TVI_4M_30P || pvin_eq_set->FmtDef == TVI_4M_25P		)
-	{
-
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF,0x09);
-		val_9x44 = NVP6158_I2C_READ(NVP6158_ADDR, 0x44);
-		val_9x44 &= ~(1 << ch);
-		val_9x44 |= (1 << ch);
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x44 , val_9x44);
-
-		if( pvin_eq_set->FmtDef == TVI_5M_20P)
-		{
-			/* TVI 5M 20P PN Value Set */
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x50 + ( ch * 4 ) , 0x36);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x51 + ( ch * 4 ) , 0x40);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x52 + ( ch * 4 ) , 0xa7);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x53 + ( ch * 4 ) , 0x74);
-
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x11);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x02 + ( ch * 0x20 ), 0xdb);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x03 + ( ch * 0x20 ), 0x0a);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x05 + ( ch * 0x20 ), 0x0e);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x06 + ( ch * 0x20 ), 0xa6);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x08 + ( ch * 0x20 ), 0x96);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0a + ( ch * 0x20 ), 0x07);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0b + ( ch * 0x20 ), 0x98);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ( ch * 0x20 ), 0x07);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0d + ( ch * 0x20 ), 0xbc);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x11 + ( ch * 0x20 ), 0xa0);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x13 + ( ch * 0x20 ), 0xfa);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x15 + ( ch * 0x20 ), 0x65);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x00 + ( ch * 0x20 ), 0x0f);
-		}
-		else if( pvin_eq_set->FmtDef == TVI_5M_12_5P)
-		{
-			/* TVI 5M 12_5P PN Value Set */
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x50 + ( ch * 4 ) , 0x8b);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x51 + ( ch * 4 ) , 0xae);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x52 + ( ch * 4 ) , 0xbb);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x53 + ( ch * 4 ) , 0x48);
-		}
-		else if( pvin_eq_set->FmtDef == TVI_4M_30P || pvin_eq_set->FmtDef == TVI_4M_25P )
-		{
-			/* TVI 4M 30P PN Value Set */
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x50 + ( ch * 4 ) , 0x9e);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x51 + ( ch * 4 ) , 0x48);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x52 + ( ch * 4 ) , 0x59);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x53 + ( ch * 4 ) , 0x74);
-		}
+		val = ~val;
+		val = val&ReadVal;
 	}
 	else
 	{
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF,0x09);
-		val_9x44 = NVP6158_I2C_READ(NVP6158_ADDR, 0x44);
-		val_9x44 &= ~(1 << ch);
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x44 , val_9x44);
+		val = val|ReadVal;
+	}
+	NVP6158_I2C_WRITE(NVP6158_ADDR, (0x40 +(0x18 *ch)) + SetPix, val);
+}
+
+void motion_pixel_onoff_get(motion_mode *motion_set)
+{
+	unsigned char val = 0x80;
+	unsigned char ReadVal;
+	unsigned char on;
+
+	unsigned char Ch      = motion_set->ch;
+	unsigned char SetPix  = motion_set->set_val/8;
+	unsigned char SetVal  = motion_set->set_val%8;
+
+	val = val >> SetVal;
+
+	//BANK2_MOTION
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x02);
+	ReadVal = NVP6158_I2C_READ(NVP6158_ADDR, (0x40 +(0x18 *Ch)) + SetPix);
+
+	on = val&ReadVal;
+
+	if(on)
+	{
+		motion_set->set_val = 1;
+	}
+	else
+	{
+		motion_set->set_val = 0;
 	}
 }
 
+void motion_tsen_set(motion_mode *motion_set)
+{
+	unsigned char ch = motion_set->ch;
+	unsigned char SetVal = motion_set->set_val;
+
+	//BANK2_MOTION
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x02);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, (0x01 +(0x07 * ch)), SetVal);
+}
+
+void motion_psen_set(motion_mode *motion_set)
+{
+	unsigned char msb_mask = 0xf0;
+	unsigned char lsb_mask = 0x07;
+	unsigned char ch = motion_set->ch;
+	unsigned char SetVal = motion_set->set_val;
+	unsigned char ReadVal;
+
+	//BANK2_MOTION
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x02);
+	ReadVal = NVP6158_I2C_READ(NVP6158_ADDR, (0x02 +(0x07 * ch)));
+
+	msb_mask = msb_mask&ReadVal;
+	SetVal = lsb_mask&SetVal;
+
+	SetVal = SetVal|msb_mask;
+
+	NVP6158_I2C_WRITE(NVP6158_ADDR, (0x02 +(0x07 * ch)), SetVal);
+}
 

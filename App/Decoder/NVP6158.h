@@ -31,6 +31,9 @@
 #define ACC_GAIN_NORMAL 0
 #define ACC_GAIN_DEBUG  1
 
+#define FUNC_ON		0x01
+#define FUNC_OFF	0x00
+
 // Auto Detection
 typedef struct 
 {
@@ -433,6 +436,14 @@ typedef struct _decoder_dev_ch_info_s
 	unsigned char devnum;
 	unsigned char fmt_def;
 }decoder_dev_ch_info_s;
+
+typedef struct _motion_mode{
+	unsigned char ch;
+	unsigned char devnum;
+	unsigned char set_val;
+
+	unsigned char fmtdef;
+}motion_mode;
 
 typedef enum NC_CH
 {
