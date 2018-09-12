@@ -18,14 +18,14 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_TIME_CORRECT,			sizeof(sTimeCorrect_t),						CLEAR},
 		{NV_ITEM_DATE_FORMAT,			sizeof(eDateFormat_t),						CLEAR},
 		{NV_ITEM_TIME_ON,				sizeof(BOOL),								CLEAR},
-		{NV_ITEM_TIME_POSITION,			sizeof(eDisplayPositon_t),					CLEAR},
+		{NV_ITEM_TIME_POSITION,			sizeof(eTitlePosition_t),					CLEAR},
 		{NV_ITEM_CHANNEL_NAME,			(NUM_OF_CHANNEL * CHANNEL_NEME_LENGTH_MAX),	CLEAR},
 		{NV_ITEM_TITLE_DISPLAY_ON,		sizeof(BOOL),								CLEAR},
 		{NV_ITEM_AUTO_SEQ_TIME,			sizeof(uint8_t),								CLEAR},
 		{NV_ITEM_AUTO_SEQ_LOSS_SKIP,	sizeof(BOOL),									CLEAR},
 		{NV_ITEM_OUTPUT_RESOLUTION,		sizeof(eResolution_t),						CLEAR},
 		{NV_ITEM_OSD_DISPLAY,			sizeof(BOOL),								CLEAR},
-		{NV_ITEM_TITLE_POSITION,			sizeof(eDisplayPositon_t),					CLEAR},
+		{NV_ITEM_TITLE_POSITION,			sizeof(eTitlePosition_t),					CLEAR},
 		{NV_ITEM_BORDER_LINE,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_USER_ALARM_OPTION, 		sizeof(eAlarmOption_t),						CLEAR},
 		{NV_ITEM_USER_ALARMOUT_TIME,		sizeof(uint8_t),								CLEAR},
@@ -118,7 +118,7 @@ static void LoadDefaultNvData(void)
 	nv_data.data.autoSeqLossSkip = ON;
 	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
 	nv_data.data.osdOn = ON;
-	nv_data.data.titlePosition = DISPLAY_POSITION_LEFT_BOTTOM;
+	nv_data.data.titlePosition = TITLE_POSITION_BOTTOM_LEFT;
 	nv_data.data.borderLineOn = ON;
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
@@ -249,9 +249,9 @@ void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData)
 {
 	*pData = nv_data.data.timeCorrection;
 }
-void Write_NvItem_TimeCorrectOffset(sTimeCorrect_t *pData)
+void Write_NvItem_TimeCorrectOffset(sTimeCorrect_t data)
 {
-	nv_data.data.timeCorrection = *pData;
+	nv_data.data.timeCorrection = data;
 	nvInfo[NV_ITEM_TIME_CORRECT].dirty = SET;
 }
 
@@ -259,9 +259,9 @@ void Read_NvItem_VideoLossBuzzerTime(uint8_t *pData)
 {
 	*pData = nv_data.data.videoLossBuzzerTime;
 }
-void Write_NvItem_VideoLossBuzzerTime(uint8_t *pData)
+void Write_NvItem_VideoLossBuzzerTime(uint8_t data)
 {
-	nv_data.data.videoLossBuzzerTime = *pData;
+	nv_data.data.videoLossBuzzerTime = data;
 	nvInfo[NV_ITEM_VIDEO_LOSS_BUZZER_TIME].dirty = SET;
 }
 
@@ -269,9 +269,9 @@ void Read_NvItem_AutoSeqTime(uint8_t* pData)
 {
 	*pData = nv_data.data.autoSeqTime;
 }
-void Write_NvItem_AutoSeqTime(uint8_t* pData)
+void Write_NvItem_AutoSeqTime(uint8_t data)
 {
-	 nv_data.data.autoSeqTime = *pData;
+	 nv_data.data.autoSeqTime = data;
 	 nvInfo[NV_ITEM_AUTO_SEQ_TIME].dirty = SET;
 }
 
@@ -279,9 +279,9 @@ void Read_NvItem_AutoSeqLossSkip(BOOL* pData)
 {
 	*pData = nv_data.data.autoSeqLossSkip;
 }
-void Write_NvItem_AutoSeqLossSkip(BOOL *pData)
+void Write_NvItem_AutoSeqLossSkip(BOOL data)
 {
-	nv_data.data.autoSeqLossSkip = *pData;
+	nv_data.data.autoSeqLossSkip = data;
 	nvInfo[NV_ITEM_AUTO_SEQ_LOSS_SKIP].dirty = SET;
 }
 
@@ -289,9 +289,9 @@ void Read_NvItem_TitleDispalyOn(BOOL *pData)
 {
 	*pData = nv_data.data.titleDisplayOn;
 }
-void Write_NvItem_TitleDispalyOn(BOOL *pData)
+void Write_NvItem_TitleDispalyOn(BOOL data)
 {
-	nv_data.data.titleDisplayOn = *pData;
+	nv_data.data.titleDisplayOn = data;
 	nvInfo[NV_ITEM_TITLE_DISPLAY_ON].dirty = SET;
 }
 
@@ -299,42 +299,46 @@ void Read_NvItem_OsdOn(BOOL* pData)
 {
 	*pData = nv_data.data.osdOn;
 }
-void Write_NvItem_OsdOn(BOOL *pData)
+void Write_NvItem_OsdOn(BOOL data)
 {
-	nv_data.data.osdOn = *pData;
+	nv_data.data.osdOn = data;
 	nvInfo[NV_ITEM_OSD_DISPLAY].dirty = SET;
 }
 
-void Read_NvItem_TitlePosition(eDisplayPositon_t *pData)
+void Read_NvItem_TitlePosition(eTitlePosition_t *pData)
 {
 	*pData = nv_data.data.titlePosition;
 }
-void Write_NvItem_TitlePosition(eDisplayPositon_t *pData)
+void Write_NvItem_TitlePosition(eTitlePosition_t data)
 {
-	nv_data.data.titlePosition = *pData;
-	nvInfo[NV_ITEM_TITLE_POSITION].dirty = SET;
-
+	if(data < TITLE_POSITION_MAX)
+	{
+		nv_data.data.titlePosition = data;
+		nvInfo[NV_ITEM_TITLE_POSITION].dirty = SET;
+	}
 }
 
 void Read_NvItem_TimeDisplayOn(BOOL* pData)
 {
 	*pData = nv_data.data.timeDisplayOn;
 }
-void Write_NvItem_TimeDisplayOn(BOOL *pData)
+void Write_NvItem_TimeDisplayOn(BOOL data)
 {
-	nv_data.data.timeDisplayOn = *pData;
+	nv_data.data.timeDisplayOn = data;
 	nvInfo[NV_ITEM_TIME_ON].dirty = SET;
 }
 
-void Read_NvItem_TimePosition(eDisplayPositon_t *pData)
+void Read_NvItem_TimePosition(eTimePosition_t *pData)
 {
 	*pData = nv_data.data.timeDisplayPosition;
 }
-void Write_NvItem_TimePosition(eDisplayPositon_t *pData)
+void Write_NvItem_TimePosition(eTimePosition_t data)
 {
-	nv_data.data.timeDisplayPosition = *pData;
-	nvInfo[NV_ITEM_TIME_POSITION].dirty = SET;
-
+	if(data < TIME_POSITION_MAX)
+	{
+		nv_data.data.timeDisplayPosition = data;
+		nvInfo[NV_ITEM_TIME_POSITION].dirty = SET;
+	}
 }
 
 void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
@@ -344,6 +348,32 @@ void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
 }
 void Write_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
 {
-	strncpy(&(nv_data.data.channelName[channel]), pData, CHANNEL_NEME_LENGTH_MAX);
-	nvInfo[NV_ITEM_CHANNEL_NAME].dirty = SET;
+	if(channel < NUM_OF_CHANNEL)
+	{
+		strncpy(&(nv_data.data.channelName[channel]), pData, CHANNEL_NEME_LENGTH_MAX);
+		nvInfo[NV_ITEM_CHANNEL_NAME].dirty = SET;
+	}
+}
+
+void Read_NvItem_DateFormat(eDateFormat_t* pData)
+{
+	*pData = nv_data.data.dateFormat;
+}
+void Write_NvItem_DateFormat(eDateFormat_t data)
+{
+	if(data < DATE_FORMAT_MAX)
+	{
+		nv_data.data.dateFormat = data;
+		nvInfo[NV_ITEM_DATE_FORMAT].dirty = SET;
+	}
+}
+
+void Read_NvItem_VideoLossDisplayOn(BOOL* pData)
+{
+	*pData = nv_data.data.videoLossDisplayOn;
+}
+void Write_NvItem_VideoLossDisplayOn(BOOL data)
+{
+	nv_data.data.videoLossDisplayOn = data;
+	nvInfo[NV_ITEM_VIDEO_LOSS_DISPLAY_ON].dirty = SET;
 }

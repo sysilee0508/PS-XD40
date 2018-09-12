@@ -64,15 +64,23 @@ typedef enum
 
 typedef enum
 {
-	DISPLAY_POSITION_LEFT_TOP,
-	DISPLAY_POSITION_CENTER_TOP,
-	DISPLAY_POSITION_RIGHT_TOP,
-	DISPLAY_POSITION_LEFT_BOTTOM,
-	DISPLAY_POSITION_CENTER_BOTTOM,
-	DISPLAY_POSITION_RIGHT_BOTTOM,
-	DISPLAY_POSITION_CENTER_4SPILIT,//CH1&CH2 --> center_bottom  / CH3&CH4 --> center_top
-	DISPLAY_POSITION_MAX
-} eDisplayPositon_t;
+	TITLE_POSITION_TOP_LEFT,
+	TITLE_POSITION_TOP_CENTER,
+	TITLE_POSITION_TOP_RIGHT,
+	TITLE_POSITION_BOTTOM_LEFT,
+	TITLE_POSITION_BOTTOM_CENTER,
+	TITLE_POSITION_BOTTOM_RIGHT,
+	TITLE_POSITION_4SPILIT_CENTER,//CH1&CH2 --> center_bottom  / CH3&CH4 --> center_top
+	TITLE_POSITION_MAX
+} eTitlePosition_t;
+
+typedef enum
+{
+	TIME_POSITION_LEFT,
+	TIME_POSITION_CENTER,
+	TIME_POSITION_RIGHT,
+	TIME_POSITION_MAX
+} eTimePosition_t;
 
 typedef enum
 {
@@ -147,10 +155,10 @@ typedef struct
 	sTimeCorrect_t			timeCorrection;
 	eDateFormat_t			dateFormat;
 	BOOL			 		timeDisplayOn;
-	eDisplayPositon_t		timeDisplayPosition;
+	eTimePosition_t			timeDisplayPosition;
 	uint8_t 				channelName[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX];
 	BOOL 					titleDisplayOn;
-	eDisplayPositon_t 		titlePosition;
+	eTitlePosition_t 		titlePosition;
 	uint8_t					autoSeqTime;
 	BOOL					autoSeqLossSkip;
 	eResolution_t 			outputResolution;
@@ -182,23 +190,27 @@ extern BOOL	ReadNvItem(eNvItems_t item, void * pData, size_t size);
 extern BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size);
 
 extern void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData);
-extern void Write_NvItem_TimeCorrect(sTimeCorrect_t *pData);
+extern void Write_NvItem_TimeCorrect(sTimeCorrect_t data);
 extern void Read_NvItem_VideoLossBuzzerTime(uint8_t *pData);
-extern void Write_NvItem_VideoLossBuzzerTime(uint8_t *pData);
+extern void Write_NvItem_VideoLossBuzzerTime(uint8_t data);
 extern void Read_NvItem_AutoSeqTime(u8* pData);
-extern void Write_NvItem_AutoSeqTime(u8* pData);
+extern void Write_NvItem_AutoSeqTime(u8 data);
 extern void Read_NvItem_AutoSeqLossSkip(BOOL* pData);
-extern void Write_NvItem_AutoSeqLossSkip(BOOL *pData);
+extern void Write_NvItem_AutoSeqLossSkip(BOOL data);
 extern void Read_NvItem_OsdOn(BOOL* pData);
-extern void Write_NvItem_OsdOn(BOOL *pData);
+extern void Write_NvItem_OsdOn(BOOL data);
 extern void Read_NvItem_TitleDispalyOn(BOOL *pData);
-extern void Write_NvItem_TitleDispalyOn(BOOL *pData);
-extern void Read_NvItem_TitlePosition(eDisplayPositon_t *pData);
-extern void Write_NvItem_TitlePosition(eDisplayPositon_t *pData);
+extern void Write_NvItem_TitleDispalyOn(BOOL data);
+extern void Read_NvItem_TitlePosition(eTitlePosition_t *pData);
+extern void Write_NvItem_TitlePosition(eTitlePosition_t data);
 extern void Read_NvItem_TimeDisplayOn(BOOL* pData);
-extern void Write_NvItem_TimeDisplayOn(BOOL *pData);
-extern void Read_NvItem_TimePosition(eDisplayPositon_t *pData);
-extern void Write_NvItem_TimePosition(eDisplayPositon_t *pData);
+extern void Write_NvItem_TimeDisplayOn(BOOL data);
+extern void Read_NvItem_TimePosition(eTimePosition_t *pData);
+extern void Write_NvItem_TimePosition(eTimePosition_t data);
 extern void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel);
 extern void Write_NvItem_ChannelName(uint8_t* pData, eChannel_t channel);
+extern void Read_NvItem_DateFormat(eDateFormat_t* pData);
+extern void Write_NvItem_DateFormat(eDateFormat_t data);
+extern void Read_NvItem_VideoLossDisplayOn(BOOL* pData);
+extern void Write_NvItem_VideoLossDisplayOn(BOOL data);
 #endif
