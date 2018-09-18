@@ -2053,6 +2053,9 @@
         <name>$PROJ_DIR$\..\App\Main\common.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\App\Main\display_mode.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\App\Main\key.c</name>
       </file>
       <file>

@@ -499,8 +499,6 @@ void main(void)
 
 	while(TRUE)
     { 
-//		printf("While start \n");
-
 		NVP6158_VideoDetectionProc();
 
 		Video_Loss_Check();
@@ -540,7 +538,6 @@ void main(void)
 		VideoHTXCtrlHandler();
 
 		OSG_Display();
-//		printf("While end \n");
     }
 }
 

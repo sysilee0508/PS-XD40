@@ -1,4 +1,4 @@
-#include "..\main\common.h"
+#include "common.h"
 
 
 void Delay_us(unsigned long time_us)			//time delay for us in 64MHz
