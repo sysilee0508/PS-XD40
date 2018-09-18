@@ -1969,9 +1969,6 @@
         <name>$PROJ_DIR$\..\App\Drivers\mdinfont.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\App\Drivers\mdinfont__.h</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\..\App\Drivers\mdinfrmt.c</name>
       </file>
       <file>
