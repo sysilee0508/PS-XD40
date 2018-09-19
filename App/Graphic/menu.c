@@ -359,7 +359,7 @@ static void IncreaseDecreaseBcd(u8 max,u8 min,BOOL Up_Flag,u8 *pBcd)//INC_Dec_Bc
 }
 
 //--------------------------------------------------------------------------------------
-static void Print_String(sPosition_t position, u8* pChar, u16 size)
+static void Print_String(sPosition_t position, const u8* pChar, u16 size)
 {  
 	OSD_SetFontGAC(SPRITE_INDEX0);
 	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pChar, size, 0);
@@ -377,7 +377,7 @@ static void Print_StringWithSelectedMarkSize(u16 offset_x, u16 offset_y, const u
 	
 	Print_String(position, data, strlen(data));
 
-	memset(lineBuffer, 0x00, NUM_OF_CHAR_IN_MENU_LINE);
+	memset(lineBuffer, 0x00, CHARACTERS_IN_MENU_LINE);
 	for(i = 0; i < sizeOfMark; i++)
 	{
 		lineBuffer[i] = (attribute == NULL)? ASCII_SPACE : SELECTED_MARK;
@@ -386,7 +386,7 @@ static void Print_StringWithSelectedMarkSize(u16 offset_x, u16 offset_y, const u
 	Print_String(position, lineBuffer, sizeOfMark);
 }
 //--------------------------------------------------------------------------------------
-static void Print_StringWithSelectedMark(u16 offset_x, u16 offset_y, u8 *data, u8 attribute, u16 size)
+static void Print_StringWithSelectedMark(u16 offset_x, u16 offset_y, const u8 *data, u8 attribute, u16 size)
 {
 	u16 i;
 	sPosition_t position;
@@ -476,11 +476,11 @@ static void Print_StringTimeCorrect(u8 pos_x,u8 attribute)
 	{
 		if(timeCorrect.timeCorrectDirection == DIRECTION_UP) // up --> '+'
 		{
-			Print_StringWithSelectedMarkSize(35, LINE7_OFFSET_Y, "+", attribute, 1);
+			Print_StringWithSelectedMarkSize(35, LINE7_OFFSET_Y, (const u8*)"+", attribute, 1);
 		}
 		else if(timeCorrect.timeCorrectDirection == DIRECTION_DOWN) // down --> '-'
 		{
-			Print_StringWithSelectedMarkSize(35, LINE7_OFFSET_Y, "-", attribute, 1);
+			Print_StringWithSelectedMarkSize(35, LINE7_OFFSET_Y, (const u8*)"-", attribute, 1);
 		}
 		else
 		{
@@ -567,10 +567,10 @@ static void Print_StringDate(u8 pos_x,u8 attribute,u8 forcedUpdate)
 		{
 			oldTimeDate.year = date.year;
 			offset_x = 27;
-			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, "20", attribute, 2);
+			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, (const u8*)"20", attribute, 2);
 			Bcd2Str(date.year, strBuf);
 			offset_x += 2;
-			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, strBuf, attribute, strlen(strBuf));
+			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, (const u8*)strBuf, attribute, strlen(strBuf));
 		}
 	}
 	if(itemX & DATE_ELEMENT_MONTH)
@@ -580,7 +580,7 @@ static void Print_StringDate(u8 pos_x,u8 attribute,u8 forcedUpdate)
 			oldTimeDate.month = date.month;
 			offset_x = 31;
 			Bcd2Str(date.month, strBuf);
-			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, strBuf, attribute, strlen(strBuf));
+			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, (const u8*)strBuf, attribute, strlen(strBuf));
 		}
 	}
 	if(itemX & DATE_ELEMENT_DAY)
@@ -590,7 +590,7 @@ static void Print_StringDate(u8 pos_x,u8 attribute,u8 forcedUpdate)
 			oldTimeDate.day = date.day;
 			offset_x = 34;
 			Bcd2Str(date.day, strBuf);
-			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, strBuf, attribute, strlen(strBuf));
+			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, (const u8*)strBuf, attribute, strlen(strBuf));
 		}
 	}
 }  
