@@ -165,7 +165,7 @@ typedef struct
 {
 	u16 offset_x;
 	u16 offset_y;
-	BYTE* str;
+	const BYTE* str;
 } sLocationNString_t;
 
 // ----------------------------------------------------------------------
@@ -640,7 +640,7 @@ static void Print_StringYearFormat(u8 attribute)
 	{
 		strNum = '4';
 	}
-	Print_StringWithSelectedMarkSize(35, LINE6_OFFSET_Y, strNum, attribute, 1);
+	Print_StringWithSelectedMarkSize(35, LINE6_OFFSET_Y, (const u8*)strNum, attribute, 1);
 }
 //
 //static void Print_StringTimeDatePosition(u8 attribute)
@@ -799,12 +799,14 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 							IncreaseDecreaseBcd(59, 0, inc_dec, &rtcTimeInBCD.sec);
 						}
 
-						rtcTime.year = Bcd2Int(rtcTimeInBCD.year);
-						rtcTime.month  = Bcd2Int(rtcTimeInBCD.month)-1;
-						rtcTime.day = Bcd2Int(rtcTimeInBCD.day)-1;
-						rtcTime.hour = Bcd2Int(rtcTimeInBCD.hour);
-						rtcTime.min  = Bcd2Int(rtcTimeInBCD.min);
-						rtcTime.sec  = Bcd2Int(rtcTimeInBCD.sec);
+						Bcd2Int(rtcTimeInBCD.year, &rtcTime.year);
+						Bcd2Int(rtcTimeInBCD.month, &rtcTime.month);
+						rtcTime.month--;
+						Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
+						rtcTime.day--;
+						Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
+						Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
+						Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
 					    RTC_ChangeCount(&rtcTime);
 						break;
 
@@ -824,12 +826,14 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 							IncreaseDecreaseBcd(31, 1, inc_dec, &rtcTimeInBCD.day);
 						}
 
-						rtcTime.year = Bcd2Int(rtcTimeInBCD.year);
-						rtcTime.month  = Bcd2Int(rtcTimeInBCD.month)-1;
-						rtcTime.day = Bcd2Int(rtcTimeInBCD.day)-1;
-						rtcTime.hour = Bcd2Int(rtcTimeInBCD.hour);
-						rtcTime.min  = Bcd2Int(rtcTimeInBCD.min);
-						rtcTime.sec  = Bcd2Int(rtcTimeInBCD.sec);
+						Bcd2Int(rtcTimeInBCD.year, &rtcTime.year);
+						Bcd2Int(rtcTimeInBCD.month, &rtcTime.month);
+						rtcTime.month--;
+						Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
+						rtcTime.day--;
+						Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
+						Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
+						Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
 					    RTC_ChangeCount(&rtcTime);
 						break;
 
@@ -907,7 +911,6 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 		case KEY_LEFT  :
 			if(requestEnterKeyProc)
 			{
-//				pos_x = Get_ItemX_Position(itemX);
 			  	if(itemY == TIMEDATE_ITEM_Y_TIME)
 				{
 					TimeDatePage_UpdatePage(NULL);
@@ -945,6 +948,8 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
+				itemY = TIMEDATE_ITEM_Y_TIME;
+				pos_x = 0;
 				MainMenu_Entry(currentPage);
 			}
 			break;
@@ -985,7 +990,7 @@ static void CameraTitlePage_UpdatePage(u8 offset_x, u8 offset_y, u8 itemY, u8 po
 			Print_StringWithSelectedMarkSize(
 					offset_x + strlen(menuStr_CameraTitle_Ch1),
 					offset_y,
-					channel_name,
+					(const u8*)channel_name,
 					NULL, 0);
 			// get selected character
 			pChar = &channel_name[pos_x];
@@ -993,7 +998,7 @@ static void CameraTitlePage_UpdatePage(u8 offset_x, u8 offset_y, u8 itemY, u8 po
 			Print_StringWithSelectedMark(
 					offset_x + strlen(menuStr_CameraTitle_Ch1) + pos_x,
 					offset_y,
-					pChar,
+					(const u8*)pChar,
 					attribute, 1);
 			break;
 
@@ -1033,10 +1038,6 @@ static void CameraTitlePage_Entry(void)
 			{20, LINE6_OFFSET_Y, menuStr_CameraTitle_Position}
 	};
 	u8 index = 0;
-	u8 channel_name[CHANNEL_NEME_LENGTH_MAX] = {0,};
-	eChannel_t channel;
-	BOOL titleOn;
-	eTitlePosition_t titlePosition;
 
 	currentPage = MENU_PAGE_CAMERA_TITLE;
 	Erase_AllMenuScreen();
@@ -1132,8 +1133,9 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
-				itemY = currentPage;
-				MainMenu_Entry(itemY);
+				itemY = CAMERATITLE_ITEM_Y_CH1;
+				pos_x = 0;
+				MainMenu_Entry(currentPage);
 			}
 			break; 	
 	}
@@ -1166,7 +1168,7 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 			else
 			{
 				Int2Str(displayTime[index-1], displayTimeInStr);
-				Print_StringWithSelectedMark(26, LINE1_OFFSET_Y + ((itemY-1) * 2), displayTimeInStr, attribute, strlen(displayTimeInStr));
+				Print_StringWithSelectedMark(26, LINE1_OFFSET_Y + ((itemY-1) * 2), (const u8*)displayTimeInStr, attribute, strlen(displayTimeInStr));
 				Print_StringWithSelectedMarkSize(28, LINE1_OFFSET_Y + ((itemY-1) * 2), menuStr_Sec, NULL, 0);
 			}
     		break;
@@ -1230,8 +1232,6 @@ static void AutoSeqPage_Entry()
 static void AutoSeqPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = AUTOSEQ_ITEM_Y_CH1_DISPLAY_TIME;
-	static u8 pos_x = 0;
-	u16 itemX = ITEM_X(0);
 	u8 inc_dec = DECREASE;
 	u8 autoSeqTime[NUM_OF_CHANNEL];
 	BOOL autoSeqLossSkip;
@@ -1282,8 +1282,8 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
-				itemY = currentPage;
-				MainMenu_Entry(itemY);
+				itemY = AUTOSEQ_ITEM_Y_CH1_DISPLAY_TIME;
+				MainMenu_Entry(currentPage);
 			}
 			break;
 	}
@@ -1321,7 +1321,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 	{
 		case DISPLAY_ITEM_Y_RESOLUTION:
 			ConvertResolutionOption2String(pResolutionStr);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution), LINE1_OFFSET_Y, pResolutionStr, attribute, strlen(pResolutionStr));
+			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution), LINE1_OFFSET_Y, (const u8*)pResolutionStr, attribute, strlen(pResolutionStr));
 			break;
 
 		case DISPLAY_ITEM_Y_OSD_DISPLAY:
@@ -1366,8 +1366,6 @@ static void DisplayPage_Entry(void)
 static void DisplayPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = DISPLAY_ITEM_Y_RESOLUTION;
-	static u8 pos_x = 0;
-	u8 itemX;
 	u8 inc_dec = DECREASE;
 	eResolution_t resolution;
 	BOOL osdOn;
@@ -1420,8 +1418,8 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
-				itemY = currentPage;
-				MainMenu_Entry(itemY);
+				itemY = DISPLAY_ITEM_Y_RESOLUTION;
+				MainMenu_Entry(currentPage);
 			}
 			break;
 	}
@@ -1514,13 +1512,13 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  		case ALARM_ITEM_Y_LOSS_BUZZER_TIME:
  			Read_NvItem_VideoLossBuzzerTime(&nv_data);
 			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Alarm_VideoLossBuzzerTime), LINE8_OFFSET_Y, attribute, sizeof(str2digit));
+			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Alarm_VideoLossBuzzerTime), LINE8_OFFSET_Y, (const u8*)str2digit, attribute, sizeof(str2digit));
 			break; 
 
  		case ALARM_ITEM_Y_REMOCONID:
  			Read_NvItem_RemoconId(&nv_data);
 			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Alarm_RemoconId), LINE8_OFFSET_Y, attribute, sizeof(str2digit));
+			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Alarm_RemoconId), LINE8_OFFSET_Y, (const u8*)str2digit, attribute, sizeof(str2digit));
  			break;
  	}
 }
@@ -1643,8 +1641,9 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
-           		itemY = currentPage;
-				MainMenu_Entry(itemY);
+           		itemY = ALARM_ITEM_Y_ALARM_REMOCON;
+           		pos_x = 0;
+				MainMenu_Entry(currentPage);
 			}
 			break; 	
 	}
@@ -1673,7 +1672,7 @@ static void MotionDetectionPage_UpdatePage(u8 itemY)
 		case MOTION_ITEM_Y_SENSITIVITY:
 			Read_NvItem_MotionSensitivity(&sensitivity);
 			Int2Str(sensitivity, str);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Motion_Sensitivity), LINE5_OFFSET_Y, attribute, sizof(str));
+			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Motion_Sensitivity), LINE5_OFFSET_Y, (const u8*)str, attribute, sizof(str));
 			break;
 
 		case MOTION_ITEM_Y_MOTION_MODE:
@@ -1766,8 +1765,8 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
-				itemY = currentPage;
-				MainMenu_Entry(itemY);
+				itemY = MOTION_ITEM_Y_CH1;
+				MainMenu_Entry(currentPage);
 			}
 			break;
 	}
@@ -1925,6 +1924,7 @@ static void MainPage_KeyHandler(eKeyData_t key)
 
 		case KEY_EXIT :
 			// Update NV
+			itemY = MAINMENU_ITEM_Y_TIME_DATE;
 			StoreNvDataToStorage();
 			Erase_AllMenuScreen();
 			ChangeSystemMode(SYSTEM_NORMAL_MODE);
@@ -1962,35 +1962,12 @@ void Enter_MainMenu(void)
 //-----------------------------------------------------------------
 void DisplayTimeInMenu(void)
 {
-	if(currentPage == MENU_PAGE_TIME_DATE)
+	if((currentPage == MENU_PAGE_TIME_DATE) && (RTC_GetDisplayTimeStatus() == SET))
 	{
-		if(sec_flag)
-		{
-    		sec_flag = CLEAR;
-	   		if((itemY == TIMEDATE_ITEM_Y_TIME) & (requestEnterKeyProc))
-	   		{
-      		 	if(itemX == 0) //hour
-      		 	{
-      		 		Print_StringTime(TIME_ELEMENT_HOUR, UNDER_BAR,0);
-      		 		Print_StringTime(TIME_ELEMENT_MIN | TIME_ELEMENT_SEC, NULL, 0);
-      		 	}
-          		if(itemX == 1) // min
-          		{
-          			Print_StringTime(TIME_ELEMENT_HOUR | TIME_ELEMENT_SEC, NULL, 0);
-          			Print_StringTime(TIME_ELEMENT_MIN, UNDER_BAR,0);
-          		}
-          		if(itemX == 2) // sec
-          		{
-          			Print_StringTime(TIME_ELEMENT_HOUR | TIME_ELEMENT_SEC, NULL, 0);
-          			Print_StringTime(TIME_ELEMENT_MIN,NULL,0);
-          		}
-	  		}
-      		else
-			{
-				Print_StringTime(TIME_ELEMENT_HOUR | TIME_ELEMENT_MIN | TIME_ELEMENT_SEC, NULL,0);
-				Print_StringDate(DATE_ELEMENT_YEAR|DATE_ELEMENT_MONTH|DATE_ELEMENT_DAY,NULL,0);
-      		}
-		}
+		RTC_ChangeDisplayTimeStatus(CLEAR);
+		TimeDatePage_UpdatePage(0, TIMEDATE_ITEM_Y_TIME);
+		TimeDatePage_UpdatePage(1, TIMEDATE_ITEM_Y_TIME);
+		TimeDatePage_UpdatePage(2, TIMEDATE_ITEM_Y_TIME);
 	}
 }
 

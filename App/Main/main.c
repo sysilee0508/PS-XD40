@@ -234,7 +234,7 @@ void RTC_IRQHandler(void)
 		// Clear the RTC Second interrupt
 		RTC_ClearITPendingBit(RTC_IT_SEC);
 
-		RTC_SetRtcUpdated(SET);
+		RTC_ChangeRtcTimeStatus(SET);
 
 		// Wait until last write operation on RTC registers has finished 
 		RTC_WaitForLastTask();

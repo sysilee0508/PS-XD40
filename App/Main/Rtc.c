@@ -15,8 +15,8 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
-BYTE sec_flag = 0;
-BYTE RTC_IsUpdated = CLEAR;
+static BOOL updateDisplayTime = CLEAR;
+static BOOL updatedRTCTime = CLEAR;
 DWORD time_value = 0;
 WORD date_value = 0;
 
@@ -180,10 +180,10 @@ void Time_Read(void)
 	BYTE month_tmp, day_tmp;
 	sTimeCorrect_t timeCorrection;
 
-	if(RTC_IsRtcUpdatd() == SET)
+	if(RTC_GetRtcTimeStatus() == SET)
 	{
-		RTC_SetRtcUpdated(CLEAR);
-		sec_flag = SET;
+		RTC_ChangeRtcTimeStatus(CLEAR);
+		RTC_ChangeDisplayTimeStatus(SET);//updateDisplayTime = SET;
 
 		date_value = rtcCount / SECS_IN_DAY;
 		time_value = rtcCount % SECS_IN_DAY;
@@ -239,12 +239,22 @@ void GetTimeDateInBCD(sTimeDateBCD_t* pData)
 	memcpy(pData, rtcTimeDate, sizeof(rtcTimeDate));
 }
 
-void RTC_SetRtcUpdated(BOOL set)
+void RTC_ChangeRtcTimeStatus(BOOL set)
 {
-	RTC_IsUpdated = set;
+	updatedRTCTime = set;
 }
 
-BOOL RTC_IsRtcUpdatd(void)
+BOOL RTC_GetRtcTimeStatus(void)
 {
-	return RTC_IsUpdated;
+	return updatedRTCTime;
+}
+
+void RTC_ChangeDisplayTimeStatus(BOOL set)
+{
+	updateDisplayTime = set;
+}
+
+BOOL RTC_GetDisplayTimeStatus(void)
+{
+	return updateDisplayTime;
 }

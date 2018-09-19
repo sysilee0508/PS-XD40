@@ -600,10 +600,9 @@ static void OSD_Display_Time(void)
 	u8 str_buf[DATE_TIME_LENGTH];
 
 	Read_NvItem_TimeDisplayOn(&timeDisplayOn);
-	if((sec_flag == SET) && (timeDisplayOn == ON))
+	if((RTC_GetDisplayTimeStatus() == SET) && (timeDisplayOn == ON))
 	{
-		sec_flag = CLEAR;
-		
+		RTC_ChangeDisplayTimeStatus(CLEAR);
 		if(IsTitlePositionTop() == TRUE)
 		{
 			position.pos_y = DISPLAY_HEIGHT_1920x1080 - CHAR_HEIGHT - MARGIN_Y;

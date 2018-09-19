@@ -32,13 +32,9 @@ typedef struct
 extern void RTC_ChangeCount(sTimeDate_t *time);
 extern void Time_Read(void);
 extern void GetTimeDateInBCD(sTimeDateBCD_t* pData);
-extern void RTC_SetRtcUpdated(BOOL set);
-extern BOOL RTC_IsRtcUpdatd(void);
-//=============================================================================
-//  Extern Grobal Variable 
-//=============================================================================
-
-extern BYTE sec_flag;
-
+extern void RTC_ChangeRtcTimeStatus(BOOL set);
+extern BOOL RTC_GetRtcTimeStatus(void);
+extern void RTC_ChangeDisplayTimeStatus(BOOL set);
+extern BOOL RTC_GetDisplayTimeStatus(void);
 
 #endif
