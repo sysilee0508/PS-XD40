@@ -20,7 +20,7 @@ static eKeyMode_t saved_key_mode = KEY_MODE_LONG;
 static eKeyStatus_t key_status = KEY_STATUS_RELEASED;
 static BOOL bKeyReady = CLEAR;
 static eKeyData_t current_keydata = KEY_NONE;
-static u8 pre_split_mode = 0;
+static eSplitmode_t pre_split_mode = SPLITMODE_FULL_CH1;
 
 //=============================================================================
 //  Constant Array Declaration (data table)
@@ -320,7 +320,8 @@ void Key_Check(void)
 					if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
 				  		bRepeatKey = SET;
-				  		UpdateKeyData(processing_key_data | (eKeyData_t)KEY_LONG);
+
+				  		UpdateKeyData(processing_key_data | KEY_LONG);
 						SetKeyReady();
 					}
 					else
@@ -449,7 +450,7 @@ void Key_Proc(void)
 				bAuto_Seq_Flag = CLEAR;
 				bScreenFreeze = SET;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-				Enter_SetUP();
+				Enter_MainMenu();
 				break;
 
 			case KEY_UP:
@@ -460,7 +461,6 @@ void Key_Proc(void)
 			case KEY_EXIT:
 				Menu_KeyProc(key);
 				break;
-
 		}
 		previous_keydata = key & 0x1F; // clear long or special key mark
 	}

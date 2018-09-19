@@ -119,31 +119,9 @@ const BYTE menuStr_Motion_CallMode[] =    "6. MOTION MODE : ";
 //const BYTE menuStr_Motion_Saving[] = "SAVING AREA...";
 
 // Miscellaneous
-const BYTE menuStr_DeviceInfo_Title[] =   "-- DEVICE INFO --"
+const BYTE menuStr_DeviceInfo_Title[] =   "-- DEVICE INFO --";
 const BYTE menuStr_DeviceInfo_Version[] = "1. F/W VERSION : v";
 //const BYTE menuStr_Miscellaneous_
 //const BYTE menuStr_Miscellaneous_
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

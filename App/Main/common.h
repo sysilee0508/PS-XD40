@@ -74,7 +74,6 @@ typedef enum {
 #define SET		1
 
 // -----------------------------------------------------------------------------
-#define CHANNEL_NEME_LENGTH_MAX			12
 
 #define CHAR_WIDTH_E					12
 #define CHAR_WIDTH_K					24

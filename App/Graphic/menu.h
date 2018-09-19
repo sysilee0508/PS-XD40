@@ -31,10 +31,8 @@ extern void SetOSDMenuID(WORD nID);
 extern void SetOSDCombID(WORD nID);
 extern void SetMenuDefaultStatus(void);
 
-extern void Enter_SetUP(void);
-
-extern void Menu_KeyProc(void);
-extern void MainPage_KeyHandler(eKeyData_t key);
+extern void Enter_MainMenu(void);
+extern void Menu_KeyProc(eKeyData_t key);
 
 extern void ChangeSystemMode(u8 mode);
 extern u8 GetSystemMode(void);

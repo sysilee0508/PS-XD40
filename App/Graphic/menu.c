@@ -1950,19 +1950,13 @@ u8 GetSystemMode(void)
 	return systemMode;
 }
 
-void Enter_SetUP(void)
+void Enter_MainMenu(void)
 {
 	ChangeSystemMode(SYSTEM_SETUP_MODE);
-	requestEnterKeyProc = 0;
-
+	requestEnterKeyProc = CLEAR;
 	SetKeyMode(KEY_MODE_REPEAT);
-  
-	itemX = 0;
-	itemY = 0;
-
 	OSD_EraseAll();
-
-	MainMenu_Entry(itemY);
+	MainMenu_Entry(MAINMENU_ITEM_Y_TIME_DATE);
 }
 
 //-----------------------------------------------------------------

@@ -13,13 +13,6 @@ typedef enum
 	CHANNEL2,
 	CHANNEL3,
 	CHANNEL4,
-#ifdef __9CH_DEVICE__
-	CHANNEL5,
-	CHANNEL6,
-	CHANNEL7,
-	CHANNEL8,
-	CHANNEL9,
-#endif
 	NUM_OF_CHANNEL
 } eChannel_t;
 

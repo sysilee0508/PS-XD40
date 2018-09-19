@@ -28,6 +28,8 @@
 #define NV_SUCCESS						TRUE
 #define NV_FAIL							FALSE
 
+#define CHANNEL_NEME_LENGTH_MAX			12
+
 //=============================================================================
 //  Type definitions - enum, struct
 //=============================================================================
