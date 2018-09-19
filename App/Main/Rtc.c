@@ -3,21 +3,6 @@
 //=============================================================================
 #include "common.h"
 
-//=============================================================================
-//  Global Variable Declaration
-//=============================================================================
-BYTE rtc_year;
-BYTE rtc_month;
-BYTE rtc_day;
-BYTE rtc_hour;
-BYTE rtc_min;
-BYTE rtc_sec;
-
-BYTE sec_flag = 0;
-BYTE rtc_sec_update_flag = 0;
-DWORD time_value = 0;
-WORD date_value = 0;
-
 #define SECS_IN_MIN			60
 #define MINS_IN_HOUR		60
 #define HOURS_IN_DAY		24
@@ -26,6 +11,16 @@ WORD date_value = 0;
 #define MONTHS_OF_YEAR		12
 
 #define MAX_YEAR_COUNT		100
+
+//=============================================================================
+//  Global Variable Declaration
+//=============================================================================
+BYTE sec_flag = 0;
+BYTE RTC_IsUpdated = CLEAR;
+DWORD time_value = 0;
+WORD date_value = 0;
+
+static sTimeDateBCD_t rtcTimeDate;
 
 //=============================================================================
 //  Constant Array Declaration (data table)
@@ -80,7 +75,7 @@ const WORD year_table[MAX_YEAR_COUNT] =
 //-----------------------------------------------------------------------------
 //	16������ BCD�ڵ�� ��ȯ
 //-----------------------------------------------------------------------------
-BYTE Hex2Bcd(BYTE hex_num) 
+static BYTE Hex2Bcd(BYTE hex_num)
 {
 	return (((hex_num/10)<<4)|(hex_num%10));
 }
@@ -89,7 +84,7 @@ BYTE Hex2Bcd(BYTE hex_num)
 //-----------------------------------------------------------------------------
 //	���ϰ����� �� ����� ���� ����ؼ� �������� ������.  
 //-----------------------------------------------------------------------------
-void RTC_Cnt_Calc(WORD ymd_val)
+static void RTC_CalculateDate(WORD ymd_val)
 {
 	BYTE index;
 	BYTE year_val = 0;
@@ -97,9 +92,10 @@ void RTC_Cnt_Calc(WORD ymd_val)
 	BYTE day_val = 0;
 	WORD tmp_val = 0;
 
+
 	tmp_val = ymd_val; 
 
-	for(index=0; index<MAX_YEAR_COUNT; index++)
+	for(index = 0; index < MAX_YEAR_COUNT; index++)
 	{
 		if(tmp_val < year_table[index])
 		{
@@ -111,7 +107,7 @@ void RTC_Cnt_Calc(WORD ymd_val)
 	// Is it leap year
 	if((year_val % 4) == 0)
 	{
-		for(index=0;index<MONTHS_OF_YEAR;index++)
+		for(index = 0;index < MONTHS_OF_YEAR; index++)
 		{
 			if(tmp_val < month_leap_table[index])
 			{
@@ -135,161 +131,120 @@ void RTC_Cnt_Calc(WORD ymd_val)
 	}
 	day_val = tmp_val+1;
 
-	rtc_year  = Hex2Bcd(year_val);
-	rtc_month = Hex2Bcd(month_val);
-	rtc_day   = Hex2Bcd(day_val);
+	rtcTimeDate.year  = Hex2Bcd(year_val);
+	rtcTimeDate.month = Hex2Bcd(month_val);
+	rtcTimeDate.day   = Hex2Bcd(day_val);
 }
 
-//��ü �ð����� �޾� �ʴ��� ������ ����ؼ� RTC ī���Ϳ� �ִ´�. 
-void Change_RTC_Cnt(struct tm *time)
+void RTC_ChangeCount(sTimeDate_t *time)
 {
 	BYTE index;
-	LONG tmp_val = 0;
+	DWORD rtcCount = 0;
 
-	//�� ���ϱ�
-	for(index=0;index<time->tm_year;index++)
+	for(index = 0; index < time->year; index++)
 	{
-		tmp_val += year_table[index];
+		rtcCount += year_table[index];
 	}		
 
-	//�� ���ϱ�
-	if((time->tm_year%4) == 0)	//������ ��
+	if((time->year % 4) == 0) //leap year
 	{
-		for(index=0;index<time->tm_mon;index++)
+		for(index = 0; index < time->month ; index++)
 		{
-			tmp_val += month_leap_table[index];
+			rtcCount += month_leap_table[index];
 		}		
 	}
 	else 
 	{
-		for(index=0;index<time->tm_mon;index++)
+		for(index = 0; index < time->month; index++)
 		{
-			tmp_val += month_normal_table[index];
+			rtcCount += month_normal_table[index];
 		}		
 	}
 		
-	//�� ���ϱ�
-	tmp_val += time->tm_mday;
-	tmp_val *= SECS_IN_DAY;
-
-	//�� ���ϱ�
-	tmp_val += (time->tm_hour*SECS_IN_HOUR);
-
-	//�� ���ϱ�
-	tmp_val += (time->tm_min*SECS_IN_MIN);
-
-	//�� ���ϱ�
-	tmp_val += time->tm_sec; 
+	rtcCount += time->day;
+	rtcCount *= SECS_IN_DAY;
+	rtcCount += (time->hour*SECS_IN_HOUR);
+	rtcCount += (time->min*SECS_IN_MIN);
+	rtcCount += time->sec;
 
     RTC_WaitForLastTask();	
-    RTC_SetCounter(tmp_val);
+    RTC_SetCounter(rtcCount);
     RTC_WaitForLastTask();	
 }
 
 void Time_Read(void) 
 { 
-	static WORD sub_cnt; 
-	static BYTE sub_flag;
+//	static WORD sub_cnt;
+//	static BYTE sub_flag;
+	u32 rtcCount = RTC_GetCounter();
 	BYTE month_tmp, day_tmp;
 	sTimeCorrect_t timeCorrection;
 
-	//if((!bSETUP) || (vPAGE != 1) || (vITEM_Y != 0) || (!bENTER))
+	if(RTC_IsRtcUpdatd() == SET)
 	{
-		if(rtc_sec_update_flag)
+		RTC_SetRtcUpdated(CLEAR);
+		sec_flag = SET;
+
+		date_value = rtcCount / SECS_IN_DAY;
+		time_value = rtcCount % SECS_IN_DAY;
+
+		month_tmp = rtcTimeDate.month;
+		day_tmp = rtcTimeDate.day;
+		RTC_CalculateDate(date_value);
+
+	    // Compute  time
+		rtcTimeDate.hour = Hex2Bcd(time_value/SECS_IN_HOUR);
+		rtcTimeDate.min = Hex2Bcd((time_value%SECS_IN_HOUR)/SECS_IN_MIN);
+		rtcTimeDate.sec = Hex2Bcd((time_value%SECS_IN_HOUR)%SECS_IN_MIN);
+
+		//Time correction
+		Read_NvItem_TimeCorrect(&timeCorrection);
+		if(timeCorrection.timeCorrecOffset > 0)
 		{
-			rtc_sec_update_flag = 0;
-			sec_flag = 1;
-
-			date_value = RTC_GetCounter() / SECS_IN_DAY;
-			time_value = RTC_GetCounter() % SECS_IN_DAY;
-
-			month_tmp = rtc_month;	//time correction ���� ���
-			day_tmp = rtc_day;		//time correction ���� ���
-
-			RTC_Cnt_Calc(date_value);
-		    // Compute  hours
-			rtc_hour = Hex2Bcd(time_value/SECS_IN_HOUR);
-			// Compute minutes
-			rtc_min = Hex2Bcd((time_value%SECS_IN_HOUR)/SECS_IN_MIN);
-		    // Compute seconds
-			rtc_sec = Hex2Bcd((time_value%SECS_IN_HOUR)%SECS_IN_MIN);
-
-			//Time correction
-			Read_NvItem_TimeCorrect(&timeCorrection);
-			if(timeCorrection.timeCorrecOffset > 0)
+			if(((timeCorrection.timeCorrectUint == TIME_UNIT_DAY) && (day_tmp != rtcTimeDate.day)) ||
+				((timeCorrection.timeCorrectUint == TIME_UNIT_MONTH) &&	(month_tmp != rtcTimeDate.month)))
 			{
-				if(timeCorrection.timeCorrectUint == TIME_UNIT_DAY) //Daliy
+				if(timeCorrection.timeCorrectDirection == DIRECTION_UP) // + --> up / - --> down
 				{
-					if(day_tmp != rtc_day)
-					{
-						if(timeCorrection.timeCorrectDirection == DIRECTION_UP) // + --> up / - --> down
-						{
-						    RTC_WaitForLastTask();	
-						    RTC_SetCounter(RTC_GetCounter()+timeCorrection.timeCorrecOffset);
-						    RTC_WaitForLastTask();	
-
-							date_value = RTC_GetCounter() / SECS_IN_DAY;
-							RTC_Cnt_Calc(date_value);
-							time_value = RTC_GetCounter() % SECS_IN_DAY;
-							rtc_hour = Hex2Bcd(time_value / SECS_IN_HOUR);
-							rtc_min = Hex2Bcd((time_value % SECS_IN_HOUR)/SECS_IN_MIN);
-							rtc_sec = Hex2Bcd((time_value % SECS_IN_HOUR)%SECS_IN_MIN);
-						}
-						else
-						{
-							sub_cnt = timeCorrection.timeCorrecOffset;
-			 				sub_flag = SET;
-						}	
-					}
+					rtcCount += +timeCorrection.timeCorrecOffset;
 				}
-				else if(timeCorrection.timeCorrectUint == TIME_UNIT_MONTH)//Monthly
+				else if(timeCorrection.timeCorrectDirection == DIRECTION_DOWN)// -
 				{
-					if(month_tmp != rtc_month)
+					if(rtcCount > timeCorrection.timeCorrecOffset)
 					{
-						if(timeCorrection.timeCorrectDirection == DIRECTION_UP)
-						{
-						    RTC_WaitForLastTask();	
-						    RTC_SetCounter(RTC_GetCounter()+timeCorrection.timeCorrecOffset);
-						    RTC_WaitForLastTask();	
-
-							date_value = RTC_GetCounter() / SECS_IN_DAY;
-							RTC_Cnt_Calc(date_value);
-							time_value = RTC_GetCounter() % SECS_IN_DAY;
-							rtc_hour = Hex2Bcd(time_value/SECS_IN_HOUR);
-							rtc_min = Hex2Bcd((time_value%SECS_IN_HOUR)/SECS_IN_MIN);
-							rtc_sec = Hex2Bcd((time_value%SECS_IN_HOUR)%SECS_IN_MIN);
-						}		
-						else
-						{
-							sub_cnt = timeCorrection.timeCorrecOffset;
-			 				sub_flag = SET;
-						}
+						rtcCount -= timeCorrection.timeCorrecOffset;
 					}
-				}		
-			}
-
-			if(sub_flag)
-			{
-				if(sub_cnt != 0)
-				{
-					sub_cnt--;
+					else
+					{
+						rtcCount = 0;
+					}
 				}	
-				else
-				{
-				    RTC_WaitForLastTask();	
-				    RTC_SetCounter(RTC_GetCounter()-timeCorrection.timeCorrecOffset);
-				    RTC_WaitForLastTask();	
+			    RTC_WaitForLastTask();
+			    RTC_SetCounter(rtcCount);
+			    RTC_WaitForLastTask();
 
-					date_value = RTC_GetCounter() / SECS_IN_DAY;
-					RTC_Cnt_Calc(date_value);
-					time_value = RTC_GetCounter() % SECS_IN_DAY;
-					rtc_hour = Hex2Bcd(time_value/SECS_IN_HOUR);
-					rtc_min = Hex2Bcd((time_value%SECS_IN_HOUR)/SECS_IN_MIN);
-					rtc_sec = Hex2Bcd((time_value%SECS_IN_HOUR)%SECS_IN_MIN);
-
-					sub_flag = CLEAR;
-				}
-			}          
+				date_value = rtcCount / SECS_IN_DAY;
+				RTC_CalculateDate(date_value);
+				time_value = rtcCount % SECS_IN_DAY;
+				rtcTimeDate.hour = Hex2Bcd(time_value / SECS_IN_HOUR);
+				rtcTimeDate.min = Hex2Bcd((time_value % SECS_IN_HOUR)/SECS_IN_MIN);
+				rtcTimeDate.sec = Hex2Bcd((time_value % SECS_IN_HOUR)%SECS_IN_MIN);
+			}
 		}
 	}
+}
+
+void GetTimeDateInBCD(sTimeDateBCD_t* pData)
+{
+	memcpy(pData, rtcTimeDate, sizeof(rtcTimeDate));
+}
+
+void RTC_SetRtcUpdated(BOOL set)
+{
+	RTC_IsUpdated = set;
+}
+
+BOOL RTC_IsRtcUpdatd(void)
+{
+	return RTC_IsUpdated;
 }

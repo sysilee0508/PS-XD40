@@ -17,9 +17,13 @@
 #define NVSTORAGE_START_CHECK			0xA5A5A5A5
 #define NVSTORAGE_END_CHECK				0x5A5A5A5A
 
-#define NV_VERSION_MAJOR				(u16)0x0001
-#define NV_VERSION_MINOR				(u16)0x0000
-#define NV_VERSION						(NV_VERSION_MAJOR << 16) | NV_VERSION_MINOR
+#define NV_VERSION_MAJOR				(uint8_t)0x01
+#define NV_VERSION_MINOR				(uint8_t)0x00
+#define NV_VERSION						(NV_VERSION_MAJOR << 8) | NV_VERSION_MINOR
+
+#define FW_VERSION_MAJOR				(uint8_t)0x10	// develop version uses MSB 4bit, release version uses LSB 8bit
+#define FW_VERSION_MINOR				(uint8_t)0x00
+#define FW_VERSION						(FW_VERSION_MAJOR << 8) | FW_VERSION_MINOR
 
 #define NV_SUCCESS						TRUE
 #define NV_FAIL							FALSE
@@ -31,12 +35,15 @@
 typedef enum
 {
 	NV_ITEM_START_CHECK = 0,
-	NV_ITEM_VERSION,
+	NV_ITEM_NV_VERSION,
+	NV_ITEM_FW_VERSION,
 //-- user setting data (MENU) --------------------------------------------------
 	NV_ITEM_TIME_CORRECT,
 	NV_ITEM_DATE_FORMAT,
+	NV_ITEM_YEAR_FORMAT,
 	NV_ITEM_TIME_ON,
-	NV_ITEM_TIME_POSITION,
+	NV_ITEM_DATE_ON,
+//	NV_ITEM_TIME_POSITION,
 	NV_ITEM_CHANNEL_NAME,
 	NV_ITEM_TITLE_DISPLAY_ON,
 	NV_ITEM_TITLE_POSITION,
@@ -53,6 +60,7 @@ typedef enum
 	NV_ITEM_VIDEO_LOSS_DISPLAY_ON,
 	NV_ITEM_REMOCON_ID,
 	NV_ITEM_ALARM_REMOCON_SELECT,
+	NV_ITEM_MOTION_SENSITIVITY,
 //-- system data ---------------------------------------------------------------
 //	If you want to store any system data (item) in NV memory, it comes here
 	NV_ITEM_DISPLAY_MODE,
@@ -74,19 +82,19 @@ typedef enum
 	TITLE_POSITION_MAX
 } eTitlePosition_t;
 
-typedef enum
-{
-	TIME_POSITION_LEFT,
-	TIME_POSITION_CENTER,
-	TIME_POSITION_RIGHT,
-	TIME_POSITION_MAX
-} eTimePosition_t;
+//typedef enum
+//{
+//	TIME_POSITION_LEFT,
+//	TIME_POSITION_CENTER,
+//	TIME_POSITION_RIGHT,
+//	TIME_POSITION_MAX
+//} eTimePosition_t;
 
 typedef enum
 {
-	DATE_FORMAT_YMD = 0,
-	DATE_FORMAT_MDY,
-	DATE_FORMAT_DMY,
+	DATE_FORMAT_YMD = 0, //ASIA
+	DATE_FORMAT_MDY,	 // US
+	DATE_FORMAT_DMY,	 //EURO
 	DATE_FORMAT_MAX
 } eDateFormat_t;
 
@@ -150,16 +158,19 @@ typedef struct
 typedef struct
 {
 	uint32_t				storageStartCheck;
-	uint32_t				version;
+	uint16_t				nvVersion;
+	uint16_t				fwVersion;
 
 	sTimeCorrect_t			timeCorrection;
 	eDateFormat_t			dateFormat;
+	uint8_t					yearFormat;
 	BOOL			 		timeDisplayOn;
-	eTimePosition_t			timeDisplayPosition;
+	BOOL					dateDisplayOn;
+//	eTimePosition_t			timeDisplayPosition;
 	uint8_t 				channelName[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX];
 	BOOL 					titleDisplayOn;
 	eTitlePosition_t 		titlePosition;
-	uint8_t					autoSeqTime;
+	uint8_t					autoSeqTime[NUM_OF_CHANNEL];
 	BOOL					autoSeqLossSkip;
 	eResolution_t 			outputResolution;
 	BOOL					osdOn;
@@ -171,7 +182,8 @@ typedef struct
 	uint8_t					videoLossBuzzerTime;
 	BOOL					videoLossDisplayOn;
 	uint8_t 				remoconId;
-	BOOL					alarm_remote_sel;
+	BOOL					alarm_remote_sel; //0 : alarm, 1: remocon
+	uint8_t					motionSensitivity;
 
 //	uint8_t baud_rate;			// baud_rate
 	eDisplayMode_t			displayMode;
@@ -194,7 +206,7 @@ extern void Write_NvItem_TimeCorrect(sTimeCorrect_t data);
 extern void Read_NvItem_VideoLossBuzzerTime(uint8_t *pData);
 extern void Write_NvItem_VideoLossBuzzerTime(uint8_t data);
 extern void Read_NvItem_AutoSeqTime(u8* pData);
-extern void Write_NvItem_AutoSeqTime(u8 data);
+extern void Write_NvItem_AutoSeqTime(u8* data);
 extern void Read_NvItem_AutoSeqLossSkip(BOOL* pData);
 extern void Write_NvItem_AutoSeqLossSkip(BOOL data);
 extern void Read_NvItem_OsdOn(BOOL* pData);
@@ -205,12 +217,33 @@ extern void Read_NvItem_TitlePosition(eTitlePosition_t *pData);
 extern void Write_NvItem_TitlePosition(eTitlePosition_t data);
 extern void Read_NvItem_TimeDisplayOn(BOOL* pData);
 extern void Write_NvItem_TimeDisplayOn(BOOL data);
-extern void Read_NvItem_TimePosition(eTimePosition_t *pData);
-extern void Write_NvItem_TimePosition(eTimePosition_t data);
+extern void Read_NvItem_DateDisplayOn(BOOL* pData);
+extern void Write_NvItem_DateDisplayOn(BOOL data);
+//extern void Read_NvItem_TimePosition(eTimePosition_t *pData);
+//extern void Write_NvItem_TimePosition(eTimePosition_t data);
 extern void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel);
 extern void Write_NvItem_ChannelName(uint8_t* pData, eChannel_t channel);
 extern void Read_NvItem_DateFormat(eDateFormat_t* pData);
 extern void Write_NvItem_DateFormat(eDateFormat_t data);
+extern void Read_NvItem_YearFormat(BOOL* pData);
+extern void Write_NvItem_YearFormat(BOOL data);
 extern void Read_NvItem_VideoLossDisplayOn(BOOL* pData);
 extern void Write_NvItem_VideoLossDisplayOn(BOOL data);
+extern void Read_NvItem_Resolution(eResolution_t *pData);
+extern void Write_NvItem_Resolution(eResolution_t data);
+extern void Read_NvItem_BorderLineDisplay(BOOL *pData);
+extern void Write_NvItem_BorderLineDisplay(BOOL data);
+extern void Read_NvItem_AlarmRemoconSelect(BOOL *pData);
+extern void Write_NvItem_AlarmRemoconSelect(BOOL data);
+extern void Read_NvItem_AlarmBuzzerTime(uint8_t *pData);
+extern void Write_NvItem_AlarmBuzzerTime(uint8_t data);
+extern void Read_NvItem_VideoLossBuzzerTime(uint8_t *pData);
+extern void Write_NvItem_VideoLossBuzzerTime(uint8_t data);
+extern void Read_NvItem_AlarmOption(eAlarmOption_t* pData, eChannel_t channel);
+extern void Write_NvItem_AlarmOption(eAlarmOption_t data, eChannel_t channel);
+extern void Read_NvItem_RemoconId(uint8_t *pData);
+extern void Write_NvItem_RemoconId(uint8_t data);
+extern void Read_NvItem_MotionSensitivity(uint8_t *pData);
+extern void Write_NvItem_MotionSensitivity(uint8_t data);
+
 #endif

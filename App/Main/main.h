@@ -4,6 +4,9 @@
 #undef __9CH_DEVICE__
 #define __4CH__
 
+#define SYSTEM_SETUP_MODE			1	//set-up menu
+#define SYSTEM_NORMAL_MODE			0	//normal working
+
 typedef enum
 {
 	CHANNEL1 = 0,

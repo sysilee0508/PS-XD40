@@ -14,15 +14,18 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 {
 //		item(name),						size of data,								dirty
 		{NV_ITEM_START_CHECK,			sizeof(uint32_t),							CLEAR},
-		{NV_ITEM_VERSION,				sizeof(uint32_t),							CLEAR},
+		{NV_ITEM_NV_VERSION,				sizeof(uint16_t),							CLEAR},
+		{NV_ITEM_FW_VERSION,				sizeof(uint16_t),							CLEAR},
 		{NV_ITEM_TIME_CORRECT,			sizeof(sTimeCorrect_t),						CLEAR},
 		{NV_ITEM_DATE_FORMAT,			sizeof(eDateFormat_t),						CLEAR},
+		{NV_ITEM_YEAR_FORMAT, 			sizeof(uint8_t),								CLEAR},
 		{NV_ITEM_TIME_ON,				sizeof(BOOL),								CLEAR},
-		{NV_ITEM_TIME_POSITION,			sizeof(eTitlePosition_t),					CLEAR},
+		{NV_ITEM_DATE_ON,				sizeof(BOOL),								CLEAR},
+//		{NV_ITEM_TIME_POSITION,			sizeof(eTitlePosition_t),					CLEAR},
 		{NV_ITEM_CHANNEL_NAME,			(NUM_OF_CHANNEL * CHANNEL_NEME_LENGTH_MAX),	CLEAR},
 		{NV_ITEM_TITLE_DISPLAY_ON,		sizeof(BOOL),								CLEAR},
-		{NV_ITEM_AUTO_SEQ_TIME,			sizeof(uint8_t),								CLEAR},
-		{NV_ITEM_AUTO_SEQ_LOSS_SKIP,	sizeof(BOOL),									CLEAR},
+		{NV_ITEM_AUTO_SEQ_TIME,			sizeof(uint8_t) * NUM_OF_CHANNEL,			CLEAR},
+		{NV_ITEM_AUTO_SEQ_LOSS_SKIP,		sizeof(BOOL),								CLEAR},
 		{NV_ITEM_OUTPUT_RESOLUTION,		sizeof(eResolution_t),						CLEAR},
 		{NV_ITEM_OSD_DISPLAY,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_TITLE_POSITION,			sizeof(eTitlePosition_t),					CLEAR},
@@ -30,11 +33,12 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_USER_ALARM_OPTION, 		sizeof(eAlarmOption_t),						CLEAR},
 		{NV_ITEM_USER_ALARMOUT_TIME,		sizeof(uint8_t),								CLEAR},
 		{NV_ITEM_USER_ALARM_BUZZER_TIME,	sizeof(uint8_t),								CLEAR},
-		{NV_ITEM_VIDEO_LOSS_ALARM_ON,	NUM_OF_CHANNEL,								CLEAR},
+		{NV_ITEM_VIDEO_LOSS_ALARM_ON,	sizeof(BOOL) * NUM_OF_CHANNEL,				CLEAR},
 		{NV_ITEM_VIDEO_LOSS_BUZZER_TIME,	sizeof(uint8_t),								CLEAR},
 		{NV_ITEM_VIDEO_LOSS_DISPLAY_ON,	sizeof(BOOL),								CLEAR},
 		{NV_ITEM_REMOCON_ID,				sizeof(uint8_t),								CLEAR},
 		{NV_ITEM_ALARM_REMOCON_SELECT,	sizeof(BOOL),								CLEAR},
+		{NV_ITEM_MOTION_SENSITIVITY,		sizeof(uint8_t),								CLEAR},
 		{NV_ITEM_DISPLAY_MODE,			sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_END_CHECK,				sizeof(uint32_t),							CLEAR}
 };
@@ -59,7 +63,7 @@ static BOOL CheckNvStorage(void)
 
 	if((nv_data.data.storageStartCheck == NVSTORAGE_START_CHECK) &&
 		(nv_data.data.storageEndCheck == NVSTORAGE_END_CHECK) &&
-		(nv_data.data.version == NV_VERSION))
+		(nv_data.data.nvVersion == NV_VERSION))
 	{
 		result = TRUE;
 	}
@@ -100,21 +104,25 @@ static void LoadDefaultNvData(void)
 	nv_data.data.storageStartCheck = NVSTORAGE_START_CHECK;
 	nv_data.data.storageEndCheck = NVSTORAGE_END_CHECK;
 
-	nv_data.data.version = NV_VERSION;
+	nv_data.data.nvVersion = NV_VERSION;
+	nv_data.data.fwVersion = FW_VERSION;
 
 	nv_data.data.timeCorrection.timeCorrecOffset = 0;
 	nv_data.data.timeCorrection.timeCorrectDirection = DIRECTION_UP;
 	nv_data.data.timeCorrection.timeCorrectUint = TIME_UNIT_SEC;
 	nv_data.data.dateFormat = DATE_FORMAT_YMD;
 	nv_data.data.timeDisplayOn = ON;
-	nv_data.data.timeDisplayPosition = DISPLAY_POSITION_MIDDLE_BOTTOM;
+//	nv_data.data.timeDisplayPosition = DISPLAY_POSITION_MIDDLE_BOTTOM;
 	CreateDefaultChannelTitle();
 //	nv_data.data.channelName[0] = "CAM1";
 //	nv_data.data.channelName[1] = "CAM2";
 //	nv_data.data.channelName[2] = "CAM3";
 //	nv_data.data.channelName[3] = "CAM4";
 	nv_data.data.titleDisplayOn = ON;
-	nv_data.data.autoSeqTime = 3;
+	for(index = 0; index < NUM_OF_CHANNEL; index++)
+	{
+		nv_data.data.autoSeqTime[index] = 3;
+	}
 	nv_data.data.autoSeqLossSkip = ON;
 	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
 	nv_data.data.osdOn = ON;
@@ -133,7 +141,8 @@ static void LoadDefaultNvData(void)
 	nv_data.data.videoLossBuzzerTime = 3;
 	nv_data.data.videoLossDisplayOn = ON;
 	nv_data.data.remoconId = 0;
-	nv_data.data.alarm_remote_sel = 0;
+	nv_data.data.alarm_remote_sel = 0; //alarm
+	nv_data.data.motionSensitivity = 10;
 	nv_data.data.displayMode = DISPLAY_MODE_4SPLIT;
 
 	// set anyone of nv items dirty in order to write nv data to flash
@@ -245,6 +254,11 @@ BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size)
 }
 
 // read/write specific item ----------------------------------------------------
+void Read_NvItem_FwVersion(uint16_t* pData)
+{
+	*pData = nv_data.data.fwVersion;
+}
+
 void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData)
 {
 	*pData = nv_data.data.timeCorrection;
@@ -269,10 +283,11 @@ void Read_NvItem_AutoSeqTime(uint8_t* pData)
 {
 	*pData = nv_data.data.autoSeqTime;
 }
-void Write_NvItem_AutoSeqTime(uint8_t data)
+void Write_NvItem_AutoSeqTime(uint8_t* pData,size_t size)
 {
-	 nv_data.data.autoSeqTime = data;
-	 nvInfo[NV_ITEM_AUTO_SEQ_TIME].dirty = SET;
+	WriteNvItem(NV_ITEM_AUTO_SEQ_TIME, (void *)pData, size);
+//	memcpy(nv_data.data.autoSeqTime, pData, size);
+//	nvInfo[NV_ITEM_AUTO_SEQ_TIME].dirty = SET;
 }
 
 void Read_NvItem_AutoSeqLossSkip(BOOL* pData)
@@ -328,18 +343,28 @@ void Write_NvItem_TimeDisplayOn(BOOL data)
 	nvInfo[NV_ITEM_TIME_ON].dirty = SET;
 }
 
-void Read_NvItem_TimePosition(eTimePosition_t *pData)
+void Read_NvItem_DateDisplayOn(BOOL* pData)
 {
-	*pData = nv_data.data.timeDisplayPosition;
+	*pData = nv_data.data.dateDisplayOn;
 }
-void Write_NvItem_TimePosition(eTimePosition_t data)
+void Write_NvItem_DateDisplayOn(BOOL data)
 {
-	if(data < TIME_POSITION_MAX)
-	{
-		nv_data.data.timeDisplayPosition = data;
-		nvInfo[NV_ITEM_TIME_POSITION].dirty = SET;
-	}
+	nv_data.data.dateDisplayOn = data;
+	nvInfo[NV_ITEM_DATE_ON].dirty = SET;
 }
+
+//void Read_NvItem_TimePosition(eTimePosition_t *pData)
+//{
+//	*pData = nv_data.data.timeDisplayPosition;
+//}
+//void Write_NvItem_TimePosition(eTimePosition_t data)
+//{
+//	if(data < TIME_POSITION_MAX)
+//	{
+//		nv_data.data.timeDisplayPosition = data;
+//		nvInfo[NV_ITEM_TIME_POSITION].dirty = SET;
+//	}
+//}
 
 void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
 {
@@ -368,6 +393,16 @@ void Write_NvItem_DateFormat(eDateFormat_t data)
 	}
 }
 
+void Read_NvItem_YearFormat(BOOL* pData)
+{
+	*pData = nv_data.data.dateFormat;
+}
+void Write_NvItem_YearFormat(BOOL data)
+{
+	nv_data.data.yearFormat = data;
+	nvInfo[NV_ITEM_YEAR_FORMAT].dirty = SET;
+}
+
 void Read_NvItem_VideoLossDisplayOn(BOOL* pData)
 {
 	*pData = nv_data.data.videoLossDisplayOn;
@@ -376,4 +411,103 @@ void Write_NvItem_VideoLossDisplayOn(BOOL data)
 {
 	nv_data.data.videoLossDisplayOn = data;
 	nvInfo[NV_ITEM_VIDEO_LOSS_DISPLAY_ON].dirty = SET;
+}
+
+void Read_NvItem_Resolution(eResolution_t *pData)
+{
+	*pData = nv_data.data.outputResolution;
+}
+void Write_NvItem_Resolution(eResolution_t data)
+{
+	if(data < RESOLUTION_MAX)
+	{
+		nv_data.data.outputResolution = data;
+		nvInfo[NV_ITEM_OUTPUT_RESOLUTION].dirty = SET;
+	}
+}
+
+void Read_NvItem_BorderLineDisplay(BOOL *pData)
+{
+	*pData = nv_data.data.borderLineOn;
+}
+void Write_NvItem_BorderLineDisplay(BOOL data)
+{
+	nv_data.data.borderLineOn = data;
+	nvInfo[NV_ITEM_BORDER_LINE].dirty = SET;
+}
+
+void Read_NvItem_AlarmRemoconSelect(BOOL *pData)
+{
+	*pData = nv_data.data.alarm_remote_sel;
+}
+void Write_NvItem_AlarmRemoconSelect(BOOL data)
+{
+	nv_data.data.alarm_remote_sel = data;
+	nvInfo[NV_ITEM_ALARM_REMOCON_SELECT].dirty = SET;
+}
+
+void Read_NvItem_AlarmOutTime(uint8_t *pData)
+{
+	*pData = nv_data.data.alarmOutTime;
+}
+void Write_NvItem_AlarmRemoconSelect(uint8_t data)
+{
+	nv_data.data.alarmOutTime = data;
+	nvInfo[NV_ITEM_USER_ALARMOUT_TIME].dirty = SET;
+}
+
+void Read_NvItem_AlarmBuzzerTime(uint8_t *pData)
+{
+	*pData = nv_data.data.alarmBuzzerTime;
+}
+void Write_NvItem_AlarmBuzzerTime(uint8_t data)
+{
+	nv_data.data.alarmBuzzerTime = data;
+	nvInfo[NV_ITEM_USER_ALARM_BUZZER_TIME].dirty = SET;
+}
+
+void Read_NvItem_VideoLossBuzzerTime(uint8_t *pData)
+{
+	*pData = nv_data.data.videoLossBuzzerTime;
+}
+void Write_NvItem_VideoLossBuzzerTime(uint8_t data)
+{
+	nv_data.data.videoLossBuzzerTime = data;
+	nvInfo[NV_ITEM_VIDEO_LOSS_BUZZER_TIME].dirty = SET;
+}
+
+void Read_NvItem_AlarmOption(eAlarmOption_t* pData, eChannel_t channel)
+{
+	if(channel < NUM_OF_CHANNEL)
+	{
+		*pData = nv_data.data.alarmOption[channel];
+	}
+}
+void Write_NvItem_AlarmOption(eAlarmOption_t data, eChannel_t channel)
+{
+	if(channel < NUM_OF_CHANNEL)
+	{
+		nv_data.data.alarmOption[channel] = data;
+		nvInfo[NV_ITEM_USER_ALARM_OPTION].dirty = SET;
+	}
+}
+
+void Read_NvItem_RemoconId(uint8_t *pData)
+{
+	*pData = nv_data.data.remoconId;
+}
+void Write_NvItem_RemoconId(uint8_t data)
+{
+	nv_data.data.remoconId = data;
+	nvInfo[NV_ITEM_REMOCON_ID].dirty = SET;
+}
+
+void Read_NvItem_MotionSensitivity(uint8_t *pData)
+{
+	*pData = nv_data.data.motionSensitivity;
+}
+void Write_NvItem_MotionSensitivity(uint8_t data)
+{
+	nv_data.data.motionSensitivity = data;
+	nvInfo[NV_ITEM_MOTION_SENSITIVITY].dirty = SET;
 }

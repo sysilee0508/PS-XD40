@@ -73,16 +73,26 @@ typedef enum {
 #define CLEAR	0
 #define SET		1
 
-//#define ELEMENTS_IN_TABLE(table,element)	sizeof(table)/sizeof(element)
+// -----------------------------------------------------------------------------
+#define CHANNEL_NEME_LENGTH_MAX			12
+
+#define CHAR_WIDTH_E					12
+#define CHAR_WIDTH_K					24
+#define CHAR_HEIGHT						24
+
+
+// -----------------------------------------------------------------------------
+// Typedef
+// -----------------------------------------------------------------------------
+typedef struct
+{
+	u16 pos_x;
+	u16 pos_y;
+} sPosition_t;
 
 // -----------------------------------------------------------------------------
 // External Variables declaration
 // -----------------------------------------------------------------------------
 extern volatile BOOL fZOOMMove, fCROPMove;
-
-// -----------------------------------------------------------------------------
-// Exported function Prototype
-// -----------------------------------------------------------------------------
-
 
 #endif	/* __COMMON_H__ */

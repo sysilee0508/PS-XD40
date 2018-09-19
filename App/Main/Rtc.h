@@ -4,34 +4,40 @@
 //=============================================================================
 //  
 //=============================================================================
-struct tm 
+typedef struct
 {
-	BYTE tm_sec;   
-	BYTE tm_min;   
-	BYTE tm_hour;  
+	BYTE sec;
+	BYTE min;
+	BYTE hour;
 
-	BYTE tm_mday;  
-	BYTE tm_mon;   
-	BYTE tm_year;  
-};
+	BYTE day;
+	BYTE month;
+	BYTE year;
+} sTimeDate_t;
+
+// BCD Type
+typedef struct
+{
+	BYTE sec;
+	BYTE min;
+	BYTE hour;
+	BYTE day;
+	BYTE month;
+	BYTE year;
+} sTimeDateBCD_t;
 
 //=============================================================================
 //  Function Prototype
 //=============================================================================
-void Change_RTC_Cnt(struct tm *time);
-void Time_Read(void); 
-
+extern void RTC_ChangeCount(sTimeDate_t *time);
+extern void Time_Read(void);
+extern void GetTimeDateInBCD(sTimeDateBCD_t* pData);
+extern void RTC_SetRtcUpdated(BOOL set);
+extern BOOL RTC_IsRtcUpdatd(void);
 //=============================================================================
 //  Extern Grobal Variable 
 //=============================================================================
-extern BYTE rtc_year;
-extern BYTE rtc_month;
-extern BYTE rtc_day;
-extern BYTE rtc_hour;
-extern BYTE rtc_min;
-extern BYTE rtc_sec;
 
-extern BYTE rtc_sec_update_flag;
 extern BYTE sec_flag;
 
 

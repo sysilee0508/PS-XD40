@@ -15,11 +15,11 @@ u8 pre_special_mode = LEFT_TOP;
 //=============================================================================
 static keycode_t current_keycode = KEYCODE_NONE;
 static keycode_t led_keycode = KEYCODE_NONE;
-static key_mode_e key_mode = KEY_MODE_LONG;
-static key_mode_e saved_key_mode = KEY_MODE_LONG;
-static keystatus_e key_status = KEY_STATUS_RELEASED;
+static eKeyMode_t key_mode = KEY_MODE_LONG;
+static eKeyMode_t saved_key_mode = KEY_MODE_LONG;
+static eKeyStatus_t key_status = KEY_STATUS_RELEASED;
 static BOOL bKeyReady = CLEAR;
-static keydata_e current_keydata = KEY_NONE;
+static eKeyData_t current_keydata = KEY_NONE;
 static u8 pre_split_mode = 0;
 
 //=============================================================================
@@ -38,7 +38,7 @@ const static keycode_t keycode_table[] =
 	KEYCODE_NONE		//0x7f	0111 1111	127
 };
 
-const static keydata_e key_table[] =
+const static eKeyData_t key_table[] =
 {
 	KEY_FULL_CH1,
 	KEY_FULL_CH2,
@@ -68,7 +68,7 @@ const static keydata_e key_table[] =
 //-----------------------------------------------------------------------------
 // Interface
 //-----------------------------------------------------------------------------
-void SetKeyMode(key_mode_e mode)
+void SetKeyMode(eKeyMode_t mode)
 {
 	saved_key_mode = mode;
 	if(GetKeyStatus() == KEY_STATUS_RELEASED)
@@ -77,12 +77,12 @@ void SetKeyMode(key_mode_e mode)
 	}
 }
 
-key_mode_e GetKeyMode(void)
+eKeyMode_t GetKeyMode(void)
 {
 	return key_mode;
 }
 //-----------------------------------------------------------------------------
-keycode_t GetKeyCode(keydata_e key)
+keycode_t GetKeyCode(eKeyData_t key)
 {
 	keycode_t code = KEYCODE_NONE;
 	u8 i;
@@ -103,11 +103,11 @@ keycode_t GetKeyCode(keydata_e key)
 	return code;
 }
 //-----------------------------------------------------------------------------
-void UpdateKeyStatus(keystatus_e status)
+void UpdateKeyStatus(eKeyStatus_t status)
 {
 	key_status = status; 
 }
-keystatus_e GetKeyStatus(void)
+eKeyStatus_t GetKeyStatus(void)
 {
 	return key_status;
 }
@@ -125,11 +125,11 @@ BOOL IsKeyReady(void)
 	return bKeyReady;
 }
 //-----------------------------------------------------------------------------
-void UpdateKeyData(keydata_e key)
+void UpdateKeyData(eKeyData_t key)
 {
 	current_keydata = key;
 }
-keydata_e GetCurrentKey(void)
+eKeyData_t GetCurrentKey(void)
 {
 	return current_keydata;
 }
@@ -251,7 +251,7 @@ void Key_Check(void)
 
 	static u8 debounce_cnt = KEYCOUNT_SHORT;
 	static u8 key_cnt = 0;
-	static keydata_e processing_key_data = KEY_NONE;
+	static eKeyData_t processing_key_data = KEY_NONE;
 	static BOOL bLongKey = CLEAR;
 	static BOOL bRepeatKey = CLEAR;
 
@@ -320,7 +320,7 @@ void Key_Check(void)
 					if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
 				  		bRepeatKey = SET;
-				  		UpdateKeyData(processing_key_data | (keydata_e)KEY_LONG);
+				  		UpdateKeyData(processing_key_data | (eKeyData_t)KEY_LONG);
 						SetKeyReady();
 					}
 					else
@@ -365,14 +365,19 @@ void Key_Check(void)
 
 void Key_Proc(void)
 {
-	static keydata_e previous_keydata = KEY_NONE;
-	keydata_e key = GetCurrentKey();
+	static eKeyData_t previous_keydata = KEY_NONE;
+	eKeyData_t key = GetCurrentKey();
 	BOOL autoSeq_skipNoVideoChannel;
 
 
 	if(IsKeyReady()==TRUE)
 	{
 		ClearKeyReady();
+
+		if(GetSystemMode() == SYSTEM_SETUP_MODE)
+		{
+			key |= KEY_SPECIAL;
+		}
 
 		switch(key)
 		{
@@ -383,10 +388,10 @@ void Key_Proc(void)
 				// If key is changed...
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					Erase_OSD();
+					OSD_EraseAll();
 					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
-					bMode_change_flag = SET;
+					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = key-1;
 					Set_border_line();
@@ -398,11 +403,11 @@ void Key_Proc(void)
 				{
 					if(pre_split_mode != SPLITMODE_SPLIT4 || bAuto_Seq_Flag || bScreenFreeze)
 					{
-						Erase_OSD();
+						OSD_EraseAll();
 					}
 					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
-					bMode_change_flag = SET;
+					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
 #if 0 //Louis
@@ -431,7 +436,7 @@ void Key_Proc(void)
 				{
 					if(bAuto_Seq_Flag == CLEAR)
 					{
-						Erase_OSD();
+						OSD_EraseAll();
 					}
 					//bMode_change_flag = SET;
 					bScreenFreeze = CLEAR;
@@ -447,8 +452,17 @@ void Key_Proc(void)
 				Enter_SetUP();
 				break;
 
+			case KEY_UP:
+			case KEY_DOWN:
+			case KEY_LEFT:
+			case KEY_RIGHT:
+			case KEY_ENTER:
+			case KEY_EXIT:
+				Menu_KeyProc(key);
+				break;
+
 		}
-		previous_keydata = key & (~KEY_LONG);
+		previous_keydata = key & 0x1F; // clear long or special key mark
 	}
 }
 

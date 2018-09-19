@@ -117,8 +117,8 @@ void Auto_Seq_Init(void)
 
 	if((ON == osdDisplayOn) && (ON == titleDisplayOn))
 	{
-		Erase_OSD();
-		OSD_Display_CH_name();
+		OSD_EraseAll();
+		OSD_Display_ChannelName();
 	}
 
 	bAuto_Seq_Flag = SET;
@@ -165,18 +165,6 @@ void Auto_Sequence(void)
 		vMODE = DISPLAY_MODE_4SPLIT;
 		startChannel = 0;
 	}
-#ifdef __9CH_DEVICE__
-	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
-	{
-		vMODE = DISPLAY_MODE_4SPLIT;
-		startChannel = 4;
-	}
-	else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
-	{
-		vMODE = SPLIT_9_MODE;
-		startChannel = 0;
-	}
-#endif
 	if(bAuto_Seq_Flag == SET)
 	{
 		if(videoLossChannelSkip == ON)
@@ -243,50 +231,11 @@ void Auto_Sequence(void)
 
 					if((ON == osdDisplayOn) && (ON == titleDisplayOn))
 					{
-						Erase_OSD();
-						OSD_Display_CH_name();
+						OSD_EraseAll();
+						OSD_Display_ChannelName();
 					}
 				}
 				break;
-
-#ifdef __9CH_DEVICE__
-				case DISPLAY_MODE_4SPLIT:
-				{
-					vAuto_Seq_Cnt = sys_env.vDWELL[1];
-					if(sys_env.bLossAutoSkip)
-					{
-						do
-						{
-							if((vVideo_Loss&(0x0000000f<<(vAuto_Seq_Index*4))) == (0x0000000f<<(vAuto_Seq_Index*4))) 
-							{
-							}
-							else Index_flag = 1; 
-						}
-						while(Index_flag == 0); 
-					}	
-					//4���� ��ȯ
-					vMODE = DISPLAY_MODE_4SPLIT; 
-					switch(vAuto_Seq_Index)
-					{
-					}
-
-					if(vAuto_Seq_Index == 0)
-						sys_status.current_split_mode = SPLITMODE_SPLIT4_2;
-					else 
-						sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
-#if 0 //Louis
-					SGQ_4CH_INIT(change_mode[cmode]);
-#endif
-					//Set_border_line();
-					//DEMO_SetPIPViewWIND(0);	// update pip/pop window
-
-					if(sys_env.bOSD_Display)
-					{
-						if(sys_env.bTITLE_ON) {Erase_OSD(); OSD_Display_CH_name();}
-					}
-				}
-				break;
-#endif
 			}
 		}
 	}

@@ -99,7 +99,7 @@ void TIM3_IRQHandler(void)
 //};
 typedef struct
 {
-	keydata_e	keydata;
+	eKeyData_t	keydata;
 	u8			virtual_key;
 } VirtualKeys_t;
 
@@ -205,7 +205,7 @@ void USART3_IRQHandler(void)
 			Data -= 0x10;
 		}
 
-		if(bSETUP)
+		if(GetSystemMode() == SYSTEM_SETUP_MODE)//(systemMode)
 		{
 			if(Data == VIRTUAL_KEY_MENU)
 			{
@@ -234,7 +234,7 @@ void RTC_IRQHandler(void)
 		// Clear the RTC Second interrupt
 		RTC_ClearITPendingBit(RTC_IT_SEC);
 
-		rtc_sec_update_flag = 1;
+		RTC_SetRtcUpdated(SET);
 
 		// Wait until last write operation on RTC registers has finished 
 		RTC_WaitForLastTask();
@@ -338,7 +338,7 @@ void main(void)
 #endif
 
 	Set_border_line();
-	bMode_change_flag = SET;
+	changedDisplayMode = SET;
 
 #if 0 //for verify video input source test
 	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
@@ -356,14 +356,15 @@ void main(void)
 		Auto_Seq_Cnt();
 		Auto_Sequence();
 
-		if(SET == bSETUP)
-		{
-			Setup_Process();
-		}
-		else
-		{
-			Key_Proc();
-		}
+//		if(SET == bSETUP)
+//		{
+//			Menu_KeyProc();
+//		}
+//		else
+//		{
+//			Key_Proc();
+//		}
+		Key_Proc();
 
 		Time_Read();
 		
