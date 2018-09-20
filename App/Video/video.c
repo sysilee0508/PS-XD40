@@ -1273,7 +1273,7 @@ static void VideoFrameProcess(BYTE src)
 	{//return;		// not change video formats
 
 		stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
-		SetMenuStatus(2,1,0);	//3DNR [off]
+//		SetMenuStatus(2,1,0);	//3DNR [off]
 
 		if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
 		{

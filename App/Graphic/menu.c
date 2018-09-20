@@ -171,9 +171,9 @@ typedef struct
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-static WORD OSDMenuID;//, OSDCombID;
+//static WORD OSDMenuID;//, OSDCombID;
 //static BYTE fMenuUpdate, fMenuGraphic;
-BYTE fMenuUpdate;			  //by hungry 2012.03.06
+//BYTE fMenuUpdate;			  //by hungry 2012.03.06
 //static BYTE fMenuGraphic;	  //by hungry 2012.03.06
 
 //-----------------------------------------------------------------

@@ -19,17 +19,16 @@
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
-extern BOOL bENTER;
 
 // -----------------------------------------------------------------------------
 // Exported function Prototype
 // -----------------------------------------------------------------------------
-extern WORD GetMenuStatus(BYTE nID, BYTE sID);
-extern void SetMenuStatus(BYTE nID, BYTE sID, BYTE val);
-extern WORD GetOSDMenuID(void);
-extern void SetOSDMenuID(WORD nID);
-extern void SetOSDCombID(WORD nID);
-extern void SetMenuDefaultStatus(void);
+//extern WORD GetMenuStatus(BYTE nID, BYTE sID);
+//extern void SetMenuStatus(BYTE nID, BYTE sID, BYTE val);
+//extern WORD GetOSDMenuID(void);
+//extern void SetOSDMenuID(WORD nID);
+//extern void SetOSDCombID(WORD nID);
+//extern void SetMenuDefaultStatus(void);
 
 extern void Enter_MainMenu(void);
 extern void Menu_KeyProc(eKeyData_t key);
