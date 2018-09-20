@@ -2032,6 +2032,9 @@
         <name>$PROJ_DIR$\..\App\Graphic\menu.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\App\Graphic\menu_string.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\App\Graphic\osd.c</name>
       </file>
       <file>
@@ -2065,6 +2068,9 @@
         <name>$PROJ_DIR$\..\App\Main\osd_display.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\App\Main\osd_string.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\App\Main\Rtc.c</name>
       </file>
       <file>
@@ -2075,6 +2081,12 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\App\Main\sequence.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\App\Main\video_loss.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\App\Main\video_loss.h</name>
       </file>
     </group>
     <group>
@@ -2090,6 +2102,12 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\App\MCU\MCU.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\App\MCU\nv_storage.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\App\MCU\nv_storage.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\App\MCU\stm32f10x_conf.h</name>

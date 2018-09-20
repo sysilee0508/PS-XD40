@@ -368,13 +368,13 @@ void Write_NvItem_DateDisplayOn(BOOL data)
 void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
 {
 	//*pData = nv_data.data.channelName[channel];
-	strncpy(pData, &(nv_data.data.channelName[channel]), CHANNEL_NEME_LENGTH_MAX);
+	strncpy((char *)pData, (const char*)(nv_data.data.channelName[channel]), CHANNEL_NEME_LENGTH_MAX);
 }
 void Write_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
 {
 	if(channel < NUM_OF_CHANNEL)
 	{
-		strncpy((char *)(nv_data.data.channelName[channel]), pData, CHANNEL_NEME_LENGTH_MAX);
+		strncpy((char *)(nv_data.data.channelName[channel]), (const char *)pData, CHANNEL_NEME_LENGTH_MAX);
 		nvInfo[NV_ITEM_CHANNEL_NAME].dirty = SET;
 	}
 }

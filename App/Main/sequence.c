@@ -36,7 +36,7 @@ void Auto_Seq_Init(void)
 	Read_NvItem_AutoSeqLossSkip(&videoLossChannelSkip);
 	Read_NvItem_OsdOn(&osdDisplayOn);
 	Read_NvItem_TitleDispalyOn(&titleDisplayOn);
-	Read_NvItem_AutoSeqTime(&vAuto_Seq_Cnt);
+	Read_NvItem_AutoSeqTime(vAuto_Seq_Cnt);
 
 	//Find video loss channels
 	if(ON == videoLossChannelSkip)
@@ -179,7 +179,7 @@ void Auto_Sequence(void)
 			{
 				case DISPLAY_MODE_FULL_SCREEN:  
 				{
-					Read_NvItem_AutoSeqTime(&vAuto_Seq_Cnt);
+					Read_NvItem_AutoSeqTime(vAuto_Seq_Cnt);
 					if(vAuto_Seq_Index < SPLITMODE_FULL_CH4)
 						vAuto_Seq_Index++;
 					else
