@@ -6,7 +6,7 @@
 #define SKIP_CHANNEL		0xFF
 
 u8 bAuto_Seq_Flag = CLEAR;
-static u8 vAuto_Seq_Cnt = 0;
+static u8 vAuto_Seq_Cnt[NUM_OF_CHANNEL] = 0;
 static u8 vAuto_Seq_Index = 0;
 
 static eChannel_t auto_display_channels[NUM_OF_CHANNEL] = {CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4};
@@ -134,9 +134,9 @@ void Auto_Seq_Cnt(void)
 
     timeout = tick_10ms + 100; // 10ms * 100 = 1S
 
-	if(vAuto_Seq_Cnt)  
+	if(vAuto_Seq_Cnt[0])
 	{
-		vAuto_Seq_Cnt--;
+		vAuto_Seq_Cnt[0]--;
 	}
 }
 
@@ -173,14 +173,12 @@ void Auto_Sequence(void)
 				return;
 		}
 		
-		if(vAuto_Seq_Cnt == 0)  
+		if(vAuto_Seq_Cnt[0] == 0)
 		{
 			switch(vMODE)
 			{
 				case DISPLAY_MODE_FULL_SCREEN:  
 				{
-
-//					vAuto_Seq_Cnt = sys_env.vDWELL[0];
 					Read_NvItem_AutoSeqTime(&vAuto_Seq_Cnt);
 					if(vAuto_Seq_Index < SPLITMODE_FULL_CH4)
 						vAuto_Seq_Index++;

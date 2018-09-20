@@ -1289,7 +1289,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 					case AUTOSEQ_ITEM_Y_CH4_DISPLAY_TIME:
 						Read_NvItem_AutoSeqTime(autoSeqTime);
 						IncreaseDecreaseCount(60,0,inc_dec, &autoSeqTime[itemY-1]);
-						Write_NvItem_AutoSeqTime(autoSeqTime, sizeof(autoSeqTime));
+						Write_NvItem_AutoSeqTime(autoSeqTime);
 						break;
 					case AUTOSEQ_ITEM_Y_LOSS_SKIP:
 						Read_NvItem_AutoSeqLossSkip(&autoSeqLossSkip);

@@ -281,13 +281,12 @@ void Write_NvItem_VideoLossBuzzerTime(uint8_t data)
 
 void Read_NvItem_AutoSeqTime(uint8_t* pData)
 {
-	*pData = nv_data.data.autoSeqTime;
+	memcpy(pData, nv_data.data.autoSeqTime, nvInfo[NV_ITEM_AUTO_SEQ_TIME].size);
 }
-void Write_NvItem_AutoSeqTime(uint8_t* pData,size_t size)
+void Write_NvItem_AutoSeqTime(uint8_t* pData)
 {
-	WriteNvItem(NV_ITEM_AUTO_SEQ_TIME, (void *)pData, size);
-//	memcpy(nv_data.data.autoSeqTime, pData, size);
-//	nvInfo[NV_ITEM_AUTO_SEQ_TIME].dirty = SET;
+	memcpy(nv_data.data.autoSeqTime, pData, nvInfo[NV_ITEM_AUTO_SEQ_TIME].size);
+	nvInfo[NV_ITEM_AUTO_SEQ_TIME].dirty = SET;
 }
 
 void Read_NvItem_AutoSeqLossSkip(BOOL* pData)
@@ -375,7 +374,7 @@ void Write_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
 {
 	if(channel < NUM_OF_CHANNEL)
 	{
-		strncpy(&(nv_data.data.channelName[channel]), pData, CHANNEL_NEME_LENGTH_MAX);
+		strncpy((char *)(nv_data.data.channelName[channel]), pData, CHANNEL_NEME_LENGTH_MAX);
 		nvInfo[NV_ITEM_CHANNEL_NAME].dirty = SET;
 	}
 }
@@ -464,16 +463,6 @@ void Write_NvItem_AlarmBuzzerTime(uint8_t data)
 {
 	nv_data.data.alarmBuzzerTime = data;
 	nvInfo[NV_ITEM_USER_ALARM_BUZZER_TIME].dirty = SET;
-}
-
-void Read_NvItem_VideoLossBuzzerTime(uint8_t *pData)
-{
-	*pData = nv_data.data.videoLossBuzzerTime;
-}
-void Write_NvItem_VideoLossBuzzerTime(uint8_t data)
-{
-	nv_data.data.videoLossBuzzerTime = data;
-	nvInfo[NV_ITEM_VIDEO_LOSS_BUZZER_TIME].dirty = SET;
 }
 
 void Read_NvItem_AlarmOption(eAlarmOption_t* pData, eChannel_t channel)
