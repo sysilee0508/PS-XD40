@@ -4,15 +4,15 @@
 #ifndef __OSD_STRING_H__
 #define __OSD_STRING_H__
 
-const u8 osdStr_Space1 = " ";
-const u8 osdStr_Space2 = "  ";
-const u8 osdStr_Space3 = "   ";
-const u8 osdStr_Space4 = "    ";
-const u8 osdStr_Space5 = "     ";
-const u8 osdStr_Space6 = "      ";
-const u8 osdStr_Space7 = "       ";
-const u8 osdStr_Space8 = "        ";
-const u8 osdStr_Space9 = "         ";
+const u8 osdStr_Space1[] = " ";
+const u8 osdStr_Space2[] = "  ";
+const u8 osdStr_Space3[] = "   ";
+const u8 osdStr_Space4[] = "    ";
+const u8 osdStr_Space5[] = "     ";
+const u8 osdStr_Space6[] = "      ";
+const u8 osdStr_Space7[] = "       ";
+const u8 osdStr_Space8[] = "        ";
+const u8 osdStr_Space9[] = "         ";
 
 const u8 str_Blank[] = "            ";
 //-----------------------------------------------------------------------------

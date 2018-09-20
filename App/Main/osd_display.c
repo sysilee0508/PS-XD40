@@ -102,7 +102,7 @@ static void OSD_Str_Loss_Erase(void)
 		{
 			MDINGAC_SetDrawXYMode(osd_video_lose_location_buf[channel].location.pos_y,
 					osd_video_lose_location_buf[channel].location.pos_x,
-					str_Blank,
+					(u8 *)str_Blank,
 					osd_video_lose_location_buf[channel].length,
 					0);
 		}
@@ -115,7 +115,7 @@ static void OSD_Str_Freeze_autoseq_Erase(void)
 	{
 		MDINGAC_SetDrawXYMode(osd_freeze_autoseq_location_buf.location.pos_y,
 				osd_freeze_autoseq_location_buf.location.pos_x,
-				str_Blank,
+				(u8 *)str_Blank,
 				osd_freeze_autoseq_location_buf.length,
 				0);
 	}
@@ -544,10 +544,10 @@ static void OSD_Display_Video_Loss(void)
 			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 			{
 				position[channel].pos_x =
-						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER] -
+						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER].pos_x -
 						(strlen(str_NO_VIDEO)*CHAR_WIDTH_E)/2;
 				position[channel].pos_y =
-						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER] +
+						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER].pos_y +
 						((DISPLAY_HEIGHT_1920x1080/2) - CHAR_HEIGHT)/2;
 			}
 		}
@@ -565,7 +565,7 @@ static void OSD_Display_Video_Loss(void)
 				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO_Blk);
 			}
 			osd_video_lose_location_buf[channel].state = ON;
-			osd_video_lose_location_buf[channel].location = position;
+			osd_video_lose_location_buf[channel].location = position[channel];
 		}
 	}
 }
