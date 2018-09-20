@@ -22,7 +22,7 @@ s8 Video_Out_Res_Val = VIDOUT_1920x1080p60;
 u8 PIP_mode = 5;
 u8 Pre_PIP_mode = 0xff;
 
-//BYTE sysenv_split_mode = 0;
+BYTE sysenv_split_mode = 0;
 
 u8 aux_display_flag = 0;
 
@@ -247,7 +247,6 @@ void RTC_IRQHandler(void)
 void main(void)
 {
 	eResolution_t videoOutResolution;
-	u32 nvReset = 0xFFFFFFFF;
 
 	// initialize STM32F103x
 	MCU_init();
@@ -333,7 +332,7 @@ void main(void)
 
 	UpdateKeyData(KEY_4SPLIT);
 	SetKeyReady();
-//	sysenv_split_mode = 5; //OMG! what is 5?!
+	sysenv_split_mode = 5; //OMG! what is 5?!
 
 	OSD_DrawBorderLine();
 	changedDisplayMode = SET;
@@ -371,14 +370,15 @@ void main(void)
 
 		// delay for HDMI-Tx register !!
 		MDINDLY_mSec(1);
-//
-//		if(InputSelect == VIDEO_DIGITAL_SDI)
-//			if(sysenv_split_mode != Pre_PIP_mode)
-//		{
-//			Pre_PIP_mode = sysenv_split_mode;
-//
-//			DEMO_SetPIPDisplay(sysenv_split_mode);
-//		}
+
+		if(InputSelect == VIDEO_DIGITAL_SDI)
+			if(sysenv_split_mode != Pre_PIP_mode)
+		{
+			Pre_PIP_mode = sysenv_split_mode;
+
+			DEMO_SetPIPDisplay(sysenv_split_mode);
+		}
+
 		vs4210_display_proc();
 
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.

@@ -444,22 +444,25 @@ static void Erase_AllMenuScreen(void)
 static void DrawSelectMark(u8 verticalItem)
 {	
 	static const u8 offset_x[MENU_PAGE_MAX] = {19,13,18,20,18,17,17,17}; //in characters
-	static const u8 offset_y[MENU_PAGE_MAX] = {5, 5, 5, 6, 6 ,6, 6, 6};  // in lines
+	//static const u8 offset_y[MENU_PAGE_MAX] = {5, 5, 5, 6, 6 ,6, 6, 6};  // in lines
 	static u8 previousLocationX;
 	static u8 previousLocationY;
+	u8 offset_y;
 	sPosition_t position;
 
-	// one blank line
+	offset_y = LINE1_OFFSET_Y + (2 * (verticalItem-1));
+
+	// erase previous mark
 	position.pos_x = MENU_START_POSITION_X + (previousLocationX * CHAR_WIDTH_E);
 	position.pos_y = MENU_START_POSITION_Y + (previousLocationY * CHAR_HEIGHT);
   	Print_String(position,menuStr_Space1, strlen(menuStr_Space1));
-  	// and then selected line
+  	// draw new mark
 	position.pos_x = MENU_START_POSITION_X + (offset_x[currentPage] * CHAR_WIDTH_E);
-	position.pos_y = MENU_START_POSITION_Y + ((offset_y[currentPage] + (2 * verticalItem)) * CHAR_HEIGHT);
+	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
   	Print_String(position, menuStr_ArrowL, strlen(menuStr_ArrowL));
 
   	previousLocationX = offset_x[currentPage];
-  	previousLocationY = offset_y[currentPage] + (2 * verticalItem);
+  	previousLocationY = offset_y;
 }
 
 //-----------------------------------------------------------------

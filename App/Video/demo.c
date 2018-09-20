@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------
 #include "common.h"
 
-#if 0
+#if 1
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
@@ -356,7 +356,7 @@ void DEMO_SetPIPDisplay(WORD nID)
 	memset(&stVideo.stVIEW_m, 0, 8);		// clear stVIEW_m
 	memset(&stVideo.stVIEW_x, 0, 8);		// clear stVIEW_x
 	memset(&stVideo.stCROP_x, 0, 8);		// clear stCROP_x
-	OutMainFrmt = GetMenuStatus(6,2);		// get out-format
+	OutMainFrmt = VIDOUT_1920x1080p60;//GetMenuStatus(6,2);		// get out-format
 	OutAuxMode = (nID==0)? MDIN_OUT_MUX656_8 : MDIN_OUT_RGB444_8;
 	OutAuxFrmt = VIDOUT_720x480i60;		// set video.c or set aux-format
 
@@ -987,6 +987,7 @@ void DEMO_SetPIPViewWIND(WORD nID)
 
 	if(Video_Out_Res_Val >= VIDOUT_1920x1080i60 && Video_Out_Res_Val <= VIDOUT_1920x1080p50)
 	{
+	#if 0
 		if(sys_status.current_split_mode != SPLITMODE_FULL_CH9)
 		{
 			if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
@@ -1018,6 +1019,7 @@ void DEMO_SetPIPViewWIND(WORD nID)
 			}
 		}
 		else 
+	#endif
 		{
 			stVIEW.w = 1920;
 			stVIEW.h = 1080;
@@ -1088,7 +1090,8 @@ void DEMO_SetPIPViewWIND(WORD nID)
 	MDIN3xx_EnableWriteFRMB(&stVideo, 0);
 	MDINAUX_SetScaleProcess(&stVideo);
 	MDIN3xx_EnableWriteFRMB(&stVideo, 1);
-	if(sys_status.current_split_mode != SPLITMODE_FULL_CH9) MDIN3xx_EnableMainDisplay(ON);
+	if(sys_status.current_split_mode != SPLITMODE_FULL_CH4) 
+		MDIN3xx_EnableMainDisplay(ON);
 	
 //	DEMO_SetRectBGBOX(stVIEW, 2);	// set RECT-BOX area
 //	DEMO_EnableRectBGBOX(ON);

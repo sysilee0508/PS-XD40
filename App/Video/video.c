@@ -614,7 +614,6 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.dacPATH = DAC_PATH_MAIN_OUT;	// set main only
 	stVideo.encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
-
 	// define video format of PORTA-INPUT
 	stVideo.stSRC_a.frmt =  VIDSRC_1920x1080p60;//VIDSRC_1920x1080p60 VIDSRC_1280x1024p60
 	stVideo.stSRC_a.mode = MDIN_SRC_RGB444_8;
@@ -751,6 +750,7 @@ void SetVideoOutputfrmt(BYTE frmt)		//by hungry 2012.03.06
 //	SetOSDItemID(frmt);
 //	SetMenuStatus(6,2,frmt);
 	stVideo.stOUT_m.frmt = frmt;
+	OutMainFrmt = frmt;
 }
 //--------------------------------------------------------------------------------------------------
 void CreateVideoInstance(void)
@@ -1130,13 +1130,13 @@ static PMDIN_AUXFILT_COEF GetAUXFilterCoef(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-static void SetAUXVideoFilter(void)
-{
-	PMDIN_AUXFILT_COEF pCoef = GetAUXFilterCoef();
+//static void SetAUXVideoFilter(void)
+//{
+//	PMDIN_AUXFILT_COEF pCoef = GetAUXFilterCoef();
 
-	MDINAUX_EnableFrontNRFilter(&stVideo, (pCoef==NULL)? OFF : ON);
-	if (pCoef!=NULL) MDINAUX_SetFrontNRFilterCoef(pCoef);
-}
+//	MDINAUX_EnableFrontNRFilter(&stVideo, (pCoef==NULL)? OFF : ON);
+//	if (pCoef!=NULL) MDINAUX_SetFrontNRFilterCoef(pCoef);
+//}
 
 //--------------------------------------------------------------------------------------------------
 /*static void Set2HDVideoPathB(void)
@@ -1168,11 +1168,11 @@ static void SetOutHDMI_DVI(void)
 }
 */
 //--------------------------------------------------------------------------------------------------
-static void SetSBoxAreaRefresh(void)
-{
-	PWORD pID = (PWORD)def4CHSBoxWND[SrcMainFrmt%2];
-	MDINOSD_SetSBoxArea(&stSBOX[0], pID[0], pID[1], pID[2], pID[3]);
-}
+//static void SetSBoxAreaRefresh(void)
+//{
+//	PWORD pID = (PWORD)def4CHSBoxWND[SrcMainFrmt%2];
+//	MDINOSD_SetSBoxArea(&stSBOX[0], pID[0], pID[1], pID[2], pID[3]);
+//}
 
 //--------------------------------------------------------------------------------------------------
 /*static void SetOSDMenuDisable(void)
@@ -1203,7 +1203,7 @@ void SetOSDMenuRefresh(void)
 
 	//OSD_SetFontMAP();	
 
-	SetOSDMenuID(GetOSDMenuID());	// refresh OSD-menu
+	//SetOSDMenuID(GetOSDMenuID());	// refresh OSD-menu
 
 	OSD_ModifyPalette_M((OutMainMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
 	//OSD_ModifyPalette_X((OutAuxMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
@@ -1253,7 +1253,7 @@ void SetOSDMenuRefresh(void)
 //--------------------------------------------------------------------------------------------------
 static void VideoFrameProcess(BYTE src)
 {
-	unsigned char current_split_mode_tmp = 0;
+//	unsigned char current_split_mode_tmp = 0;
 
 	if (fSyncParsed==FALSE) return;		// wait for sync detection
 
@@ -1332,7 +1332,8 @@ static void VideoFrameProcess(BYTE src)
 		//if(sys_status.current_split_mode != FULL_9) MDIN3xx_EnableMainDisplay(ON);
 
 		// if src is 2HD input or dual display, trigger soft-reset.
-		if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) MDIN3xx_SoftReset();
+		if (src==VIDEO_ADCNV_2HD_IN)//||GetMenuStatus(4,4)) 
+			MDIN3xx_SoftReset();
 
 		// Do we need below line? by kukuri
 //		SetOSDMenuRefresh();	// for framebuffer map bug
