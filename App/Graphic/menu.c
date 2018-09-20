@@ -1559,6 +1559,11 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
             if(nv_data != 0)
             {
 				Int2Str(nv_data, str2digit);
+                Print_StringWithSelectedMarkSize(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
+					LINE6_OFFSET_Y,
+					menuStr_Space3,
+					NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
 					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
 					LINE6_OFFSET_Y,
@@ -1575,8 +1580,8 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
                 Print_StringWithSelectedMarkSize(
 					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
 					LINE6_OFFSET_Y,
-					menuStr_Space5,
-					NULL, sizeof(menuStr_Space5));
+					menuStr_Space6,
+					NULL, strlen(menuStr_Space6));
                 Print_StringWithSelectedMark(
 					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
 					LINE6_OFFSET_Y,
@@ -1590,6 +1595,11 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 			if(nv_data != 0)
 			{
 				Int2Str(nv_data, str2digit);
+                Print_StringWithSelectedMarkSize(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
+					LINE7_OFFSET_Y,
+					menuStr_Space3,
+					NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
 					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
 					LINE7_OFFSET_Y,
@@ -1606,8 +1616,8 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
                 Print_StringWithSelectedMarkSize(
 					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
 					LINE7_OFFSET_Y,
-					menuStr_Space5,
-					NULL, sizeof(menuStr_Space5));
+					menuStr_Space6,
+					NULL, strlen(menuStr_Space6));
                 Print_StringWithSelectedMark(
 					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
 					LINE7_OFFSET_Y,
@@ -1622,12 +1632,17 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  			if(nv_data != 0)
  			{
 				Int2Str(nv_data, str2digit);
+                Print_StringWithSelectedMarkSize(
+					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
+					LINE8_OFFSET_Y,
+					menuStr_Space3,
+					NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
 					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
 					LINE8_OFFSET_Y,
 					(const u8*)str2digit,
 					attribute, sizeof(str2digit));
-						 Print_StringWithSelectedMarkSize(
+				Print_StringWithSelectedMarkSize(
 					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime) + sizeof(str2digit) + 1,
 					LINE8_OFFSET_Y,
 					menuStr_Sec,
@@ -1638,8 +1653,8 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
                 Print_StringWithSelectedMarkSize(
 					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
 					LINE8_OFFSET_Y,
-					menuStr_Space5,
-					NULL, sizeof(menuStr_Space5));
+					menuStr_Space6,
+					NULL, strlen(menuStr_Space6));
                 Print_StringWithSelectedMark(
 					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
 					LINE8_OFFSET_Y,
