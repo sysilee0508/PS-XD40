@@ -17,13 +17,11 @@
 #define NVSTORAGE_START_CHECK			0xA5A5A5A5
 #define NVSTORAGE_END_CHECK				0x5A5A5A5A
 
-#define NV_VERSION_MAJOR				(uint8_t)0x01
-#define NV_VERSION_MINOR				(uint8_t)0x00
-#define NV_VERSION						(NV_VERSION_MAJOR << 8) | NV_VERSION_MINOR
+#define NV_VERSION_MAJOR				(uint8_t)1
+#define NV_VERSION_MINOR				(uint8_t)0
 
-#define FW_VERSION_MAJOR				(uint8_t)0x10	// develop version uses MSB 4bit, release version uses LSB 8bit
-#define FW_VERSION_MINOR				(uint8_t)0x00
-#define FW_VERSION						(FW_VERSION_MAJOR << 8) | FW_VERSION_MINOR
+#define FW_VERSION_MAJOR				(uint8_t)90	//engineer version starts 90 
+#define FW_VERSION_MINOR				(uint8_t)0
 
 #define NV_SUCCESS						TRUE
 #define NV_FAIL							FALSE
@@ -71,6 +69,12 @@ typedef enum
 	NV_ITEM_END_CHECK,
 	NV_ITEM_MAX
 } eNvItems_t;
+
+typedef struct
+{
+        uint8_t major;
+        uint8_t minor;
+} sVersion_t;
 
 typedef enum
 {
@@ -160,8 +164,8 @@ typedef struct
 typedef struct
 {
 	uint32_t				storageStartCheck;
-	uint16_t				nvVersion;
-	uint16_t				fwVersion;
+	sVersion_t			nvVersion;
+	sVersion_t			fwVersion;
 
 	sTimeCorrect_t			timeCorrection;
 	eDateFormat_t			dateFormat;
@@ -203,7 +207,7 @@ extern void InitializeNvData(void);
 extern BOOL	ReadNvItem(eNvItems_t item, void * pData, size_t size);
 extern BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size);
 
-extern void Read_NvItem_FwVersion(uint16_t* pData);
+extern void Read_NvItem_FwVersion(sVersion_t* pData);
 extern void Read_NvItem_DisplayMode(eDisplayMode_t* pData);
 extern void Write_NvItem_DisplayMode(eDisplayMode_t data);
 extern void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData);

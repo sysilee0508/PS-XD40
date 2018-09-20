@@ -63,7 +63,8 @@ static BOOL CheckNvStorage(void)
 
 	if((nv_data.data.storageStartCheck == NVSTORAGE_START_CHECK) &&
 		(nv_data.data.storageEndCheck == NVSTORAGE_END_CHECK) &&
-		(nv_data.data.nvVersion == NV_VERSION))
+		(nv_data.data.nvVersion.major == NV_VERSION_MAJOR) &&
+		(nv_data.data.nvVersion.minor == NV_VERSION_MINOR))
 	{
 		result = TRUE;
 	}
@@ -104,9 +105,11 @@ static void LoadDefaultNvData(void)
 	nv_data.data.storageStartCheck = NVSTORAGE_START_CHECK;
 	nv_data.data.storageEndCheck = NVSTORAGE_END_CHECK;
 
-	nv_data.data.nvVersion = NV_VERSION;
-	nv_data.data.fwVersion = FW_VERSION;
-
+	nv_data.data.nvVersion.major = NV_VERSION_MAJOR;
+       nv_data.data.nvVersion.minor = NV_VERSION_MINOR;
+	nv_data.data.fwVersion.major = FW_VERSION_MAJOR;
+       nv_data.data.fwVersion.minor = FW_VERSION_MINOR;
+       
 	nv_data.data.timeCorrection.timeCorrecOffset = 0;
 	nv_data.data.timeCorrection.timeCorrectDirection = DIRECTION_UP;
 	nv_data.data.timeCorrection.timeCorrectUint = TIME_UNIT_SEC;
@@ -119,14 +122,14 @@ static void LoadDefaultNvData(void)
 //	nv_data.data.channelName[2] = "CAM3";
 //	nv_data.data.channelName[3] = "CAM4";
 	nv_data.data.titleDisplayOn = ON;
-	for(index = 0; index < NUM_OF_CHANNEL; index++)
+	for(index = CHANNEL1; index < NUM_OF_CHANNEL; index++)
 	{
 		nv_data.data.autoSeqTime[index] = 3;
 	}
 	nv_data.data.autoSeqLossSkip = ON;
 	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
 	nv_data.data.osdOn = ON;
-	nv_data.data.titlePosition = TITLE_POSITION_BOTTOM_LEFT;
+	nv_data.data.titlePosition = TITLE_POSITION_TOP_CENTER;
 	nv_data.data.borderLineOn = ON;
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
@@ -254,9 +257,10 @@ BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size)
 }
 
 // read/write specific item ----------------------------------------------------
-void Read_NvItem_FwVersion(uint16_t* pData)
+void Read_NvItem_FwVersion(sVersion_t* pData)
 {
-	*pData = nv_data.data.fwVersion;
+	pData->major = nv_data.data.fwVersion.major;
+       pData->minor = nv_data.data.fwVersion.minor;
 }
 
 void Read_NvItem_DisplayMode(eDisplayMode_t* pData)

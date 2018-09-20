@@ -1108,7 +1108,8 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	static u8 itemY = CAMERATITLE_ITEM_Y_CH1;
 	BOOL inc_dec = DECREASE;
 	BOOL titleOn;
-	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];// = {0,};
+	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
+	eTitlePosition_t titlePosition;
 	u8* pChar;
 
 	switch(key)
@@ -1135,12 +1136,18 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 						Toggle(&titleOn);
 						Write_NvItem_TitleDispalyOn(titleOn);
 						break;
+
+					case CAMERATITLE_ITEM_Y_POSITION:
+						Read_NvItem_TitlePosition(&titlePosition);
+						IncreaseDecreaseCount(TITLE_POSITION_MAX, 0, inc_dec, &titlePosition);
+						Write_NvItem_TitlePosition(titlePosition);
+						break;
 				}
 				CameraTitlePage_UpdatePage(20, LINE1_OFFSET_Y + (2*(itemY-1)), itemY, pos_x);
 			}
 			else
 			{
-				IncreaseDecreaseCount(5, 1,inc_dec, &itemY);
+				IncreaseDecreaseCount(CAMERATITLE_ITEM_Y_MAX - 1, 1,inc_dec, &itemY);
 				DrawSelectMark(itemY);
 			}
 	  		break;
@@ -1856,15 +1863,15 @@ static void DeviceInfoPage_Entry(void)
 		{20, LINE1_OFFSET_Y, menuStr_DeviceInfo_Version}
 	};
 	u8 index;
-	u16 version;
+	sVersion_t version;
 	u8 strVersion[5] = "00.00";
 
 	currentPage = MENU_PAGE_DEVICE_INFO;
 	Erase_AllMenuScreen();
 
 	Read_NvItem_FwVersion(&version);
-	Int2Str((u8)version >> 8, &strVersion[0]);
-	Int2Str((u8)(version & 0xFF), &strVersion[3]);
+	Int2Str(version.major, &strVersion[0]);
+	Int2Str(version.minor, &strVersion[3]);
 	if(strVersion[0] == ASCII_ZERO)
 	{
 		strVersion[0] = ASCII_SPACE;

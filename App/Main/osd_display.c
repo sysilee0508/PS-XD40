@@ -145,7 +145,7 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 			}
 			break;
 
-		case TITLE_POSITION_TOP_CENTER://1:
+		case TITLE_POSITION_TOP_CENTER://1
 			switch(displayMode)
 			{
 				case DISPLAY_MODE_FULL_SCREEN:
@@ -160,7 +160,7 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 			}
 			break;
 
-		case TITLE_POSITION_TOP_RIGHT://2:
+		case TITLE_POSITION_TOP_RIGHT://2
 			switch(displayMode)
 			{
 				case DISPLAY_MODE_FULL_SCREEN:
@@ -232,13 +232,13 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 				case DISPLAY_MODE_4SPLIT:
 					if(channel == CHANNEL1 || channel == CHANNEL2) //center-bottom
 					{
-						position.pos_x = tbl_OSD_SPLIT4_POSITION_1920x1080[channel][titlePosition].pos_x - (length * CHAR_WIDTH_E) / 2;
-						position.pos_y = tbl_OSD_SPLIT4_POSITION_1920x1080[channel][titlePosition].pos_y - CHAR_HEIGHT;
+						position.pos_x = tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_BOTTOM_CENTER].pos_x - (length * CHAR_WIDTH_E) / 2;
+						position.pos_y = tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_BOTTOM_CENTER].pos_y - CHAR_HEIGHT;
 					}
 					else if(channel == CHANNEL3 || channel == CHANNEL4) //center-top
 					{
-						position.pos_x = tbl_OSD_SPLIT4_POSITION_1920x1080[channel][titlePosition].pos_x - (length * CHAR_WIDTH_E)/2;
-					position.pos_y = tbl_OSD_SPLIT4_POSITION_1920x1080[channel][titlePosition].pos_y;
+						position.pos_x = tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER].pos_x - (length * CHAR_WIDTH_E)/2;
+					position.pos_y = tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER].pos_y;
 					}
 				break;
 			}
@@ -551,7 +551,7 @@ static void OSD_Display_Video_Loss(void)
 			}
 			else
 			{
-				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO_Blk));
+				OSD_Print_String(position[channel], str_NO_VIDEO_Blk, strlen(str_NO_VIDEO_Blk));
 				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO_Blk);
 			}
 			osd_video_lose_location_buf[channel].state = ON;
@@ -567,19 +567,19 @@ static void OSD_Display_Video_Loss(void)
 				position[channel].pos_y =
 						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER].pos_y +
 						((DISPLAY_HEIGHT_1920x1080/2) - CHAR_HEIGHT)/2;
+				if(vVideo_Loss & (0x01<<channel))
+				{
+					OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO));
+					osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO);
+				}
+				else
+				{
+					OSD_Print_String(position[channel], str_NO_VIDEO_Blk, strlen(str_NO_VIDEO_Blk));
+					osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO_Blk);
+				}
+				osd_video_lose_location_buf[channel].state = ON;
+				osd_video_lose_location_buf[channel].location = position[channel];
 			}
-			if(vVideo_Loss & (0x01<<channel))
-			{
-				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO));
-				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO);
-			}
-			else
-			{
-				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO_Blk));
-				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO_Blk);
-			}
-			osd_video_lose_location_buf[channel].state = ON;
-			osd_video_lose_location_buf[channel].location = position[channel];
 		}
 //
 //		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
