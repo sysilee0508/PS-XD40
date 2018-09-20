@@ -1444,14 +1444,14 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			break;
 
 		case KEY_ENTER:
-			Toggle(requestEnterKeyProc);
+			Toggle(&requestEnterKeyProc);
 			DisplayPage_UpdatePageOption(itemY);
 			break;
 
 		case KEY_EXIT:
 			if(requestEnterKeyProc)
 			{
-				Toggle(requestEnterKeyProc);
+				Toggle(&requestEnterKeyProc);
 				DisplayPage_UpdatePageOption(itemY);
 			}
 			else
@@ -1725,7 +1725,7 @@ static void MotionDetectionPage_UpdatePage(u8 itemY)
 		case MOTION_ITEM_Y_SENSITIVITY:
 			Read_NvItem_MotionSensitivity(&sensitivity);
 			Int2Str(sensitivity, str);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Motion_Sensitivity), LINE5_OFFSET_Y, (const u8*)str, attribute, sizof(str));
+			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Motion_Sensitivity), LINE5_OFFSET_Y, (const u8*)str, attribute, sizeof(str));
 			break;
 
 		case MOTION_ITEM_Y_MOTION_MODE:
@@ -1945,7 +1945,7 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			SetKeyMode(KEY_MODE_LONG);
 
 			MDINOSD_SetBGBoxColor(RGB(255,255,255));
-			Set_border_line();
+			OSD_DrawBorderLine();
 			changedDisplayMode = SET;
 			break;
 	}

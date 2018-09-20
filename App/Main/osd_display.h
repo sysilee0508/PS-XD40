@@ -42,4 +42,5 @@ extern void OSD_Display_Time_NOW(void);
 extern void OSD_Display_ChannelName(void);
 extern void OSD_Display_State(void);
 
+extern void OSD_DrawBorderLine(void);
 #endif

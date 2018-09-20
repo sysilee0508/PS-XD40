@@ -1264,89 +1264,94 @@ static void VideoFrameProcess(BYTE src)
 		OutMainFrmt!=PrevOutMainFrmt||OutMainMode!=PrevOutMainMode)
 		stVideo.exeFLAG |= MDIN_UPDATE_MAINFMT;
 
-	if (SrcAuxFrmt!=PrevSrcAuxFrmt||SrcAuxMode!=PrevSrcAuxMode||
-		OutAuxFrmt!=PrevOutAuxFrmt||OutAuxMode!=PrevOutAuxMode)
-		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
+	// Do not use aux display.. by kukuri
+//	if (SrcAuxFrmt!=PrevSrcAuxFrmt||SrcAuxMode!=PrevSrcAuxMode||
+//		OutAuxFrmt!=PrevOutAuxFrmt||OutAuxMode!=PrevOutAuxMode)
+//		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
 
-	if (stVideo.exeFLAG==0)	return;		// not change video formats
+	if (stVideo.exeFLAG!=0)
+	{//return;		// not change video formats
 
-	stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
-	SetMenuStatus(2,1,0);	//3DNR [off]
+		stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
+		SetMenuStatus(2,1,0);	//3DNR [off]
 
-	if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
-	{
-		stVideo.stSRC_b.frmt = SrcMainFrmt; stVideo.stSRC_b.mode = SrcMainMode;
-		stVideo.stSRC_a.frmt = SrcAuxFrmt; stVideo.stSRC_a.mode = SrcAuxMode;
+		if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
+		{
+			stVideo.stSRC_b.frmt = SrcMainFrmt; stVideo.stSRC_b.mode = SrcMainMode;
+			stVideo.stSRC_a.frmt = SrcAuxFrmt; stVideo.stSRC_a.mode = SrcAuxMode;
+		}
+		else
+		{
+			stVideo.stSRC_a.frmt = SrcMainFrmt; stVideo.stSRC_a.mode = SrcMainMode;
+			stVideo.stSRC_b.frmt = SrcAuxFrmt; stVideo.stSRC_b.mode = SrcAuxMode;
+		}
+		stVideo.stOUT_m.frmt = OutMainFrmt; stVideo.stOUT_m.mode = OutMainMode;
+		stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
+
+		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
+		MDIN3xx_EnableMainDisplay(OFF);
+
+		//SetOSDMenuDisable();		// set OSD menu disable
+		SetOffChipFrmtInA(src);		// set InA offchip format
+		SetOffChipFrmtInB(src);		// set InB offchip format	//by hungry 2012.03.07
+		SetSrcMainFine(src);		// set source video fine (fldid, offset)
+	//	SetOutVideoFine();			// set output video fine (swap)
+
+		//DEMO_SetOutputMode(GetMenuStatus(6,3));		// update out port mode, add on 16Aug2012
+
+		if (OutMainFrmt!=PrevOutMainFrmt) {
+	//		memset(&stVideo.stVIEW_m, 0, 8);	// restore aspect from API
+			stVideo.pHY_m		= 	NULL;		// restore MFCHY from API
+			stVideo.pHC_m		= 	NULL;		// restore MFCHY from API
+			stVideo.pVY_m		= 	NULL;		// restore MFCHY from API
+			stVideo.pVC_m		= 	NULL;		// restore MFCHY from API
+		}
+		MDIN3xx_VideoProcess(&stVideo);		// mdin3xx main video process
+
+	//	GetExtVideoAttb(src);	// update E-Video attribute (edge,swap,clk,offset)	//by hungry 2012.02.15
+		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
+//		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS) // blocked by kukuri
+		//Set2HDVideoPathB();		// set 2HD pathB
+
+	//	SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO)); //by kukuri
+	//	DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
+		//DEMO_SetAspectRatio(GetMenuStatus(4,6));	// update aspect ratio
+		//DEMO_SetOverScanning(GetMenuStatus(4,5));	// update overscanning
+		//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
+
+		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
+
+	#if 0 //Louis
+		if(SDIRX_change_flag)
+		{
+			SDIRX_change_flag = 0;
+		}
+	#endif
+
+		MDIN3xx_EnableMainDisplay(ON);
+		//if(sys_status.current_split_mode != FULL_9) MDIN3xx_EnableMainDisplay(ON);
+
+		// if src is 2HD input or dual display, trigger soft-reset.
+		if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) MDIN3xx_SoftReset();
+
+		// Do we need below line? by kukuri
+//		SetOSDMenuRefresh();	// for framebuffer map bug
+	//	SetOutHDMI_DVI();
+
+		PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
+		PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
+		// Do not use aux display.. by kukuri
+//		PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
+//		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
+
+		//test_stVideo_print();
+	#if 0 //Louis
+		if(SDIRX_change_flag)
+		{
+			SDIRX_change_flag = 0;
+		}
+	#endif
 	}
-	else 
-	{
-		stVideo.stSRC_a.frmt = SrcMainFrmt; stVideo.stSRC_a.mode = SrcMainMode;
-		stVideo.stSRC_b.frmt = SrcAuxFrmt; stVideo.stSRC_b.mode = SrcAuxMode;
-	}
-	stVideo.stOUT_m.frmt = OutMainFrmt; stVideo.stOUT_m.mode = OutMainMode;
-	stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
-
-	MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-	MDIN3xx_EnableMainDisplay(OFF);
-
-	//SetOSDMenuDisable();		// set OSD menu disable
-	SetOffChipFrmtInA(src);		// set InA offchip format
-	SetOffChipFrmtInB(src);		// set InB offchip format	//by hungry 2012.03.07
-	SetSrcMainFine(src);		// set source video fine (fldid, offset)
-//	SetOutVideoFine();			// set output video fine (swap)
-
-	//DEMO_SetOutputMode(GetMenuStatus(6,3));		// update out port mode, add on 16Aug2012
-
-	if (OutMainFrmt!=PrevOutMainFrmt) {
-//		memset(&stVideo.stVIEW_m, 0, 8);	// restore aspect from API
-		stVideo.pHY_m		= 	NULL;		// restore MFCHY from API
-		stVideo.pHC_m		= 	NULL;		// restore MFCHY from API
-		stVideo.pVY_m		= 	NULL;		// restore MFCHY from API
-		stVideo.pVC_m		= 	NULL;		// restore MFCHY from API
-	}
-	MDIN3xx_VideoProcess(&stVideo);		// mdin3xx main video process
-
-//	GetExtVideoAttb(src);	// update E-Video attribute (edge,swap,clk,offset)	//by hungry 2012.02.15
-	SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
-	SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
-	//Set2HDVideoPathB();		// set 2HD pathB
-
-//	SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO)); //by kukuri
-//	DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
-	//DEMO_SetAspectRatio(GetMenuStatus(4,6));	// update aspect ratio
-	//DEMO_SetOverScanning(GetMenuStatus(4,5));	// update overscanning
-	//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
-
-	MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-
-#if 0 //Louis
-	if(SDIRX_change_flag)
-	{
-		SDIRX_change_flag = 0;
-	}
-#endif
-
-	MDIN3xx_EnableMainDisplay(ON);
-	//if(sys_status.current_split_mode != FULL_9) MDIN3xx_EnableMainDisplay(ON);
-
-	// if src is 2HD input or dual display, trigger soft-reset.
-	if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) MDIN3xx_SoftReset();
-
-	SetOSDMenuRefresh();	// for framebuffer map bug
-//	SetOutHDMI_DVI();
-
-	PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
-	PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
-	PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
-	PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
-
-	//test_stVideo_print();
-#if 0 //Louis
-	if(SDIRX_change_flag)
-	{
-		SDIRX_change_flag = 0;
-	}
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

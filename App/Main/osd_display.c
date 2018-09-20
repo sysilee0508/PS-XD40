@@ -725,3 +725,55 @@ void OSD_Display(void)
 	changedDisplayMode = CLEAR;
 }
 
+void OSD_DrawBorderLine(void)
+{
+	BOOL border_line;
+	eDisplayMode_t displayMode;
+
+	Read_NvItem_BorderLineDisplay(&border_line);
+	Read_NvItem_DisplayMode(&displayMode);
+
+	if(border_line == ON)
+	{
+		switch(displayMode)
+		{
+			case DISPLAY_MODE_FULL_SCREEN: //SPLITMODE_FULL_CH1:
+//			case SPLITMODE_FULL_CH2:
+//			case SPLITMODE_FULL_CH3:
+//			case SPLITMODE_FULL_CH4:
+				MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+				break;
+
+			case DISPLAY_MODE_4SPLIT:
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 540-1, 1920, 2);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 960-1, 0, 2, 1080);
+				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+				break;
+		}
+	}
+	else
+	{
+		MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+	}
+}

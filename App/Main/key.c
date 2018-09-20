@@ -395,7 +395,7 @@ void Key_Proc(void)
 					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = key-1;
-					Set_border_line();
+					OSD_DrawBorderLine();
 				}
 				break;
 				
@@ -414,7 +414,7 @@ void Key_Proc(void)
 #if 0 //Louis
 				    SGQ_4CH_INIT(change_mode[cmode]);
 #endif
-					Set_border_line();
+					OSD_DrawBorderLine();
 				}
 				break;
 			case KEY_FREEZE :

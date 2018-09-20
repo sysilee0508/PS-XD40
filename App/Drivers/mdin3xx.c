@@ -1298,8 +1298,8 @@ MDIN_ERROR_t MDIN3xx_EnableWriteFRMB(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, (OnOff)? frez_M : 1)) return MDIN_I2C_ERROR;
 
 	//if(aux_display_flag && (ch9_loss == 0) && (SDIRX_change_flag == 0))
-	if(aux_display_flag && (ch9_loss == 0))
-	//if(aux_display_flag)
+	//if(aux_display_flag && (ch9_loss == 0))
+	if(aux_display_flag)
 	// aux_display
 	//if(OnOff == OFF)	
 	{

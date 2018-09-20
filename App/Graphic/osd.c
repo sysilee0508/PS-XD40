@@ -15,12 +15,12 @@
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
-#include ".\main\common.h"
-#include	"..\drivers\mdinfont.h"
-#include	"..\drivers\mdinaero.h"
+#include "common.h"
+#include "mdinfont.h"
+#include "mdinaero.h"
 
 #if	defined(SYSTEM_USE_MDIN380)
-#include	"..\drivers\mdinpalt.h"
+#include "mdinpalt.h"
 //#include	"..\drivers\mdintrue.h"
 #endif
 
@@ -503,10 +503,10 @@ void OSD_SetFontMAP(void)
 //}
 
 //--------------------------------------------------------------------------------------------------------------------------
-static void OSD_LoadMenuStatus(void)
-{
-	SetMenuDefaultStatus();
-}
+//static void OSD_LoadMenuStatus(void)
+//{
+//	SetMenuDefaultStatus();
+//}
 
 //--------------------------------------------------------------------------------------------------------------------------
 /*void OSD_SetDemo(void)
@@ -523,7 +523,7 @@ void CreateOSDInstance(void)
 {
 	OSD_SetFontMAP();				// set GAC in character mode
 	OSD_SetSprite_layer0();
-	OSD_LoadMenuStatus();
+//	OSD_LoadMenuStatus();
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -559,6 +559,7 @@ void OSD_ModifyPalette_M(BOOL rgb)
 	pPAL->size		= sizeof(mdin3xx_font_rgb_pal);
 	MDINOSD_SetLayerPalette(pCTL, pPAL->addr, pPAL->size, pPAL->pBuff);
 }*/
+
 
 
 

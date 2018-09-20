@@ -112,7 +112,7 @@ void Auto_Seq_Init(void)
 //	startChannel = CHANNEL1 + vAuto_Seq_Index;
 
 	sys_status.current_split_mode = startChannel;
-	Set_border_line();
+	OSD_DrawBorderLine();
 //	DEMO_SetPIPViewWIND(0);	// update pip/pop window
 
 	if((ON == osdDisplayOn) && (ON == titleDisplayOn))

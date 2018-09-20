@@ -259,6 +259,16 @@ void Read_NvItem_FwVersion(uint16_t* pData)
 	*pData = nv_data.data.fwVersion;
 }
 
+void Read_NvItem_DisplayMode(eDisplayMode_t* pData)
+{
+	*pData = nv_data.data.displayMode;
+}
+void Write_NvItem_DisplayMode(eDisplayMode_t data)
+{
+	nv_data.data.displayMode = data;
+	nvInfo[NV_ITEM_DISPLAY_MODE].dirty = SET;
+}
+
 void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData)
 {
 	*pData = nv_data.data.timeCorrection;

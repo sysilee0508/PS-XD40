@@ -31,9 +31,7 @@ typedef enum
 
 typedef struct
 {
-	unsigned char current_mode;				// ���� ���� (���� ���� ���, �޴����)
 	eSplitmode_t current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
-	
 } sys_stat_t;
 
 
@@ -56,7 +54,6 @@ extern int cmode;
 extern u8 aux_display_flag;
 
 extern u32 vVideo_Loss;
-extern u8 ch9_loss;
 extern u8 Loss_Event_Flag;
 extern u8 Loss_Buzzer_Cnt;
 

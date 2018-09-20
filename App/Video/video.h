@@ -233,7 +233,7 @@ void DEMO_SetWindowPIPPOP(WORD nID);	// PIP/POP util
 
 void DEMO_SetRectBGBOX(MDIN_VIDEO_WINDOW stRECT, BYTE thk);
 //void DEMO_EnableRectBGBOX(BOOL OnOff);
-void Set_border_line(void);
+
 
 void DEMO_SetPIPViewWIND(WORD nID);
 

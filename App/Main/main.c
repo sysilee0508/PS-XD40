@@ -335,7 +335,7 @@ void main(void)
 	SetKeyReady();
 //	sysenv_split_mode = 5; //OMG! what is 5?!
 
-	Set_border_line();
+	OSD_DrawBorderLine();
 	changedDisplayMode = SET;
 
 #if 0 //for verify video input source test
