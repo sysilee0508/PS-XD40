@@ -353,16 +353,7 @@ void main(void)
 		Auto_Seq_Cnt();
 		Auto_Sequence();
 
-//		if(SET == bSETUP)
-//		{
-//			Menu_KeyProc();
-//		}
-//		else
-//		{
-//			Key_Proc();
-//		}
 		Key_Proc();
-
 		Time_Read();
 		
 		// video process handler

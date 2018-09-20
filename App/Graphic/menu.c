@@ -1349,27 +1349,28 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 // Display Page Function
 //------------------------------------------------------------------
-static void ConvertResolutionOption2String(u8* str)
-{
-	eResolution_t resolution;
-
-	Read_NvItem_Resolution(&resolution);
-	switch(resolution)
-	{
-		case RESOLUTION_1920_1080_60P:
-			str = (u8 *)menuStr_Resolution1920X1080_60P;
-			break;
-
-		case RESOLUTION_1920_1080_50P:
-			str = (u8 *)menuStr_Resolution1920X1080_50P;
-			break;
-	}
-}
+//static void ConvertResolutionOption2String(u8* str)
+//{
+//	eResolution_t resolution;
+//
+//	Read_NvItem_Resolution(&resolution);
+//	switch(resolution)
+//	{
+//		case RESOLUTION_1920_1080_60P:
+//			str = (u8 *)menuStr_Resolution1920X1080_60P;
+//			break;
+//
+//		case RESOLUTION_1920_1080_50P:
+//			str = (u8 *)menuStr_Resolution1920X1080_50P;
+//			break;
+//	}
+//}
 
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
 	const u16 offset_x = 20;
 	u8* pResolutionStr = NULL;
+	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
@@ -1377,7 +1378,17 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 	switch(itemY)
 	{
 		case DISPLAY_ITEM_Y_RESOLUTION:
-			ConvertResolutionOption2String(pResolutionStr);
+			Read_NvItem_Resolution(&resolution);
+//			ConvertResolutionOption2String(pResolutionStr);
+			switch(resolution)
+			{
+				case RESOLUTION_1920_1080_60P:
+					pResolutionStr = menuStr_Resolution1920X1080_60P;
+					break;
+				case RESOLUTION_1920_1080_50P:
+					pResolutionStr = menuStr_Resolution1920X1080_50P;
+					break;
+			}
 			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution), LINE1_OFFSET_Y, (const u8*)pResolutionStr, attribute, strlen(pResolutionStr));
 			break;
 

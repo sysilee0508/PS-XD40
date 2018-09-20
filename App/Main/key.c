@@ -61,6 +61,11 @@ const static eKeyData_t key_table[] =
 #define VALID_REPEAT_KEY(key)	\
 	((key == KEY_FULL_CH1) || (key == KEY_FULL_CH2) || \
 	 (key == KEY_FULL_CH3) || (key == KEY_FULL_CH4))?TRUE:FALSE
+
+#define VALID_MENU_KEY(key)		\
+	((key == KEY_LEFT) || (key == KEY_RIGHT) || \
+	 (key == KEY_UP) || (key == KEY_DOWN) || \
+	 (key == KEY_ENTER) || (key == KEY_EXIT))?TRUE:FALSE
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -205,10 +210,16 @@ void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
 	keycode_t leds;
+	eKeyData_t key;
 
 	if(GetKeyStatus() == KEY_STATUS_RELEASED)
 	{
-		leds = GetKeyCode(GetCurrentKey());
+		key = GetCurrentKey();
+		if(VALID_MENU_KEY(key) == TRUE)
+		{
+			key &= (~KEY_SPECIAL);
+		}
+		leds = GetKeyCode(key);
 	}
 	else
 	{
@@ -381,6 +392,7 @@ void Key_Proc(void)
 			key |= KEY_SPECIAL;
 		}
 
+		Read_NvItem_DisplayMode(&displayMode);
 		switch(key)
 		{
 			case KEY_FULL_CH1 : 
@@ -404,10 +416,10 @@ void Key_Proc(void)
 			case KEY_4SPLIT : 
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					if(pre_split_mode != SPLITMODE_SPLIT4 || bAuto_Seq_Flag || bScreenFreeze)
-					{
-						OSD_EraseAll();
-					}
+//					if(displayMode != DISPLAY_MODE_4SPLIT || bAuto_Seq_Flag || bScreenFreeze)
+//					{
+					OSD_EraseAll();
+//					}
 					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
 					changedDisplayMode = SET;
