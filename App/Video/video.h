@@ -153,7 +153,7 @@ void VideoSetIPCNoiseRobust1(BOOL OnOff);
 void VideoSetIPCNoiseRobust2(BOOL OnOff);
 void VideoSetIPCSlowMotion(BOOL OnOff);
 void VideoSDITXCtrlHandler(void);	   	//by hungry 2012.02.23
-void DEMOKIT_Outputfrmt(BYTE frmt);
+void SetVideoOutputfrmt(BYTE frmt);
 
 //void Change_Main_Aux_Input(BYTE sel);
 

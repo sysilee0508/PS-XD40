@@ -61,7 +61,7 @@ extern u8 Loss_Event_Flag;
 extern u8 Loss_Buzzer_Cnt;
 
 
-extern BYTE sysenv_split_mode;
+//extern BYTE sysenv_split_mode;
 
 extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);

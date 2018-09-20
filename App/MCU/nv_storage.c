@@ -263,7 +263,7 @@ void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData)
 {
 	*pData = nv_data.data.timeCorrection;
 }
-void Write_NvItem_TimeCorrectOffset(sTimeCorrect_t data)
+void Write_NvItem_TimeCorrect(sTimeCorrect_t data)
 {
 	nv_data.data.timeCorrection = data;
 	nvInfo[NV_ITEM_TIME_CORRECT].dirty = SET;

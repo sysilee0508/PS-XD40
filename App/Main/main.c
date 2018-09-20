@@ -22,7 +22,7 @@ s8 Video_Out_Res_Val = VIDOUT_1920x1080p60;
 u8 PIP_mode = 5;
 u8 Pre_PIP_mode = 0xff;
 
-BYTE sysenv_split_mode = 0;
+//BYTE sysenv_split_mode = 0;
 
 u8 aux_display_flag = 0;
 
@@ -315,7 +315,7 @@ void main(void)
 
 	CreateVideoInstance();
 	CreateOSDInstance();
-	DEMOKIT_Outputfrmt(Video_Out_Res_Val);
+	SetVideoOutputfrmt(Video_Out_Res_Val);
 	Osd_Init_Erase();
 
 	//VS4210 device initialization
@@ -327,15 +327,13 @@ void main(void)
 	Loss_Event_Flag = 0;
 	Loss_Buzzer_Cnt = 0;
 
-#ifdef __4CH__
 	InputSelect = VIDEO_DIGITAL_SDI;
 //	InputSelect = VIDEO_SDI_2HD_POP;
 	sys_status.current_split_mode = SPLITMODE_SPLIT4;
 
 	UpdateKeyData(KEY_4SPLIT);
 	SetKeyReady();
-	sysenv_split_mode = 5; //OMG! what is 5?!
-#endif
+//	sysenv_split_mode = 5; //OMG! what is 5?!
 
 	Set_border_line();
 	changedDisplayMode = SET;
@@ -373,14 +371,14 @@ void main(void)
 
 		// delay for HDMI-Tx register !!
 		MDINDLY_mSec(1);
-
-		if(InputSelect == VIDEO_DIGITAL_SDI)
-			if(sysenv_split_mode != Pre_PIP_mode)
-		{
-			Pre_PIP_mode = sysenv_split_mode;
-			
-			DEMO_SetPIPDisplay(sysenv_split_mode);
-		}
+//
+//		if(InputSelect == VIDEO_DIGITAL_SDI)
+//			if(sysenv_split_mode != Pre_PIP_mode)
+//		{
+//			Pre_PIP_mode = sysenv_split_mode;
+//
+//			DEMO_SetPIPDisplay(sysenv_split_mode);
+//		}
 		vs4210_display_proc();
 
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.

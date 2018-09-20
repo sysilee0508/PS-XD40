@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
-#include	"..\main\common.h"
+#include	"common.h"
 
 #if defined(SYSTEM_USE_MDIN380)
 // ----------------------------------------------------------------------
@@ -573,7 +573,7 @@ static void MDIN3xx_SetRegInitial(void)
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
 	MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_ALL, ON);
 
-	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP3);		// set in_data_map_mode = ‘11’
+	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP3);		// set in_data_map_mode = ï¿½11ï¿½
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP0);		// disable digital out
 	MDINOSD_SetBGLayerColor(RGB(128,128,128));			// set BG-Layer color
 
@@ -610,9 +610,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
 
 	// set video path
-#ifdef __4CH__
 	stVideo.srcPATH = PATH_MAIN_A_AUX_A;	// set main is A, aux is A
-#endif
 	stVideo.dacPATH = DAC_PATH_MAIN_OUT;	// set main only
 	stVideo.encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
@@ -625,6 +623,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stSRC_a.offV = 0;	//API v0.31(2012.05.02)
 
 	// define video format of MAIN-OUTPUT
+
 	stVideo.stOUT_m.frmt = VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
 	stVideo.stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
 	stVideo.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
@@ -653,10 +652,8 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
 
 	// define video format of PORTB-INPUT
-#ifdef __4CH__
 	stVideo.stSRC_b.frmt = VIDSRC_720x480i60;
 	stVideo.stSRC_b.mode = MDIN_SRC_MUX656_8;
-#endif
 	stVideo.stSRC_b.fine = MDIN_FIELDID_INPUT | MDIN_LOW_IS_TOPFLD;
 
 	// define video format of AUX-INPUT
@@ -748,10 +745,12 @@ static void DEMOKIT_InputSource(BYTE src)
 */
 //--------------------------------------------------------------------------------------------------
 //static void DEMOKIT_Outputfrmt(BYTE frmt)		//by hungry 2012.03.06
-void DEMOKIT_Outputfrmt(BYTE frmt)		//by hungry 2012.03.06
+void SetVideoOutputfrmt(BYTE frmt)		//by hungry 2012.03.06
 {
-	SetOSDMenuID(0x6210);
-	SetOSDItemID(frmt);	SetMenuStatus(6,2,frmt);
+//	SetOSDMenuID(0x6210);
+//	SetOSDItemID(frmt);
+//	SetMenuStatus(6,2,frmt);
+	stVideo.stOUT_m.frmt = frmt;
 }
 //--------------------------------------------------------------------------------------------------
 void CreateVideoInstance(void)
@@ -1312,16 +1311,13 @@ static void VideoFrameProcess(BYTE src)
 	SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
 	//Set2HDVideoPathB();		// set 2HD pathB
 
-
-	SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO));
-	DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window
+//	SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO)); //by kukuri
+//	DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
 	//DEMO_SetAspectRatio(GetMenuStatus(4,6));	// update aspect ratio
 	//DEMO_SetOverScanning(GetMenuStatus(4,5));	// update overscanning
 	//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
 
-#ifdef __4CH__
 	MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-#endif
 
 #if 0 //Louis
 	if(SDIRX_change_flag)

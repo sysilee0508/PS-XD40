@@ -1444,14 +1444,14 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			break;
 
 		case KEY_ENTER:
-			toggle(requestEnterKeyProc);
+			Toggle(requestEnterKeyProc);
 			DisplayPage_UpdatePageOption(itemY);
 			break;
 
 		case KEY_EXIT:
 			if(requestEnterKeyProc)
 			{
-				toggle(requestEnterKeyProc);
+				Toggle(requestEnterKeyProc);
 				DisplayPage_UpdatePageOption(itemY);
 			}
 			else
