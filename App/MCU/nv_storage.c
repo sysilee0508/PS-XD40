@@ -450,7 +450,7 @@ void Read_NvItem_AlarmOutTime(uint8_t *pData)
 {
 	*pData = nv_data.data.alarmOutTime;
 }
-void Write_NvItem_AlarmRemoconSelect(uint8_t data)
+void Write_NvItem_AlarmOutTime(uint8_t data)
 {
 	nv_data.data.alarmOutTime = data;
 	nvInfo[NV_ITEM_USER_ALARMOUT_TIME].dirty = SET;

@@ -171,7 +171,7 @@ typedef struct
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-static WORD OSDMenuID, OSDCombID;
+static WORD OSDMenuID;//, OSDCombID;
 //static BYTE fMenuUpdate, fMenuGraphic;
 BYTE fMenuUpdate;			  //by hungry 2012.03.06
 //static BYTE fMenuGraphic;	  //by hungry 2012.03.06
@@ -188,6 +188,7 @@ static u8 systemMode = SYSTEM_NORMAL_MODE;
 // declare global variables
 //---------------------------------------------------------------
 
+#if 0
 //-----------------------------------------------------------------
 // constant variables
 //-----------------------------------------------------------------
@@ -276,6 +277,7 @@ void SetMenuDefaultStatus(void)
 //	OSDMenuID = OSDCombID = 0;
 }
 
+#endif
 //-----------------------------------------------------------------
 // Static Functions
 //-----------------------------------------------------------------
@@ -459,6 +461,46 @@ static void DrawSelectMark(u8 verticalItem)
   	previousLocationX = offset_x[currentPage];
   	previousLocationY = offset_y[currentPage] + (2 * verticalItem);
 }
+
+//-----------------------------------------------------------------
+static void MainMenu_Entry(u8 itemY)
+{
+	const sLocationNString_t mainMenu[MAINMENU_ITEM_Y_MAX] =
+	{
+			{24, LINE0_OFFSET_Y, menuStr_MainMenu_Title},
+			{22, LINE1_OFFSET_Y, menuStr_MainMenu_TimeDate},
+			{22, LINE2_OFFSET_Y, menuStr_MainMenu_CameraTitle},
+			{22, LINE3_OFFSET_Y, menuStr_MainMenu_AutoSeq},
+			{22, LINE4_OFFSET_Y, menuStr_MainMenu_Display},
+			{22, LINE5_OFFSET_Y, menuStr_MainMenu_Alarm},
+			{22, LINE6_OFFSET_Y, menuStr_MainMenu_MotionDetection},
+			{22, LINE7_OFFSET_Y, menuStr_MainMenu_DeviceInfo}
+	};
+	u8 index;
+
+	currentPage = MENU_PAGE_MAIN;
+	Erase_AllMenuScreen();
+	requestEnterKeyProc = CLEAR;
+
+	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
+
+	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+
+	DrawSelectMark(itemY);
+	for(index = 0; index < MAINMENU_ITEM_Y_MAX; index++)
+	{
+		Print_StringWithSelectedMarkSize(mainMenu[index].offset_x, mainMenu[index].offset_y, mainMenu[index].str, NULL, 0);
+	}
+}
+
 
 //------------------------------------------------------------------
 //   Time/Date Page Function
@@ -736,7 +778,7 @@ static void TimeDatePage_Entry(void)
 
 	DrawSelectMark(TIMEDATE_ITEM_Y_TIME);
 	Read_NvItem_TimeDisplayOn(&timeDisplayOn);
-	Read_NvItme_DateDisplayOn(&dateDisplayOn);
+	Read_NvItem_DateDisplayOn(&dateDisplayOn);
 	// display items of this page
 	for(index = 0; index < TIMEDATE_ITEM_Y_MAX; index++)
 	{
@@ -839,25 +881,25 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 
 					case TIMEDATE_ITEM_Y_TIME_DISPLAY:
 						Read_NvItem_TimeDisplayOn(&displayOn);
-						Toogle(&displayOn);
+						Toggle(&displayOn);
 						Write_NvItem_TimeDisplayOn(displayOn);
 						break;
 
 					case TIMEDATE_ITEM_Y_DATE_DISPALY:
 						Read_NvItem_TimeDisplayOn(&displayOn);
-						Toogle(&displayOn);
+						Toggle(&displayOn);
 						Write_NvItem_TimeDisplayOn(displayOn);
 						break;
 
 					case TIMEDATE_ITEM_Y_DATE_FORMAT:
 						Read_NvItem_DateFormat(&dateFormat);
-						IncreaseDecreaseCount(2, 0, &dateFormat);
+						IncreaseDecreaseCount(2, 0, inc_dec, &dateFormat);
 						Write_NvItem_DateFormat(dateFormat);
 						break;
 
 					case TIMEDATE_ITEM_Y_YEAR_FORMAT:
 						Read_NvItem_DateFormat(&yearFormat);
-						Toogle(&yearFormat);
+						Toggle(&yearFormat);
 						Write_NvItem_DateFormat(yearFormat);
 						break;
 
@@ -913,21 +955,21 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			{
 			  	if(itemY == TIMEDATE_ITEM_Y_TIME)
 				{
-					TimeDatePage_UpdatePage(NULL);
+					TimeDatePage_UpdatePage(pos_x, itemY);
 					IncreaseDecreaseCount(2, 0,inc_dec, &pos_x);
 					itemX = ITEM_X(pos_x);
 					TimeDatePage_UpdatePage(pos_x, itemY);
 				}
 			  	else if(itemY == TIMEDATE_ITEM_Y_DATE)
 				{
-					TimeDatePage_UpdatePage(NULL);
+					TimeDatePage_UpdatePage(pos_x, itemY);
 					IncreaseDecreaseCount(2, 0, inc_dec, &pos_x);
 					itemX = ITEM_X(pos_x);
 					TimeDatePage_UpdatePage(pos_x, itemY);
 				}
 				else if(itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION)
 				{
-					TimeDatePage_UpdatePage(NULL);
+					TimeDatePage_UpdatePage(pos_x, itemY);
 					IncreaseDecreaseCount(2, 0, inc_dec, &pos_x);
 					itemX = ITEM_X(pos_x);
 					TimeDatePage_UpdatePage(pos_x, itemY);
@@ -936,14 +978,14 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			break;
 
 		case KEY_ENTER :
-			Toggle(requestEnterKeyProc);
+			Toggle(&requestEnterKeyProc);
 			TimeDatePage_UpdatePage(pos_x, itemY);
 			break; 	
 
 		case KEY_EXIT :
 			if(requestEnterKeyProc == SET)
 			{
-				Toggle(requestEnterKeyProc);
+				Toggle(&requestEnterKeyProc);
 				TimeDatePage_UpdatePage(pos_x, itemY);
 			}
 			else
@@ -1059,10 +1101,6 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	BOOL titleOn;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];// = {0,};
 	u8* pChar;
-	u8 attribute;
-	u16 itemX;
-
-	itemX = ITEM_X(pos_x);
 
 	switch(key)
 	{
@@ -1116,7 +1154,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			break;
 	  
 		case KEY_ENTER:
-			Toogle(&requestEnterKeyProc);
+			Toggle(&requestEnterKeyProc);
 			if(requestEnterKeyProc == SET)
 			{
 				pos_x = 0;
@@ -1167,7 +1205,7 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 			}
 			else
 			{
-				Int2Str(displayTime[index-1], displayTimeInStr);
+				Int2Str(displayTime[itemY-1], displayTimeInStr);
 				Print_StringWithSelectedMark(26, LINE1_OFFSET_Y + ((itemY-1) * 2), (const u8*)displayTimeInStr, attribute, strlen(displayTimeInStr));
 				Print_StringWithSelectedMarkSize(28, LINE1_OFFSET_Y + ((itemY-1) * 2), menuStr_Sec, NULL, 0);
 			}
@@ -1256,7 +1294,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 					case AUTOSEQ_ITEM_Y_LOSS_SKIP:
 						Read_NvItem_AutoSeqLossSkip(&autoSeqLossSkip);
 						Toggle(&autoSeqLossSkip);
-						Write_NvItem_AutoSeqTime(autoSeqLossSkip);
+						Write_NvItem_AutoSeqLossSkip(autoSeqLossSkip);
 						break;
 				}
 				AutoSeqPage_UpdatePage(itemY);
@@ -1269,7 +1307,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 			break;
 
 		case KEY_ENTER :
-			Toggle(requestEnterKeyProc);
+			Toggle(&requestEnterKeyProc);
 			AutoSeqPage_UpdatePage(itemY);
 			break;
 
@@ -1300,11 +1338,11 @@ static void ConvertResolutionOption2String(u8* str)
 	switch(resolution)
 	{
 		case RESOLUTION_1920_1080_60P:
-			str = menuStr_Resolution1920X1080_60P;
+			str = (u8 *)menuStr_Resolution1920X1080_60P;
 			break;
 
 		case RESOLUTION_1920_1080_50P:
-			str = menuStr_Resolution1920X1080_50P;
+			str = (u8 *)menuStr_Resolution1920X1080_50P;
 			break;
 	}
 }
@@ -1312,7 +1350,7 @@ static void ConvertResolutionOption2String(u8* str)
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
 	const u16 offset_x = 20;
-	u8* pResolutionStr;
+	u8* pResolutionStr = NULL;
 	BOOL osdOn;
 	BOOL borderLineOn;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
@@ -1500,25 +1538,41 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 		case ALARM_ITEM_Y_ALARMOUT_TIME:
 			Read_NvItem_AlarmOutTime(&nv_data);
 			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Alarm_AlarmOutTime), LINE6_OFFSET_Y, attribute, sizeof(str2digit));
+			Print_StringWithSelectedMark(
+				offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime), 
+				LINE6_OFFSET_Y, 
+				(const u8*)str2digit,
+				attribute, sizeof(str2digit));
 			break; 
 
  		case ALARM_ITEM_Y_ALARM_BUZZER_TIME :
 			Read_NvItem_AlarmBuzzerTime(&nv_data);
 			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Alarm_AlarmBuzzerTime), LINE7_OFFSET_Y, attribute, sizeof(str2digit));
+			Print_StringWithSelectedMark(
+				offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime), 
+				LINE7_OFFSET_Y, 
+				(const u8*)str2digit,
+				attribute, sizeof(str2digit));
 			break;
 
  		case ALARM_ITEM_Y_LOSS_BUZZER_TIME:
  			Read_NvItem_VideoLossBuzzerTime(&nv_data);
 			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Alarm_VideoLossBuzzerTime), LINE8_OFFSET_Y, (const u8*)str2digit, attribute, sizeof(str2digit));
+			Print_StringWithSelectedMark(
+				offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime), 
+				LINE8_OFFSET_Y, 
+				(const u8*)str2digit, 
+				attribute, sizeof(str2digit));
 			break; 
 
  		case ALARM_ITEM_Y_REMOCONID:
  			Read_NvItem_RemoconId(&nv_data);
 			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Alarm_RemoconId), LINE8_OFFSET_Y, (const u8*)str2digit, attribute, sizeof(str2digit));
+			Print_StringWithSelectedMark(
+				offset_x + strlen((char *)menuStr_Alarm_RemoconId), 
+				LINE8_OFFSET_Y, 
+				(const u8*)str2digit, 
+				attribute, sizeof(str2digit));
  			break;
  	}
 }
@@ -1559,7 +1613,7 @@ static void AlarmRemoconPage_Entry(void)
 static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = ALARM_ITEM_Y_ALARM_REMOCON;
-	static u8 pos_x = 0;
+	//static u8 pos_x = 0;
 	u8 itemX;
 	u8 inc_dec = DECREASE;
 	BOOL alarmRemoconSel;
@@ -1629,20 +1683,19 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
     		break;
 
     	case KEY_ENTER :
-    		Toggle(requestEnterKeyProc);
+    		Toggle(&requestEnterKeyProc);
     		AlarmRemoconPage_UpdatePageOption(itemY);
 			break; 	
 
 		case KEY_EXIT:
        		if(requestEnterKeyProc)
 			{
-       			Toggle(requestEnterKeyProc);
+       			Toggle(&requestEnterKeyProc);
        			AlarmRemoconPage_UpdatePageOption(itemY);
 			}
 			else 
 			{
-           		itemY = ALARM_ITEM_Y_ALARM_REMOCON;
-           		pos_x = 0;
+				itemY = ALARM_ITEM_Y_ALARM_REMOCON;
 				MainMenu_Entry(currentPage);
 			}
 			break; 	
@@ -1753,7 +1806,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 			break;
 
 		case KEY_ENTER:
-			Toggle(requestEnterKeyProc);
+			Toggle(&requestEnterKeyProc);
 			MotionDetectionPage_UpdatePage(itemY);
 			break;
 
@@ -1861,45 +1914,6 @@ static void SelectMainMenu(u8 itemY)
  		case MAINMENU_ITEM_Y_DEVICE_INFO :
  			DeviceInfoPage_Entry();
  			break;
-	}
-}
-
-static void MainMenu_Entry(u8 itemY)
-{
-	const sLocationNString_t mainMenu[MAINMENU_ITEM_Y_MAX] =
-	{
-			{24, LINE0_OFFSET_Y, menuStr_MainMenu_Title},
-			{22, LINE1_OFFSET_Y, menuStr_MainMenu_TimeDate},
-			{22, LINE2_OFFSET_Y, menuStr_MainMenu_CameraTitle},
-			{22, LINE3_OFFSET_Y, menuStr_MainMenu_AutoSeq},
-			{22, LINE4_OFFSET_Y, menuStr_MainMenu_Display},
-			{22, LINE5_OFFSET_Y, menuStr_MainMenu_Alarm},
-			{22, LINE6_OFFSET_Y, menuStr_MainMenu_MotionDetection},
-			{22, LINE7_OFFSET_Y, menuStr_MainMenu_DeviceInfo}
-	};
-	u16 offset_x, offset_y;
-	u8 index;
-
-	currentPage = MENU_PAGE_MAIN;
-	Erase_AllMenuScreen();
-	requestEnterKeyProc = CLEAR;
-
-	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
-
-	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
-	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-
-	DrawSelectMark(itemY);
-	for(index = 0; index < MAINMENU_ITEM_Y_MAX; index++)
-	{
-		Print_StringWithSelectedMarkSize(mainMenu[index].offset_x, mainMenu[index].offset_y, mainMenu[index].str, NULL, 0);
 	}
 }
 

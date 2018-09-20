@@ -71,7 +71,7 @@ static BOOL IsTitlePositionTop(void)
 	return result;
 }
 
-static void OSD_Print_String(sPosition_t position, u8 *pData, u16 size)
+static void OSD_Print_String(sPosition_t position, const u8 *pData, u16 size)
 {
 	OSD_SetFontGAC(SPRITE_INDEX0);
 	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pData, size, 0);
@@ -100,7 +100,7 @@ static void OSD_Display_Time_Erase(void)
 	position.pos_x = (DISPLAY_WIDTH_1920X1080 - (DATE_TIME_LENGTH*CHAR_WIDTH_E))/2 - 12;
 
 	memset(str_buf, ' ', sizeof(str_buf));
-	OSD_Print_String(position, str_buf, sizeof(str_buf));
+	OSD_Print_String(position,  str_buf, sizeof(str_buf));
 }
 
 static void OSD_Str_Loss_Erase(void)
@@ -137,7 +137,7 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 	sPosition_t position;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX] = {0,};
 
-	ReadNvItem_ChannelName(channel_name, channel);
+	Read_NvItem_ChannelName(channel_name, channel);
 
 	switch(titlePosition)
 	{
@@ -281,11 +281,11 @@ static void CreateDateString(u8 *buf)
 		case DATE_FORMAT_YMD: //ASIA
 			strncpy(buf, year, sizeof(year));
 			buf += sizeof(year);
-			strncpy(buf, '-', 1);
+			strncpy(buf, "-", 1);
 			buf++;
 			strncpy(buf, month, sizeof(month));
 			buf += sizeof(month);
-			strncpy(buf, '-', 1);
+			strncpy(buf, "-", 1);
 			buf++;
 			strncpy(buf, day, sizeof(day));
 			break;
@@ -293,11 +293,11 @@ static void CreateDateString(u8 *buf)
 		case DATE_FORMAT_MDY: //US
 			strncpy(buf, month, sizeof(month));
 			buf += sizeof(month);
-			strncpy(buf, '-', 1);
+			strncpy(buf, "-", 1);
 			buf++;
 			strncpy(buf, day, sizeof(day));
 			buf += sizeof(day);
-			strncpy(buf, '-', 1);
+			strncpy(buf, "-", 1);
 			buf++;
 			strncpy(buf, year, sizeof(year));
 			break;
@@ -305,11 +305,11 @@ static void CreateDateString(u8 *buf)
 		case DATE_FORMAT_DMY: //EURO
 			strncpy(buf, day, sizeof(day));
 			buf += sizeof(day);
-			strncpy(buf, '-', 1);
+			strncpy(buf, "-", 1);
 			buf++;
 			strncpy(buf, month, sizeof(month));
 			buf += sizeof(month);
-			strncpy(buf, '-', 1);
+			strncpy(buf, "-", 1);
 			buf++;
 			strncpy(buf, year, sizeof(year));
 			break;
@@ -396,12 +396,12 @@ static void OSD_Display_Freeze(void)
 //					OSD_Print_String(position, str_Freeze, sizeof(str_Freeze3));
 //					osd_freeze_autoseq_location_buf.length = sizeof(str_Freeze3);
 //				}
-				OSD_Print_String(position, str_Freeze, sizeof(str_Freeze3));
+				OSD_Print_String(position,str_Freeze3, sizeof(str_Freeze3));
 				osd_freeze_autoseq_location_buf.length = sizeof(str_Freeze3);
 			}
 			else
 			{
-					OSD_Print_String(position, str_Freeze, sizeof(str_Freeze2));
+					OSD_Print_String(position, str_Freeze2, sizeof(str_Freeze2));
 					osd_freeze_autoseq_location_buf.length = sizeof(str_Freeze2);
 			}
 		}
@@ -410,16 +410,16 @@ static void OSD_Display_Freeze(void)
 			if(timeOn == ON)
 			{
 				// erase
-				OSD_Print_String(position, str_Freeze, sizeof(str_Freeze_BLK));
+				OSD_Print_String(position, str_Freeze_BLK, sizeof(str_Freeze_BLK));
 				osd_freeze_autoseq_location_buf.length = sizeof(str_Freeze_BLK);
 			}
 			else
 			{
-				OSD_Print_String(position, str_Freeze, sizeof(str_Freeze_BLK2));
+				OSD_Print_String(position, str_Freeze_BLK2, sizeof(str_Freeze_BLK2));
 				osd_freeze_autoseq_location_buf.length = sizeof(str_Freeze_BLK2);
 			}
 		}
-		osd_freeze_autoseq_location_buf.state = ON;//1;
+		osd_freeze_autoseq_location_buf.state = ON;//1
 		osd_freeze_autoseq_location_buf.location = position;
 	}
 }
@@ -490,12 +490,12 @@ static void OSD_Display_AUTO(void)
 //					OSD_Print_String(position, str_Freeze, sizeof(str_AUTO3));
 //					osd_freeze_autoseq_location_buf.length = sizeof(str_AUTO3);
 //				}
-				OSD_Print_String(position, str_Freeze, sizeof(str_AUTO3));
+				OSD_Print_String(position, str_AUTO3, sizeof(str_AUTO3));
 				osd_freeze_autoseq_location_buf.length = sizeof(str_AUTO3);
 			}
 			else
 			{
-				OSD_Print_String(position, str_Freeze, sizeof(str_AUTO2));
+				OSD_Print_String(position, str_AUTO2, sizeof(str_AUTO2));
 				osd_freeze_autoseq_location_buf.length = sizeof(str_AUTO2);
 			}
 		}
@@ -503,16 +503,16 @@ static void OSD_Display_AUTO(void)
 		{
 			if(timeOn == ON)
 			{
-				OSD_Print_String(position, str_Freeze, sizeof(str_AUTO_BLK));
+				OSD_Print_String(position, str_AUTO_BLK, sizeof(str_AUTO_BLK));
 				osd_freeze_autoseq_location_buf.length = sizeof(str_AUTO_BLK);
 			}
 			else
 			{
-				OSD_Print_String(position, str_Freeze, sizeof(str_AUTO_BLK2));
+				OSD_Print_String(position, str_AUTO_BLK2, sizeof(str_AUTO_BLK2));
 				osd_freeze_autoseq_location_buf.length = sizeof(str_AUTO_BLK2);
 			}
 		}
-		osd_freeze_autoseq_location_buf.state = ON;//1;
+		osd_freeze_autoseq_location_buf.state = ON;//1
 		osd_freeze_autoseq_location_buf.location = position;
 	}
 }
@@ -557,7 +557,7 @@ static void OSD_Display_Video_Loss(void)
 				position[channel].pos_x =
 						tbl_OSD_SPLIT4_POSITION_1920x1080[channel] - (strlen(str_NO_VIDEO)*CHAR_WIDTH_E)/2;
 				position[channel].pos_y =
-						tbl_OSD_SPLIT4_POSITION_1920x1080[channel] + (DISPLAY_HEIGHT_1920x1080/2 -CHAR_HEIGHT)/2;
+						tbl_OSD_SPLIT4_POSITION_1920x1080[channel] + (DISPLAY_HEIGHT_1920x1080 -CHAR_HEIGHT)/2;
 			}
 		}
 
@@ -573,7 +573,7 @@ static void OSD_Display_Video_Loss(void)
 				OSD_Print_String(position, str_NO_VIDEO, strlen(str_NO_VIDEO_Blk));
 				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO_Blk);
 			}
-			osd_video_lose_location_buf[channel].state = ON;//1	//state? 1??
+			osd_video_lose_location_buf[channel].state = ON;//1 
 			osd_video_lose_location_buf[channel].location = position;
 		}
 	}
