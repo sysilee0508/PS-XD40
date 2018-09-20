@@ -556,12 +556,12 @@ static void OSD_Display_Video_Loss(void)
 		{
 			if(vVideo_Loss & (0x01<<channel))
 			{
-				OSD_Print_String(position, str_NO_VIDEO, strlen(str_NO_VIDEO));
+				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO));
 				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO);
 			}
 			else
 			{
-				OSD_Print_String(position, str_NO_VIDEO, strlen(str_NO_VIDEO_Blk));
+				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO_Blk));
 				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO_Blk);
 			}
 			osd_video_lose_location_buf[channel].state = ON;
@@ -637,7 +637,7 @@ void OSD_Display_ChannelName(void)
 			channel = (eChannel_t)sys_status.current_split_mode;
 			positionValue =  OSD_TitleStringPosition(channel, titlePosition, DISPLAY_MODE_FULL_SCREEN, strlen(channel_name));
 			Read_NvItem_ChannelName(channel_name, channel);
-			OSD_Print_String(positionValue.pos_x, positionValue.pos_y, channel_name, strlen(channel_name));
+			OSD_Print_String(positionValue, channel_name, strlen(channel_name));
 			osd_ch_name_location_buf[channel].state = ON;
 			osd_ch_name_location_buf[channel].length = strlen(channel_name);
 			osd_ch_name_location_buf[channel].location = positionValue;
@@ -648,7 +648,7 @@ void OSD_Display_ChannelName(void)
 			{
 				Read_NvItem_ChannelName(channel_name, channel);
 				positionValue =  OSD_TitleStringPosition(channel, titlePosition, DISPLAY_MODE_4SPLIT, strlen(channel_name));
-				OSD_Print_String(positionValue.pos_x, positionValue.pos_y, channel_name, strlen(channel_name));
+				OSD_Print_String(positionValue, channel_name, strlen(channel_name));
 				osd_ch_name_location_buf[channel].state = ON;
 				osd_ch_name_location_buf[channel].length = strlen(channel_name);
 				osd_ch_name_location_buf[channel].location = positionValue;
@@ -687,7 +687,7 @@ void OSD_EraseAll(void)
 		{
 			MDINGAC_SetDrawXYMode(osd_ch_name_location_buf[i].location.pos_y,
 								osd_ch_name_location_buf[i].location.pos_x,
-								str_Blank,
+								(u8 *)str_Blank,
 								osd_ch_name_location_buf[i].length,
 								0);
 		}
