@@ -24,16 +24,16 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 //		{NV_ITEM_TIME_POSITION,			sizeof(eTitlePosition_t),					CLEAR},
 		{NV_ITEM_CHANNEL_NAME,			(NUM_OF_CHANNEL * CHANNEL_NEME_LENGTH_MAX),	CLEAR},
 		{NV_ITEM_TITLE_DISPLAY_ON,		sizeof(BOOL),								CLEAR},
-		{NV_ITEM_AUTO_SEQ_TIME,			sizeof(uint8_t) * NUM_OF_CHANNEL,			CLEAR},
+              {NV_ITEM_TITLE_POSITION,              sizeof(eTitlePosition_t),                                   CLEAR},
+		{NV_ITEM_AUTO_SEQ_TIME,			NUM_OF_CHANNEL,			CLEAR},
 		{NV_ITEM_AUTO_SEQ_LOSS_SKIP,		sizeof(BOOL),								CLEAR},
 		{NV_ITEM_OUTPUT_RESOLUTION,		sizeof(eResolution_t),						CLEAR},
 		{NV_ITEM_OSD_DISPLAY,			sizeof(BOOL),								CLEAR},
-		{NV_ITEM_TITLE_POSITION,			sizeof(eTitlePosition_t),					CLEAR},
 		{NV_ITEM_BORDER_LINE,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_USER_ALARM_OPTION, 		sizeof(eAlarmOption_t),						CLEAR},
 		{NV_ITEM_USER_ALARMOUT_TIME,		sizeof(uint8_t),								CLEAR},
 		{NV_ITEM_USER_ALARM_BUZZER_TIME,	sizeof(uint8_t),								CLEAR},
-		{NV_ITEM_VIDEO_LOSS_ALARM_ON,	sizeof(BOOL) * NUM_OF_CHANNEL,				CLEAR},
+		{NV_ITEM_VIDEO_LOSS_ALARM_ON,	NUM_OF_CHANNEL,				CLEAR},
 		{NV_ITEM_VIDEO_LOSS_BUZZER_TIME,	sizeof(uint8_t),								CLEAR},
 		{NV_ITEM_VIDEO_LOSS_DISPLAY_ON,	sizeof(BOOL),								CLEAR},
 		{NV_ITEM_REMOCON_ID,				sizeof(uint8_t),								CLEAR},
@@ -295,7 +295,7 @@ void Write_NvItem_VideoLossBuzzerTime(uint8_t data)
 
 void Read_NvItem_AutoSeqTime(uint8_t* pData)
 {
-	memcpy(pData, nv_data.data.autoSeqTime, nvInfo[NV_ITEM_AUTO_SEQ_TIME].size);
+    memcpy(pData, nv_data.data.autoSeqTime, nvInfo[NV_ITEM_AUTO_SEQ_TIME].size);
 }
 void Write_NvItem_AutoSeqTime(uint8_t* pData)
 {

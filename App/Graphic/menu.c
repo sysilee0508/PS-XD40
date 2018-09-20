@@ -171,10 +171,10 @@ typedef struct
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-//static WORD OSDMenuID;//, OSDCombID;
-//static BYTE fMenuUpdate, fMenuGraphic;
-//BYTE fMenuUpdate;			  //by hungry 2012.03.06
-//static BYTE fMenuGraphic;	  //by hungry 2012.03.06
+static WORD OSDMenuID, OSDCombID;
+static BYTE fMenuUpdate, fMenuGraphic;
+BYTE fMenuUpdate;			  //by hungry 2012.03.06
+static BYTE fMenuGraphic;	  //by hungry 2012.03.06
 
 //-----------------------------------------------------------------
 // declare static variables
@@ -188,7 +188,7 @@ static u8 systemMode = SYSTEM_NORMAL_MODE;
 // declare global variables
 //---------------------------------------------------------------
 
-#if 0
+#if 1
 //-----------------------------------------------------------------
 // constant variables
 //-----------------------------------------------------------------
@@ -443,7 +443,7 @@ static void Erase_AllMenuScreen(void)
 //-----------------------------------------------------------------
 static void DrawSelectMark(u8 verticalItem)
 {	
-	static const u8 offset_x[MENU_PAGE_MAX] = {19,13,18,20,18,17,17,17}; //in characters
+	static const u8 offset_x[MENU_PAGE_MAX] = {19,13,18,17,18,17,17,17}; //in characters
 	//static const u8 offset_y[MENU_PAGE_MAX] = {5, 5, 5, 6, 6 ,6, 6, 6};  // in lines
 	static u8 previousLocationX;
 	static u8 previousLocationY;
@@ -1064,7 +1064,7 @@ static void CameraTitlePage_UpdatePage(u8 offset_x, u8 offset_y, u8 itemY, u8 po
 					offset_x + strlen(menuStr_CameraTitle_Position),
 					offset_y,
 					menuStr_Space13,
-					NULL, 0);
+					NULL, strlen((char *)menuStr_Space13));
 			Print_StringWithSelectedMark(
 					offset_x + strlen(menuStr_CameraTitle_Position),
 					offset_y,
@@ -1219,14 +1219,34 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 			if(displayTime[itemY-1] == 0)
 			{
 				// print OFF
-				Print_StringWithSelectedMarkSize(26, LINE1_OFFSET_Y + ((itemY-1) * 2), menuStr_Space6, NULL, 0);
-				Print_StringWithSelectedMark(26, LINE1_OFFSET_Y + ((itemY-1) * 2), menuStr_Off, attribute, strlen(menuStr_Off));
+				Print_StringWithSelectedMarkSize(
+				        20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1),
+				        LINE1_OFFSET_Y + ((itemY-1) * 2), 
+				        menuStr_Space6, 
+				        NULL, strlen(menuStr_Space6));
+				Print_StringWithSelectedMark(
+                                    20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1),
+                                    LINE1_OFFSET_Y + ((itemY-1) * 2),
+                                    menuStr_Off, 
+                                    attribute, strlen(menuStr_Off));
 			}
 			else
 			{
 				Int2Str(displayTime[itemY-1], displayTimeInStr);
-				Print_StringWithSelectedMark(26, LINE1_OFFSET_Y + ((itemY-1) * 2), (const u8*)displayTimeInStr, attribute, strlen(displayTimeInStr));
-				Print_StringWithSelectedMarkSize(28, LINE1_OFFSET_Y + ((itemY-1) * 2), menuStr_Sec, NULL, 0);
+                 Print_StringWithSelectedMarkSize(
+					20 + strlen((char *)menuStr_AutoSeq_DisplayTime_Ch1),
+					LINE1_OFFSET_Y + ((itemY-1) * 2),
+					menuStr_Space3,
+					NULL, strlen(menuStr_Space3));
+				Print_StringWithSelectedMark(
+                                    20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1), 
+                                    LINE1_OFFSET_Y + ((itemY-1) * 2), 
+                                    (const u8*)displayTimeInStr, 
+                                    attribute, sizeof(displayTimeInStr));
+				Print_StringWithSelectedMarkSize(20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1) + 3, 
+                                    LINE1_OFFSET_Y + ((itemY-1) * 2),
+                                    menuStr_Sec, 
+                                    NULL, strlen(menuStr_Sec));
 			}
     		break;
 
@@ -1235,23 +1255,23 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
     		if(videoLossSkip == ON) //skip
     		{
     			Print_StringWithSelectedMarkSize(
-    					17 + strlen(menuStr_AutoSeq_NoVideoSkip),
+    					20 + strlen(menuStr_AutoSeq_NoVideoSkip),
     					LINE5_OFFSET_Y,
     					menuStr_Space9,
-    					NULL, 0);
+    					NULL, strlen(menuStr_Space9));
     			Print_StringWithSelectedMarkSize(
-    					17 + strlen(menuStr_AutoSeq_NoVideoSkip),
+    					20 + strlen(menuStr_AutoSeq_NoVideoSkip),
     					LINE5_OFFSET_Y,
     					menuStr_Skip,
-    					NULL, 0);
+    					attribute, strlen(menuStr_Skip));
     		}
     		else //show
     		{
     			Print_StringWithSelectedMarkSize(
-    					17 + strlen(menuStr_AutoSeq_NoVideoSkip),
+    					20 + strlen(menuStr_AutoSeq_NoVideoSkip),
     					LINE5_OFFSET_Y,
     					menuStr_Show,
-    					NULL, 0);
+    					attribute, strlen(menuStr_Show));
     		}
     		break;
  	}
@@ -1261,12 +1281,12 @@ static void AutoSeqPage_Entry()
 {
 	const sLocationNString_t autoSeqMenu[AUTOSEQ_ITEM_Y_MAX] =
 	{
-		{23, LINE0_OFFSET_Y, menuStr_AutoSeq_Title},
-		{17, LINE1_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch1},
-		{17, LINE2_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch2},
-		{17, LINE3_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch3},
-		{17, LINE4_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch4},
-		{17, LINE5_OFFSET_Y, menuStr_AutoSeq_NoVideoSkip}
+		{24, LINE0_OFFSET_Y, menuStr_AutoSeq_Title},
+		{20, LINE1_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch1},
+		{20, LINE2_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch2},
+		{20, LINE3_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch3},
+		{20, LINE4_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch4},
+		{20, LINE5_OFFSET_Y, menuStr_AutoSeq_NoVideoSkip}
 	};
 	u8 index = 0;
 
@@ -1290,7 +1310,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = AUTOSEQ_ITEM_Y_CH1_DISPLAY_TIME;
 	u8 inc_dec = DECREASE;
-	u8 autoSeqTime[NUM_OF_CHANNEL];
+	static u8 autoSeqTime[NUM_OF_CHANNEL];
 	BOOL autoSeqLossSkip;
 
 	switch(key)
