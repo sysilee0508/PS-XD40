@@ -1557,73 +1557,116 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 		case ALARM_ITEM_Y_ALARMOUT_TIME:
 			Read_NvItem_AlarmOutTime(&nv_data);
             if(nv_data != 0)
-                {
-			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(
-				offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime), 
-				LINE6_OFFSET_Y, 
-				(const u8*)str2digit,
-				attribute, sizeof(str2digit));
-            Print_StringWithSelectedMarkSize(
-				offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime) + sizeof(str2digit), 
-				LINE6_OFFSET_Y, 
-				menuStr_Sec,
-				NULL, 0);
-                }
-            else // pritn OFF
-                {
-                            Print_StringWithSelectedMarkSize(
-				offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime), 
-				LINE6_OFFSET_Y, 
-				menuStr_Space5,
-				NULL, sizeof(menuStr_Space5));
-
-                		Print_StringWithSelectedMark(
-				offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime), 
-				LINE6_OFFSET_Y, 
-				menuStr_Off,
-				attribute, sizeof(menuStr_Off));
-                }
+            {
+				Int2Str(nv_data, str2digit);
+				Print_StringWithSelectedMark(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
+					LINE6_OFFSET_Y,
+					(const u8*)str2digit,
+					attribute, sizeof(str2digit));
+				Print_StringWithSelectedMarkSize(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime) + sizeof(str2digit) +1,
+					LINE6_OFFSET_Y,
+					menuStr_Sec,
+					NULL, 0);
+            }
+            else // print OFF
+            {
+                Print_StringWithSelectedMarkSize(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
+					LINE6_OFFSET_Y,
+					menuStr_Space5,
+					NULL, sizeof(menuStr_Space5));
+                Print_StringWithSelectedMark(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
+					LINE6_OFFSET_Y,
+					menuStr_Off,
+					attribute, strlen(menuStr_Off));
+            }
 			break; 
 
  		case ALARM_ITEM_Y_ALARM_BUZZER_TIME :
 			Read_NvItem_AlarmBuzzerTime(&nv_data);
-			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(
-				offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime), 
-				LINE7_OFFSET_Y, 
-				(const u8*)str2digit,
-				attribute, sizeof(str2digit));
-                        Print_StringWithSelectedMarkSize(
-				offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime) + sizeof(str2digit), 
-				LINE7_OFFSET_Y, 
-				menuStr_Sec,
-				NULL, 0);
+			if(nv_data != 0)
+			{
+				Int2Str(nv_data, str2digit);
+				Print_StringWithSelectedMark(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
+					LINE7_OFFSET_Y,
+					(const u8*)str2digit,
+					attribute, sizeof(str2digit));
+				Print_StringWithSelectedMarkSize(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime) + sizeof(str2digit) + 1,
+					LINE7_OFFSET_Y,
+					menuStr_Sec,
+					NULL, 0);
+			}
+            else // print OFF
+            {
+                Print_StringWithSelectedMarkSize(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
+					LINE7_OFFSET_Y,
+					menuStr_Space5,
+					NULL, sizeof(menuStr_Space5));
+                Print_StringWithSelectedMark(
+					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
+					LINE7_OFFSET_Y,
+					menuStr_Off,
+					attribute, strlen(menuStr_Off));
+            }
+
 			break;
 
  		case ALARM_ITEM_Y_LOSS_BUZZER_TIME:
  			Read_NvItem_VideoLossBuzzerTime(&nv_data);
-			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(
-				offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime), 
-				LINE8_OFFSET_Y, 
-				(const u8*)str2digit, 
-				attribute, sizeof(str2digit));
-                     Print_StringWithSelectedMarkSize(
-				offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime) + sizeof(str2digit), 
-				LINE8_OFFSET_Y, 
-				menuStr_Sec,
-				NULL, 0);
+ 			if(nv_data != 0)
+ 			{
+				Int2Str(nv_data, str2digit);
+				Print_StringWithSelectedMark(
+					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
+					LINE8_OFFSET_Y,
+					(const u8*)str2digit,
+					attribute, sizeof(str2digit));
+						 Print_StringWithSelectedMarkSize(
+					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime) + sizeof(str2digit) + 1,
+					LINE8_OFFSET_Y,
+					menuStr_Sec,
+					NULL, 0);
+ 			}
+ 			else
+ 			{
+                Print_StringWithSelectedMarkSize(
+					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
+					LINE8_OFFSET_Y,
+					menuStr_Space5,
+					NULL, sizeof(menuStr_Space5));
+                Print_StringWithSelectedMark(
+					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
+					LINE8_OFFSET_Y,
+					menuStr_Off,
+					attribute, strlen(menuStr_Off));
+ 			}
 			break; 
 
  		case ALARM_ITEM_Y_REMOCONID:
  			Read_NvItem_RemoconId(&nv_data);
-			Int2Str(nv_data, str2digit);
-			Print_StringWithSelectedMark(
-				offset_x + strlen((char *)menuStr_Alarm_RemoconId), 
-				LINE8_OFFSET_Y, 
-				(const u8*)str2digit, 
-				attribute, sizeof(str2digit));
+ 			if(nv_data != 0)
+ 			{
+				Int2Str(nv_data, str2digit);
+				Print_StringWithSelectedMark(
+					offset_x + strlen((char *)menuStr_Alarm_RemoconId),
+					LINE9_OFFSET_Y,
+					(const u8*)str2digit,
+					attribute, sizeof(str2digit));
+ 			}
+ 			else
+ 			{
+ 				Print_StringWithSelectedMark(
+					offset_x + strlen((char *)menuStr_Alarm_RemoconId),
+					LINE9_OFFSET_Y,
+					menuStr_None,
+					attribute, strlen(menuStr_None));
+ 			}
  			break;
  	}
 }
@@ -1715,7 +1758,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 
     				case ALARM_ITEM_Y_REMOCONID:
     					Read_NvItem_RemoconId(&intData);
-    					IncreaseDecreaseCount(99, 0, inc_dec, &intData);
+    					IncreaseDecreaseCount(99, 1, inc_dec, &intData);
     					Write_NvItem_RemoconId(intData);
     					break;
     			}

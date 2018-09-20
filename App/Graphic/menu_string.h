@@ -14,6 +14,7 @@ const u8 menuStr_Month[] = "MONTH";
 
 const u8 menuStr_ArrowL[]= {0x80,0x00};
 
+const u8 menuStr_None[] = "--";
 const u8 menuStr_Space1[] = " ";
 const u8 menuStr_Space2[] = "  ";
 const u8 menuStr_Space3[] = "   ";
@@ -103,7 +104,7 @@ const u8 menuStr_Alarm_Channel1[] =            "2. CH1 ALARM :     / VIDEO LOSS 
 const u8 menuStr_Alarm_Channel2[] =            "3. CH2 ALARM :     / VIDEO LOSS : ";
 const u8 menuStr_Alarm_Channel3[] =            "4. CH3 ALARM :     / VIDEO LOSS : ";
 const u8 menuStr_Alarm_Channel4[] =            "5. CH4 ALARM :     / VIDEO LOSS : ";
-const u8 menuStr_Alarm_AlarmOutTime[] =        "6. ALARM OUT TIME :";
+const u8 menuStr_Alarm_AlarmOutTime[] =        "6. ALARM OUT TIME : ";
 const u8 menuStr_Alarm_AlarmBuzzerTime[] =     "7. ALARM BUZZER TIME : ";
 const u8 menuStr_Alarm_VideoLossBuzzerTime[] = "8. VIDEO LOSS BUZZER TIME : ";
 const u8 menuStr_Alarm_RemoconId[] =           "9. REMOCON ID : ";
