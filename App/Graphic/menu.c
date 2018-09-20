@@ -1369,7 +1369,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
 	const u16 offset_x = 20;
-	u8* pResolutionStr = NULL;
+	//u8* pResolutionStr = NULL;
 	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
@@ -1383,13 +1383,23 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 			switch(resolution)
 			{
 				case RESOLUTION_1920_1080_60P:
-					pResolutionStr = menuStr_Resolution1920X1080_60P;
+					//pResolutionStr = menuStr_Resolution1920X1080_60P;
+			                Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution), 
+			                    LINE1_OFFSET_Y, 
+			                    menuStr_Resolution1920X1080_60P, 
+			                    attribute, 
+			                    strlen(menuStr_Resolution1920X1080_60P));
 					break;
 				case RESOLUTION_1920_1080_50P:
-					pResolutionStr = menuStr_Resolution1920X1080_50P;
+					//pResolutionStr = menuStr_Resolution1920X1080_50P;
+					Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution), 
+			                    LINE1_OFFSET_Y, 
+			                    menuStr_Resolution1920X1080_50P, 
+			                    attribute, 
+			                    strlen(menuStr_Resolution1920X1080_50P));
+
 					break;
 			}
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution), LINE1_OFFSET_Y, (const u8*)pResolutionStr, attribute, strlen(pResolutionStr));
 			break;
 
 		case DISPLAY_ITEM_Y_OSD_DISPLAY:
