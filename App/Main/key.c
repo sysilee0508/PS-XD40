@@ -369,6 +369,7 @@ void Key_Proc(void)
 	static eKeyData_t previous_keydata = KEY_NONE;
 	eKeyData_t key = GetCurrentKey();
 	BOOL autoSeq_skipNoVideoChannel;
+	eDisplayMode_t displayMode;
 
 
 	if(IsKeyReady()==TRUE)
@@ -395,6 +396,7 @@ void Key_Proc(void)
 					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = key-1;
+					Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -411,6 +413,7 @@ void Key_Proc(void)
 					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
+					Write_NvItem_DisplayMode(DISPLAY_MODE_4SPLIT);
 #if 0 //Louis
 				    SGQ_4CH_INIT(change_mode[cmode]);
 #endif
