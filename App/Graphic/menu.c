@@ -21,8 +21,8 @@
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
-#define	INCREASE			1
-#define	DECREASE			0
+#define	INCREASE					1
+#define	DECREASE					0
 
 #define CHARACTERS_IN_MENU_LINE		MENU_WIDTH / CHAR_WIDTH_E
 #define LINES_IN_MENU				MENU_HEIGHT / CHAR_HEIGHT
@@ -35,13 +35,16 @@
 
 #define UNDER_BAR					0x01
 
-#define TIME_ELEMENT_HOUR					0x01
-#define TIME_ELEMENT_MIN						0x02
-#define TIME_ELEMENT_SEC						0x04
+#define TIME_ELEMENT_HOUR			0x01
+#define TIME_ELEMENT_MIN			0x02
+#define TIME_ELEMENT_SEC			0x04
 
-#define DATE_ELEMENT_YEAR					0x01
-#define DATE_ELEMENT_MONTH     				0x02
-#define DATE_ELEMENT_DAY     				0x04
+#define TIME_STRING_LENGTH			8
+#define DATE_STRING_LENGTH			10
+
+#define DATE_ELEMENT_YEAR			0x01
+#define DATE_ELEMENT_MONTH     		0x02
+#define DATE_ELEMENT_DAY     		0x04
 
 #define LINE0_OFFSET_Y				2
 #define LINE1_OFFSET_Y				5// + 3
@@ -55,6 +58,8 @@
 #define LINE9_OFFSET_Y				21
 
 #define ITEM_X(x)					0x0001 << x
+
+#define TI
 
 // Vertical items of each pages
 enum
@@ -508,135 +513,173 @@ static void MainMenu_Entry(u8 itemY)
 //------------------------------------------------------------------
 //   Time/Date Page Function
 //------------------------------------------------------------------
-static void Print_StringTimeCorrect(u8 pos_x,u8 attribute)
+const sLocationNString_t timeDateMenu[TIMEDATE_ITEM_Y_MAX] =
+{
+		{24, LINE0_OFFSET_Y, menuStr_TimeDate_Title},
+		{17, LINE1_OFFSET_Y, menuStr_TimeDate_Time},
+		{17, LINE2_OFFSET_Y, menuStr_TimeDate_Date},
+		{17, LINE3_OFFSET_Y, menuStr_TimeDate_TimeDisplay},
+		{17, LINE4_OFFSET_Y, menuStr_TimeDate_DateDisplay},
+		{17, LINE5_OFFSET_Y, menuStr_TimeDate_DateFormat},
+		{17, LINE6_OFFSET_Y, menuStr_TimeDate_YearFormat},
+		{17, LINE7_OFFSET_Y, menuStr_TimeDate_TimeCorrection}
+};
+
+static void Print_StringTimeCorrect(u16 itemX,u8 attribute)
 {
 	sTimeCorrect_t timeCorrect;
-	u8 strBuf[2];
-	u16 itemX;
+	u8 offsetStr[2];
+	u8 selectedMark[3];
+//	u16 itemX;
 
-	itemX = ITEM_X(pos_x);
+//	itemX = ITEM_X(pos_x);
 
 	Read_NvItem_TimeCorrect(&timeCorrect);
-	if(itemX & 0x01) //direction
+
+	selectedMark[0] = (itemX & 0x01)?attribute:NULL;
+	selectedMark[1] = (itemX & 0x02)?attribute:NULL;
+	selectedMark[2] = (itemX & 0x04)?attribute:NULL;
+
+	// +/-
+	if(timeCorrect.timeCorrectDirection == DIRECTION_UP) // up --> '+'
 	{
-		if(timeCorrect.timeCorrectDirection == DIRECTION_UP) // up --> '+'
-		{
-			Print_StringWithSelectedMarkSize(35, LINE7_OFFSET_Y, (const u8*)"+", attribute, 1);
-		}
-		else if(timeCorrect.timeCorrectDirection == DIRECTION_DOWN) // down --> '-'
-		{
-			Print_StringWithSelectedMarkSize(35, LINE7_OFFSET_Y, (const u8*)"-", attribute, 1);
-		}
-		else
-		{
-			// Wrong direction
-		}
+		Print_StringWithSelectedMarkSize(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_x + strlen(menuStr_TimeDate_TimeCorrection),
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_y,
+				(const u8*)"+", selectedMark[0], 1);
 	}
-	if(itemX & 0x02) //offset
+	else if(timeCorrect.timeCorrectDirection == DIRECTION_DOWN) // down --> '-'
 	{
-		Int2Str(timeCorrect.timeCorrecOffset, strBuf);
-		Print_StringWithSelectedMark(36, LINE7_OFFSET_Y, strBuf, attribute, 2);
+		Print_StringWithSelectedMarkSize(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_x + strlen(menuStr_TimeDate_TimeCorrection),
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_y,
+				(const u8*)"-", selectedMark[0], 1);
 	}
-	
-	if(itemX & 0x04) // unit
+	// offset
+	Int2Str(timeCorrect.timeCorrecOffset, offsetStr);
+	Print_StringWithSelectedMark(
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_x + strlen(menuStr_TimeDate_TimeCorrection) + 1,
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_y,
+			offsetStr, selectedMark[1], sizeof(offsetStr));
+	// unit
+	if(timeCorrect.timeCorrectUint == TIME_UNIT_MONTH)
 	{
-		if(timeCorrect.timeCorrectUint == TIME_UNIT_MONTH)
-		{
-			Print_StringWithSelectedMark(42, LINE7_OFFSET_Y, menuStr_Month, attribute, strlen(menuStr_Month));
-		}
-		else if(timeCorrect.timeCorrectUint == TIME_UNIT_DAY)
-		{
-			Print_StringWithSelectedMarkSize(42, LINE7_OFFSET_Y, menuStr_Space6, NULL, 0);
-			Print_StringWithSelectedMark(42, LINE7_OFFSET_Y, menuStr_Day, attribute, strlen(menuStr_Day));
-		}
+		Print_StringWithSelectedMark(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_x + strlen(menuStr_TimeDate_TimeCorrection) + 1 + sizeof(offsetStr),
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_y,
+				menuStr_Month,
+				attribute, strlen(menuStr_Month));
+	}
+	else if(timeCorrect.timeCorrectUint == TIME_UNIT_DAY)
+	{
+		Print_StringWithSelectedMarkSize(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_x + strlen(menuStr_TimeDate_TimeCorrection) + 1 + sizeof(offsetStr),
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_y,
+				menuStr_Space6, NULL, strlen(menuStr_Space6));
+		Print_StringWithSelectedMark(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_x + strlen(menuStr_TimeDate_TimeCorrection) + 1 + sizeof(offsetStr),
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_y,
+				menuStr_Day, selectedMark[2], strlen(menuStr_Day));
 	}
 }
 
-static void Print_StringTime(u8 pos_x,u8 attribute,BOOL forcedUpdate)
+static void Print_StringTime(u16 itemX, u8 attribute)
 {
-	static sTimeDateBCD_t oldTimeDate = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-	static sTimeDateBCD_t time;
-	u8 offset_x = 27;
-	u8 strBuf[2] = {0, 0};
-	u16 itemX;
-	//static u8 old_rtc_hour = 0xff, old_rtc_min = 0xff, old_rtc_sec = 0xff;
+	static sTimeDateBCD_t currentTime;
+	u8 hourStr[2], minStr[2], secStr[2];
+	u8 timeStr[TIME_STRING_LENGTH];
+	char* pStr;
+
+	GetTimeDateInBCD(&currentTime);
+	Bcd2Str(currentTime.hour, hourStr);
+	Bcd2Str(currentTime.min, minStr);
+	Bcd2Str(currentTime.sec, secStr);
+
+	pStr = (char *)timeStr;
+	strncpy(pStr, (const char *)hourStr, sizeof(hourStr));
+	pStr += 2;
+	strncpy(pStr, ":", 1);
+	pStr++;
+	strncpy(pStr, (const char *)minStr, sizeof(minStr));
+	pStr += 2;
+	strncpy(pStr, ":", 1);
+	pStr++;
+	strncpy(pStr, (const char *)secStr, sizeof(secStr));
 	
-	GetTimeDateInBCD(&time);
-	itemX = ITEM_X(pos_x);
+	Print_StringWithSelectedMark(
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time),
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+			(const u8*)timeStr,
+			NULL, strlen(timeStr));
 
 	if(itemX & TIME_ELEMENT_HOUR == TIME_ELEMENT_HOUR)
 	{
-		if(forcedUpdate == 1 || oldTimeDate.hour != time.hour)
-    	{
-			oldTimeDate.hour = time.hour;
-			Bcd2Str(time.hour, strBuf);
-			Print_StringWithSelectedMark(offset_x, LINE1_OFFSET_Y, strBuf, attribute, strlen(strBuf));
-//			Print_StringWithSelectedMarkSize(29,5,cSEMICOL1,NULL,0);
-		}	
+		Print_StringWithSelectedMark(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time),
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+				hourStr, attribute, sizeof(hourStr));
+
 	}
 	if(itemX & TIME_ELEMENT_MIN == TIME_ELEMENT_MIN)
 	{
-		if(forcedUpdate == 1 || oldTimeDate.min != time.min)
-    	{
-			oldTimeDate.min = time.min;
-			Bcd2Str(time.min, strBuf);
-			Print_StringWithSelectedMark(offset_x+3, LINE1_OFFSET_Y, strBuf, attribute, strlen(strBuf));
-//			Print_StringWithSelectedMarkSize(32,5,cSEMICOL1,NULL,0);
-		}
+		Print_StringWithSelectedMark(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + sizeof(hourStr) + 1,
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+				minStr, attribute, sizeof(minStr));
 	}
 	if(itemX & TIME_ELEMENT_SEC == TIME_ELEMENT_SEC)
 	{
-		if(forcedUpdate == 1 || oldTimeDate.sec != time.sec)
-    	{
-			oldTimeDate.sec = time.sec;
-			Bcd2Str(time.sec, strBuf);
-			Print_StringWithSelectedMark(offset_x+6, LINE1_OFFSET_Y, strBuf, attribute, strlen(strBuf));
-		}
+		Print_StringWithSelectedMark(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + sizeof(hourStr) + sizeof(minStr) + 2,
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+				secStr, attribute, strlen(secStr));
 	}
 }
 
-static void Print_StringDate(u8 pos_x,u8 attribute,u8 forcedUpdate)
+static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 {
-	static sTimeDateBCD_t oldTimeDate = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 	static sTimeDateBCD_t date;
-	u8 offset_x;
-	u8 strBuf[2];
-	u16 itemX;
+	u8 yearStr[4] = {'2','0',}, monthStr[2], dayStr[2];
+	u8 dateStr[DATE_STRING_LENGTH] = {'2','0',};
+	char* pStr;
 
 	GetTimeDateInBCD(&date);
-	itemX = ITEM_X(pos_x);
+	Bcd2Str(date.year, yearStr+2);
+	Bcd2Str(date.month, monthStr);
+	Bcd2Str(date.day, dayStr);
 
-	if(itemX & DATE_ELEMENT_YEAR)
+	pStr = (char *)dateStr;
+	strncpy(pStr, (const char *)yearStr, sizeof(yearStr));
+	pStr += 2;
+	strncpy(pStr, "-", 1);
+	pStr++;
+	strncpy(pStr, (const char *)monthStr, sizeof(monthStr));
+	pStr += 2;
+	strncpy(pStr, "-", 1);
+	pStr++;
+	strncpy(pStr, (const char *)dayStr, sizeof(dayStr));
+
+	if(itemX & DATE_ELEMENT_YEAR == DATE_ELEMENT_YEAR)
 	{
-		if(forcedUpdate == 1 || oldTimeDate.year != date.year)
-		{
-			oldTimeDate.year = date.year;
-			offset_x = 27;
-			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, (const u8*)"20", attribute, 2);
-			Bcd2Str(date.year, strBuf);
-			offset_x += 2;
-			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, (const u8*)strBuf, attribute, strlen(strBuf));
-		}
+		Print_StringWithSelectedMarkSize(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time),
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+				yearStr, attribute, sizeof(yearStr));
+
 	}
-	if(itemX & DATE_ELEMENT_MONTH)
+	if(itemX & DATE_ELEMENT_MONTH == DATE_ELEMENT_MONTH)
 	{
-		if(forcedUpdate == 1 || oldTimeDate.month != date.month)
-		{
-			oldTimeDate.month = date.month;
-			offset_x = 31;
-			Bcd2Str(date.month, strBuf);
-			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, (const u8*)strBuf, attribute, strlen(strBuf));
-		}
+		Print_StringWithSelectedMarkSize(
+				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + sizeof(yearStr) + 1,
+				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
+				monthStr, attribute, sizeof(monthStr));
 	}
-	if(itemX & DATE_ELEMENT_DAY)
+	if(itemX & DATE_ELEMENT_DAY == DATE_ELEMENT_DAY)
 	{
-		if(forcedUpdate == 1 || oldTimeDate.day != date.day)
-		{
-			oldTimeDate.day = date.day;
-			offset_x = 34;
-			Bcd2Str(date.day, strBuf);
-			Print_StringWithSelectedMark(offset_x, LINE2_OFFSET_Y, (const u8*)strBuf, attribute, strlen(strBuf));
-		}
+		Print_StringWithSelectedMarkSize(
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + sizeof(yearStr) + sizeof(monthStr) + 2,
+				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+				dayStr, attribute, strlen(dayStr));
 	}
 }  
 
@@ -658,15 +701,25 @@ static void Print_StringDateFormat(u8 attribute)
 	switch(format)
 	{
 		case DATE_FORMAT_YMD:	//ASIA
-			Print_StringWithSelectedMarkSize(35, LINE5_OFFSET_Y, menuStr_Asia, attribute, 4);
+			Print_StringWithSelectedMarkSize(
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_DateFormat),
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_y, menuStr_Asia, attribute, 4);
 			break;
 
 		case DATE_FORMAT_MDY:	//USA
-			Print_StringWithSelectedMarkSize(35, LINE5_OFFSET_Y, menuStr_Usa, attribute, 3);
+			Print_StringWithSelectedMarkSize(
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_DateFormat),
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_y,
+					menuStr_Space4, attribute, strlen((char*)menuStr_Space4));
+			Print_StringWithSelectedMarkSize(
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_DateFormat),
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_y, menuStr_Usa, attribute, 3);
 			break;
 
 		case DATE_FORMAT_DMY:	//EURO
-			Print_StringWithSelectedMarkSize(35, LINE5_OFFSET_Y, menuStr_Euro, attribute, 4);
+			Print_StringWithSelectedMarkSize(
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_DateFormat),
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_y, menuStr_Euro, attribute, 4);
 			break;
 	}
 }
@@ -685,7 +738,9 @@ static void Print_StringYearFormat(u8 attribute)
 	{
 		strNum = '4';
 	}
-	Print_StringWithSelectedMarkSize(35, LINE6_OFFSET_Y, (const u8*)strNum, attribute, 1);
+	Print_StringWithSelectedMarkSize(
+			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_YearFormat),
+			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_y, (const u8*)&strNum, attribute, 1);
 }
 //
 //static void Print_StringTimeDatePosition(u8 attribute)
@@ -710,38 +765,30 @@ static void Print_StringYearFormat(u8 attribute)
 //	}
 //	Print_StringWithSelectedMark(44, 15, pStr, attribute, strlen(pStr));
 //}
-static void TimeDatePage_UpdatePage(u8 pos_x, u8 itemY)
+
+static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY)
 {
 	BOOL timeDisplay, dateDisplay;
-	u8 attribute;
+	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
-	if(requestEnterKeyProc == SET)
-	{
-		attribute = UNDER_BAR;
-	}
-	else
-	{
-		attribute = NULL;
-	}
-
- 	switch(itemY)
+	switch(itemY)
  	{
  	    case TIMEDATE_ITEM_Y_TIME:
- 	    	Print_StringTime(pos_x, attribute, 1);
+ 	    	Print_StringTime(itemX, attribute);
 			break;
 
  	    case TIMEDATE_ITEM_Y_DATE :
-			Print_StringDate(pos_x, attribute, 1);
+			Print_StringDate(itemX, attribute);
 			break;
 
  	    case TIMEDATE_ITEM_Y_TIME_DISPLAY:
  	    	Read_NvItem_TimeDisplayOn(&timeDisplay);
- 	    	Print_StringOnOff(39, LINE3_OFFSET_Y, attribute, timeDisplay);
+ 	    	Print_StringOnOff(timeDateMenu[itemY].offset_x + strlen((char *)menuStr_TimeDate_TimeDisplay), timeDateMenu[itemY].offset_y, attribute, timeDisplay);
  	    	break;
 
  	    case TIMEDATE_ITEM_Y_DATE_DISPALY :
  	    	Read_NvItem_DateDisplayOn(&dateDisplay);
- 	    	Print_StringOnOff(39, LINE4_OFFSET_Y, attribute, dateDisplay);
+ 	    	Print_StringOnOff(timeDateMenu[itemY].offset_x + strlen((char *)menuStr_TimeDate_DateDisplay), timeDateMenu[itemY].offset_y, attribute, dateDisplay);
  	    	break;
 
  		case  TIMEDATE_ITEM_Y_DATE_FORMAT:
@@ -755,29 +802,19 @@ static void TimeDatePage_UpdatePage(u8 pos_x, u8 itemY)
  			break;
 
  		case TIMEDATE_ITEM_Y_TIME_CORRECTION:
- 			Print_StringTimeCorrect(pos_x,attribute);
+ 			Print_StringTimeCorrect(itemX, attribute);
  			break;
 	}
 }
 
 static void TimeDatePage_Entry(void)
 {   
-	const sLocationNString_t timeDate[TIMEDATE_ITEM_Y_MAX] =
-	{
-			{24, LINE0_OFFSET_Y, menuStr_TimeDate_Title},
-			{17, LINE1_OFFSET_Y, menuStr_TimeDate_Time},
-			{17, LINE2_OFFSET_Y, menuStr_TimeDate_Date},
-			{17, LINE3_OFFSET_Y, menuStr_TimeDate_TimeDisplay},
-			{17, LINE4_OFFSET_Y, menuStr_TimeDate_DateDisplay},
-			{17, LINE5_OFFSET_Y, menuStr_TimeDate_DateFormat},
-			{17, LINE6_OFFSET_Y, menuStr_TimeDate_YearFormat},
-			{17, LINE7_OFFSET_Y, menuStr_TimeDate_TimeCorrection}
-	};
 	u8 index = 0;
 	BOOL timeDisplayOn, dateDisplayOn;
 
 	currentPage = MENU_PAGE_TIME_DATE;
 	Erase_AllMenuScreen();
+	requestEnterKeyProc = CLEAR;
 
 	DrawSelectMark(TIMEDATE_ITEM_Y_TIME);
 	Read_NvItem_TimeDisplayOn(&timeDisplayOn);
@@ -785,25 +822,9 @@ static void TimeDatePage_Entry(void)
 	// display items of this page
 	for(index = 0; index < TIMEDATE_ITEM_Y_MAX; index++)
 	{
-		Print_StringWithSelectedMarkSize(timeDate[index].offset_x, timeDate[index].offset_y, timeDate[index].str, NULL, 0);
+		Print_StringWithSelectedMarkSize(timeDateMenu[index].offset_x, timeDateMenu[index].offset_y, timeDateMenu[index].str, NULL, 0);
+		TimeDatePage_UpdatePage(ITEM_X(0), index);
 	}
-
-    Print_StringTime(TIME_ELEMENT_HOUR | TIME_ELEMENT_MIN | TIME_ELEMENT_SEC, NULL, 1);
-    Print_StringDate(DATE_ELEMENT_YEAR | DATE_ELEMENT_MONTH | DATE_ELEMENT_DAY , NULL, 1);
-	Print_StringOnOff(
-			timeDate[TIMEDATE_ITEM_Y_TIME_DISPLAY].offset_x + strlen(menuStr_TimeDate_TimeDisplay),
-			timeDate[TIMEDATE_ITEM_Y_TIME_DISPLAY].offset_y,
-			NULL,
-			timeDisplayOn);
-	Print_StringOnOff(
-			timeDate[TIMEDATE_ITEM_Y_DATE_DISPALY].offset_x + strlen(menuStr_TimeDate_DateDisplay),
-			timeDate[TIMEDATE_ITEM_Y_DATE_DISPALY].offset_y,
-			NULL,
-			dateDisplayOn);
-	Print_StringDateFormat(NULL);
-	Print_StringYearFormat(NULL);
-	Print_StringTimeCorrect(0x01|0x02|0x04,NULL);
-//	Print_StringTimeDatePosition(NULL);
 }
 
 static void TimeDatePage_KeyHandler(eKeyData_t key)
@@ -829,53 +850,52 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 				switch(itemY)
 				{
 					case TIMEDATE_ITEM_Y_TIME:
-						itemX = ITEM_X(pos_x);
+//						itemX = ITEM_X(pos_x);
 						GetTimeDateInBCD(&rtcTimeInBCD);
-						if(itemX == ITEM_X(0))
+						switch(pos_x)
 						{
-							IncreaseDecreaseBcd(23, 0, inc_dec, &rtcTimeInBCD.hour);
+							case 0://hour
+								Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
+								IncreaseDecreaseCount(23, 0, inc_dec, &rtcTime.hour);
+								break;
+							case 1://min
+								Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
+								IncreaseDecreaseCount(59, 0, inc_dec, &rtcTime.min);
+								break;
+							case 2://sec
+								Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
+								IncreaseDecreaseBcd(59, 0, inc_dec, &rtcTime.sec);
+								break;
 						}
-						if(itemX == ITEM_X(1))
-						{
-							IncreaseDecreaseBcd(59 , 0, inc_dec, &rtcTimeInBCD.min);
-						}
-						if(itemX == ITEM_X(2))
-						{
-							IncreaseDecreaseBcd(59, 0, inc_dec, &rtcTimeInBCD.sec);
-						}
-
 						Bcd2Int(rtcTimeInBCD.year, &rtcTime.year);
 						Bcd2Int(rtcTimeInBCD.month, &rtcTime.month);
-						rtcTime.month--;
+//						rtcTime.month--;
 						Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
-						rtcTime.day--;
-						Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
-						Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
-						Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
+//						rtcTime.day--;
+//						Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
+//						Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
+//						Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
 					    RTC_ChangeCount(&rtcTime);
 						break;
 
 					case TIMEDATE_ITEM_Y_DATE:
-						itemX = ITEM_X(pos_x);
+//						itemX = ITEM_X(pos_x);
 						GetTimeDateInBCD(&rtcTimeInBCD);
-						if(itemX == ITEM_X(0))
+						switch(pos_x)
 						{
-							IncreaseDecreaseBcd(99, 0, inc_dec, &rtcTimeInBCD.year);
+							case 0://year
+								Bcd2Int(rtcTimeInBCD.year, &rtcTime.year);
+								IncreaseDecreaseCount(99, 0, inc_dec, &rtcTime.year);
+								break;
+							case 1://month
+								Bcd2Int(rtcTimeInBCD.month, &rtcTime.month);
+								IncreaseDecreaseCount(12, 0, inc_dec, &rtcTime.month);
+								break;
+							case 2://day
+								Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
+								IncreaseDecreaseBcd(GetDayofMonth(rtcTime.month), 0, inc_dec, &rtcTime.day);
+								break;
 						}
-						else if(itemX == ITEM_X(1))
-						{
-							IncreaseDecreaseBcd(12, 1, inc_dec, &rtcTimeInBCD.month);
-						}
-						else if(itemX == ITEM_X(2))
-						{
-							IncreaseDecreaseBcd(31, 1, inc_dec, &rtcTimeInBCD.day);
-						}
-
-						Bcd2Int(rtcTimeInBCD.year, &rtcTime.year);
-						Bcd2Int(rtcTimeInBCD.month, &rtcTime.month);
-						rtcTime.month--;
-						Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
-						rtcTime.day--;
 						Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
 						Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
 						Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
@@ -907,34 +927,34 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						break;
 
 					case TIMEDATE_ITEM_Y_TIME_CORRECTION:
-						itemX = ITEM_X(pos_x);
+//						itemX = ITEM_X(pos_x);
 						Read_NvItem_TimeCorrect(&timeCorrect);
-		               	if(itemX == ITEM_X(0))
-		               	{
-		               		if(timeCorrect.timeCorrectDirection == DIRECTION_UP)
-		               		{
-		               			timeCorrect.timeCorrectDirection = DIRECTION_DOWN;
-		               		}
-		               		else if(timeCorrect.timeCorrectDirection == DIRECTION_DOWN)
-		               		{
-		               			timeCorrect.timeCorrectDirection = DIRECTION_UP;
-		               		}
-		               	}
-						if(itemX == ITEM_X(1))
+						switch(pos_x)
 						{
-							IncreaseDecreaseBcd(59,0,inc_dec,&timeCorrect.timeCorrecOffset);
+							case 0: //direction
+			               		if(timeCorrect.timeCorrectDirection == DIRECTION_UP)
+			               		{
+			               			timeCorrect.timeCorrectDirection = DIRECTION_DOWN;
+			               		}
+			               		else if(timeCorrect.timeCorrectDirection == DIRECTION_DOWN)
+			               		{
+			               			timeCorrect.timeCorrectDirection = DIRECTION_UP;
+			               		}
+			               		break;
+							case 1: //offset
+								IncreaseDecreaseCount(59,0,inc_dec,&timeCorrect.timeCorrecOffset);
+								break;
+							case 2: //unit
+						    	if(timeCorrect.timeCorrectUint == TIME_UNIT_DAY)
+								{
+									timeCorrect.timeCorrectUint = TIME_UNIT_MONTH;
+								}
+								else if(timeCorrect.timeCorrectUint == TIME_UNIT_MONTH)
+								{
+									timeCorrect.timeCorrectUint = TIME_UNIT_DAY;
+								}
+						    	break;
 						}
-					    if(itemX == ITEM_X(2))
-					    {
-					    	if(timeCorrect.timeCorrectUint == TIME_UNIT_DAY)
-							{
-								timeCorrect.timeCorrectUint = TIME_UNIT_MONTH;
-							}
-							else if(timeCorrect.timeCorrectUint == TIME_UNIT_MONTH)
-							{
-								timeCorrect.timeCorrectUint = TIME_UNIT_DAY;
-							}
-					    }
 					    Write_NvItem_TimeCorrect(timeCorrect);
 						break;
 				}
@@ -944,10 +964,6 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			{
 				IncreaseDecreaseCount(7, 1, inc_dec, &itemY);
 				DrawSelectMark(itemY);
-//				if(!itemY)
-//				{
-//					Print_StringDate(DATE_ELEMENT_YEAR|DATE_ELEMENT_MONTH|DATE_ELEMENT_DAY, NULL, 0);
-//				}
 			}
 			break;
 
@@ -956,30 +972,13 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 		case KEY_LEFT  :
 			if(requestEnterKeyProc)
 			{
-			  	if(itemY == TIMEDATE_ITEM_Y_TIME)
+				Toggle(requestEnterKeyProc);
+			  	if((itemY == TIMEDATE_ITEM_Y_TIME) ||
+			  			(itemY == TIMEDATE_ITEM_Y_DATE) ||
+						(itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION))
 				{
-			  		requestEnterKeyProc = CLEAR;
 					TimeDatePage_UpdatePage(pos_x, itemY);
 					IncreaseDecreaseCount(2, 0,inc_dec, &pos_x);
-//					itemX = ITEM_X(pos_x);
-					requestEnterKeyProc = SET;
-					TimeDatePage_UpdatePage(pos_x, itemY);
-				}
-			  	else if(itemY == TIMEDATE_ITEM_Y_DATE)
-				{
-			  		requestEnterKeyProc = CLEAR;
-					TimeDatePage_UpdatePage(pos_x, itemY);
-					IncreaseDecreaseCount(2, 0, inc_dec, &pos_x);
-//					itemX = ITEM_X(pos_x);
-					requestEnterKeyProc = SET;
-					TimeDatePage_UpdatePage(pos_x, itemY);
-				}
-				else if(itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION)
-				{
-					requestEnterKeyProc = CLEAR;
-					TimeDatePage_UpdatePage(pos_x, itemY);
-					IncreaseDecreaseCount(2, 0, inc_dec, &pos_x);
-//					itemX = ITEM_X(pos_x);
 					requestEnterKeyProc = SET;
 					TimeDatePage_UpdatePage(pos_x, itemY);
 				}
@@ -1225,28 +1224,28 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 				        menuStr_Space6, 
 				        NULL, strlen(menuStr_Space6));
 				Print_StringWithSelectedMark(
-                                    20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1),
-                                    LINE1_OFFSET_Y + ((itemY-1) * 2),
-                                    menuStr_Off, 
-                                    attribute, strlen(menuStr_Off));
+						20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1),
+						LINE1_OFFSET_Y + ((itemY-1) * 2),
+						menuStr_Off,
+						attribute, strlen(menuStr_Off));
 			}
 			else
 			{
 				Int2Str(displayTime[itemY-1], displayTimeInStr);
-                 Print_StringWithSelectedMarkSize(
-					20 + strlen((char *)menuStr_AutoSeq_DisplayTime_Ch1),
-					LINE1_OFFSET_Y + ((itemY-1) * 2),
-					menuStr_Space3,
-					NULL, strlen(menuStr_Space3));
+				Print_StringWithSelectedMarkSize(
+						20 + strlen((char *)menuStr_AutoSeq_DisplayTime_Ch1),
+						LINE1_OFFSET_Y + ((itemY-1) * 2),
+						menuStr_Space3,
+						NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
-                                    20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1), 
-                                    LINE1_OFFSET_Y + ((itemY-1) * 2), 
-                                    (const u8*)displayTimeInStr, 
-                                    attribute, sizeof(displayTimeInStr));
+						20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1),
+						LINE1_OFFSET_Y + ((itemY-1) * 2),
+						(const u8*)displayTimeInStr,
+						attribute, sizeof(displayTimeInStr));
 				Print_StringWithSelectedMarkSize(20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1) + 3, 
-                                    LINE1_OFFSET_Y + ((itemY-1) * 2),
-                                    menuStr_Sec, 
-                                    NULL, strlen(menuStr_Sec));
+						LINE1_OFFSET_Y + ((itemY-1) * 2),
+						menuStr_Sec,
+						NULL, strlen(menuStr_Sec));
 			}
     		break;
 
@@ -1369,23 +1368,6 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 // Display Page Function
 //------------------------------------------------------------------
-//static void ConvertResolutionOption2String(u8* str)
-//{
-//	eResolution_t resolution;
-//
-//	Read_NvItem_Resolution(&resolution);
-//	switch(resolution)
-//	{
-//		case RESOLUTION_1920_1080_60P:
-//			str = (u8 *)menuStr_Resolution1920X1080_60P;
-//			break;
-//
-//		case RESOLUTION_1920_1080_50P:
-//			str = (u8 *)menuStr_Resolution1920X1080_50P;
-//			break;
-//	}
-//}
-
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
 	const u16 offset_x = 20;
@@ -1399,25 +1381,21 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 	{
 		case DISPLAY_ITEM_Y_RESOLUTION:
 			Read_NvItem_Resolution(&resolution);
-//			ConvertResolutionOption2String(pResolutionStr);
 			switch(resolution)
 			{
 				case RESOLUTION_1920_1080_60P:
-					//pResolutionStr = menuStr_Resolution1920X1080_60P;
-			                Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution), 
-			                    LINE1_OFFSET_Y, 
-			                    menuStr_Resolution1920X1080_60P, 
-			                    attribute, 
-			                    strlen(menuStr_Resolution1920X1080_60P));
+					Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution),
+						LINE1_OFFSET_Y,
+						menuStr_Resolution1920X1080_60P,
+						attribute,
+						strlen(menuStr_Resolution1920X1080_60P));
 					break;
 				case RESOLUTION_1920_1080_50P:
-					//pResolutionStr = menuStr_Resolution1920X1080_50P;
 					Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution), 
-			                    LINE1_OFFSET_Y, 
-			                    menuStr_Resolution1920X1080_50P, 
-			                    attribute, 
-			                    strlen(menuStr_Resolution1920X1080_50P));
-
+							LINE1_OFFSET_Y,
+							menuStr_Resolution1920X1080_50P,
+							attribute,
+							strlen(menuStr_Resolution1920X1080_50P));
 					break;
 			}
 			break;
@@ -2129,9 +2107,7 @@ void DisplayTimeInMenu(void)
 	if((currentPage == MENU_PAGE_TIME_DATE) && (RTC_GetDisplayTimeStatus() == SET))
 	{
 		RTC_ChangeDisplayTimeStatus(CLEAR);
-		TimeDatePage_UpdatePage(0, TIMEDATE_ITEM_Y_TIME);
-		TimeDatePage_UpdatePage(1, TIMEDATE_ITEM_Y_TIME);
-		TimeDatePage_UpdatePage(2, TIMEDATE_ITEM_Y_TIME);
+		Print_StringTime(0x00, NULL);
 	}
 }
 

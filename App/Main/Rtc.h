@@ -36,5 +36,6 @@ extern void RTC_ChangeRtcTimeStatus(BOOL set);
 extern BOOL RTC_GetRtcTimeStatus(void);
 extern void RTC_ChangeDisplayTimeStatus(BOOL set);
 extern BOOL RTC_GetDisplayTimeStatus(void);
+extern BYTE GetDayofMonth(BYTE month);
 
 #endif

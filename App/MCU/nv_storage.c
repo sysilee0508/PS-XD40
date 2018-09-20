@@ -106,9 +106,9 @@ static void LoadDefaultNvData(void)
 	nv_data.data.storageEndCheck = NVSTORAGE_END_CHECK;
 
 	nv_data.data.nvVersion.major = NV_VERSION_MAJOR;
-       nv_data.data.nvVersion.minor = NV_VERSION_MINOR;
+	nv_data.data.nvVersion.minor = NV_VERSION_MINOR;
 	nv_data.data.fwVersion.major = FW_VERSION_MAJOR;
-       nv_data.data.fwVersion.minor = FW_VERSION_MINOR;
+	nv_data.data.fwVersion.minor = FW_VERSION_MINOR;
        
 	nv_data.data.timeCorrection.timeCorrecOffset = 0;
 	nv_data.data.timeCorrection.timeCorrectDirection = DIRECTION_UP;

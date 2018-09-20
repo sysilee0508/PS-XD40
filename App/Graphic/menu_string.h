@@ -38,6 +38,9 @@ const u8 menuStr_BottomLeft[] = "BOTTOM-LEFT";
 const u8 menuStr_BottomCenter[] = "BOTTOM-CENTER";
 const u8 menuStr_BottomRight[] = "BOTTOM-RIGHT";
 
+//const u8 menuStr_Semicolon[] = ":";
+//const u8 menuStr_dash[] = "-";
+
 const u8 menuStr_Asia[] = "ASIA (yyyy-mm-dd)";
 const u8 menuStr_Usa[] = "USA (mm-dd-yyyy)";
 const u8 menuStr_Euro[] = "EURO (dd-mm-yyyy)";
@@ -66,13 +69,13 @@ const u8 menuStr_MainMenu_DeviceInfo[] =      "7. DEVICE INFO";
 
 // Time/Date
 const u8 menuStr_TimeDate_Title[] =          "-- TIME / DATE --";
-const u8 menuStr_TimeDate_Time[] =           "1. TIME : hh:mm:ss (HH:MM:SS)";
-const u8 menuStr_TimeDate_Date[] =           "2. DATE : yyyy-mm-dd (YYYY-MM-DD)";
+const u8 menuStr_TimeDate_Time[] =           "1. TIME : ";//hh:mm:ss (HH:MM:SS)";
+const u8 menuStr_TimeDate_Date[] =           "2. DATE : ";//yyyy-mm-dd (YYYY-MM-DD)";
 const u8 menuStr_TimeDate_TimeDisplay[] =    "3. TIME DISPLAY : ";
 const u8 menuStr_TimeDate_DateDisplay[] =    "4. DATE DISPALY : ";
 const u8 menuStr_TimeDate_DateFormat[] =     "5. DATE FORMAT : ";
-const u8 menuStr_TimeDate_YearFormat[] =     "6. YEAR FORMAT : X DIGIT";
-const u8 menuStr_TimeDate_TimeCorrection[] = "7. TIME CORRECTION : +00 SEC/DAY";
+const u8 menuStr_TimeDate_YearFormat[] =     "6. YEAR FORMAT : ";//DIGIT";
+const u8 menuStr_TimeDate_TimeCorrection[] = "7. TIME CORRECTION : ";
 
 // Camera Title
 const u8 menuStr_CamaraTitle_Title[] =        "-- CAMERAR TITLE --";

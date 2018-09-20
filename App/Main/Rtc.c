@@ -236,6 +236,7 @@ void Time_Read(void)
 
 void GetTimeDateInBCD(sTimeDateBCD_t* pData)
 {
+	TimeRead();
 	memcpy(pData, &rtcTimeDate, sizeof(rtcTimeDate));
 }
 
@@ -257,4 +258,19 @@ void RTC_ChangeDisplayTimeStatus(BOOL set)
 BOOL RTC_GetDisplayTimeStatus(void)
 {
 	return updateDisplayTime;
+}
+
+BYTE GetDayofMonth(BYTE month)
+{
+	BYTE days = 31;
+
+	if(month == 2)
+	{
+		days = 28;
+	}
+	else if((month == 4) || (month == 6) || (month == 9) || (month == 11))
+	{
+		days = 30;
+	}
+	return days;
 }
