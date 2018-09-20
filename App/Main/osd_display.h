@@ -10,6 +10,15 @@
 #define DISPLAY_WIDTH_1920X1080				1920
 #define DISPLAY_HEIGHT_1920x1080			1080
 
+#define DISPLAY_WIDTH 						DISPLAY_WIDTH_1920X1080
+#define DISPLAY_HEIGHT						DISPLAY_HEIGHT_1920x1080
+
+#define DISPLAY_HALF_WIDTH 					(DISPLAY_WIDTH/2)	//960
+#define DISPLAY_HALF_HEIGHT					(DISPLAY_HEIGHT/2)	//520
+#define DISPLAY_QUAD_WIDTH					(DISPLAY_WIDTH/4)	//480
+#define DISPLAY_QUAD_HEIGHT					(DISPLAY_HEIGHT/4)	//260
+
+
 //-----------------------------------------------------------------
 // type definitions - struct/enum/etc
 //-----------------------------------------------------------------

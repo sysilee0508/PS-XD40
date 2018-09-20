@@ -1,4 +1,5 @@
 #include "common.h"
+#include "osd_string.h"
 
 #define NUM_OF_POSITION					6
 #define MARGIN_X						2
@@ -19,11 +20,16 @@ struct osd_location osd_freeze_autoseq_location_buf;
 
 static const sPosition_t tbl_OSD_SPLIT4_POSITION_1920x1080[NUM_OF_CHANNEL][NUM_OF_POSITION] =
 {
-//  TopLeft		TopCenter		TopRight    	BottomLeft		BottomCenter	BottomRight
-	{{0, 0},  	{480, 0},		{960, 0},		{0, 540},		{480, 540},		{960, 540}},	//CH01
-	{{960, 0}, 	{1440, 0},		{1920, 0},		{960, 540},		{1440, 540},	{1920, 540}},	//CH02
-	{{0, 540},  {480, 540},		{960, 540},		{0,1080},		{480,1080},		{960,1080}},	//CH03
-	{{960, 540}, {1440, 540},  	{1920, 540},	{960,1080},		{1440,1080},	{1920,1080}}	//CH04
+//  TopLeft					TopCenter		TopRight
+//			BottomLeft		BottomCenter	BottomRight
+	{{0, 0},		{480, 0},		{960, 0},
+			{0, 540},		{480, 540},		{960, 540}},	//CH01
+	{{960, 0},		{1440, 0},		{1920, 0},
+			{960, 540},		{1440, 540},	{1920, 540}},	//CH02
+	{{0, 540},		{480, 540},		{960, 540},
+			{0,1080},		{480,1080},		{960,1080}},	//CH03
+	{{960, 540},	{1440, 540},  	{1920, 540},
+			{960,1080},		{1440,1080},	{1920,1080}}	//CH04
 };
 
 //static const u16 tblTimeDisplayLoc_X[TIME_POSITION_MAX] =
@@ -34,23 +40,6 @@ static const sPosition_t tbl_OSD_SPLIT4_POSITION_1920x1080[NUM_OF_CHANNEL][NUM_O
 //};
 
 BYTE changedDisplayMode = CLEAR;
-BYTE str_Blank[] = "            ";
-//-----------------------------------------------------------------------------
-const u8 str_Freeze[] 		= "FREEZE  ";
-const u8 str_Freeze2[] 		= "FREEZE";
-const u8 str_Freeze3[] 		= "  FREEZE";
-const u8 str_Freeze_BLK[] 	= "        ";
-const u8 str_Freeze_BLK2[] 	= "      ";
-//-----------------------------------------------------------------------------
-const u8 str_AUTO[] = "AUTO  ";
-const u8 str_AUTO2[] = "AUTO";
-const u8 str_AUTO3[] = "  AUTO";
-const u8 str_AUTO_BLK[] = "      ";
-const u8 str_AUTO_BLK2[] = "    ";
-//-----------------------------------------------------------------------------
-const u8 str_NO_VIDEO[]= "VIDEO LOSS";
-const u8 str_NO_VIDEO_Blk[]= "          ";
-
 
 //-----------------------------------------------------------------------------
 // static Functions
@@ -555,9 +544,11 @@ static void OSD_Display_Video_Loss(void)
 			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 			{
 				position[channel].pos_x =
-						tbl_OSD_SPLIT4_POSITION_1920x1080[channel] - (strlen(str_NO_VIDEO)*CHAR_WIDTH_E)/2;
+						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER] -
+						(strlen(str_NO_VIDEO)*CHAR_WIDTH_E)/2;
 				position[channel].pos_y =
-						tbl_OSD_SPLIT4_POSITION_1920x1080[channel] + (DISPLAY_HEIGHT_1920x1080 -CHAR_HEIGHT)/2;
+						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER] +
+						((DISPLAY_HEIGHT_1920x1080/2) - CHAR_HEIGHT)/2;
 			}
 		}
 
@@ -573,7 +564,7 @@ static void OSD_Display_Video_Loss(void)
 				OSD_Print_String(position, str_NO_VIDEO, strlen(str_NO_VIDEO_Blk));
 				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO_Blk);
 			}
-			osd_video_lose_location_buf[channel].state = ON;//1 
+			osd_video_lose_location_buf[channel].state = ON;
 			osd_video_lose_location_buf[channel].location = position;
 		}
 	}
@@ -622,7 +613,6 @@ static void OSD_Display_Time(void)
 		str_buf[11] = ' ';
 		OSD_Print_String(position, str_buf, DATE_TIME_LENGTH);
 	}
-//	else if()
 }
 
 //-----------------------------------------------------------------------------
