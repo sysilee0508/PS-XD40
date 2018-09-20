@@ -654,30 +654,32 @@ void OSD_Display_ChannelName(void)
 	sPosition_t positionValue;
 	eTitlePosition_t titlePosition;
 	BOOL titleDisplayOn;
+	eDisplayMode_t displayMode;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX] = {0,};
 
 	Read_NvItem_TitleDispalyOn(&titleDisplayOn);
 	Read_NvItem_TitlePosition(&titlePosition);
+	Read_NvItem_DisplayMode(&displayMode);
 
 	if(titleDisplayOn == ON)
 	{
-
-		if(sys_status.current_split_mode <= SPLITMODE_FULL_CH4)
+		if(displayMode == DISPLAY_MODE_FULL_SCREEN)//sys_status.current_split_mode <= SPLITMODE_FULL_CH4)
 		{
 			channel = (eChannel_t)sys_status.current_split_mode;
-			positionValue =  OSD_TitleStringPosition(channel, titlePosition, DISPLAY_MODE_FULL_SCREEN, strlen(channel_name));
+			Read_NvItem_ChannelName(channel_name, channel);
+			positionValue =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
 			Read_NvItem_ChannelName(channel_name, channel);
 			OSD_Print_String(positionValue, channel_name, strlen(channel_name));
 			osd_ch_name_location_buf[channel].state = ON;
 			osd_ch_name_location_buf[channel].length = strlen(channel_name);
 			osd_ch_name_location_buf[channel].location = positionValue;
 		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT4)
+		else if(displayMode == DISPLAY_MODE_4SPLIT)
 		{
 			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 			{
 				Read_NvItem_ChannelName(channel_name, channel);
-				positionValue =  OSD_TitleStringPosition(channel, titlePosition, DISPLAY_MODE_4SPLIT, strlen(channel_name));
+				positionValue =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
 				OSD_Print_String(positionValue, channel_name, strlen(channel_name));
 				osd_ch_name_location_buf[channel].state = ON;
 				osd_ch_name_location_buf[channel].length = strlen(channel_name);

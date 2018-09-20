@@ -958,23 +958,29 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			{
 			  	if(itemY == TIMEDATE_ITEM_Y_TIME)
 				{
+			  		requestEnterKeyProc = CLEAR;
 					TimeDatePage_UpdatePage(pos_x, itemY);
 					IncreaseDecreaseCount(2, 0,inc_dec, &pos_x);
-					itemX = ITEM_X(pos_x);
+//					itemX = ITEM_X(pos_x);
+					requestEnterKeyProc = SET;
 					TimeDatePage_UpdatePage(pos_x, itemY);
 				}
 			  	else if(itemY == TIMEDATE_ITEM_Y_DATE)
 				{
+			  		requestEnterKeyProc = CLEAR;
 					TimeDatePage_UpdatePage(pos_x, itemY);
 					IncreaseDecreaseCount(2, 0, inc_dec, &pos_x);
-					itemX = ITEM_X(pos_x);
+//					itemX = ITEM_X(pos_x);
+					requestEnterKeyProc = SET;
 					TimeDatePage_UpdatePage(pos_x, itemY);
 				}
 				else if(itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION)
 				{
+					requestEnterKeyProc = CLEAR;
 					TimeDatePage_UpdatePage(pos_x, itemY);
 					IncreaseDecreaseCount(2, 0, inc_dec, &pos_x);
-					itemX = ITEM_X(pos_x);
+//					itemX = ITEM_X(pos_x);
+					requestEnterKeyProc = SET;
 					TimeDatePage_UpdatePage(pos_x, itemY);
 				}
 			}
@@ -1146,7 +1152,10 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			{
 				if((itemY >= CAMERATITLE_ITEM_Y_CH1) && (itemY <= CAMERATITLE_ITEM_Y_CH4))
 				{
+					requestEnterKeyProc = CLEAR;
+					CameraTitlePage_UpdatePage(20, LINE1_OFFSET_Y + (2*(itemY-1)), itemY, pos_x);
 	  				IncreaseDecreaseCount(CHANNEL_NEME_LENGTH_MAX - 1, 0, inc_dec,&pos_x);
+	  				requestEnterKeyProc = SET;
 	  				CameraTitlePage_UpdatePage(20, LINE1_OFFSET_Y + (2*(itemY-1)), itemY, pos_x);
 				}
 			}
