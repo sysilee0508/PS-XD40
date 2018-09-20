@@ -518,18 +518,23 @@ static void OSD_Display_Video_Loss(void)
 	BOOL videoLossDiplayOn;
 
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
+	Read_NvItem_DisplayMode(&displayMode);
 	
 	if((videoLossDiplayOn == ON) & ((Loss_Event_Flag == SET) || (changedDisplayMode == SET)))
 	{
-		if(sys_status.current_split_mode <= SPLITMODE_FULL_CH4)
+//		if(sys_status.current_split_mode <= SPLITMODE_FULL_CH4)
+//		{
+//			displayMode = DISPLAY_MODE_FULL_SCREEN;
+//			channel = (eChannel_t)sys_status.current_split_mode;
+//		}
+//		else if(sys_status.current_split_mode == SPLITMODE_SPLIT4)
+//		{
+//			displayMode = DISPLAY_MODE_4SPLIT;
+//			channel = CHANNEL1;
+//		}
+		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
-			displayMode = DISPLAY_MODE_FULL_SCREEN;
 			channel = (eChannel_t)sys_status.current_split_mode;
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT4)
-		{
-			displayMode = DISPLAY_MODE_4SPLIT;
-			channel = CHANNEL1;
 		}
 
 		Loss_Event_Flag = CLEAR;
@@ -538,22 +543,7 @@ static void OSD_Display_Video_Loss(void)
 		{
 			position[channel].pos_x = (DISPLAY_WIDTH_1920X1080 - (strlen(str_NO_VIDEO)*CHAR_WIDTH_E))/2;
 			position[channel].pos_y = (DISPLAY_HEIGHT_1920x1080 - CHAR_HEIGHT)/2;
-		}
-		else if(displayMode == DISPLAY_MODE_4SPLIT)
-		{
-			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-			{
-				position[channel].pos_x =
-						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER].pos_x -
-						(strlen(str_NO_VIDEO)*CHAR_WIDTH_E)/2;
-				position[channel].pos_y =
-						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER].pos_y +
-						((DISPLAY_HEIGHT_1920x1080/2) - CHAR_HEIGHT)/2;
-			}
-		}
 
-		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-		{
 			if(vVideo_Loss & (0x01<<channel))
 			{
 				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO));
@@ -567,6 +557,46 @@ static void OSD_Display_Video_Loss(void)
 			osd_video_lose_location_buf[channel].state = ON;
 			osd_video_lose_location_buf[channel].location = position[channel];
 		}
+		else if(displayMode == DISPLAY_MODE_4SPLIT)
+		{
+			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+			{
+				position[channel].pos_x =
+						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER].pos_x -
+						(strlen(str_NO_VIDEO)*CHAR_WIDTH_E)/2;
+				position[channel].pos_y =
+						tbl_OSD_SPLIT4_POSITION_1920x1080[channel][TITLE_POSITION_TOP_CENTER].pos_y +
+						((DISPLAY_HEIGHT_1920x1080/2) - CHAR_HEIGHT)/2;
+			}
+			if(vVideo_Loss & (0x01<<channel))
+			{
+				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO));
+				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO);
+			}
+			else
+			{
+				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO_Blk));
+				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO_Blk);
+			}
+			osd_video_lose_location_buf[channel].state = ON;
+			osd_video_lose_location_buf[channel].location = position[channel];
+		}
+//
+//		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//		{
+//			if(vVideo_Loss & (0x01<<channel))
+//			{
+//				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO));
+//				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO);
+//			}
+//			else
+//			{
+//				OSD_Print_String(position[channel], str_NO_VIDEO, strlen(str_NO_VIDEO_Blk));
+//				osd_video_lose_location_buf[channel].length = strlen(str_NO_VIDEO_Blk);
+//			}
+//			osd_video_lose_location_buf[channel].state = ON;
+//			osd_video_lose_location_buf[channel].location = position[channel];
+//		}
 	}
 }
 
