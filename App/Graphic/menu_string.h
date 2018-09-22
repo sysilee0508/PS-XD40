@@ -9,8 +9,8 @@ const u8 menuStr_On[] = "ON";
 const u8 menuStr_Off[] = "OFF";
 const u8 menuStr_Sec[] = "SEC";
 const u8 menuStr_Min[] = "MIN";
-const u8 menuStr_Day[] = "DAY";
-const u8 menuStr_Month[] = "MONTH";
+const u8 menuStr_SecDay[] = "SEC/DAY";
+const u8 menuStr_SecMonth[] = "SEC/MONTH";
 
 const u8 menuStr_ArrowL[]= {0x80,0x00};
 
@@ -42,7 +42,7 @@ const u8 menuStr_BottomRight[] = "BOTTOM-RIGHT";
 //const u8 menuStr_dash[] = "-";
 
 const u8 menuStr_Asia[] = "ASIA (yyyy-mm-dd)";
-const u8 menuStr_Usa[] = "USA (mm-dd-yyyy)";
+const u8 menuStr_Usa[] =   "USA  (mm-dd-yyyy)";
 const u8 menuStr_Euro[] = "EURO (dd-mm-yyyy)";
 
 const u8 menuStr_Skip[] = "SKIP(ON)";
@@ -56,6 +56,8 @@ const u8 menuStr_Remocon[] = "REMOCON";
 
 const u8 menuStr_NO[] = "N.O";
 const u8 menuStr_NC[] = "N.C";
+
+const u8 menuStr_Digit[] = "DIGIT";
 
 // Main Menu
 const u8 menuStr_MainMenu_Title[] =           "-- MAIN MENU --";

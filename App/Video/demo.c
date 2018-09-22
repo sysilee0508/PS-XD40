@@ -356,7 +356,7 @@ void DEMO_SetPIPDisplay(WORD nID)
 	memset(&stVideo.stVIEW_m, 0, 8);		// clear stVIEW_m
 	memset(&stVideo.stVIEW_x, 0, 8);		// clear stVIEW_x
 	memset(&stVideo.stCROP_x, 0, 8);		// clear stCROP_x
-	OutMainFrmt = VIDOUT_1920x1080p60;//GetMenuStatus(6,2);		// get out-format
+	OutMainFrmt = GetMenuStatus(6,2);		// get out-format
 	OutAuxMode = (nID==0)? MDIN_OUT_MUX656_8 : MDIN_OUT_RGB444_8;
 	OutAuxFrmt = VIDOUT_720x480i60;		// set video.c or set aux-format
 

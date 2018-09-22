@@ -112,7 +112,7 @@ static void LoadDefaultNvData(void)
        
 	nv_data.data.timeCorrection.timeCorrecOffset = 0;
 	nv_data.data.timeCorrection.timeCorrectDirection = DIRECTION_UP;
-	nv_data.data.timeCorrection.timeCorrectUint = TIME_UNIT_SEC;
+	nv_data.data.timeCorrection.timeCorrectUint = TIME_UNIT_DAY;
 	nv_data.data.dateFormat = DATE_FORMAT_YMD;
 	nv_data.data.timeDisplayOn = ON;
 //	nv_data.data.timeDisplayPosition = DISPLAY_POSITION_MIDDLE_BOTTOM;

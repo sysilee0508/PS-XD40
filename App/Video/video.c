@@ -1130,13 +1130,13 @@ static PMDIN_AUXFILT_COEF GetAUXFilterCoef(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-//static void SetAUXVideoFilter(void)
-//{
-//	PMDIN_AUXFILT_COEF pCoef = GetAUXFilterCoef();
+static void SetAUXVideoFilter(void)
+{
+	PMDIN_AUXFILT_COEF pCoef = GetAUXFilterCoef();
 
-//	MDINAUX_EnableFrontNRFilter(&stVideo, (pCoef==NULL)? OFF : ON);
-//	if (pCoef!=NULL) MDINAUX_SetFrontNRFilterCoef(pCoef);
-//}
+	MDINAUX_EnableFrontNRFilter(&stVideo, (pCoef==NULL)? OFF : ON);
+	if (pCoef!=NULL) MDINAUX_SetFrontNRFilterCoef(pCoef);
+}
 
 //--------------------------------------------------------------------------------------------------
 /*static void Set2HDVideoPathB(void)
@@ -1265,15 +1265,15 @@ static void VideoFrameProcess(BYTE src)
 		stVideo.exeFLAG |= MDIN_UPDATE_MAINFMT;
 
 	// Do not use aux display.. by kukuri
-//	if (SrcAuxFrmt!=PrevSrcAuxFrmt||SrcAuxMode!=PrevSrcAuxMode||
-//		OutAuxFrmt!=PrevOutAuxFrmt||OutAuxMode!=PrevOutAuxMode)
-//		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
+	if (SrcAuxFrmt!=PrevSrcAuxFrmt||SrcAuxMode!=PrevSrcAuxMode||
+		OutAuxFrmt!=PrevOutAuxFrmt||OutAuxMode!=PrevOutAuxMode)
+		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
 
 	if (stVideo.exeFLAG!=0)
 	{//return;		// not change video formats
 
 		stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
-//		SetMenuStatus(2,1,0);	//3DNR [off]
+		SetMenuStatus(2,1,0);	//3DNR [off]
 
 		if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
 		{
@@ -1310,11 +1310,11 @@ static void VideoFrameProcess(BYTE src)
 
 	//	GetExtVideoAttb(src);	// update E-Video attribute (edge,swap,clk,offset)	//by hungry 2012.02.15
 		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
-//		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS) // blocked by kukuri
+		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS) // blocked by kukuri
 		//Set2HDVideoPathB();		// set 2HD pathB
 
-	//	SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO)); //by kukuri
-	//	DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
+		SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO)); //by kukuri
+		DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
 		//DEMO_SetAspectRatio(GetMenuStatus(4,6));	// update aspect ratio
 		//DEMO_SetOverScanning(GetMenuStatus(4,5));	// update overscanning
 		//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
@@ -1332,18 +1332,18 @@ static void VideoFrameProcess(BYTE src)
 		//if(sys_status.current_split_mode != FULL_9) MDIN3xx_EnableMainDisplay(ON);
 
 		// if src is 2HD input or dual display, trigger soft-reset.
-		if (src==VIDEO_ADCNV_2HD_IN)//||GetMenuStatus(4,4)) 
+		if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) 
 			MDIN3xx_SoftReset();
 
 		// Do we need below line? by kukuri
-//		SetOSDMenuRefresh();	// for framebuffer map bug
+		SetOSDMenuRefresh();	// for framebuffer map bug
 	//	SetOutHDMI_DVI();
 
 		PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
 		PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
 		// Do not use aux display.. by kukuri
-//		PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
-//		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
+		PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
+		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
 
 		//test_stVideo_print();
 	#if 0 //Louis

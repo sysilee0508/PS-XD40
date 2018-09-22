@@ -236,7 +236,7 @@ void Time_Read(void)
 
 void GetTimeDateInBCD(sTimeDateBCD_t* pData)
 {
-	TimeRead();
+	Time_Read();
 	memcpy(pData, &rtcTimeDate, sizeof(rtcTimeDate));
 }
 
