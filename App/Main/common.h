@@ -25,7 +25,7 @@
 #include "stm32f10x.h"
 
 #include "mdintype.h"
-
+#include "nv_storage.h"
 #include "main.h"
 #include "key.h"
 #include "rtc.h"
@@ -47,7 +47,7 @@
 #include "menu.h"
 #include "item.h"
 
-#include "nv_storage.h"
+
 
 
 // msg.c
@@ -83,11 +83,6 @@ typedef enum {
 // -----------------------------------------------------------------------------
 // Typedef
 // -----------------------------------------------------------------------------
-typedef struct
-{
-	u16 pos_x;
-	u16 pos_y;
-} sPosition_t;
 
 // -----------------------------------------------------------------------------
 // External Variables declaration

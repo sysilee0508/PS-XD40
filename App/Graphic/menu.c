@@ -453,6 +453,45 @@ static void DrawSelectMark(u8 verticalItem)
   	previousLocationY = offset_y;
 }
 
+static void MainMenu_Entry(u8 itemY)
+{
+	const sLocationNString_t mainMenu[MAINMENU_ITEM_Y_MAX] =
+	{
+			{24, LINE0_OFFSET_Y, menuStr_MainMenu_Title},
+			{22, LINE1_OFFSET_Y, menuStr_MainMenu_TimeDate},
+			{22, LINE2_OFFSET_Y, menuStr_MainMenu_CameraTitle},
+			{22, LINE3_OFFSET_Y, menuStr_MainMenu_AutoSeq},
+			{22, LINE4_OFFSET_Y, menuStr_MainMenu_Display},
+			{22, LINE5_OFFSET_Y, menuStr_MainMenu_Alarm},
+			{22, LINE6_OFFSET_Y, menuStr_MainMenu_MotionDetection},
+			{22, LINE7_OFFSET_Y, menuStr_MainMenu_DeviceInfo}
+	};
+	u8 index;
+
+	currentPage = MENU_PAGE_MAIN;
+	Erase_AllMenuScreen();
+	requestEnterKeyProc = CLEAR;
+
+	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
+
+	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+
+	DrawSelectMark(itemY);
+	for(index = 0; index < MAINMENU_ITEM_Y_MAX; index++)
+	{
+		Print_StringWithSelectedMarkSize(mainMenu[index].offset_x, mainMenu[index].offset_y, mainMenu[index].str, NULL, 0);
+	}
+}
+
+
 //------------------------------------------------------------------
 //   Time/Date Page Function
 //------------------------------------------------------------------
@@ -618,23 +657,23 @@ static void Print_StringDateFormat(u8 attribute)
 	{
 		case DATE_FORMAT_YMD:	//ASIA
 			Print_StringWithSelectedMarkSize(
-					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_DateFormat),
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen(menuStr_TimeDate_DateFormat),
 					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_y, menuStr_Asia, attribute, 4);
 			break;
 
 		case DATE_FORMAT_MDY:	//USA
 			Print_StringWithSelectedMarkSize(
-					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_DateFormat),
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen(menuStr_TimeDate_DateFormat),
 					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_y,
 					menuStr_Space4, NULL, strlen((char*)menuStr_Space4));
 			Print_StringWithSelectedMarkSize(
-					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_DateFormat),
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen(menuStr_TimeDate_DateFormat),
 					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_y, menuStr_Usa, attribute, 3);
 			break;
 
 		case DATE_FORMAT_DMY:	//EURO
 			Print_StringWithSelectedMarkSize(
-					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_DateFormat),
+					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_x + strlen(menuStr_TimeDate_DateFormat),
 					timeDateMenu[TIMEDATE_ITEM_Y_DATE_FORMAT].offset_y, menuStr_Euro, attribute, 4);
 			break;
 	}
@@ -655,10 +694,10 @@ static void Print_StringYearFormat(u8 attribute)
 		strNum = '4';
 	}
 	Print_StringWithSelectedMark(
-			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_YearFormat),
+			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen(menuStr_TimeDate_YearFormat),
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_y, (const u8*)&strNum, attribute, 1);
 	Print_StringWithSelectedMarkSize(
-			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_YearFormat) + 2,
+			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen(menuStr_TimeDate_YearFormat) + 2,
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_y, menuStr_Digit, NULL, strlen(menuStr_Digit));
 }
 //
@@ -703,14 +742,14 @@ static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY)
  	    case TIMEDATE_ITEM_Y_TIME_DISPLAY:
  	    	Read_NvItem_TimeDisplayOn(&timeDisplay);
  	    	Print_StringOnOff(
- 	    			timeDateMenu[itemY].offset_x + strlen((char *)timeDateMenu[itemY].str),
+ 	    			timeDateMenu[itemY].offset_x + strlen(timeDateMenu[itemY].str),
 					timeDateMenu[itemY].offset_y,
 					attribute, timeDisplay);
  	    	break;
 
  	    case TIMEDATE_ITEM_Y_DATE_DISPALY :
  	    	Read_NvItem_DateDisplayOn(&dateDisplay);
- 	    	Print_StringOnOff(timeDateMenu[itemY].offset_x + strlen((char *)timeDateMenu[itemY].str),
+ 	    	Print_StringOnOff(timeDateMenu[itemY].offset_x + strlen(timeDateMenu[itemY].str),
  	    			timeDateMenu[itemY].offset_y,
 					attribute, dateDisplay);
  	    	break;
@@ -999,7 +1038,7 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
 					cameraTitle[itemY].offset_y,
 					menuStr_Space13,
-					NULL, strlen((char *)menuStr_Space13));
+					NULL, strlen(menuStr_Space13));
 			Print_StringWithSelectedMark(
 					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
 					cameraTitle[itemY].offset_y,
@@ -1319,7 +1358,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 			{
 				case RESOLUTION_1920_1080_60P:
 					Print_StringWithSelectedMark(
-							displayMenu[itemY].offset_x + strlen((char *)displayMenu[itemY].str),
+							displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 							displayMenu[itemY].offset_y,
 							menuStr_Resolution1920X1080_60P,
 							attribute,
@@ -1327,7 +1366,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 					break;
 				case RESOLUTION_1920_1080_50P:
 					Print_StringWithSelectedMark(
-							displayMenu[itemY].offset_x + strlen((char *)displayMenu[itemY].str),
+							displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 							displayMenu[itemY].offset_y,
 							menuStr_Resolution1920X1080_50P,
 							attribute,
@@ -1339,7 +1378,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 		case DISPLAY_ITEM_Y_OSD_DISPLAY:
 			Read_NvItem_OsdOn(&osdOn);
 			Print_StringOnOff(
-					displayMenu[itemY].offset_x + strlen((char *)displayMenu[itemY].str),
+					displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 					displayMenu[itemY].offset_y,
 					attribute, osdOn);
 			break;
@@ -1347,7 +1386,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 		case DISPLAY_ITEM_Y_BORDER_LINE_DISPLAY:
 			Read_NvItem_BorderLineDisplay(&borderLineOn);
 			Print_StringOnOff(
-					displayMenu[itemY].offset_x + strlen((char *)displayMenu[itemY].str),
+					displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 					displayMenu[itemY].offset_y,
 					attribute, borderLineOn);
 			break;
@@ -1464,12 +1503,12 @@ static void Print_StringAlarmRemoconSelection(u8 attribute)
 				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_x + strlen(menuStr_Alarm_AlarmRemocon),
 				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_y,
 				menuStr_Space7,
-				NULL, strlen((char *)menuStr_Space7));
+				NULL, strlen(menuStr_Space7));
 		Print_StringWithSelectedMark(
 				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_x + strlen(menuStr_Alarm_AlarmRemocon),
 				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_y,
 				menuStr_Alarm,
-				attribute, strlen((char *)menuStr_Alarm));
+				attribute, strlen(menuStr_Alarm));
 	}
 	else //remocon
 	{
@@ -1522,7 +1561,7 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  	  	case ALARM_ITEM_Y_CH3:
  	  	case ALARM_ITEM_Y_CH4:
  	  		Print_StringAlarmOption(
- 	  				alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+ 	  				alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 					alarmRemoconMenu[itemY].offset_y,
 					attribute, itemY - 2);
  	  		break;
@@ -1533,17 +1572,17 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
             {
 				Int2Str(nv_data, str2digit);
                 Print_StringWithSelectedMarkSize(
-                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Space3,
 						NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
-						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						(const u8*)str2digit,
 						attribute, sizeof(str2digit));
 				Print_StringWithSelectedMarkSize(
-						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str) + sizeof(str2digit),
+						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str) + sizeof(str2digit),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Sec,
 						NULL, 0);
@@ -1551,12 +1590,12 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
             else // print OFF
             {
                 Print_StringWithSelectedMarkSize(
-                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Space6,
 						NULL, strlen(menuStr_Space6));
                 Print_StringWithSelectedMark(
-                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Off,
 						attribute, strlen(menuStr_Off));
@@ -1569,17 +1608,17 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 			{
 				Int2Str(nv_data, str2digit);
                 Print_StringWithSelectedMarkSize(
-                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Space3,
 						NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
-						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						(const u8*)str2digit,
 						attribute, sizeof(str2digit));
 				Print_StringWithSelectedMarkSize(
-						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str) + sizeof(str2digit),
+						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str) + sizeof(str2digit),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Sec,
 						NULL, 0);
@@ -1587,12 +1626,12 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
             else // print OFF
             {
                 Print_StringWithSelectedMarkSize(
-                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Space6,
 						NULL, strlen(menuStr_Space6));
                 Print_StringWithSelectedMark(
-                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Off,
 						attribute, strlen(menuStr_Off));
@@ -1606,17 +1645,17 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  			{
 				Int2Str(nv_data, str2digit);
                 Print_StringWithSelectedMarkSize(
-                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Space3,
 						NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
-						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						(const u8*)str2digit,
 						attribute, sizeof(str2digit));
 				Print_StringWithSelectedMarkSize(
-						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str) + sizeof(str2digit),
+						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str) + sizeof(str2digit),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Sec,
 						NULL, 0);
@@ -1624,12 +1663,12 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  			else
  			{
                 Print_StringWithSelectedMarkSize(
-                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Space6,
 						NULL, strlen(menuStr_Space6));
                 Print_StringWithSelectedMark(
-                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Off,
 						attribute, strlen(menuStr_Off));
@@ -1642,7 +1681,7 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  			{
 				Int2Str(nv_data, str2digit);
 				Print_StringWithSelectedMark(
-						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						(const u8*)str2digit,
 						attribute, sizeof(str2digit));
@@ -1650,7 +1689,7 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  			else
  			{
  				Print_StringWithSelectedMark(
- 						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+ 						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_None,
 						attribute, strlen(menuStr_None));
@@ -1804,7 +1843,7 @@ static void MotionDetectionPage_UpdatePage(u8 itemY)
 			Read_NvItem_MotionSensitivity(&sensitivity);
 			Int2Str(sensitivity, str);
 			Print_StringWithSelectedMark(
-					motionDetectionMenu[itemY].offset_x + strlen((char *)motionDetectionMenu[itemY].str),
+					motionDetectionMenu[itemY].offset_x + strlen(motionDetectionMenu[itemY].str),
 					motionDetectionMenu[itemY].offset_y,
 					(const u8*)str,
 					attribute, sizeof(str));
@@ -1980,44 +2019,6 @@ static void SelectMainMenu(u8 itemY)
  		case MAINMENU_ITEM_Y_DEVICE_INFO :
  			DeviceInfoPage_Entry();
  			break;
-	}
-}
-
-static void MainMenu_Entry(u8 itemY)
-{
-	const sLocationNString_t mainMenu[MAINMENU_ITEM_Y_MAX] =
-	{
-			{24, LINE0_OFFSET_Y, menuStr_MainMenu_Title},
-			{22, LINE1_OFFSET_Y, menuStr_MainMenu_TimeDate},
-			{22, LINE2_OFFSET_Y, menuStr_MainMenu_CameraTitle},
-			{22, LINE3_OFFSET_Y, menuStr_MainMenu_AutoSeq},
-			{22, LINE4_OFFSET_Y, menuStr_MainMenu_Display},
-			{22, LINE5_OFFSET_Y, menuStr_MainMenu_Alarm},
-			{22, LINE6_OFFSET_Y, menuStr_MainMenu_MotionDetection},
-			{22, LINE7_OFFSET_Y, menuStr_MainMenu_DeviceInfo}
-	};
-	u8 index;
-
-	currentPage = MENU_PAGE_MAIN;
-	Erase_AllMenuScreen();
-	requestEnterKeyProc = CLEAR;
-
-	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
-
-	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
-	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-
-	DrawSelectMark(itemY);
-	for(index = 0; index < MAINMENU_ITEM_Y_MAX; index++)
-	{
-		Print_StringWithSelectedMarkSize(mainMenu[index].offset_x, mainMenu[index].offset_y, mainMenu[index].str, NULL, 0);
 	}
 }
 
