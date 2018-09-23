@@ -331,14 +331,33 @@ static sPosition_t OSD_GetAutoFreezePosition(u8 strLength)
 	sPosition_t position;
 	eDisplayMode_t displayMode;
 	BOOL timeOn;
+	BOOL dateOn;
+	BOOL year4digit;
+	u8 dateTimeLength = 0;
 
+	Read_NvItem_YearFormat(&year4digit);
+	Read_NvItem_DateDisplayOn(&dateOn);
 	Read_NvItem_TimeDisplayOn(&timeOn);
 	Read_NvItem_DisplayMode(displayMode);
 
-	// x
+	if((dateOn == ON) && (year4digit == TRUE))
+	{
+		dateTimeLength = DATE_LENGTH_4DIGIT + 2;
+	}
+	else if((dateOn == ON) && (year4digit == FALSE))
+	{
+		dateTimeLength = DATE_LENGTH_2DIGIT + 2;
+	}
+
 	if(timeOn == ON)
 	{
-		position.pos_x = (DISPLAY_WIDTH + (DATE_TIME_LENGTH * CHAR_WIDTH_E)) / 2 ;
+		dateTimeLength += TIME_LENGTH;
+	}
+
+	// x
+	if(dateTimeLength > 0)
+	{
+		position.pos_x = (DISPLAY_WIDTH + (MIN(DATE_TIME_LENGTH, dateTimeLength) * CHAR_WIDTH_E)) / 2 ;
 	}
 	else
 	{
@@ -496,8 +515,6 @@ static void OSD_Display_Video_Loss(void)
 }
 
 //-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
 static void OSD_DisplayDateTime(void)
 {
 	BOOL timeDisplayOn;
@@ -619,40 +636,6 @@ void Osd_ClearScreen(void)
 	memset(osd_ch_name_location_buf, 0, sizeof(osd_ch_name_location_buf));
 }
 //-----------------------------------------------------------------------------
-//void OSD_EraseAll(void)
-//{
-//	u8 i = 0;
-//	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
-//
-//	// Erase channel name
-//	memset(channel_name, ASCII_SPACE, CHANNEL_NEME_LENGTH_MAX);
-//
-//	OSD_SetFontGAC(SPRITE_INDEX0);
-//
-//	for(i = 0; i < NUM_OF_CHANNEL; i++)
-//	{
-//		if(osd_ch_name_location_buf[i].state == ON)
-//		{
-//			MDINGAC_SetDrawXYMode(osd_ch_name_location_buf[i].location.pos_y,
-//								osd_ch_name_location_buf[i].location.pos_x,
-//								(u8 *)channel_name,
-//								osd_ch_name_location_buf[i].length,
-//								0);
-//		}
-//	}
-//	// Erase NO VIDEO
-//	OSD_Str_Loss_Erase();
-//	// Erase AUTO/FREEZE
-//	if(!bAuto_Seq_Flag)
-//	{
-//		OSD_Str_Freeze_autoseq_Erase();
-//	}
-//	//Erase time/date
-//	if(GetSystemMode() == SYSTEM_SETUP_MODE)
-//	{
-//		OSD_Display_Time_Erase();
-//	}
-//}
 
 //-----------------------------------------------------------------------------
 void OSD_Display(void)
@@ -676,7 +659,7 @@ void OSD_Display(void)
 
 	changedDisplayMode = CLEAR;
 }
-
+//-----------------------------------------------------------------------------
 void OSD_DrawBorderLine(void)
 {
 	BOOL border_line;
