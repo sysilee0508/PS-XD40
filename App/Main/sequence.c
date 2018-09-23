@@ -158,12 +158,12 @@ void Auto_Sequence(void)
 	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH4)
 	{
 		vMODE = DISPLAY_MODE_FULL_SCREEN;
-		startChannel = sys_status.current_split_mode;
+		startChannel = (eChannel_t)sys_status.current_split_mode;
 	}
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4)
 	{
 		vMODE = DISPLAY_MODE_4SPLIT;
-		startChannel = 0;
+		startChannel = CHANNEL1;
 	}
 	if(bAuto_Seq_Flag == SET)
 	{

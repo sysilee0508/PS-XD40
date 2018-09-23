@@ -115,12 +115,9 @@ static void LoadDefaultNvData(void)
 	nv_data.data.timeCorrection.timeCorrectUint = TIME_UNIT_DAY;
 	nv_data.data.dateFormat = DATE_FORMAT_YMD;
 	nv_data.data.timeDisplayOn = ON;
+	nv_data.data.dateDisplayOn = ON;       
 //	nv_data.data.timeDisplayPosition = DISPLAY_POSITION_MIDDLE_BOTTOM;
 	CreateDefaultChannelTitle();
-//	nv_data.data.channelName[0] = "CAM1";
-//	nv_data.data.channelName[1] = "CAM2";
-//	nv_data.data.channelName[2] = "CAM3";
-//	nv_data.data.channelName[3] = "CAM4";
 	nv_data.data.titleDisplayOn = ON;
 	for(index = CHANNEL1; index < NUM_OF_CHANNEL; index++)
 	{

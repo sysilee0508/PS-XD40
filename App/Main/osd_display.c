@@ -244,6 +244,7 @@ static u8 CreateDateString(u8 *pDateStr)
 	u8 year[5];
 	u8 month[2];
 	u8 day[2];
+       u8 dateLength;
 
 	GetTimeDateInBCD(&rtcDate);
 	Read_NvItem_DateFormat(&dateFormat);
@@ -254,6 +255,7 @@ static u8 CreateDateString(u8 *pDateStr)
 	{
 		year[0] = (rtcDate.year >> 4) + ASCII_ZERO;
 		year[1] = (rtcDate.year & 0x0f) + ASCII_ZERO;
+              dateLength = DATE_LENGTH_2DIGIT;
 	}
 	else //4 digit
 	{
@@ -261,6 +263,7 @@ static u8 CreateDateString(u8 *pDateStr)
 		year[1] = ASCII_ZERO;
 		year[2] = (rtcDate.year >> 4) + ASCII_ZERO;
 		year[3] = (rtcDate.year & 0x0f) + ASCII_ZERO;
+              dateLength = DATE_LENGTH_4DIGIT;
 	}
 	month[0] = (rtcDate.month >> 4) + ASCII_ZERO;
 	month[1] = (rtcDate.month & 0x0f) + ASCII_ZERO;
@@ -306,7 +309,7 @@ static u8 CreateDateString(u8 *pDateStr)
 			strncpy(pDateStr, year, strlen(year));
 			break;
 	}
-	return strlen(pDateStr);
+	return dateLength;
 }
 
 static u8 CreateTimeString(u8 *pTimeStr)
@@ -323,7 +326,7 @@ static u8 CreateTimeString(u8 *pTimeStr)
     *(++pTimeStr) = ((rtcTime.sec>>4)+ ASCII_ZERO);
     *(++pTimeStr) = ((rtcTime.sec&0x0f)+ ASCII_ZERO);
 
-	return strlen(pTimeStr);
+	return TIME_LENGTH;
 }
 
 static sPosition_t OSD_GetAutoFreezePosition(u8 strLength)
@@ -545,7 +548,7 @@ static void OSD_DisplayDateTime(void)
 			{
 				position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT - MARGIN_Y;
 			}
-			OSD_PrintString(position, dateTimeString, TIME_LENGTH);
+			OSD_PrintString(position, dateTimeString, DATE_TIME_LENGTH);
 		}
 	}
 }
