@@ -5,6 +5,7 @@
 #define VIDEO_LOSS_CHANNEL_ALL				0x0F
 #define VIDEO_LOSS_CHANNEL(x)				0x01 << x
 
+extern u32 alarmBuzzerCountIn500ms;
 
 extern void Loss_Buzzer(void);
 extern void Video_Loss_Check(void);

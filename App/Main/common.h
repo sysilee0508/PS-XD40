@@ -52,6 +52,8 @@
 #include "menu.h"
 #include "item.h"
 
+#include "video_loss.h"
+
 #include "alarm_remotekey.h"
 #include "timer.h"
 
