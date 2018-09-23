@@ -407,7 +407,7 @@ void Write_NvItem_DateFormat(eDateFormat_t data)
 
 void Read_NvItem_YearFormat(BOOL* pData)
 {
-	*pData = nv_data.data.dateFormat;
+	*pData = nv_data.data.yearFormat;
 }
 void Write_NvItem_YearFormat(BOOL data)
 {

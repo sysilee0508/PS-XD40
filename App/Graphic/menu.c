@@ -862,9 +862,9 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						break;
 
 					case TIMEDATE_ITEM_Y_YEAR_FORMAT:
-						Read_NvItem_DateFormat(&yearFormat);
+						Read_NvItem_YearFormat(&yearFormat);
 						Toggle(&yearFormat);
-						Write_NvItem_DateFormat(yearFormat);
+						Write_NvItem_YearFormat(yearFormat);
 						break;
 
 					case TIMEDATE_ITEM_Y_TIME_CORRECTION:
