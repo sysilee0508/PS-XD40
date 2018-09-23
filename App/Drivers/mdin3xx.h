@@ -501,7 +501,7 @@ typedef	enum {
 	VIDOUT_1920x1200pRB,		// 1920x1200pRB 60Hz
 	VIDOUT_FORMAT_END			// output format end
 
-}	MDIN_OUTVIDEO_FORMAT_t;
+} MDIN_OUTVIDEO_FORMAT_t;
 
 typedef	enum {
 	MDIN_OUT_RGB444_8 = 0,		// RGB 4:4:4 8-bit with separate sync on digital out port
