@@ -496,7 +496,7 @@ static void Print_StringTimeCorrect(u16 itemX,u8 attribute)
 				(const u8*)"-", selectedMark[0], 1);
 	}
 	// offset
-	Int2Str(timeCorrect.timeCorrecOffset, offsetStr);
+	Int2Str(timeCorrect.timeCorrectOffset, offsetStr);
 	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_x + strlen(menuStr_TimeDate_TimeCorrection) + 1,
 			timeDateMenu[TIMEDATE_ITEM_Y_TIME_CORRECTION].offset_y,
@@ -772,31 +772,32 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 				switch(itemY)
 				{
 					case TIMEDATE_ITEM_Y_TIME:
-						GetTimeDateInBCD(&rtcTimeInBCD);
+						rtcTime = RTC_GetRtcTimeDate();
+//						GetTimeDateInBCD(&rtcTimeInBCD);
 						switch(pos_x)
 						{
 							case 0://hour
-								Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
+//								Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
 								IncreaseDecreaseCount(23, 0, inc_dec, &rtcTime.hour);
 								break;
 							case 1://min
-								Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
+//								Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
 								IncreaseDecreaseCount(59, 0, inc_dec, &rtcTime.min);
 								break;
 							case 2://sec
-								Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
-								IncreaseDecreaseBcd(59, 0, inc_dec, &rtcTime.sec);
+//								Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
+								IncreaseDecreaseCount(59, 0, inc_dec, &rtcTime.sec);
 								break;
 						}
-						Bcd2Int(rtcTimeInBCD.year, &rtcTime.year);
-						Bcd2Int(rtcTimeInBCD.month, &rtcTime.month);
-//						rtcTime.month--;
-						Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
+//						Bcd2Int(rtcTimeInBCD.year, &rtcTime.year);
+//						Bcd2Int(rtcTimeInBCD.month, &rtcTime.month);
+////						rtcTime.month--;
+//						Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
 //						rtcTime.day--;
 //						Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
 //						Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
 //						Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
-					    RTC_ChangeCount(&rtcTime);
+					    RTC_SetTime(&rtcTime);
 						break;
 
 					case TIMEDATE_ITEM_Y_DATE:
@@ -814,13 +815,13 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 								break;
 							case 2://day
 								Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
-								IncreaseDecreaseBcd(GetDayofMonth(rtcTime.month), 0, inc_dec, &rtcTime.day);
+								IncreaseDecreaseBcd(GetDaysInMonth(rtcTime.month, rtcTime.year), 0, inc_dec, &rtcTime.day);
 								break;
 						}
 						Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
 						Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
 						Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
-					    RTC_ChangeCount(&rtcTime);
+					    RTC_SetTime(&rtcTime);
 						break;
 
 					case TIMEDATE_ITEM_Y_TIME_DISPLAY:
@@ -863,7 +864,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			               		}
 			               		break;
 							case 1: //offset
-								IncreaseDecreaseCount(59,0,inc_dec,&timeCorrect.timeCorrecOffset);
+								IncreaseDecreaseCount(59,0,inc_dec,&timeCorrect.timeCorrectOffset);
 								break;
 							case 2: //unit
 						    	if(timeCorrect.timeCorrectUint == TIME_UNIT_DAY)

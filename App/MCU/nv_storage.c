@@ -110,7 +110,7 @@ static void LoadDefaultNvData(void)
 	nv_data.data.fwVersion.major = FW_VERSION_MAJOR;
 	nv_data.data.fwVersion.minor = FW_VERSION_MINOR;
        
-	nv_data.data.timeCorrection.timeCorrecOffset = 0;
+	nv_data.data.timeCorrection.timeCorrectOffset = 0;
 	nv_data.data.timeCorrection.timeCorrectDirection = DIRECTION_UP;
 	nv_data.data.timeCorrection.timeCorrectUint = TIME_UNIT_DAY;
 	nv_data.data.dateFormat = DATE_FORMAT_YMD;

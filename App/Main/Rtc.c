@@ -3,274 +3,312 @@
 //=============================================================================
 #include "common.h"
 
-#define SECS_IN_MIN			60
-#define MINS_IN_HOUR		60
-#define HOURS_IN_DAY		24
-#define SECS_IN_HOUR		SECS_IN_MIN * MINS_IN_HOUR	//3600
-#define SECS_IN_DAY			SECS_IN_HOUR * HOURS_IN_DAY	//86400
-#define MONTHS_OF_YEAR		12
-
-#define MAX_YEAR_COUNT		100
+#define SECS_IN_MIN				60
+#define MINS_IN_HOUR			60
+#define HOURS_IN_DAY			24
+#define SECS_IN_HOUR			SECS_IN_MIN * MINS_IN_HOUR	//3600
+#define SECS_IN_DAY				SECS_IN_HOUR * HOURS_IN_DAY	//86400
+#define DAYS_IN_YEAR 			365
+#define DAYS_IN_LEAPYEAR		366
+// DEFAUTL DATE : 2018-JAN-1
+#define DEFAULT_YEAR			2018
+#define DEFAULT_MONTH			1
+#define DEFAULT_DAY				1
 
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
 static BOOL updateDisplayTime = CLEAR;
 static BOOL updatedRTCTime = CLEAR;
-DWORD time_value = 0;
-WORD date_value = 0;
-
-static sTimeDateBCD_t rtcTimeDate;
 
 //=============================================================================
 //  Constant Array Declaration (data table)
 //=============================================================================
-const BYTE month_normal_table[MONTHS_OF_YEAR] =
-{
-	31,28,31,30,31,30,31,31,30,31,30,31
-};
-
-const BYTE month_leap_table[MONTHS_OF_YEAR] =
-{
-	31,29,31,30,31,30,31,31,30,31,30,31
-};
-
-const WORD year_table[MAX_YEAR_COUNT] =
-{
-	366,365,365,365, //2000~2003
-	366,365,365,365, //2004~2007
-	366,365,365,365, //2008~2011
-	366,365,365,365, //2012~2015
-	366,365,365,365, //2016~2019
-
-	366,365,365,365, //2020~2023
-	366,365,365,365, //2024~2027
-	366,365,365,365, //2028~2031
-	366,365,365,365, //2032~2035
-	366,365,365,365, //2036~2039
-
-	366,365,365,365, //2040~2043
-	366,365,365,365, //2044~2047
-	366,365,365,365, //2048~2051
-	366,365,365,365, //2052~2055
-	366,365,365,365, //2056~2059
-
-	366,365,365,365, //2060~2063
-	366,365,365,365, //2064~2067
-	366,365,365,365, //2068~2071
-	366,365,365,365, //2072~2075
-	366,365,365,365, //2076~2079
-
-	366,365,365,365, //2080~2083
-	366,365,365,365, //2084~2087
-	366,365,365,365, //2088~2091
-	366,365,365,365, //2092~2095
-	366,365,365,365, //2096~2099
-};
-
 
 //=============================================================================
 //  Function Definition
 //=============================================================================
-//-----------------------------------------------------------------------------
-//	16������ BCD�ڵ�� ��ȯ
-//-----------------------------------------------------------------------------
-static BYTE Hex2Bcd(BYTE hex_num)
+void RTC_Configuration(void)
 {
-	return (((hex_num/10)<<4)|(hex_num%10));
+	// Enable PWR and BKP clocks
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+
+	// Allow access to BKP Domain
+	PWR_BackupAccessCmd(ENABLE);
+
+	if (BKP_ReadBackupRegister(BKP_DR1) != 0xA5A5)
+	{
+		// Reset Backup Domain
+		BKP_DeInit();		//RTC related register reset (RTC related registers are not reset in system reset)
+		BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);
+	}
+
+	// Enable LSE
+	RCC_LSEConfig(RCC_LSE_ON);
+
+	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
+	{
+	}
+
+	// Select the RTC Clock Source
+	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+
+	// Enable the RTC Clock
+	RCC_RTCCLKCmd(ENABLE);
+
+	// RTC configuration
+	// Wait for RTC APB registers synchronization
+	RTC_WaitForSynchro();
+	// Wait until last write operation on RTC registers has finished
+	RTC_WaitForLastTask();
+
+	// Set the RTC time base to 1s
+	RTC_SetPrescaler(32767); // RTC period = RTCCLK/RTC_PR = (32.768 KHz)/(32767+1)
+	// Wait until last write operation on RTC registers has finished
+	RTC_WaitForLastTask();
+
+	// Enable the RTC Second
+	RTC_ITConfig(RTC_IT_SEC, ENABLE);
+	// Wait until last write operation on RTC registers has finished
+	RTC_WaitForLastTask();
 }
 
-
 //-----------------------------------------------------------------------------
-//	���ϰ����� �� ����� ���� ����ؼ� �������� ������.  
+//	Process RTC Interrupt
 //-----------------------------------------------------------------------------
-static void RTC_CalculateDate(WORD ymd_val)
+void RTC_IRQHandler(void)
 {
-	BYTE index;
-	BYTE year_val = 0;
-	BYTE month_val = 0;
-	BYTE day_val = 0;
-	WORD tmp_val = 0;
-
-
-	tmp_val = ymd_val; 
-
-	for(index = 0; index < MAX_YEAR_COUNT; index++)
+	if (RTC_GetITStatus(RTC_IT_SEC) != RESET)
 	{
-		if(tmp_val < year_table[index])
-		{
-			year_val = index;
-			break;
-		}	
-		tmp_val -= year_table[index];
+		// Clear the RTC Second interrupt
+		RTC_ClearITPendingBit(RTC_IT_SEC);
+		RTC_ChangeRtcTimeStatus(SET);
+		// Wait until last write operation on RTC registers has finished
+		RTC_WaitForLastTask();
 	}
-	// Is it leap year
-	if((year_val % 4) == 0)
-	{
-		for(index = 0;index < MONTHS_OF_YEAR; index++)
-		{
-			if(tmp_val < month_leap_table[index])
-			{
-				month_val = index+1;
-				break;
-			}	
-			tmp_val -= month_leap_table[index];
-		}	
-	}
-	else 
-	{
-		for(index=0;index<MONTHS_OF_YEAR;index++)
-		{
-			if(tmp_val < month_normal_table[index])
-			{
-				month_val = index+1;
-				break;
-			}	
-			tmp_val -= month_normal_table[index];
-		}	
-	}
-	day_val = tmp_val+1;
-
-	rtcTimeDate.year  = Hex2Bcd(year_val);
-	rtcTimeDate.month = Hex2Bcd(month_val);
-	rtcTimeDate.day   = Hex2Bcd(day_val);
 }
 
-void RTC_ChangeCount(sTimeDate_t *time)
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//static BYTE Hex2Bcd(BYTE hex_num)
+//{
+//	return (((hex_num/10)<<4)|(hex_num%10));
+//}
+//----------------------------------------------------------------------------
+static BOOL IsLeapYear(u16 year)
 {
-	BYTE index;
-	DWORD rtcCount = 0;
+	BOOL leapYear = FALSE;
 
-	for(index = 0; index < time->year; index++)
+	if(((year % 4) == 0) && ((year % 400) == 0))
 	{
-		rtcCount += year_table[index];
-	}		
-
-	if((time->year % 4) == 0) //leap year
-	{
-		for(index = 0; index < time->month ; index++)
-		{
-			rtcCount += month_leap_table[index];
-		}		
+		leapYear = TRUE;
 	}
-	else 
-	{
-		for(index = 0; index < time->month; index++)
-		{
-			rtcCount += month_normal_table[index];
-		}		
-	}
-		
-	rtcCount += time->day;
-	rtcCount *= SECS_IN_DAY;
-	rtcCount += (time->hour*SECS_IN_HOUR);
-	rtcCount += (time->min*SECS_IN_MIN);
-	rtcCount += time->sec;
 
-    RTC_WaitForLastTask();	
-    RTC_SetCounter(rtcCount);
-    RTC_WaitForLastTask();	
+	return leapYear;
 }
+//----------------------------------------------------------------------------
+u8 GetDaysInMonth(u8 month, u16 year)
+{
+	u8 days;
 
-void Time_Read(void) 
+	if((month == 4) || (month == 6) || (month == 9) || (month == 11))
+	{
+		days = 30;
+	}
+	else if((month == 2) && (IsLeapYear(year) == TRUE))
+	{
+		days = 29;
+	}
+	else if((month == 2) && (IsLeapYear(year) == FALSE))
+	{
+		days = 28;
+	}
+	else
+	{
+		days = 31;
+	}
+
+	return days;
+}
+//----------------------------------------------------------------------------
+static void RTC_CalculateTimeDate(u32 count, sTimeDate_t* pTimeDate)
+{
+	u16 days;
+	u32 secs;
+	u8 index;
+	sTimeDate_t timeDate;
+
+	days = count / SECS_IN_DAY; //days
+	secs = count % SECS_IN_DAY; // secs
+
+	index = 0;
+	timeDate.day = DEFAULT_DAY;
+	timeDate.month = DEFAULT_MONTH;
+	timeDate.year = DEFAULT_YEAR;
+	// Calculate year
+	while(days > DAYS_IN_YEAR)
+	{
+		timeDate.year++;
+		if(IsLeapYear(DEFAULT_YEAR + index) == TRUE)
+		{
+			days -= DAYS_IN_LEAPYEAR;
+		}
+		else
+		{
+			days -= DAYS_IN_YEAR;
+		}
+	}
+	// Calculate month
+	if(days == DAYS_IN_YEAR)
+	{
+		timeDate.year++;
+	}
+	else
+	{
+		while(days > GetDaysInMonth(timeDate.month, timeDate.year))
+		{
+			days -= GetDaysInMonth(timeDate.month, timeDate.year);
+			timeDate.month;
+		}
+		timeDate.day = days;
+	}
+
+	memcpy(pTimeDate, &timeDate, sizeof(timeDate));
+}
+//----------------------------------------------------------------------------
+void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 { 
-//	static WORD sub_cnt;
-//	static BYTE sub_flag;
 	u32 rtcCount = RTC_GetCounter();
-	BYTE month_tmp, day_tmp;
 	sTimeCorrect_t timeCorrection;
+	sTimeDate_t timeDate;
+	static sTimeDate_t oldTimeDate;
 
 	if(RTC_GetRtcTimeStatus() == SET)
 	{
 		RTC_ChangeRtcTimeStatus(CLEAR);
-		RTC_ChangeDisplayTimeStatus(SET);//updateDisplayTime = SET;
+		RTC_ChangeDisplayTimeStatus(SET);
 
-		date_value = rtcCount / SECS_IN_DAY;
-		time_value = rtcCount % SECS_IN_DAY;
-
-		month_tmp = rtcTimeDate.month;
-		day_tmp = rtcTimeDate.day;
-		RTC_CalculateDate(date_value);
-
-	    // Compute  time
-		rtcTimeDate.hour = Hex2Bcd(time_value/SECS_IN_HOUR);
-		rtcTimeDate.min = Hex2Bcd((time_value%SECS_IN_HOUR)/SECS_IN_MIN);
-		rtcTimeDate.sec = Hex2Bcd((time_value%SECS_IN_HOUR)%SECS_IN_MIN);
-
+		RTC_CalculateTimeDate(rtcCount, &timeDate);
 		//Time correction
 		Read_NvItem_TimeCorrect(&timeCorrection);
-		if(timeCorrection.timeCorrecOffset > 0)
+		if(timeCorrection.timeCorrectOffset > 0)
 		{
-			if(((timeCorrection.timeCorrectUint == TIME_UNIT_DAY) && (day_tmp != rtcTimeDate.day)) ||
-				((timeCorrection.timeCorrectUint == TIME_UNIT_MONTH) &&	(month_tmp != rtcTimeDate.month)))
+			if(((timeCorrection.timeCorrectUint == TIME_UNIT_DAY) && (oldTimeDate.day != timeDate.day)) ||
+				((timeCorrection.timeCorrectUint == TIME_UNIT_MONTH) &&	(oldTimeDate.month != timeDate.month)))
 			{
 				if(timeCorrection.timeCorrectDirection == DIRECTION_UP) // + --> up / - --> down
 				{
-					rtcCount += +timeCorrection.timeCorrecOffset;
+					rtcCount += timeCorrection.timeCorrectOffset;
 				}
 				else if(timeCorrection.timeCorrectDirection == DIRECTION_DOWN)// -
 				{
-					if(rtcCount > timeCorrection.timeCorrecOffset)
+					if(rtcCount > timeCorrection.timeCorrectOffset)
 					{
-						rtcCount -= timeCorrection.timeCorrecOffset;
+						rtcCount -= timeCorrection.timeCorrectOffset;
 					}
 					else
 					{
 						rtcCount = 0;
 					}
-				}	
+				}
 			    RTC_WaitForLastTask();
 			    RTC_SetCounter(rtcCount);
 			    RTC_WaitForLastTask();
 
-				date_value = rtcCount / SECS_IN_DAY;
-				RTC_CalculateDate(date_value);
-				time_value = rtcCount % SECS_IN_DAY;
-				rtcTimeDate.hour = Hex2Bcd(time_value / SECS_IN_HOUR);
-				rtcTimeDate.min = Hex2Bcd((time_value % SECS_IN_HOUR)/SECS_IN_MIN);
-				rtcTimeDate.sec = Hex2Bcd((time_value % SECS_IN_HOUR)%SECS_IN_MIN);
+			    RTC_CalculateTimeDate(rtcCount, &timeDate);
+			}
+		}
+		memcpy(*rtcTimeDate, &timeDate, sizeof(timeDate));
+	}
+	else
+	{
+		memcpy(*rtcTimeDate, &oldTimeDate, sizeof(timeDate));
+	}
+	oldTimeDate = timeDate;
+}
+
+void RTC_SetTime(sTimeDate_t* newTimeDate)
+{
+	u32 count;
+	u16 days;
+	u16 year;
+	u8 index;
+
+	//day
+	if(newTimeDate->day > DEFAULT_DAY)
+	{
+		days = newTimeDate->day - DEFAULT_DAY;
+	}
+	//month
+	if(newTimeDate->month > DEFAULT_MONTH)
+	{
+		for(index = DEFAULT_MONTH; index < newTimeDate->month; index++)
+		{
+			days += GetDaysInMonth(index, newTimeDate->year);
+		}
+	}
+	//year
+	if(newTimeDate->year > 0)
+	{
+		for(index = 0; index < newTimeDate->year; index++)
+		{
+			if(IsLeapYear(index + DEFAULT_YEAR) == TRUE)
+			{
+				days += DAYS_IN_LEAPYEAR;
+			}
+			else
+			{
+				days += DAYS_IN_YEAR;
 			}
 		}
 	}
+	//time
+	count = (days * SECS_IN_DAY) +
+			(newTimeDate->hour * SECS_IN_HOUR) +
+			(newTimeDate->min * SECS_IN_MIN) +
+			(newTimeDate->sec);
+	//set rtc
+    RTC_WaitForLastTask();
+    RTC_SetCounter(count);
+    RTC_WaitForLastTask();
 }
 
-void GetTimeDateInBCD(sTimeDateBCD_t* pData)
-{
-	Time_Read();
-	memcpy(pData, &rtcTimeDate, sizeof(rtcTimeDate));
-}
-
+//----------------------------------------------------------------------------
+//void GetTimeDateInBCD(sTimeDateBCD_t* pData)
+//{
+//	RTC_GetTime();
+//	memcpy(pData, &rtcTimeDateInBCD, sizeof(rtcTimeDateInBCD));
+//}
+//
+//sTimeDate_t RTC_GetRtcTimeDate(void)
+//{
+//	RTC_GetTime();
+//	return rtcTimeDate;
+//}
+//----------------------------------------------------------------------------
 void RTC_ChangeRtcTimeStatus(BOOL set)
 {
 	updatedRTCTime = set;
 }
-
+//----------------------------------------------------------------------------
 BOOL RTC_GetRtcTimeStatus(void)
 {
 	return updatedRTCTime;
 }
-
+//----------------------------------------------------------------------------
 void RTC_ChangeDisplayTimeStatus(BOOL set)
 {
 	updateDisplayTime = set;
 }
-
+//----------------------------------------------------------------------------
 BOOL RTC_GetDisplayTimeStatus(void)
 {
 	return updateDisplayTime;
 }
-
-BYTE GetDayofMonth(BYTE month)
+//----------------------------------------------------------------------------
+void InitializeTime(void)
 {
-	BYTE days = 31;
 
-	if(month == 2)
-	{
-		days = 28;
-	}
-	else if((month == 4) || (month == 6) || (month == 9) || (month == 11))
-	{
-		days = 30;
-	}
-	return days;
 }
+

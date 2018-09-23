@@ -1,41 +1,49 @@
-#ifndef __RTC__
-#define __RTC__
+#ifndef __RTC_H__
+#define __RTC_H__
 
 //=============================================================================
-//  
+//  Defines
 //=============================================================================
+#define SECS_IN_MIN				60
+#define MINS_IN_HOUR			60
+#define HOURS_IN_DAY			24
+#define SECS_IN_HOUR			SECS_IN_MIN * MINS_IN_HOUR	//3600
+#define SECS_IN_DAY				SECS_IN_HOUR * HOURS_IN_DAY	//86400
+#define DAYS_IN_YEAR 			365
+#define DAYS_IN_LEAPYEAR		366
+// DEFAUTL DATE : 2018-JAN-1
+#define DEFAULT_YEAR			2018
+#define DEFAULT_MONTH			1
+#define DEFAULT_DAY				1
+
+//=============================================================================
+//  Type definitions
+//=============================================================================
+
 typedef struct
 {
-	BYTE sec;
-	BYTE min;
-	BYTE hour;
-
-	BYTE day;
-	BYTE month;
-	BYTE year;
+	u8 sec;
+	u8 min;
+	u8 hour;
+	u8 day;
+	u8 month;
+	u8 year;
 } sTimeDate_t;
-
-// BCD Type
-typedef struct
-{
-	BYTE sec;
-	BYTE min;
-	BYTE hour;
-	BYTE day;
-	BYTE month;
-	BYTE year;
-} sTimeDateBCD_t;
 
 //=============================================================================
 //  Function Prototype
 //=============================================================================
-extern void RTC_ChangeCount(sTimeDate_t *time);
-extern void Time_Read(void);
-extern void GetTimeDateInBCD(sTimeDateBCD_t* pData);
+extern void RTC_Configuration(void);
+extern void RTC_IRQHandler(void);
+
+extern void RTC_SetTime(sTimeDate_t *time);
+extern void RTC_GetTime(sTimeDate_t* rtcTimeDate);
+
 extern void RTC_ChangeRtcTimeStatus(BOOL set);
 extern BOOL RTC_GetRtcTimeStatus(void);
 extern void RTC_ChangeDisplayTimeStatus(BOOL set);
 extern BOOL RTC_GetDisplayTimeStatus(void);
-extern BYTE GetDayofMonth(BYTE month);
+
+extern u8 GetDaysInMonth(u8 month, u16 year);
 
 #endif

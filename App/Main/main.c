@@ -224,23 +224,6 @@ void USART3_IRQHandler(void)
 	}
 }
 
-//-----------------------------------------------------------------------------
-//	Process RTC Interrupt
-//-----------------------------------------------------------------------------
-void RTC_IRQHandler(void)
-{
-	if (RTC_GetITStatus(RTC_IT_SEC) != RESET)
-	{
-		// Clear the RTC Second interrupt
-		RTC_ClearITPendingBit(RTC_IT_SEC);
-
-		RTC_ChangeRtcTimeStatus(SET);
-
-		// Wait until last write operation on RTC registers has finished 
-		RTC_WaitForLastTask();
-	}
-}
-
 //=============================================================================
 //  main function
 //=============================================================================
@@ -291,6 +274,9 @@ void main(void)
 
 	// Load NV data from flash memory
 	LoadNvDataFromStorage();
+
+	//
+	InitializeTime();
 
 	// initialize Debug Serial
 	USART3_Init();
@@ -354,7 +340,7 @@ void main(void)
 		Auto_Sequence();
 
 		Key_Proc();
-		Time_Read();
+		RTC_GetTime();
 		
 		// video process handler
 		VideoProcessHandler();

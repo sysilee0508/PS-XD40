@@ -148,7 +148,7 @@ typedef enum
 
 typedef struct
 {
-	uint8_t 				timeCorrecOffset;
+	uint8_t 				timeCorrectOffset;
 	eDirection_t 			timeCorrectDirection;
 	eTimeUnit_t 			timeCorrectUint;
 } sTimeCorrect_t;

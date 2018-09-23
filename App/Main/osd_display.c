@@ -238,18 +238,18 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 
 static u8 CreateDateString(u8 *pDateStr)
 {
-	sTimeDateBCD_t rtcDate;
+	sTimeDate_t rtcDate;
 	eDateFormat_t dateFormat;
 	BOOL year4digit;
 	u8 year[5];
 	u8 month[2];
 	u8 day[2];
 
-	GetTimeDateInBCD(&rtcDate);
+	RTC_GetTime(&rtcDate);
 	Read_NvItem_DateFormat(&dateFormat);
 	Read_NvItem_YearFormat(&year4digit);
 
-	memset(year NULL, sizeof(year));
+	memset(year, NULL, sizeof(year));
 	if(year4digit == FALSE) //2digit
 	{
 		year[0] = (rtcDate.year >> 4) + ASCII_ZERO;
