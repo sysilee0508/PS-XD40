@@ -249,7 +249,7 @@ static u8 CreateDateString(u8 *pDateStr)
 	Read_NvItem_DateFormat(&dateFormat);
 	Read_NvItem_YearFormat(&year4digit);
 
-	memset(year NULL, sizeof(year));
+	memset(year, NULL, sizeof(year));
 	if(year4digit == FALSE) //2digit
 	{
 		year[0] = (rtcDate.year >> 4) + ASCII_ZERO;
@@ -314,14 +314,14 @@ static u8 CreateTimeString(u8 *pTimeStr)
 	sTimeDateBCD_t rtcTime;
 
 	GetTimeDateInBCD(&rtcTime);
-    pTimeStr = ((rtcTime.hour>>4)+ ASCII_ZERO);
-    ++pTimeStr = ((rtcTime.hour&0x0f)+ ASCII_ZERO);
-    ++pTimeStr = ':';
-    ++pTimeStr = ((rtcTime.min>>4)+ ASCII_ZERO);
-    ++pTimeStr = ((rtcTime.min&0x0f)+ ASCII_ZERO);
-    ++pTimeStr = ':';
-    ++pTimeStr = ((rtcTime.sec>>4)+ ASCII_ZERO);
-    ++pTimeStr = ((rtcTime.sec&0x0f)+ ASCII_ZERO);
+    *pTimeStr = ((rtcTime.hour>>4)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.hour&0x0f)+ ASCII_ZERO);
+    *(++pTimeStr) = ':';
+    *(++pTimeStr) = ((rtcTime.min>>4)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.min&0x0f)+ ASCII_ZERO);
+    *(++pTimeStr) = ':';
+    *(++pTimeStr) = ((rtcTime.sec>>4)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.sec&0x0f)+ ASCII_ZERO);
 
 	return strlen(pTimeStr);
 }
@@ -333,7 +333,7 @@ static sPosition_t OSD_GetAutoFreezePosition(u8 strLength)
 	BOOL timeOn;
 
 	Read_NvItem_TimeDisplayOn(&timeOn);
-	Read_NvItem_DisplayMode(displayMode);
+	Read_NvItem_DisplayMode(&displayMode);
 
 	// x
 	if(timeOn == ON)
@@ -402,7 +402,7 @@ static void OSD_Display_AUTO(void)
 	sPosition_t position;
 
 	Read_NvItem_TimeDisplayOn(&timeOn);
-	Read_NvItem_DisplayMode(displayMode);
+	Read_NvItem_DisplayMode(&displayMode);
 
 	if(Pre_bAuto_Seq_Flag != bAuto_Seq_Flag)
 	{
@@ -522,7 +522,7 @@ static void OSD_DisplayDateTime(void)
 		{
 			pStr += CreateDateString(pStr);
 			strcpy(pStr, osdStr_Space2);
-			pStr += stlren(osdStr_Space2);
+			pStr += strlen(osdStr_Space2);
 			CreateTimeString(pStr);
 		}
 		else if((dateDisplayOn == ON) && (timeDisplayOn == OFF))
