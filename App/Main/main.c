@@ -315,7 +315,7 @@ void main(void)
 	CreateVideoInstance();
 	CreateOSDInstance();
 	SetVideoOutputfrmt(Video_Out_Res_Val);
-	Osd_Init_Erase();
+	Osd_ClearScreen();
 
 	//VS4210 device initialization
 	vs4210_system_init();

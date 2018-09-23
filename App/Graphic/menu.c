@@ -2073,7 +2073,7 @@ void Enter_MainMenu(void)
 	ChangeSystemMode(SYSTEM_SETUP_MODE);
 	requestEnterKeyProc = CLEAR;
 	SetKeyMode(KEY_MODE_REPEAT);
-	Osd_Init_Erase();//OSD_EraseAll();
+	Osd_ClearScreen();//OSD_EraseAll();
 	MainMenu_Entry(MAINMENU_ITEM_Y_TIME_DATE);
 }
 
