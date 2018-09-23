@@ -85,10 +85,16 @@ void SetAlarmOption(eChannel_t channel, eAlarmOption_t option)
 
 void StartStopAlarm(BOOL start_stop)
 {
+	u8 alarmBuzzerTime;
+	u8 alarmOutTime;
+
+	Read_NvItem_AlarmBuzzerTime(&alarmBuzzerTime);
+	Read_NvItem_AlarmOutTime(&alarmOutTime);
+
 	if(start_stop == ALARM_START)
 	{
-		alarmBuzzerCountIn500ms = sys_env.vAlarmBuzzerTime * 2;
-		alarmOutTimeCountInSec = sys_env.vAlarmOutTime;
+		alarmBuzzerCountIn500ms = alarmBuzzerTime * 2;
+		alarmOutTimeCountInSec = alarmOutTime;
 		ALARMOUT_LOW;
 	}
 	else

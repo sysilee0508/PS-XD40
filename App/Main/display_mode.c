@@ -31,6 +31,6 @@ void Set_DisplayoutputMode_FullScreen(BYTE ch)
 
 void Set_DisplayoutputMode_Splite4(void)
 {
-	sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
+	sys_status.current_split_mode = SPLITMODE_SPLIT4;
 }
 
