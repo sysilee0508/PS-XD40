@@ -238,7 +238,7 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 
 static u8 CreateDateString(u8 *pDateStr)
 {
-	sTimeDate_t rtcDate;
+  static sTimeDate_t rtcDate;
 	eDateFormat_t dateFormat;
 	BOOL year4digit;
 	u8 year[5];
