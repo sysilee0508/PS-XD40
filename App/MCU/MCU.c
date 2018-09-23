@@ -132,13 +132,15 @@ void USART3_Init(void)
     //-Flow control None.
     //-Receive and transmit enabled
 
-//    USART_InitStructure.USART_BaudRate      = 115200;
+#if 0
 	if(sys_env.baud_rate == 0) USART_InitStructure.USART_BaudRate = 1200;
 	else if(sys_env.baud_rate == 1) USART_InitStructure.USART_BaudRate = 2400;
 	else if(sys_env.baud_rate == 2) USART_InitStructure.USART_BaudRate = 4800;
 	else if(sys_env.baud_rate == 3) USART_InitStructure.USART_BaudRate = 9600;
 	else if(sys_env.baud_rate == 4) USART_InitStructure.USART_BaudRate = 19200;
-
+#else
+	USART_InitStructure.USART_BaudRate = 19200; // this is temporary. we need to check requested baud rate
+#endif
     USART_InitStructure.USART_WordLength    = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits      = USART_StopBits_1;
     USART_InitStructure.USART_Parity        = USART_Parity_No; 
@@ -238,93 +240,3 @@ void IRQ_Init(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void RTC_Configuration(void)
-{
-	// Enable PWR and BKP clocks
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
-
-	// Allow access to BKP Domain
-	PWR_BackupAccessCmd(ENABLE);
-
-	if (BKP_ReadBackupRegister(BKP_DR1) != 0xA5A5)	
-	{
-		// Reset Backup Domain
-		BKP_DeInit();		//RTC related register reset (RTC related registers are not reset in system reset)
-		BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);
-	}
-
-
-	// Enable LSE 
-	RCC_LSEConfig(RCC_LSE_ON);
-
-	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
-	{
-	}
-
-	// Select the RTC Clock Source
-	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
-
-	// Enable the RTC Clock
-	RCC_RTCCLKCmd(ENABLE);
-
-	// RTC configuration 
-	// Wait for RTC APB registers synchronisation
-	RTC_WaitForSynchro();
-	// Wait until last write operation on RTC registers has finished
-	RTC_WaitForLastTask();
-
-	// Set the RTC time base to 1s
-	RTC_SetPrescaler(32767); // RTC period = RTCCLK/RTC_PR = (32.768 KHz)/(32767+1)
-	// Wait until last write operation on RTC registers has finished
-	RTC_WaitForLastTask();
-
-	// Enable the RTC Second 
-	RTC_ITConfig(RTC_IT_SEC, ENABLE);
-	// Wait until last write operation on RTC registers has finished 
-	RTC_WaitForLastTask();
-}
-
-
-//-----------------------------------------------------------------------------------
-// Flash Programming (like EEPROM)
-//-----------------------------------------------------------------------------------
-#define ProgramTimeout        ((uint32_t)0x00002000)
-#define	EEPROM_ADDR	0x0803F800 //256K 
-BYTE EEP_buf[2048];
-
-void write_eeprom_all(void)
-{
-	DWORD *pEEP_buf;
-	WORD i;
-
-	pEEP_buf = (DWORD *)EEP_buf;
-
-	FLASH_Unlock(); 
-
-	FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP| FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);	
-	FLASH_ErasePage(EEPROM_ADDR);                                    
-
-	for(i = 0; i < 512; i++)
-	{
-		FLASH_ProgramWord(EEPROM_ADDR+(i*4),pEEP_buf[i]);
-	}
-}
-
-void read_eeprom_all(void)
-{
-	vu32 Addr;
-	DWORD *pEEP_buf;
-	WORD i;
-	
-	pEEP_buf = (DWORD *)EEP_buf;
-
-	Addr = EEPROM_ADDR;
-
-	for(i = 0; i < 512; i++)
-	{
-		*pEEP_buf = *((vu32 *)Addr);
-		Addr += 4;
-		pEEP_buf++;
-	}
-}
-

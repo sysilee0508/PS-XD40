@@ -39,7 +39,7 @@ static int TimeOutCount ;
 // External Variable 
 // ----------------------------------------------------------------------
 tiByte bSignal[4]= {0,0,0,0} ;
-tiByte gbVXIS_InputMode[4] ;
+tiByte gbVXIS_InputMode[4];
 tiByte gbVXIS_OuputModeflg = VS4210_FULL_MODE1;
 tByte gaHDMI_MapWindowIndex[4] = {0,1,2,3} ;
 tiByte gbVXIS_OuputSize =  _OUTPUT_1080P60;
@@ -931,32 +931,67 @@ static void HDMI_Rx_NoSignal(void )
 	}
 }
 
+void VS4210_DisplayoutputMode_Splite4(void)
+{
+	VS4210_JointKind1.WindowMap.WMap0 = 1 ;
+	VS4210_JointKind1.WindowMap.WMap1 = 2 ;
+	VS4210_JointKind1.WindowMap.WMap2 = 3 ;
+	VS4210_JointKind1.WindowMap.WMap3 = 4 ;
+	VS4210_JointKind1.OutputSize = gbVXIS_OuputSize ;
+	VS4210_JointKind1.OutputMode = VS4210_FULL_MODE1;
+
+	VS4210_VideoJoin_Output(&VS4210_JointKind1) ;
+}
+
+void VS4210_DisplayoutputMode_FullScreen(tiByte ch)
+{
+	VS4210_JointKind1.OutputSize = gbVXIS_OuputSize ;
+	VS4210_JointKind1.OutputMode = VS4210_FULL_MODE0;
+	
+	switch (ch)
+	{
+		case CHANNEL1 : 
+			VS4210_JointKind1.WindowMap.WMap0 = 1 ;
+			break;
+		case CHANNEL2 : 
+			VS4210_JointKind1.WindowMap.WMap0 = 2 ;
+			break;
+		case CHANNEL3 : 
+			VS4210_JointKind1.WindowMap.WMap0 = 3 ;
+			break;
+		case CHANNEL4 : 
+			VS4210_JointKind1.WindowMap.WMap0 = 4 ;
+			break;			
+	}
+	VS4210_VideoJoin_Output(&VS4210_JointKind1) ;
+}
+
 void vs4210_display_proc()
 {
+	tiByte display_output_mode = 0;
 
 	TimeOutCount++ ;
 
 	if (TimeOutCount == 10 )
 	{
 		HDMITX_DevLoopProc() ;
+		
 	}
 
 	if (TimeOutCount > 10 )
 	{
 		dump_count ++ ;
 		TimeOutCount = 0 ;
-
-		VS4210_JointKind1.WindowMap.WMap0 = 1 ;
-		VS4210_JointKind1.WindowMap.WMap1 = 2 ;
-		VS4210_JointKind1.WindowMap.WMap2 = 3 ;
-		VS4210_JointKind1.WindowMap.WMap3 = 4 ;
-		VS4210_JointKind1.OutputSize = gbVXIS_OuputSize ;
-		VS4210_JointKind1.OutputMode = VS4210_FULL_MODE1;
-		OutSize30fpsFlg1 = 0 ;
-
-		VS4210_VideoJoin_Output(&VS4210_JointKind1) ;
-		//I2CWrite(VS4210_ADDR, 0x1A, 0x0E);
-
+		display_output_mode = Get_DisplayoutputMode();
+		if (display_output_mode == SPLITMODE_SPLIT4_1)
+		{
+			VS4210_DisplayoutputMode_Splite4();
+		}
+		else
+		{
+			VS4210_DisplayoutputMode_FullScreen(display_output_mode);
+		}
+		
 		for (gHDMI_Index = 0 ; gHDMI_Index < CH_IN_NUMBER ; gHDMI_Index++)
 		{
 			bSignal[gHDMI_Index] = CheckHDMIRX();
@@ -1002,54 +1037,41 @@ void vs4210_display_proc()
 //--------------------------------------------------------------------------------------------------------------------------
 void vs4210_system_init()
 {
+	tiByte i ;
 
-    tiByte i ;
-    tiByte reg_IN0, reg_IN1, reg_INA, reg_OS0C, reg_OS0D, reg_PT0 = 0;
+	for (i = 0 ; i < CH_IN_NUMBER ; i++)
+	{
+		bSignal[i] = 0 ;
+		gbPreVXIS_InputMode[i] = 251 ;
+		bOldSignal[i] = 0  ;
+		gCloseWindowflg[i] = 0 ;
+	}
+	PreVXIS_FULLOuputModeflg = 0 ;
+	dump_count = 0 ;
 
-    for (i = 0 ; i < CH_IN_NUMBER ; i++)
-    {
-        bSignal[i] = 0 ;
-        gbPreVXIS_InputMode[i] = 251 ;
-        bOldSignal[i] = 0  ;
-        gCloseWindowflg[i] = 0 ;
-    }
-    PreVXIS_FULLOuputModeflg = 0 ;
-    dump_count = 0 ;
+	I2CWrite(VS4210_ADDR, 0x01 ,0x5A) ;  //reset
 
-    I2CWrite(VS4210_ADDR, 0x01 ,0x5A) ;  //reset
+	for (i = 0 ; i < CH_IN_NUMBER ; i++ )
+	{
+		gHDMI_Index = i ;
+		InitHDMIRX(0 );
+	}
 
-    for (i = 0 ; i < CH_IN_NUMBER ; i++ )
-    {
-        gHDMI_Index = i ;
-        InitHDMIRX(0 );
-        //HDMIRX_WriteI2C_Byte(0x89 ,0x80);
-    }
+	VS4210_Line_Clear() ;
+	VS4210_Line_Draw(gbVXIS_OuputModeflg ) ;
+	gHDMI_Index = 0 ;
 
-    VS4210_Line_Clear() ;
-    VS4210_Line_Draw(gbVXIS_OuputModeflg ) ;
-    gHDMI_Index = 0 ;
+	OSD_Clear_All();
+	VS4210_StartInit();
 
-    OSD_Clear_All();
-    VS4210_StartInit();
+	I2CWrite(VS4210_ADDR, 0x10, 0x80);
+	I2CWrite(VS4210_ADDR, 0x11, /*reg_IN1 |*/ 0x03);
 
-    //reg_IN0 = I2CRead(VS4210_ADDR, 0x10);
-    I2CWrite(VS4210_ADDR, 0x10, 0x80);
-    //reg_IN1 = I2CRead(VS4210_ADDR, 0x11);
-    I2CWrite(VS4210_ADDR, 0x11, /*reg_IN1 |*/ 0x03);
-    //reg_IN1 = I2CRead(VS4210_ADDR, 0x11);
-    //reg_INA = I2CRead(VS4210_ADDR, 0x1A);
-    //I2CWrite(VS4210_ADDR, 0x1A, 0x0E);
+	HDMI_Tx_Init();
+	GetHDMIstate();
+	I2CWrite(VS4210_ADDR, 0x81, 0x00);
+	TimeOutCount = 0 ;
 
-    HDMI_Tx_Init();
-    GetHDMIstate();
-    //reg_OS0C = I2CRead(VS4210_ADDR, 0x81);
-    I2CWrite(VS4210_ADDR, 0x81, 0x00);
-    //reg_OS0D = I2CRead(VS4210_ADDR, 0x82);
-    //reg_PT0 = I2CRead(VS4210_ADDR, 0xF0);
-    //I2CWrite(VS4210_ADDR, 0xF0, reg_PT0 | 0x86);
-    //reg_PT0 = I2CRead(VS4210_ADDR, 0xF0);
-    TimeOutCount = 0 ;
-
-    OSD_init();
+	OSD_init();
 
 }

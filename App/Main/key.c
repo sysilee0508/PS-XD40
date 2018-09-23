@@ -15,12 +15,12 @@ u8 pre_special_mode = LEFT_TOP;
 //=============================================================================
 static keycode_t current_keycode = KEYCODE_NONE;
 static keycode_t led_keycode = KEYCODE_NONE;
-static key_mode_e key_mode = KEY_MODE_LONG;
-static key_mode_e saved_key_mode = KEY_MODE_LONG;
-static keystatus_e key_status = KEY_STATUS_RELEASED;
+static eKeyMode_t key_mode = KEY_MODE_LONG;
+static eKeyMode_t saved_key_mode = KEY_MODE_LONG;
+static eKeyStatus_t key_status = KEY_STATUS_RELEASED;
 static BOOL bKeyReady = CLEAR;
-static keydata_e current_keydata = KEY_NONE;
-static u8 pre_split_mode = 0;
+static eKeyData_t current_keydata = KEY_NONE;
+static eSplitmode_t pre_split_mode = SPLITMODE_FULL_CH1;
 
 
 //=============================================================================
@@ -39,7 +39,7 @@ const static keycode_t keycode_table[] =
 	KEYCODE_NONE		//0x7f	0111 1111	127
 };
 
-const static keydata_e key_table[] =
+const static eKeyData_t key_table[] =
 {
 	KEY_FULL_CH1,
 	KEY_FULL_CH2,
@@ -57,15 +57,16 @@ const static keydata_e key_table[] =
 #define KEYCOUNT_REPEAT			40	//400ms
 #define KEYCOUNT_LONG			80	//800ms
 
-#ifdef __9CH_DEVICE__
-#define VALID_LONG_KEY(key)		((key == KEY_FREEZE) || (key == KEY_9SPLIT))?TRUE:FALSE
-#else
 #define VALID_LONG_KEY(key)		(key == KEY_FREEZE)?TRUE:FALSE
-#endif
 
 #define VALID_REPEAT_KEY(key)	\
 	((key == KEY_FULL_CH1) || (key == KEY_FULL_CH2) || \
 	 (key == KEY_FULL_CH3) || (key == KEY_FULL_CH4))?TRUE:FALSE
+
+#define VALID_MENU_KEY(key)		\
+	((key == KEY_LEFT) || (key == KEY_RIGHT) || \
+	 (key == KEY_UP) || (key == KEY_DOWN) || \
+	 (key == KEY_ENTER) || (key == KEY_EXIT))?TRUE:FALSE
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -73,7 +74,7 @@ const static keydata_e key_table[] =
 //-----------------------------------------------------------------------------
 // Interface
 //-----------------------------------------------------------------------------
-void SetKeyMode(key_mode_e mode)
+void SetKeyMode(eKeyMode_t mode)
 {
 	saved_key_mode = mode;
 	if(GetKeyStatus() == KEY_STATUS_RELEASED)
@@ -82,12 +83,12 @@ void SetKeyMode(key_mode_e mode)
 	}
 }
 
-key_mode_e GetKeyMode(void)
+eKeyMode_t GetKeyMode(void)
 {
 	return key_mode;
 }
 //-----------------------------------------------------------------------------
-keycode_t GetKeyCode(keydata_e key)
+keycode_t GetKeyCode(eKeyData_t key)
 {
 	keycode_t code = KEYCODE_NONE;
 	u8 i;
@@ -108,11 +109,11 @@ keycode_t GetKeyCode(keydata_e key)
 	return code;
 }
 //-----------------------------------------------------------------------------
-void UpdateKeyStatus(keystatus_e status)
+void UpdateKeyStatus(eKeyStatus_t status)
 {
 	key_status = status; 
 }
-keystatus_e GetKeyStatus(void)
+eKeyStatus_t GetKeyStatus(void)
 {
 	return key_status;
 }
@@ -130,11 +131,11 @@ BOOL IsKeyReady(void)
 	return bKeyReady;
 }
 //-----------------------------------------------------------------------------
-void UpdateKeyData(keydata_e key)
+void UpdateKeyData(eKeyData_t key)
 {
 	current_keydata = key;
 }
-keydata_e GetCurrentKey(void)
+eKeyData_t GetCurrentKey(void)
 {
 	return current_keydata;
 }
@@ -210,10 +211,16 @@ void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
 	keycode_t leds;
+	eKeyData_t key;
 
 	if(GetKeyStatus() == KEY_STATUS_RELEASED)
 	{
-		leds = GetKeyCode(GetCurrentKey());
+		key = GetCurrentKey();
+		if(VALID_MENU_KEY(key) == TRUE)
+		{
+			key &= (~KEY_SPECIAL);
+		}
+		leds = GetKeyCode(key);
 	}
 	else
 	{
@@ -248,7 +255,7 @@ void Key_Led_Ctrl(void)
 }
 
 //-----------------------------------------------------------------------------
-//	KeyINPUT()�Լ����� ���� ���� ���¿� ���� �ٽ� ó���ϴ� �Լ�	(20ms���� ����)
+//
 //-----------------------------------------------------------------------------
 void Key_Check(void)	
 {
@@ -256,7 +263,7 @@ void Key_Check(void)
 
 	static u8 debounce_cnt = KEYCOUNT_SHORT;
 	static u8 key_cnt = 0;
-	static keydata_e processing_key_data = KEY_NONE;
+	static eKeyData_t processing_key_data = KEY_NONE;
 	static BOOL bLongKey = CLEAR;
 	static BOOL bRepeatKey = CLEAR;
 
@@ -325,7 +332,8 @@ void Key_Check(void)
 					if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
 				  		bRepeatKey = SET;
-				  		UpdateKeyData(processing_key_data | (keydata_e)KEY_LONG);
+
+				  		UpdateKeyData(processing_key_data | KEY_LONG);
 						SetKeyReady();
 					}
 					else
@@ -370,75 +378,59 @@ void Key_Check(void)
 
 void Key_Proc(void)
 {
-	static keydata_e previous_keydata = KEY_NONE;
-	keydata_e key = GetCurrentKey();
+	static eKeyData_t previous_keydata = KEY_NONE;
+	eKeyData_t key = GetCurrentKey();
+	BOOL autoSeq_skipNoVideoChannel;
+	eDisplayMode_t displayMode;
+
 
 	if(IsKeyReady()==TRUE)
 	{
 		ClearKeyReady();
 
+		if(GetSystemMode() == SYSTEM_SETUP_MODE)
+		{
+			key |= KEY_SPECIAL;
+		}
+
+		Read_NvItem_DisplayMode(&displayMode);
 		switch(key)
 		{
 			case KEY_FULL_CH1 : 
 			case KEY_FULL_CH2 : 
 			case KEY_FULL_CH3 : 
 			case KEY_FULL_CH4 : 
-#ifdef __9CH_DEVICE__
-			case KEY_FULL_CH5 : 
-			case KEY_FULL_CH6 : 
-			case KEY_FULL_CH7 : 
-			case KEY_FULL_CH8 : 
-			case KEY_FULL_CH9 :
-#endif
 				// If key is changed...
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					//if(pre_split_mode > FULL_9) //2015.5.23 �ּ�ó��
-					{
-						Erase_OSD();
-					}
+					Osd_ClearScreen();//OSD_EraseAll();
 					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
-					bMode_change_flag = SET;
+					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = key-1;
-#ifdef __9CH_DEVICE__
-					if(key == KEY_FULL_CH9)
-					{
-						Set_border_line();
-						aux_display_flag = SET;
-						//MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-						DEMO_SetPIPViewWIND(0);	// update pip/pop window
-					}
-					else
-#endif
-					{
-						//aux_display_flag = CLEAR;
-						//MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-						//FullScreen(key_data-1); //blocked by Louis
-						Set_border_line();
-					}
+					Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
+					OSD_DrawBorderLine();
 				}
 				break;
 				
 			case KEY_4SPLIT : 
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					if(pre_split_mode != SPLITMODE_SPLIT4_1 || bAuto_Seq_Flag || bScreenFreeze)
-					{
-						Erase_OSD();
-					}
+//					if(displayMode != DISPLAY_MODE_4SPLIT || bAuto_Seq_Flag || bScreenFreeze)
+//					{
+					Osd_ClearScreen();//OSD_EraseAll();
+//					}
 					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
-					bMode_change_flag = SET;
+					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4_1;
-					//aux_display_flag = CLEAR;
-					//MDIN3xx_EnableAuxDisplay(&stVideo, OFF); 
+					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
+					Write_NvItem_DisplayMode(DISPLAY_MODE_4SPLIT);
 #if 0 //Louis
 				    SGQ_4CH_INIT(change_mode[cmode]);
 #endif
-					Set_border_line();
+					OSD_DrawBorderLine();
 				}
 				break;
 			case KEY_FREEZE :
@@ -447,30 +439,25 @@ void Key_Proc(void)
 				{
 					bScreenFreeze = SET;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
-					// don't need aut display for now Right?....by kukuri
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 1);	//aux freeze On
 				}
 				else
 				{
 					bScreenFreeze = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					// don't need aut display for now Right?....by kukuri
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
 				}
 				break;
 
 			case KEY_AUTO_SEQ :
-				if((CLEAR == sys_env.bLossAutoSkip) || ((vVideo_Loss&0x0000000f) != 0x0000000f))
+				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
+				if((OFF == autoSeq_skipNoVideoChannel) || ((vVideo_Loss&0x0000000f) != 0x0000000f))
 				{
 					if(bAuto_Seq_Flag == CLEAR)
 					{
-						Erase_OSD();
+						Osd_ClearScreen();//OSD_EraseAll();
 					}
 					//bMode_change_flag = SET;
 					bScreenFreeze = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					// don't need aut display for now Right?....by kukuri
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
 					Auto_Seq_Init();
 				}
 				break;
@@ -479,9 +466,7 @@ void Key_Proc(void)
 				bAuto_Seq_Flag = CLEAR;
 				bScreenFreeze = SET;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-				// don't need aut display for now Right?....by kukuri
-				//MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 1, 1, 0);	//aux freeze Off
-				Enter_SetUP();
+				Enter_MainMenu();
 				break;
 
 			case KEY_ALARM :
@@ -490,142 +475,18 @@ void Key_Proc(void)
 				// To Do
 				// Display alarmed channel on the full screen.
 				// If there are more than 1 channel to display, they will be displayed one by one.
-
 				break;
 
-#ifdef __9CH_DEVICE__ // blocked by kukuri
-			case KEY_9SPLIT : 
-				if(pre_key_data != key /*|| SDIRX_change_flag	Louis block*/)
-				{
-					if(sys_env.b9Split_Mode == 0)
-					{
-						if(pre_split_mode != SPLIT9_1 || bAuto_Seq_Flag)
-						{
-							Erase_OSD();
-						}
-						bScreenFreeze = RESET;
-						bAuto_Seq_Flag = RESET;
-						bMode_change_flag = SET;
-						//InputSelect = VIDEO_SDI_2HD_POP;
-						pre_split_mode = sys_status.current_split_mode = SPLIT9_1;
-						aux_display_flag = SET;
-						//MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-#if 0 //Louis
-					    SGQ_9CH_INIT(change_mode[cmode]);
-#endif
-						Set_border_line();
-						DEMO_SetPIPViewWIND(0);	// update pip/pop window
-					}
-					else if((sys_env.b9Split_Mode > 0) && (sys_env.b9Split_Mode < 5))  
-					{
-						if(pre_split_mode != (SPLIT9_1+sys_env.b9Split_Mode) || bAuto_Seq_Flag)
-						{
-							Erase_OSD();
-						}
-						bScreenFreeze = 0;
-						bAuto_Seq_Flag = 0;
-						bMode_change_flag = 1;
-						pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
-						pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
-#if 0 //Louis
-						SGQ_16CH_INIT(change_mode[cmode]);
-#endif
-						//aux_display_flag = 0;
-						aux_display_flag = 1;
-						Set_border_line();
-						DEMO_SetPIPViewWIND(0);	// update pip/pop window
-					}
-					else 
-					{
-						if(pre_split_mode != (SPLIT9_1+sys_env.b9Split_Mode) || bAuto_Seq_Flag)
-						{
-							Erase_OSD();
-						}
-						bScreenFreeze = 0;
-						bAuto_Seq_Flag = 0;
-						bMode_change_flag = 1;
-						pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
-						pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
-#if 0 //Louis
-						SGQ_9CH_INIT(change_mode[cmode]);
-#endif
-						//aux_display_flag = 0;
-						aux_display_flag = 1;
-						Set_border_line();
-						DEMO_SetPIPViewWIND(0);	// update pip/pop window
-					}
-				}
+			case KEY_UP:
+			case KEY_DOWN:
+			case KEY_LEFT:
+			case KEY_RIGHT:
+			case KEY_ENTER:
+			case KEY_EXIT:
+				Menu_KeyProc(key);
 				break;
-
-			case KEY_9SPLIT + 0x80 : 
-				
-				Inc_Dec_Count(8,0,1,&sys_env.b9Split_Mode);
-				
-				if(sys_env.b9Split_Mode == 0)
-				{
-					if(pre_split_mode != SPLIT9_1 || bAuto_Seq_Flag)
-					{
-						Erase_OSD();
-					}
-					bScreenFreeze = 0;
-					bAuto_Seq_Flag = 0;
-					bMode_change_flag = 1;
-					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = SPLIT9_1;
-					aux_display_flag = 1;
-					//MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-#if 0 //Louis
-				    SGQ_9CH_INIT(change_mode[cmode]);
-#endif
-					Set_border_line();
-					DEMO_SetPIPViewWIND(0);	// update pip/pop window
-				}
-				else if((sys_env.b9Split_Mode > 0) && (sys_env.b9Split_Mode < 5))  
-				{
-					if(pre_split_mode != (SPLIT9_1+sys_env.b9Split_Mode) || bAuto_Seq_Flag)
-					{
-						Erase_OSD();
-					}
-					bScreenFreeze = 0;
-					bAuto_Seq_Flag = 0;
-					bMode_change_flag = 1;
-					pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
-					pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
-#if 0 //Louis
-					SGQ_16CH_INIT(change_mode[cmode]);
-#endif
-					//aux_display_flag = 0;
-					aux_display_flag = 1;
-					Set_border_line();
-					DEMO_SetPIPViewWIND(0);	// update pip/pop window
-				}
-				else 
-				{
-					if(pre_split_mode != (SPLIT9_1+sys_env.b9Split_Mode) || bAuto_Seq_Flag)
-					{
-						Erase_OSD();
-					}
-					bScreenFreeze = 0;
-					bAuto_Seq_Flag = 0;
-					bMode_change_flag = 1;
-					pre_split_mode = sys_status.current_split_mode = SPLIT9_1+sys_env.b9Split_Mode;
-					pre_special_mode = LEFT_TOP+sys_env.b9Split_Mode-1;
-#if 0 //Louis
-					SGQ_9CH_INIT(change_mode[cmode]);
-#endif
-					//aux_display_flag = 0;
-					aux_display_flag = 1;
-					Set_border_line();
-					DEMO_SetPIPViewWIND(0);	// update pip/pop window
-				}
-
-				EEP_buf[cSYSENV_b9Split_Mode] = sys_env.b9Split_Mode;
-				write_eeprom_all();
-
-				break;
-#endif // __9CH_DEVICE__
 		}
-		previous_keydata = key & (~KEY_LONG);
+		previous_keydata = key & 0x1F; // clear long or special key mark
 	}
 }
 

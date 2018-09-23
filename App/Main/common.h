@@ -29,11 +29,13 @@
 
 #include "mdintype.h"
 
+#include "mdintype.h"
+#include "nv_storage.h"
 #include "main.h"
 #include "key.h"
 #include "Rtc.h"
 #include "osd_display.h"
-#include "sequence.h"
+#include "Sequence.h"
 
 #include "MCU.h"
 #include "i2c.h"
@@ -70,13 +72,19 @@ typedef enum {
 #define NOP()	asm("NOP")
 
 // -----------------------------------------------------------------------------
+
+#define CHAR_WIDTH_E					12
+#define CHAR_WIDTH_K					24
+#define CHAR_HEIGHT						24
+
+
+// -----------------------------------------------------------------------------
+// Typedef
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
 // External Variables declaration
 // -----------------------------------------------------------------------------
-extern volatile BOOL fUSBXferMode, fZOOMMove, fCROPMove;
-
-// -----------------------------------------------------------------------------
-// Exported function Prototype
-// -----------------------------------------------------------------------------
-
+extern volatile BOOL fZOOMMove, fCROPMove;
 
 #endif	/* __COMMON_H__ */

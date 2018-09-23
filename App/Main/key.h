@@ -21,6 +21,7 @@
 #define KEYCODE_FREEZE		0xDF	//1101 1111
 #define KEYCODE_SEQUENCE	0xBF	//1011 1111
 
+#define KEY_SPECIAL			0x40
 #define KEY_LONG			0x80
 
 #define LEFT_TOP			0x0
@@ -33,7 +34,7 @@ typedef enum KeyMode
 	KEY_MODE_LONG,
 	KEY_MODE_REPEAT,
 	KEY_MODE_MAX
-} key_mode_e;
+} eKeyMode_t;
 
 typedef enum
 {
@@ -43,30 +44,29 @@ typedef enum
 	KEY_FULL_CH2,
 	KEY_FULL_CH3,
 	KEY_FULL_CH4,
-#ifdef __9CH_DEVICE__
-	KEY_FULL_CH5,
-	KEY_FULL_CH6,
-	KEY_FULL_CH7,
-	KEY_FULL_CH8,
-	KEY_FULL_CH9,
-#endif
 	KEY_4SPLIT			= 0x15,
-	KEY_9SPLIT			= 0x16,
 	KEY_FREEZE			= 0x19,
 	KEY_AUTO_SEQ		= 0x1A,
-//----Function Keys-----------------------------------
-	KEY_ALARM			= 0x51,
+//----Function (Virtual) Keys-----------------------
+	KEY_ALARM			= 0x21,
+//----Menu Keys-------------------------------------
+	KEY_LEFT			= KEY_FULL_CH1 | KEY_SPECIAL,
+	KEY_UP				= KEY_FULL_CH2 | KEY_SPECIAL,
+	KEY_DOWN			= KEY_FULL_CH3 | KEY_SPECIAL,
+	KEY_RIGHT			= KEY_FULL_CH4 | KEY_SPECIAL,
+	KEY_ENTER			= KEY_4SPLIT | KEY_SPECIAL,
+	KEY_EXIT			= KEY_FREEZE | KEY_SPECIAL,
 //----Long Keys--------------------------------------
 	KEY_FREEZE_LONG		= KEY_FREEZE | KEY_LONG,	//0x99
 	KEY_MENU			= KEY_FREEZE_LONG,
 	KEY_MAX				= 0xFF
-} keydata_e;
+} eKeyData_t;
 
 typedef enum
 {
 	KEY_STATUS_PRESSED = 0,
 	KEY_STATUS_RELEASED
-} keystatus_e;
+} eKeyStatus_t;
 
 typedef u8 keycode_t;
 
@@ -96,15 +96,15 @@ extern void Key_Proc(void);
 extern void Key_Led_Ctrl(void);
 
 // Interface
-extern void SetKeyMode(key_mode_e mode);
-extern key_mode_e GetKeyMode(void);
-extern keycode_t GetKeyCode(keydata_e key);
-extern void UpdateKeyStatus(keystatus_e status);
-extern keystatus_e GetKeyStatus(void);
+extern void SetKeyMode(eKeyMode_t mode);
+extern eKeyMode_t GetKeyMode(void);
+extern keycode_t GetKeyCode(eKeyData_t key);
+extern void UpdateKeyStatus(eKeyStatus_t status);
+extern eKeyStatus_t GetKeyStatus(void);
 extern void SetKeyReady(void);
 extern void ClearKeyReady(void);
 extern BOOL IsKeyReady(void);
-extern void UpdateKeyData(keydata_e key);
-extern keydata_e GetCurrentKey(void);
+extern void UpdateKeyData(eKeyData_t key);
+extern eKeyData_t GetCurrentKey(void);
 extern BOOL IsScreenFreeze(void);
 #endif

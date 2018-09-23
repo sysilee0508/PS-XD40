@@ -1,1479 +1,698 @@
 #include "common.h"
+#include "osd_string.h"
 
-BYTE bMode_change_flag = 0;
+#define NUM_OF_POSITION					6
+#define MARGIN_X						2
+#define MARGIN_Y						4
+
+#define DATE_TIME_LENGTH				20 // "yyyy-mm-dd hh:mm:ss "
+#define DATE_LENGTH_4DIGIT				10 // "yyyy-mm-dd"
+#define DATE_LENGTH_2DIGIT				8 // "yy-mm-dd"
+#define TIME_LENGTH						8 // "hh:mm:ss"
 
 struct osd_location 
 {
 	u8 state;
-	u16 loc_x;
-	u16 loc_y;
 	u8 length;
+	sPosition_t location;
 };
 
-struct osd_location osd_ch_name_location_buf[9];
-struct osd_location osd_video_lose_location_buf[9];
-struct osd_location osd_freeze_autoseq_location_buf[2];
+struct osd_location osd_ch_name_location_buf[NUM_OF_CHANNEL];
+struct osd_location osd_video_lose_location_buf[NUM_OF_CHANNEL];
+struct osd_location osd_freeze_autoseq_location_buf;
+
+static const sPosition_t tbl_OSD_SPLIT4_POSITION[NUM_OF_CHANNEL][NUM_OF_POSITION] =
+{
+//  TopLeft										TopCenter													TopRight
+//			BottomLeft									BottomCenter												BottomRight
+	{{0, 0},									{DISPLAY_QUAD_WIDTH, 0},									{DISPLAY_HALF_WIDTH, 0},
+			{0, DISPLAY_HALF_HEIGHT},					{DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT},					{DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT}},	//CH01
+	{{DISPLAY_HALF_WIDTH, 0},					{DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, 0},					{DISPLAY_WIDTH, 0},
+			{DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT},	{DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT},	{DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}},	//CH02
+	{{0, DISPLAY_HALF_HEIGHT},					{DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT},					{DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT},
+			{0,DISPLAY_HEIGHT},							{DISPLAY_QUAD_WIDTH,DISPLAY_HEIGHT},						{DISPLAY_HALF_WIDTH,DISPLAY_HEIGHT}},	//CH03
+	{{DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT},	{DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT},	{DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT},
+			{DISPLAY_HALF_WIDTH,DISPLAY_HEIGHT},		{DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH,DISPLAY_HEIGHT},		{DISPLAY_WIDTH,DISPLAY_HEIGHT}}	//CH04
+};
+
+BYTE changedDisplayMode = CLEAR;
 
 //-----------------------------------------------------------------------------
-// 4���� OSG ��ġ��
+// static Functions
 //-----------------------------------------------------------------------------
-const u16 tbl_OSG_SPLIT4_POSITION_1920x1080[] =			 
+static BOOL IsTitlePositionTop(void)
 {
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0,   0,  480,   0,   960,   0,    0, 540,   480, 540,    960, 540,	//CH01
-     960,   0, 1440,   0,  1920,   0,  960, 540,  1440, 540,   1920, 540,	//CH02
-       0, 540,  480, 540,   960, 540,    0,1080,   480,1080,    960,1080,	//CH03
-     960, 540, 1440, 540,  1920, 540,  960,1080,  1440,1080,   1920,1080,	//CH04
-};
+	eTitlePosition_t titlePosition;
+	BOOL result = FALSE;
 
-#ifdef __9CH_DEVICE__
-//-----------------------------------------------------------------------------
-// 9���� OSG ��ġ��
-//-----------------------------------------------------------------------------
-const u16 tbl_OSG_SPLIT9_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0,   0,  320,   0,   640,   0,    0, 360,   320, 360,    640, 360,	//CH01
-     640,   0,  960,   0,  1280,   0,  640, 360,   960, 360,   1280, 360,	//CH02
-    1280,   0, 1600,   0,  1920,   0, 1280, 360,  1600, 360,   1920, 360,	//CH03
+	Read_NvItem_TitlePosition(&titlePosition);
+	if((titlePosition == TITLE_POSITION_TOP_LEFT) ||
+		(titlePosition == TITLE_POSITION_TOP_RIGHT) ||
+		(titlePosition == TITLE_POSITION_TOP_CENTER) ||
+		(titlePosition == TITLE_POSITION_4SPILIT_CENTER))
+	{
+		result = TRUE;
+	}
+	return result;
+}
 
-       0, 360,  320, 360,   640, 360,    0, 720,   320, 720,    640, 720,	//CH04
-     640, 360,  960, 360,  1280, 360,  640, 720,   960, 720,   1280, 720,	//CH05
-    1280, 360, 1600, 360,  1920, 360, 1280, 720,  1600, 720,   1920, 720,	//CH06
-
-       0, 720,  320, 720,   640, 720,    0,1080,   320,1080,    640,1080,	//CH07
-     640, 720,  960, 720,  1280, 720,  640,1080,   960,1080,   1280,1080,	//CH08
-    1280, 720, 1600, 720,  1920, 720, 1280,1080,  1600,1080,   1920,1080,	//CH09
-};
-
-//-----------------------------------------------------------------------------
-// 8���� OSG ��ġ��
-//-----------------------------------------------------------------------------
-/*const u16 tbl_OSG_SPLIT8_1_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0,   0,  720,   0,  1440,   0,    0, 810,   720, 810,   1440, 810,	//CH01
-
-       0, 810,  240, 810,   480, 810,    0,1080,   240,1080,    480,1080,	//CH02
-     480, 810,  720, 810,   960, 810,  480,1080,   720,1080,    960,1080,	//CH03
-     960, 810, 1200, 810,  1440, 810,  960,1080,  1200,1080,   1440,1080,	//CH04
-
-    1440,   0, 1680,   0,  1920,   0, 1440, 270,  1680, 270,   1920, 270,	//CH05
-    1440, 270, 1680, 270,  1920, 270, 1440, 540,  1680, 540,   1920, 540,	//CH06
-    1440, 540, 1680, 540,  1920, 540, 1440, 810,  1680, 810,   1920, 810,	//CH07
-    1440, 810, 1680, 810,  1920, 810, 1440,1080,  1680,1080,   1920,1080,	//CH08
-};
-
-const u16 tbl_OSG_SPLIT8_2_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-     480,   0, 1200,   0,  1920,   0,  480, 810,  1200, 810,   1920, 810,	//CH01
-
-       0,   0,  240,   0,   480,   0,    0, 270,   240, 270,    480, 270,	//CH02
-       0, 270,  240, 270,   480, 270,    0, 540,   240, 540,    480, 540,	//CH03
-       0, 540,  240, 540,   480, 540,    0, 810,   240, 810,    480, 810,	//CH04
-       0, 810,  240, 810,   480, 810,    0,1080,   240,1080,    480,1080,	//CH05
-
-     480, 810,  720, 810,   960, 810,  480,1080,   720,1080,    960,1080,	//CH06
-     960, 810, 1200, 810,  1440, 810,  960,1080,  1200,1080,   1440,1080,	//CH07
-    1440, 810, 1680, 810,  1920, 810, 1440,1080,  1680,1080,   1920,1080,	//CH08
-};
-
-const u16 tbl_OSG_SPLIT8_3_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0, 270,  720, 270,  1440, 270,    0,1080,   720,1080,   1440,1080,	//CH01
-
-       0,   0,  240,   0,   480,   0,    0, 270,   240, 270,    480, 270,	//CH02
-     480,   0,  720,   0,   960,   0,  480, 270,   720, 270,    960, 270,	//CH03
-     960,   0, 1200,   0,  1440,   0,  960, 270,  1200, 270,   1440, 270,	//CH04
-
-    1440,   0, 1680,   0,  1920,   0, 1440, 270,  1680, 270,   1920, 270,	//CH05
-    1440, 270, 1680, 270,  1920, 270, 1440, 540,  1680, 540,   1920, 540,	//CH06
-    1440, 540, 1680, 540,  1920, 540, 1440, 810,  1680, 810,   1920, 810,	//CH07
-    1440, 810, 1680, 810,  1920, 810, 1440,1080,  1680,1080,   1920,1080,	//CH08
-};
-
-const u16 tbl_OSG_SPLIT8_4_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-     480, 270, 1200, 270,  1920, 270,  480,1080,  1200,1080,   1920,1080,	//CH01
-
-       0,   0,  240,   0,   480,   0,    0, 270,   240, 270,    480, 270,	//CH02
-     480,   0,  720,   0,   960,   0,  480, 270,   720, 270,    960, 270,	//CH03
-     960,   0, 1200,   0,  1440,   0,  960, 270,  1200, 270,   1440, 270,	//CH04
-    1440,   0, 1680,   0,  1920,   0, 1440, 270,  1680, 270,   1920, 270,	//CH05
-
-       0, 270,  240, 270,   480, 270,    0, 540,   240, 540,    480, 540,	//CH06
-       0, 540,  240, 540,   480, 540,    0, 810,   240, 810,    480, 810,	//CH07
-       0, 810,  240, 810,   480, 810,    0,1080,   240,1080,    480,1080,	//CH08
-};*/
-
-const u16 tbl_OSG_SPLIT8_1_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0, 810,  240, 810,   480, 810,    0,1080,   240,1080,    480,1080,	//CH01
-     480, 810,  720, 810,   960, 810,  480,1080,   720,1080,    960,1080,	//CH02
-     960, 810, 1200, 810,  1440, 810,  960,1080,  1200,1080,   1440,1080,	//CH03
-    1440,   0, 1680,   0,  1920,   0, 1440, 270,  1680, 270,   1920, 270,	//CH04
-    1440, 270, 1680, 270,  1920, 270, 1440, 540,  1680, 540,   1920, 540,	//CH05
-    1440, 540, 1680, 540,  1920, 540, 1440, 810,  1680, 810,   1920, 810,	//CH06
-    1440, 810, 1680, 810,  1920, 810, 1440,1080,  1680,1080,   1920,1080,	//CH07
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH08
-       0,   0,  720,   0,  1440,   0,    0, 810,   720, 810,   1440, 810,	//CH09
-};
-
-const u16 tbl_OSG_SPLIT8_2_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0,   0,  240,   0,   480,   0,    0, 270,   240, 270,    480, 270,	//CH01
-       0, 270,  240, 270,   480, 270,    0, 540,   240, 540,    480, 540,	//CH02
-       0, 540,  240, 540,   480, 540,    0, 810,   240, 810,    480, 810,	//CH03
-       0, 810,  240, 810,   480, 810,    0,1080,   240,1080,    480,1080,	//CH04
-     480, 810,  720, 810,   960, 810,  480,1080,   720,1080,    960,1080,	//CH05
-     960, 810, 1200, 810,  1440, 810,  960,1080,  1200,1080,   1440,1080,	//CH06
-    1440, 810, 1680, 810,  1920, 810, 1440,1080,  1680,1080,   1920,1080,	//CH07
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH08
-     480,   0, 1200,   0,  1920,   0,  480, 810,  1200, 810,   1920, 810,	//CH09
-};
-
-const u16 tbl_OSG_SPLIT8_3_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0,   0,  240,   0,   480,   0,    0, 270,   240, 270,    480, 270,	//CH01
-     480,   0,  720,   0,   960,   0,  480, 270,   720, 270,    960, 270,	//CH02
-     960,   0, 1200,   0,  1440,   0,  960, 270,  1200, 270,   1440, 270,	//CH03
-    1440,   0, 1680,   0,  1920,   0, 1440, 270,  1680, 270,   1920, 270,	//CH04
-    1440, 270, 1680, 270,  1920, 270, 1440, 540,  1680, 540,   1920, 540,	//CH05
-    1440, 540, 1680, 540,  1920, 540, 1440, 810,  1680, 810,   1920, 810,	//CH06
-    1440, 810, 1680, 810,  1920, 810, 1440,1080,  1680,1080,   1920,1080,	//CH07
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH08
-       0, 270,  720, 270,  1440, 270,    0,1080,   720,1080,   1440,1080,	//CH09
-};
-
-const u16 tbl_OSG_SPLIT8_4_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0,   0,  240,   0,   480,   0,    0, 270,   240, 270,    480, 270,	//CH01
-     480,   0,  720,   0,   960,   0,  480, 270,   720, 270,    960, 270,	//CH02
-     960,   0, 1200,   0,  1440,   0,  960, 270,  1200, 270,   1440, 270,	//CH03
-    1440,   0, 1680,   0,  1920,   0, 1440, 270,  1680, 270,   1920, 270,	//CH04
-       0, 270,  240, 270,   480, 270,    0, 540,   240, 540,    480, 540,	//CH05
-       0, 540,  240, 540,   480, 540,    0, 810,   240, 810,    480, 810,	//CH06
-       0, 810,  240, 810,   480, 810,    0,1080,   240,1080,    480,1080,	//CH07
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH08
-     480, 270, 1200, 270,  1920, 270,  480,1080,  1200,1080,   1920,1080,	//CH09
-};
-
-//-----------------------------------------------------------------------------
-// 6���� OSG ��ġ��
-//-----------------------------------------------------------------------------
-const u16 tbl_OSG_SPLIT6_1_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0, 720,  320, 720,   640, 720,    0,1080,   320,1080,    640,1080,	//CH01
-     640, 720,  960, 720,  1280, 720,  640,1080,   960,1080,   1280,1080,	//CH02
-    1280,   0, 1600,   0,  1920,   0, 1280, 360,  1600, 360,   1920, 360,	//CH03
-    1280, 360, 1600, 360,  1920, 360, 1280, 720,  1600, 720,   1920, 720,	//CH04
-    1280, 720, 1600, 720,  1920, 720, 1280,1080,  1600,1080,   1920,1080,	//CH05
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH06
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH07
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH08
-       0,   0,  640,   0,  1280,   0,    0, 720,   640, 720,   1280, 720,	//CH09
-};
-
-const u16 tbl_OSG_SPLIT6_2_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0,   0,  320,   0,   640,   0,    0, 360,   320, 360,    640, 360,	//CH01
-       0, 360,  320, 360,   640, 360,    0, 720,   320, 720,    640, 720,	//CH02
-       0, 720,  320, 720,   640, 720,    0,1080,   320,1080,    640,1080,	//CH03
-     640, 720,  960, 720,  1280, 720,  640,1080,   960,1080,   1280,1080,	//CH04
-    1280, 720, 1600, 720,  1920, 720, 1280,1080,  1600,1080,   1920,1080,	//CH05
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH06
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH07
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH08
-     640,   0, 1280,   0,  1920,   0,  640, 720,  1280, 720,   1920, 720,	//CH09
-};
-
-const u16 tbl_OSG_SPLIT6_3_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0,   0,  320,   0,   640,   0,    0, 360,   320, 360,    640, 360,	//CH01
-     640,   0,  960,   0,  1280,   0,  640, 360,   960, 360,   1280, 360,	//CH02
-    1280,   0, 1600,   0,  1920,   0, 1280, 360,  1600, 360,   1920, 360,	//CH03
-    1280, 360, 1600, 360,  1920, 360, 1280, 720,  1600, 720,   1920, 720,	//CH04
-    1280, 720, 1600, 720,  1920, 720, 1280,1080,  1600,1080,   1920,1080,	//CH05
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH06
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH07
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH08
-       0, 360,  640, 360,  1280, 360,    0,1080,   640,1080,   1280,1080,	//CH09
-};
-
-const u16 tbl_OSG_SPLIT6_4_POSITION_1920x1080[] =			 
-{
-//  TopLeft    TopCenter  TopRight    BottomLeft  BottomCenter BottomRight	
-       0,   0,  320,   0,   640,   0,    0, 360,   320, 360,    640, 360,	//CH01
-     640,   0,  960,   0,  1280,   0,  640, 360,   960, 360,   1280, 360,	//CH02
-    1280,   0, 1600,   0,  1920,   0, 1280, 360,  1600, 360,   1920, 360,	//CH03
-       0, 360,  320, 360,   640, 360,    0, 720,   320, 720,    640, 720,	//CH04
-       0, 720,  320, 720,   640, 720,    0,1080,   320,1080,    640,1080,	//CH05
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH06
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH07
-       0,   0,    0,   0,     0,   0,    0,   0,     0,   0,      0,   0,	//CH08
-     640, 360, 1280, 360,  1920, 360,  640,1080,  1280,1080,   1920,1080,	//CH09
-};
-#endif //__9CH_DEVICE__
-BYTE str_Blank[] = "            ";
-//-----------------------------------------------------------------------------
-const u8 str_Freeze[] 		= "FREEZE  ";
-const u8 str_Freeze2[] 		= "FREEZE";
-const u8 str_Freeze3[] 		= "  FREEZE";
-const u8 str_Freeze_BLK[] 	= "        ";
-const u8 str_Freeze_BLK2[] 	= "      ";
-//-----------------------------------------------------------------------------
-const u8 str_AUTO[] = "AUTO  ";
-const u8 str_AUTO2[] = "AUTO";
-const u8 str_AUTO3[] = "  AUTO";
-const u8 str_AUTO_BLK[] = "      ";
-const u8 str_AUTO_BLK2[] = "    ";
-
-//-----------------------------------------------------------------------------
+//static void OSD_Display_Time_Erase(void)
+//{
+//	sPosition_t position;
+//	u8 str_buf[DATE_TIME_LENGTH];
+////	eTimePosition_t timePosition;
 //
-//-----------------------------------------------------------------------------
-void Osd_Init_Erase(void)
-{
-	int i;
-	BYTE pSTR[1920/12];
-	BYTE pSTR2[720/12];
-	
-	memset(pSTR, 0x20, sizeof(pSTR)); 
-	memset(pSTR2, 0x20, sizeof(pSTR2)); 
-
-	//OSD_SetSprite_layer0();
-	
-	OSD_SetFontGAC(SPRITE_INDEX0);
-
-	for(i=0;i<(1080/24);i++) 
-	{
-		MDINGAC_SetDrawXYMode(i*CHAR_HEIGHT, 0, pSTR, sizeof(pSTR), 0);
-	}
-
-	memset(osd_ch_name_location_buf, 0, sizeof(osd_ch_name_location_buf));
-}
-
-
-//-----------------------------------------------------------------------------
+//	if(IsTitlePositionTop() == TRUE) // if title position is top
+//	{
+//		//if title position is top then time should be located at bottom
+//		position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT - MARGIN_Y;
+//	}
+//	else
+//	{
+//		// If not, time position goes top
+//		position.pos_y = MARGIN_Y;
+//	}
+////
+////	Read_NvItem_TimePosition(&timePosition);
+////	position.pos_x = tblTimeDisplayLoc_X[timePosition];
+//	position.pos_x = (DISPLAY_WIDTH - (DATE_TIME_LENGTH*CHAR_WIDTH_E))/2 - 12;
 //
-//-----------------------------------------------------------------------------
-
-void OSG_Display_Time_Erase(void);
-void OSD_Str_Loss_Erase(void);
-void OSD_Str_Freeze_autoseq_Erase(void);
-
-void Erase_OSD(void)
-{
-	int i = 0;
-
-	OSD_SetFontGAC(SPRITE_INDEX0);
-
-	for(i=0; i<NUM_OF_CHANNEL; i++)
-	{
-		if(osd_ch_name_location_buf[i].state == 1)
-		{
-			MDINGAC_SetDrawXYMode(osd_ch_name_location_buf[i].loc_y,
-								osd_ch_name_location_buf[i].loc_x,
-								str_Blank,
-								osd_ch_name_location_buf[i].length,
-								0);
-		}
-	}
-	OSD_Str_Loss_Erase();
-	if(!bAuto_Seq_Flag)
-	{
-		OSD_Str_Freeze_autoseq_Erase();
-	}
-	if(bSETUP)
-	{
-		OSG_Display_Time_Erase();
-	}
-}
-
-
-//-----------------------------------------------------------------------------
+//	memset(str_buf, ASCII_SPACE, sizeof(str_buf));
+//	OSD_PrintString(position,  str_buf, sizeof(str_buf));
+//}
 //
-//-----------------------------------------------------------------------------
-void Print_OSD_Str(u16 PosX, u16 PosY, const u8 *FontData, u8 ch)
-{  
-	OSD_SetFontGAC(SPRITE_INDEX0);
-
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen((const char *)FontData), 0);
-
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
-
-	osd_ch_name_location_buf[ch].state = 1;
-	//osd_ch_name_location_buf[ch].loc_x = PosX-1;
-	osd_ch_name_location_buf[ch].loc_x = PosX;
-	osd_ch_name_location_buf[ch].loc_y = PosY;
-	//osd_ch_name_location_buf[ch].length = strlen(FontData)+2;
-	osd_ch_name_location_buf[ch].length = strlen((const char *)FontData);
-}
-
-void Print_OSD_Str2(u16 PosX, u16 PosY, const u8 *FontData)
-{  
-	OSD_SetFontGAC(SPRITE_INDEX0);
-
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen((const char *)FontData), 0);
-
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
-}
-
-void Print_OSD_Str_Loss(u16 PosX, u16 PosY, const u8 *FontData, u8 ch)
-{  
-	OSD_SetFontGAC(SPRITE_INDEX0);
-
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen((const char *)FontData), 0);
-
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
-
-	osd_video_lose_location_buf[ch].state = 1;
-	//osd_video_lose_location_buf[ch].loc_x = PosX-1;
-	osd_video_lose_location_buf[ch].loc_x = PosX;
-	osd_video_lose_location_buf[ch].loc_y = PosY;
-	//osd_video_lose_location_buf[ch].length = strlen(FontData)+2;
-	osd_video_lose_location_buf[ch].length = strlen((const char *)FontData);
-}
-
-BYTE space2[] = "          ";
-void OSD_Str_Loss_Erase(void)
-{
-	u8 i = 0;
-	
-	for(i=0; i<NUM_OF_CHANNEL; i++)
-	{
-		if(osd_video_lose_location_buf[i].state == 1)
-		{
-			MDINGAC_SetDrawXYMode(osd_video_lose_location_buf[i].loc_y,
-					osd_video_lose_location_buf[i].loc_x,
-					str_Blank,
-					osd_video_lose_location_buf[i].length,
-					0);
-		}
-	}
-}
-
-void Print_OSD_Str_Freeze_Autoseq(u16 PosX, u16 PosY, const u8 *FontData)
-{  
-	OSD_SetFontGAC(SPRITE_INDEX0);
-
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, strlen((const char *)FontData), 0);
-
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
-
-	osd_freeze_autoseq_location_buf[0].state = 1;
-	//osd_freeze_autoseq_location_buf[0].loc_x = PosX-1;
-	osd_freeze_autoseq_location_buf[0].loc_x = PosX;
-	osd_freeze_autoseq_location_buf[0].loc_y = PosY;
-	//osd_freeze_autoseq_location_buf[0].length = strlen(FontData)+2;
-	osd_freeze_autoseq_location_buf[0].length = strlen((const char *)FontData);
-}
-
-BYTE space3[] = "        ";
-void OSD_Str_Freeze_autoseq_Erase(void)
-{
-	//u8 i = 0;
-	
-	//for(i=0; i<1; i++)
-	{
-		if(osd_freeze_autoseq_location_buf[0].state == 1)
-		{
-			MDINGAC_SetDrawXYMode(osd_freeze_autoseq_location_buf[0].loc_y,
-					osd_freeze_autoseq_location_buf[0].loc_x,
-					str_Blank,
-					osd_freeze_autoseq_location_buf[0].length,
-					0);
-		}
-	}
-}
-
-
-void Print_OSD_Char(u16 PosX, u16 PosY, u8 *FontData, u16 SIZE, u8 ch)
-{  
-	OSD_SetFontGAC(SPRITE_INDEX0);
-
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, SIZE, 0);
-
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
-
-	osd_ch_name_location_buf[ch].state = 1;
-	//osd_ch_name_location_buf[ch].loc_x = PosX-1;
-	osd_ch_name_location_buf[ch].loc_x = PosX;
-	osd_ch_name_location_buf[ch].loc_y = PosY;
-	//osd_ch_name_location_buf[ch].length = SIZE+2;
-	osd_ch_name_location_buf[ch].length = SIZE;
-}
-
-void Print_OSD_Char_Time(u16 PosX, u16 PosY, u8 *FontData, u16 SIZE)
-{  
-	OSD_SetFontGAC(SPRITE_INDEX0);
-
-	MDINGAC_SetDrawXYMode(PosY, PosX, (PBYTE)FontData, SIZE, 0);
-
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
-}
-
-//-----------------------------------------------------------------------------
+//static void OSD_Str_Loss_Erase(void)
+//{
+//	eChannel_t channel;
 //
-//-----------------------------------------------------------------------------
-void OSG_Display(void)
-{
-	if(sys_env.bOSD_Display)
-	{
-		if(bMode_change_flag && (!bSETUP))
-		{
-			//if(sys_env.bTITLE_ON) Erase_OSD();
-			if(sys_env.bTITLE_ON) OSG_Display_CH_name();
-			if(sys_env.bTIME_ON) OSG_Display_Time_NOW();
-		}
-
-		if(!bSETUP) OSG_Display_State();
-
-		if(sys_env.bTIME_ON && (!bSETUP)) OSG_Display_Time();
-	}
-
-	bMode_change_flag = CLEAR;
-}
-
-//-----------------------------------------------------------------------------
+//	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//	{
+//		if(osd_video_lose_location_buf[channel].state == ON)
+//		{
+//			MDINGAC_SetDrawXYMode(osd_video_lose_location_buf[channel].location.pos_y,
+//					osd_video_lose_location_buf[channel].location.pos_x,
+//					(u8 *)str_Blank,
+//					osd_video_lose_location_buf[channel].length,
+//					0);
+//		}
+//	}
+//}
 //
-//-----------------------------------------------------------------------------
-u8 Str_len(u8 *Ch_name)
+//static void OSD_Str_Freeze_autoseq_Erase(void)
+//{
+//	if(osd_freeze_autoseq_location_buf.state == ON)
+//	{
+//		MDINGAC_SetDrawXYMode(osd_freeze_autoseq_location_buf.location.pos_y,
+//				osd_freeze_autoseq_location_buf.location.pos_x,
+//				(u8 *)str_Blank,
+//				osd_freeze_autoseq_location_buf.length,
+//				0);
+//	}
+//}
+
+static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t titlePosition, eDisplayMode_t displayMode, u8 length)
 {
-	u8 i,j=12;
-	u8 *Ch_name_Ptr = Ch_name;
+	sPosition_t position;
+	u8 channel_name[CHANNEL_NEME_LENGTH_MAX] = {0,};
 
-	Ch_name_Ptr+=11;
-	for(i=0;i<12;i++)
+	Read_NvItem_ChannelName(channel_name, channel);
+
+	switch(titlePosition)
 	{
-		if((*Ch_name_Ptr) != ' ') break;	
-		else Ch_name_Ptr--; 
+		case TITLE_POSITION_TOP_LEFT://0:
+			switch(displayMode)
+			{
+				case DISPLAY_MODE_FULL_SCREEN:
+					position.pos_x = MARGIN_X;
+					position.pos_y = 0;
+					break;
 
-		j--;
+				case DISPLAY_MODE_4SPLIT:
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x + MARGIN_X;
+					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y;
+					break;
+			}
+			break;
+
+		case TITLE_POSITION_TOP_CENTER://1
+			switch(displayMode)
+			{
+				case DISPLAY_MODE_FULL_SCREEN:
+					position.pos_x = (DISPLAY_WIDTH - (strlen(channel_name) * CHAR_WIDTH_K)) / 2;
+					position.pos_y = 0;
+					break;
+
+				case DISPLAY_MODE_4SPLIT:
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - (length * CHAR_WIDTH_E)/2;
+					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y;
+					break;
+			}
+			break;
+
+		case TITLE_POSITION_TOP_RIGHT://2
+			switch(displayMode)
+			{
+				case DISPLAY_MODE_FULL_SCREEN:
+					position.pos_x = DISPLAY_WIDTH - MARGIN_X - (length * CHAR_WIDTH_K);
+					position.pos_y = 0;
+				break;
+
+				case DISPLAY_MODE_4SPLIT:
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - (length * CHAR_WIDTH_E) - MARGIN_X;
+					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y;
+				break;
+
+			}
+			break;
+
+		case TITLE_POSITION_BOTTOM_LEFT://3:
+			switch(displayMode)
+			{
+				case DISPLAY_MODE_FULL_SCREEN:
+					position.pos_x = MARGIN_X;
+					position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT;
+				break;
+
+				case DISPLAY_MODE_4SPLIT:
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x + MARGIN_X;
+					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y - CHAR_HEIGHT;
+				break;
+			}
+			break;
+
+		case TITLE_POSITION_BOTTOM_CENTER: //4
+			switch(displayMode)
+			{
+				case DISPLAY_MODE_FULL_SCREEN:
+					position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH_K)) / 2;
+					position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT;
+				break;
+
+				case DISPLAY_MODE_4SPLIT:
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - (length * CHAR_WIDTH_E) / 2;
+					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y - CHAR_HEIGHT;
+				break;
+			}
+			break;
+
+		case TITLE_POSITION_BOTTOM_RIGHT://5:
+			switch(displayMode)
+			{
+				case DISPLAY_MODE_FULL_SCREEN:
+					position.pos_x = DISPLAY_WIDTH - MARGIN_X - (length * CHAR_WIDTH_K);
+					position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT;
+					break;
+
+				case DISPLAY_MODE_4SPLIT:
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - MARGIN_X - (length * CHAR_WIDTH_E);
+					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y - CHAR_HEIGHT;
+				break;
+			}
+			break;
+
+		case TITLE_POSITION_4SPILIT_CENTER://6:
+			switch(displayMode)
+			{
+				case DISPLAY_MODE_FULL_SCREEN: //center-top
+					position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH_K)) / 2;
+					position.pos_y = 0;
+				break;
+
+				case DISPLAY_MODE_4SPLIT:
+					if(channel == CHANNEL1 || channel == CHANNEL2) //center-bottom
+					{
+						position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_BOTTOM_CENTER].pos_x - (length * CHAR_WIDTH_E) / 2;
+						position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_BOTTOM_CENTER].pos_y - CHAR_HEIGHT;
+					}
+					else if(channel == CHANNEL3 || channel == CHANNEL4) //center-top
+					{
+						position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_x - (length * CHAR_WIDTH_E)/2;
+					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_y;
+					}
+				break;
+			}
+			break;
 	}
-
-	return j;	
+	return position;
 }
 
-
-ST_POINT Ext_HV_Pos(u8 CH, u8 OSD_Pos)
+static u8 CreateDateString(u8 *pDateStr)
 {
-	ST_POINT Pos_Val;
-	u8 vMODE;
-	u8 vStart_CH; 
-	
-	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH4)//SPLITMODE_FULL_CH9)
-	{
-		vMODE = FULL_SCREEN_MODE;
-		vStart_CH = sys_status.current_split_mode;
-	}
-	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
-	{
-		vMODE = SPLIT_4_MODE;
-		vStart_CH = 0;
-	}
-#ifdef __9CH_DEVICE__
-	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
-	{
-		vMODE = SPLIT_4_MODE;
-		vStart_CH = 4;
-	}
-	else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
-	{
-		vMODE = SPLIT_9_MODE;
-		vStart_CH = 0;
-	}
-#endif
-	switch(OSD_Pos)
-	{
-		case 0: 
-		{
-			switch(vMODE)
-			{
-				case FULL_SCREEN_MODE:
-					Pos_Val.x = 2;
-					Pos_Val.y = 0;
-				break;
-					
-				case SPLIT_4_MODE:
-					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[CH*12]+2;
-					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[(CH*12)+1];
-				break;
-#ifdef __9CH_DEVICE__
-				case SPLIT_9_MODE:
-					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[CH*12]+2;
-						Pos_Val.y = tbl_OSG_SPLIT9_POSITION_1920x1080[(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_1_POSITION_1920x1080[CH*12]+2;
-						Pos_Val.y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_2_POSITION_1920x1080[CH*12]+2;
-						Pos_Val.y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_3_POSITION_1920x1080[CH*12]+2;
-						Pos_Val.y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_4_POSITION_1920x1080[CH*12]+2;
-						Pos_Val.y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_6)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_1_POSITION_1920x1080[CH*12]+2;
-						Pos_Val.y = tbl_OSG_SPLIT6_1_POSITION_1920x1080[(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_7)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_2_POSITION_1920x1080[CH*12]+2;
-						Pos_Val.y = tbl_OSG_SPLIT6_2_POSITION_1920x1080[(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_8)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_3_POSITION_1920x1080[CH*12]+2;
-						Pos_Val.y = tbl_OSG_SPLIT6_3_POSITION_1920x1080[(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_9)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_4_POSITION_1920x1080[CH*12]+2;
-						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[(CH*12)+1];
-					}
-				break;
-#endif
-			}
-		}
-		break;
-		
-		case 1:
-			switch(vMODE)
-			{
-				case FULL_SCREEN_MODE:
-					Pos_Val.x = (1920/2)-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
-					Pos_Val.y = 0;
-				break;
-					
-				case SPLIT_4_MODE:
-					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[2+(CH*12)+1];
-				break;
-#ifdef __9CH_DEVICE__
-				case SPLIT_9_MODE:
-					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT9_POSITION_1920x1080[2+(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_1_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[2+(CH*12)+1];
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_2_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[2+(CH*12)+1];
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_3_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[2+(CH*12)+1];
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_4_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[2+(CH*12)+1];
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_6)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_1_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT6_1_POSITION_1920x1080[2+(CH*12)+1];
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_7)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_2_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT6_2_POSITION_1920x1080[2+(CH*12)+1];
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_8)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_3_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT6_3_POSITION_1920x1080[2+(CH*12)+1];
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_9)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_4_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[2+(CH*12)+1];
-					} 
-				break;
-#endif
-			}
-		break;
-		
-		case 2:
-			switch(vMODE)
-			{
-				case FULL_SCREEN_MODE:
-					//Pos_Val.x = 1920-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24);
-					Pos_Val.x = 1920-2-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
-					Pos_Val.y = 0;
-				break;
-					
-				case SPLIT_4_MODE:
-					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[4+(CH*12)+1];
-				break;
-#ifdef __9CH_DEVICE__
-				case SPLIT_9_MODE:
-					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT9_POSITION_1920x1080[4+(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_1_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[4+(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_2_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[4+(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_3_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[4+(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_4_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[4+(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_6)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_1_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT6_1_POSITION_1920x1080[4+(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_7)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_2_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT6_2_POSITION_1920x1080[4+(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_8)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_3_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT6_3_POSITION_1920x1080[4+(CH*12)+1];
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_9)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_4_POSITION_1920x1080[4+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[4+(CH*12)+1];
-					}
-				break;
-#endif
-			}
-		break;
-		
-		case 3:
-			switch(vMODE)
-			{
-				case FULL_SCREEN_MODE:
-					Pos_Val.x = 2;
-					//Pos_Val.y = 1080-48;
-					Pos_Val.y = 1080-24;
-				break;
-					
-				case SPLIT_4_MODE:
-					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[6+(CH*12)]+2;
-					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[6+(CH*12)+1]-24;
-				break;
-#ifdef __9CH_DEVICE__
-				case SPLIT_9_MODE:
-					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[6+(CH*12)]+2;
-						Pos_Val.y = tbl_OSG_SPLIT9_POSITION_1920x1080[6+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_1_POSITION_1920x1080[6+(CH*12)]+2;
-						Pos_Val.y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[6+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_2_POSITION_1920x1080[6+(CH*12)]+2;
-						Pos_Val.y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[6+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_3_POSITION_1920x1080[6+(CH*12)]+2;
-						Pos_Val.y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[6+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_4_POSITION_1920x1080[6+(CH*12)]+2;
-						Pos_Val.y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[6+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_6)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_1_POSITION_1920x1080[6+(CH*12)]+2;
-						Pos_Val.y = tbl_OSG_SPLIT6_1_POSITION_1920x1080[6+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_7)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_2_POSITION_1920x1080[6+(CH*12)]+2;
-						Pos_Val.y = tbl_OSG_SPLIT6_2_POSITION_1920x1080[6+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_8)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_3_POSITION_1920x1080[6+(CH*12)]+2;
-						Pos_Val.y = tbl_OSG_SPLIT6_3_POSITION_1920x1080[6+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_9)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_4_POSITION_1920x1080[6+(CH*12)]+2;
-						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[6+(CH*12)+1]-24;
-					}
-				break;
-#endif
-			}
-		break;
+  static sTimeDate_t rtcDate;
+	eDateFormat_t dateFormat;
+	BOOL year4digit;
+	u8 year[5];
+	u8 month[2];
+	u8 day[2];
+	u8 dateLength;
 
-		case 4:
-			switch(vMODE)
-			{
-				case FULL_SCREEN_MODE:
-					Pos_Val.x = (1920/2)-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
-					//Pos_Val.y = 1080-48;
-					Pos_Val.y = 1080-24;
-				break;
-					
-				case SPLIT_4_MODE:
-					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[8+(CH*12)+1]-24;
-				break;
-#ifdef __9CH_DEVICE__
-				case SPLIT_9_MODE:
-					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT9_POSITION_1920x1080[8+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_1_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[8+(CH*12)+1]-24;
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_2_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[8+(CH*12)+1]-24;
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_3_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[8+(CH*12)+1]-24;
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_4_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[8+(CH*12)+1]-24;
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_6)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_1_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT6_1_POSITION_1920x1080[8+(CH*12)+1]-24;
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_7)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_2_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT6_2_POSITION_1920x1080[8+(CH*12)+1]-24;
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_8)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_3_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT6_3_POSITION_1920x1080[8+(CH*12)+1]-24;
-					} 
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_9)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_4_POSITION_1920x1080[8+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[8+(CH*12)+1]-24;
-					} 
-				break;
-#endif
-			}
-		break;
+	RTC_GetTime(&rtcDate);
+	Read_NvItem_DateFormat(&dateFormat);
+	Read_NvItem_YearFormat(&year4digit);
 
-		case 5:
-			switch(vMODE)
-			{
-				case FULL_SCREEN_MODE:
-					//Pos_Val.x = 1920-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24);
-					Pos_Val.x = 1920-2-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
-					//Pos_Val.y = 1080-48;
-					Pos_Val.y = 1080-24;
-				break;
-					
-				case SPLIT_4_MODE:
-					Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-					Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[10+(CH*12)+1]-24;
-				break;
-#ifdef __9CH_DEVICE__
-				case SPLIT_9_MODE:
-					if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT9_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT9_POSITION_1920x1080[10+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_1_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[10+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_2_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[10+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_3_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[10+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT8_4_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[10+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_6)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_1_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT6_1_POSITION_1920x1080[10+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_7)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_2_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT6_2_POSITION_1920x1080[10+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_8)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_3_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT6_3_POSITION_1920x1080[10+(CH*12)+1]-24;
-					}
-					else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_9)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT6_4_POSITION_1920x1080[10+(CH*12)]-2-(Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12);
-						Pos_Val.y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[10+(CH*12)+1]-24;
-					}
-				break;
-#endif
-			}
-		break;
-
-		case 6:
-			switch(vMODE)
-			{
-				case FULL_SCREEN_MODE:
-					Pos_Val.x = (1920/2)-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*24)/2);
-					Pos_Val.y = 0;
-				break;
-
-				case SPLIT_4_MODE:
-					if(CH >= 2)
-					{
-						Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[2+(CH*12)+1];
-					}
-					else 
-					{
-						CH += 2;
-						Pos_Val.x = tbl_OSG_SPLIT4_POSITION_1920x1080[2+(CH*12)]-((Str_len(&sys_env.vCH_NAME[vStart_CH+CH][0])*12)/2);
-						Pos_Val.y = tbl_OSG_SPLIT4_POSITION_1920x1080[2+(CH*12)+1]-24;
-					}
-				break;
-			}
-		break;
+	memset(year, NULL, sizeof(year));
+	if(year4digit == FALSE) //2digit
+	{
+		year[0] = ((rtcDate.year + DEFAULT_YEAR)/ 10) + ASCII_ZERO;
+		year[1] = ((rtcDate.year + DEFAULT_YEAR)% 10) + ASCII_ZERO;
+		dateLength = DATE_LENGTH_2DIGIT;
 	}
-	return Pos_Val;
+	else //4 digit
+	{
+		year[0] = 2 + ASCII_ZERO;
+		year[1] = ASCII_ZERO;
+		year[2] = ((rtcDate.year + DEFAULT_YEAR)/ 10) + ASCII_ZERO;
+		year[3] = ((rtcDate.year + DEFAULT_YEAR)% 10) + ASCII_ZERO;
+		dateLength = DATE_LENGTH_4DIGIT;
+	}
+	month[0] = (rtcDate.month / 10) + ASCII_ZERO;
+	month[1] = (rtcDate.month % 10) + ASCII_ZERO;
+	day[0] = (rtcDate.day / 10) + ASCII_ZERO;
+	day[1] = (rtcDate.day % 10) + ASCII_ZERO;
+
+
+	switch(dateFormat)
+	{
+		case DATE_FORMAT_YMD: //ASIA
+			strncpy(pDateStr, year, strlen(year));
+			pDateStr += strlen(year);
+			strncpy(pDateStr, "-", 1);
+			pDateStr++;
+			strncpy(pDateStr, month, sizeof(month));
+			pDateStr += sizeof(month);
+			strncpy(pDateStr, "-", 1);
+			pDateStr++;
+			strncpy(pDateStr, day, sizeof(day));
+			break;
+
+		case DATE_FORMAT_MDY: //US
+			strncpy(pDateStr, month, sizeof(month));
+			pDateStr += sizeof(month);
+			strncpy(pDateStr, "-", 1);
+			pDateStr++;
+			strncpy(pDateStr, day, sizeof(day));
+			pDateStr += sizeof(day);
+			strncpy(pDateStr, "-", 1);
+			pDateStr++;
+			strncpy(pDateStr, year, strlen(year));
+			break;
+
+		case DATE_FORMAT_DMY: //EURO
+			strncpy(pDateStr, day, sizeof(day));
+			pDateStr += sizeof(day);
+			strncpy(pDateStr, "-", 1);
+			pDateStr++;
+			strncpy(pDateStr, month, sizeof(month));
+			pDateStr += sizeof(month);
+			strncpy(pDateStr, "-", 1);
+			pDateStr++;
+			strncpy(pDateStr, year, strlen(year));
+			break;
+	}
+	return dateLength;
 }
 
-void OSG_Display_CH_name(void)
+static u8 CreateTimeString(u8 *pTimeStr)
 {
-	u8 cnt;
-	ST_POINT Pos;
-	u8 vMAX_Ch; 
-	u8 vStart_CH; 
-	u8 vMODE;
-	
-	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
-	{
-		vMODE = FULL_SCREEN_MODE;
-		vMAX_Ch = 1;
-		vStart_CH = sys_status.current_split_mode;
-	}
-	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
-	{
-		vMODE = SPLIT_4_MODE;
-		vMAX_Ch = 4;
-		vStart_CH = 0;
-	}
-#ifdef __9CH_DEVICE__
-	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
-	{
-		vMODE = SPLIT_4_MODE;
-		vMAX_Ch = 4;
-		vStart_CH = 4;
-	}
-	else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
-	{
-		vMODE = SPLIT_9_MODE;
-		vMAX_Ch = 9;
-		vStart_CH = 0;
-	}
-#endif
-	for(cnt=0;cnt<vMAX_Ch;cnt++)
-	{
-		Pos = Ext_HV_Pos(cnt, sys_env.vOSD_Position);
+	sTimeDate_t rtcTime;
 
-		if(vMODE == FULL_SCREEN_MODE)
-		{
-			Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
-		}
-		else if(vMODE == SPLIT_4_MODE)
-		{
-			Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
-		}
-#ifdef __9CH_DEVICE__
-		else if(vMODE == SPLIT_9_MODE)
-		{
-			if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
-				Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
-			else if(sys_status.current_split_mode > SPLITMODE_SPLIT9_1 && sys_status.current_split_mode < SPLITMODE_SPLIT9_6) 
-			{
-				if(cnt != 7)
-					Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
-			}
-			else 
-			{
-				if(cnt < 5 || cnt == 8)
-					Print_OSD_Char(Pos.x, Pos.y, sys_env.vCH_NAME[vStart_CH+cnt], Str_len(sys_env.vCH_NAME[vStart_CH+cnt]), vStart_CH+cnt);
-			}
-		}
-#endif
-	}
+	RTC_GetTime(&rtcTime);
+    *pTimeStr = ((rtcTime.hour / 10)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.hour % 10)+ ASCII_ZERO);
+    *(++pTimeStr) = ':';
+    *(++pTimeStr) = ((rtcTime.min / 10)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.min % 10)+ ASCII_ZERO);
+    *(++pTimeStr) = ':';
+    *(++pTimeStr) = ((rtcTime.sec / 10)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.sec % 10)+ ASCII_ZERO);
+
+	return TIME_LENGTH;
 }
 
-
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-void OSG_Display_Freeze(void)
+static sPosition_t OSD_GetAutoFreezePosition(u8 strLength)
 {
-	static u16 tblFreezeDisplayLoc_X[3][3] =
+	sPosition_t position;
+	eDisplayMode_t displayMode;
+	BOOL timeOn;
+	BOOL dateOn;
+	BOOL year4digit;
+	u8 dateTimeLength = 0;
+
+	Read_NvItem_YearFormat(&year4digit);
+	Read_NvItem_DateDisplayOn(&dateOn);
+	Read_NvItem_TimeDisplayOn(&timeOn);
+	Read_NvItem_DisplayMode(&displayMode);
+
+	if((dateOn == ON) && (year4digit == TRUE))
 	{
-		0,
-	};
-	static BOOL previous_freezeMode = CLEAR;
+		dateTimeLength = DATE_LENGTH_4DIGIT + 2;
+	}
+	else if((dateOn == ON) && (year4digit == FALSE))
+	{
+		dateTimeLength = DATE_LENGTH_2DIGIT + 2;
+	}
+
+	if(timeOn == ON)
+	{
+		dateTimeLength += TIME_LENGTH;
+	}
+
+	// x
+	if(dateTimeLength > 0)
+	{
+		position.pos_x = (DISPLAY_WIDTH + (MIN(DATE_TIME_LENGTH, dateTimeLength) * CHAR_WIDTH_E)) / 2 ;
+	}
+	else
+	{
+		position.pos_x = (DISPLAY_WIDTH - (strLength * CHAR_WIDTH_E)) / 2;
+	}
+	// y
+	if((IsTitlePositionTop() == FALSE) && (displayMode == DISPLAY_MODE_FULL_SCREEN))
+	{
+		position.pos_y = MARGIN_Y;
+	}
+	else
+	{
+		position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT - MARGIN_Y;
+	}
+
+	return position;
+}
+//-----------------------------------------------------------------------------
+static void OSD_Display_Freeze(void)
+{
 	BOOL current_freezeMode = IsScreenFreeze();
-	u16 PosX;
-	u16 PosY;
+	sPosition_t position;
+	BOOL timeOn;
+	static BOOL previous_freezeMode = CLEAR;
 
+	Read_NvItem_TimeDisplayOn(&timeOn);
 
 	if(previous_freezeMode != current_freezeMode)
 	{
 		previous_freezeMode = current_freezeMode;
+		position = OSD_GetAutoFreezePosition(sizeof(osdStr_Freeze));
 
-		if(sys_env.bTIME_ON) 
+		if(timeOn == ON)
 		{
-			tblFreezeDisplayLoc_X[0][0] = 6+(20*12);
-			tblFreezeDisplayLoc_X[0][1] = 9+(20*18);
-			tblFreezeDisplayLoc_X[0][2] = 12+(20*24);
-			tblFreezeDisplayLoc_X[1][0] = (1920/2)-120+(20*12);
-			tblFreezeDisplayLoc_X[1][1] = (1920/2)-180+(20*18);
-			tblFreezeDisplayLoc_X[1][2] = (1920/2)-240+(20*24);
-			tblFreezeDisplayLoc_X[2][0] = 1920-246-(8*12);
-			tblFreezeDisplayLoc_X[2][1] = 1920-369-(8*18);
-			tblFreezeDisplayLoc_X[2][2] = 1920-492-(8*24);
-
-			PosX = tblFreezeDisplayLoc_X[sys_env.vTIME_Position][0];
-			if(sys_env.vOSD_Position < 3 || sys_env.vOSD_Position == 6) PosY = 1080-24-4;
-			else PosY = 4;
-
-			if(current_freezeMode)
-			{
-				if(sys_env.vTIME_Position < 2)
-				{
-					Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze3);
-				}
-				else
-				{
-					Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze);
-				}
-			}
-			else
-			{
-				Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze_BLK);
-			}
+			position.pos_x += (2 * CHAR_WIDTH_E);
 		}
-		else 
+
+		if(current_freezeMode)
 		{
-			tblFreezeDisplayLoc_X[0][0] = 6;
-			tblFreezeDisplayLoc_X[0][1] = 9;
-			tblFreezeDisplayLoc_X[0][2] = 12;
-			tblFreezeDisplayLoc_X[1][0] = (1920/2)-(3*12);
-			tblFreezeDisplayLoc_X[1][1] = (1920/2)-(3*18);
-			tblFreezeDisplayLoc_X[1][2] = (1920/2)-(3*24);
-			tblFreezeDisplayLoc_X[2][0] = 1920-(6*12)-6;
-			tblFreezeDisplayLoc_X[2][1] = 1920-(6*18)-9;
-			tblFreezeDisplayLoc_X[2][2] = 1920-(6*24)-12;
-
-			PosX = tblFreezeDisplayLoc_X[sys_env.vTIME_Position][0];
-			if(sys_env.vOSD_Position < 3) PosY = 1080-24-4;
-			else PosY = 4;
-
-			if(current_freezeMode) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze2);
-			else Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_Freeze_BLK2);				
+			OSD_PrintString(position,osdStr_Freeze, sizeof(osdStr_Freeze));
+			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_Freeze);
 		}
-	}	
+		else
+		{
+			OSD_PrintString(position, osdStr_Space6, sizeof(osdStr_Space6));
+			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_Space6);
+		}
+		osd_freeze_autoseq_location_buf.state = ON;//1
+		osd_freeze_autoseq_location_buf.location = position;
+	}
 }
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void OSG_Display_AUTO(void)
+static void OSD_Display_AUTO(void)
 {
-	static u16 tblAUTODisplayLoc_X[3][3] =
-	{
-		0,
-	};
 	static u8 Pre_bAuto_Seq_Flag = CLEAR;
-	BOOL current_freezeMode = IsScreenFreeze();
-	u16 PosX;
-	u16 PosY = 1080-24-4;
+	BOOL timeOn;
+	eDisplayMode_t displayMode;
+	sPosition_t position;
+
+	Read_NvItem_TimeDisplayOn(&timeOn);
+	Read_NvItem_DisplayMode(&displayMode);
 
 	if(Pre_bAuto_Seq_Flag != bAuto_Seq_Flag)
 	{
 		Pre_bAuto_Seq_Flag = bAuto_Seq_Flag;
-		
-		if(sys_env.bTIME_ON) 
+		position = OSD_GetAutoFreezePosition(sizeof(osdStr_AUTO));
+
+		if(timeOn == ON)
 		{
-			tblAUTODisplayLoc_X[0][0] = 6+(20*12);
-			tblAUTODisplayLoc_X[0][1] = 9+(20*18);
-			tblAUTODisplayLoc_X[0][2] = 12+(20*24);
-			tblAUTODisplayLoc_X[1][0] = (1920/2)-120+(20*12);
-			tblAUTODisplayLoc_X[1][1] = (1920/2)-180+(20*18);
-			tblAUTODisplayLoc_X[1][2] = (1920/2)-240+(20*24);
-			tblAUTODisplayLoc_X[2][0] = 1920-246-(6*12);
-			tblAUTODisplayLoc_X[2][1] = 1920-369-(6*18);
-			tblAUTODisplayLoc_X[2][2] = 1920-492-(6*24);
-
-			PosX = tblAUTODisplayLoc_X[sys_env.vTIME_Position][0];
-			//if(sys_env.vOSD_Position < 3) PosY = 1080-24-4;
-			if(sys_env.vOSD_Position < 3 || sys_env.vOSD_Position == 6) PosY = 1080-24-4;
-			else PosY = 4;
-
-			if(bAuto_Seq_Flag) 
-			{
-				if(sys_env.vTIME_Position < 2) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO3);			
-				else Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO);			
-			}
-			else 
-			{	
-				if(!current_freezeMode) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO_BLK);
-			}
+			position.pos_x += (2 * CHAR_WIDTH_E);
 		}
-		else 
+
+		if(bAuto_Seq_Flag)
 		{
-			tblAUTODisplayLoc_X[0][0] = 6;
-			tblAUTODisplayLoc_X[0][1] = 9;
-			tblAUTODisplayLoc_X[0][2] = 12;
-			tblAUTODisplayLoc_X[1][0] = (1920/2)-(2*12);
-			tblAUTODisplayLoc_X[1][1] = (1920/2)-(2*18);
-			tblAUTODisplayLoc_X[1][2] = (1920/2)-(2*24);
-			tblAUTODisplayLoc_X[2][0] = 1920-(4*12)-6;
-			tblAUTODisplayLoc_X[2][1] = 1920-(4*18)-9;
-			tblAUTODisplayLoc_X[2][2] = 1920-(4*24)-12;
-
-			PosX = tblAUTODisplayLoc_X[sys_env.vTIME_Position][0];
-			if(sys_env.vOSD_Position < 3) PosY = 1080-24-4;
-			else PosY = 4;
-
-			if(bAuto_Seq_Flag) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO2);			
-			else 
-			{	
-				if(!current_freezeMode) Print_OSD_Str_Freeze_Autoseq(PosX, PosY, str_AUTO_BLK2);
-			}
+			OSD_PrintString(position, osdStr_AUTO, sizeof(osdStr_AUTO));
+			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_AUTO);
 		}
+		else
+		{
+			OSD_PrintString(position, osdStr_Space6, sizeof(osdStr_Space6));
+			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_Space6);
+		}
+		osd_freeze_autoseq_location_buf.state = ON;//1
+		osd_freeze_autoseq_location_buf.location = position;
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Video Loss ǥ��
+// Video Loss
 //-----------------------------------------------------------------------------
-const u8 str_NO_VIDEO[]= "VIDEO LOSS";
-const u8 str_NO_VIDEO_Blk[]= "          ";
-void OSG_Display_Video_Loss(void)
+static void OSD_Display_Video_Loss(void)
 {
-	ST_POINT Pos_Val[20];
-	u8 CH = 0;
+	sPosition_t position[NUM_OF_CHANNEL];
+	eChannel_t channel;
+	eChannel_t startChannel;
+	eDisplayMode_t displayMode;
+	BOOL videoLossDiplayOn;
 
-	u8 vMAX_Ch; 
-	u8 vStart_CH; 
-	u8 vMODE;
+	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
+	Read_NvItem_DisplayMode(&displayMode);
 	
-	if(sys_env.vLoss_Display & (Loss_Event_Flag || bMode_change_flag))
+	if((videoLossDiplayOn == ON) & ((Loss_Event_Flag == SET) || (changedDisplayMode == SET)))
 	{
+		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+		{
+			channel = (eChannel_t)sys_status.current_split_mode;
+		}
 
-		if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9)
-		{
-			vMODE = FULL_SCREEN_MODE;
-			vMAX_Ch = 1;
-			vStart_CH = sys_status.current_split_mode;
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_1)
-		{
-			vMODE = SPLIT_4_MODE;
-			vMAX_Ch = 4;
-			vStart_CH = 0;
-		}
-#ifdef __9CH_DEVICE__
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT4_2)
-		{
-			vMODE = SPLIT_4_MODE;
-			vMAX_Ch = 4;
-			vStart_CH = 4;
-		}
-		else if(sys_status.current_split_mode >= SPLITMODE_SPLIT9_1)
-		{
-			vMODE = SPLIT_9_MODE;
-			vMAX_Ch = 9;
-			vStart_CH = 0;
-		}
-#endif
-
-		Loss_Event_Flag = 0;
+		Loss_Event_Flag = CLEAR;
 	
-		if(vMODE == FULL_SCREEN_MODE)
+		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
-			Pos_Val[vStart_CH].x = (1920/2)-(12*5);
-			Pos_Val[vStart_CH].y = (1080/2)-12;
-		}
-		else if(vMODE == SPLIT_4_MODE)
-		{
-			for(CH=vStart_CH;CH<(vStart_CH+vMAX_Ch);CH++)
+			position[channel].pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideo)*CHAR_WIDTH_E))/2;
+			position[channel].pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
+
+			if(vVideo_Loss & (0x01<<channel))
 			{
-				Pos_Val[CH].x = tbl_OSG_SPLIT4_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-				Pos_Val[CH].y = tbl_OSG_SPLIT4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+270-12;
+				OSD_PrintString(position[channel], osdStr_NoVideo, strlen(osdStr_NoVideo));
+				osd_video_lose_location_buf[channel].length = strlen(osdStr_NoVideo);
 			}
-		}
-#ifdef __9CH_DEVICE__
-		else if(vMODE == SPLIT_9_MODE)
-		{
-			for(CH=vStart_CH;CH<(vStart_CH+vMAX_Ch);CH++)
+			else
 			{
-				if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT9_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					Pos_Val[CH].y = tbl_OSG_SPLIT9_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+180-12;
-				}
-				else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT8_1_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 8) Pos_Val[CH].y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+405-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT8_1_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+135-12;
-				}
-				else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT8_2_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 8) Pos_Val[CH].y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+405-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT8_2_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+135-12;
-				}
-				else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT8_3_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 8) Pos_Val[CH].y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+405-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT8_3_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+135-12;
-				}
-				else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT8_4_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 8) Pos_Val[CH].y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+405-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT8_4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+135-12;
-				}
-				else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_6)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT6_1_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 8) Pos_Val[CH].y = tbl_OSG_SPLIT6_1_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+360-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT6_1_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+180-12;
-				}
-				else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_7)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT6_2_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 8) Pos_Val[CH].y = tbl_OSG_SPLIT6_2_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+360-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT6_2_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+180-12;
-				}
-				else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_8)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT6_3_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 8) Pos_Val[CH].y = tbl_OSG_SPLIT6_3_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+360-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT6_3_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+180-12;
-				}
-				else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_9)
-				{
-					Pos_Val[CH].x = tbl_OSG_SPLIT6_4_POSITION_1920x1080[((CH-vStart_CH)*12)+2]-(12*5);
-					if(CH == 8) Pos_Val[CH].y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+360-12;
-					else Pos_Val[CH].y = tbl_OSG_SPLIT6_4_POSITION_1920x1080[((CH-vStart_CH)*12)+3]+180-12;
-				}
+				OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
+				osd_video_lose_location_buf[channel].length = strlen(osdStr_Space10);
 			}
+			osd_video_lose_location_buf[channel].state = ON;
+			osd_video_lose_location_buf[channel].location = position[channel];
 		}
-#endif		
-		for(CH=vStart_CH;CH<(vStart_CH+vMAX_Ch);CH++)
+		else if(displayMode == DISPLAY_MODE_4SPLIT)
 		{
-			if(vVideo_Loss & (0x01<<CH))
+			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 			{
-				if(sys_status.current_split_mode <= SPLITMODE_SPLIT9_1)
+				position[channel].pos_x =
+						tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_x - (strlen(osdStr_NoVideo)*CHAR_WIDTH_E)/2;
+				position[channel].pos_y =
+						tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_y + ((DISPLAY_HEIGHT/2) - CHAR_HEIGHT)/2;
+				if(vVideo_Loss & (0x01<<channel))
 				{
-					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO, CH);
+					OSD_PrintString(position[channel], osdStr_NoVideo, strlen(osdStr_NoVideo));
+					osd_video_lose_location_buf[channel].length = strlen(osdStr_NoVideo);
 				}
-				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_2) &&
-						(sys_status.current_split_mode <= SPLITMODE_SPLIT9_5) &&
-						(CH != 7))
+				else
 				{
-					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO, CH);
+					OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
+					osd_video_lose_location_buf[channel].length = strlen(osdStr_Space10);
 				}
-				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_6) &&
-						(sys_status.current_split_mode <= SPLITMODE_SPLIT9_9) &&
-						(!((CH >= 5) && (CH <= 7))))
-				{
-					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO, CH);
-				}
-				
-			}
-			else 
-			{
-				if(sys_status.current_split_mode <= SPLITMODE_SPLIT9_1)
-				{
-					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO_Blk, CH);
-				}
-				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_2) &&
-						(sys_status.current_split_mode <= SPLITMODE_SPLIT9_5) &&
-						(CH != 7))
-				{	Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO_Blk, CH);
-				}
-				else if((sys_status.current_split_mode >= SPLITMODE_SPLIT9_6) &&
-						(sys_status.current_split_mode <= SPLITMODE_SPLIT9_9) &&
-						(!((CH >= 5) && (CH <= 7))))
-				{
-					Print_OSD_Str_Loss(Pos_Val[CH].x, Pos_Val[CH].y, str_NO_VIDEO_Blk, CH);
-				}
+				osd_video_lose_location_buf[channel].state = ON;
+				osd_video_lose_location_buf[channel].location = position[channel];
 			}
 		}
 	}
 }
 
 //-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-void OSG_Display_State(void)
+static void OSD_DisplayDateTime(void)
 {
-	OSG_Display_Freeze();		// Freeze ǥ�� 
-	
-	OSG_Display_AUTO();    		// Auto ǥ��
+	BOOL timeDisplayOn;
+	BOOL dateDisplayOn;
+	sPosition_t position;
+	eDisplayMode_t displayMode;
+	u8 dateTimeString[DATE_TIME_LENGTH+1];
+	u8* pStr;
 
-	OSG_Display_Video_Loss();	//Video Loss ǥ��
-}
+	Read_NvItem_DateDisplayOn(&dateDisplayOn);
+	Read_NvItem_TimeDisplayOn(&timeDisplayOn);
+	Read_NvItem_DisplayMode(&displayMode);
 
+	pStr = &dateTimeString[0];
+	memset(pStr, NULL, sizeof(dateTimeString));
 
-//------------------------------------------------------------------------------------------
-// ���� LIVE�� �ð�(RTC���� �о�� BCD������)�� buf�� ��ġ�� �°� �־� ���´�.
-//------------------------------------------------------------------------------------------
-void TimeCon(u8 *buf)
-{
-    buf[0] = ((rtc_hour>>4)+0x30);
-    buf[1] = ((rtc_hour&0x0f)+0x30);
-    buf[2] = ':';
-    buf[3] = ((rtc_min>>4)+0x30);
-    buf[4] = ((rtc_min&0x0f)+0x30);
-    buf[5] = ':';
-    buf[6] = ((rtc_sec>>4)+0x30);
-	buf[7] = ((rtc_sec&0x0f)+0x30);
-}
-
-
-//------------------------------------------------------------------------------------------
-// ���� LIVE�� ��¥(RTC���� �о�� BCD������)�� buf�� ��ġ�� �°� �־� ���´�.
-//------------------------------------------------------------------------------------------
-#define ASIA	0
-#define USA		1
-#define EURO	2
-void DateCon(u8 *buf)
-{
-   	if(sys_env.vDATE_FORMAT == USA)
-	{                         
-      	buf[0] = ((rtc_month>>4)+0x30);
-       	buf[1] = ((rtc_month&0x0f)+0x30);
-      	buf[2] = '-';
-      	buf[3] = ((rtc_day>>4)+0x30);
-       	buf[4] = ((rtc_day&0x0f)+0x30);
-       	buf[5] = '-';
-       	buf[6] = '2';
-      	buf[7] = '0'; 
-      	buf[8] = ((rtc_year>>4)+0x30);
-      	buf[9] = ((rtc_year&0x0f)+0x30);
-    }
-	else if(sys_env.vDATE_FORMAT == EURO)
-	{        
-       	buf[0] = ((rtc_day>>4)+0x30);
-       	buf[1] = ((rtc_day&0x0f)+0x30);
-      	buf[2] = '-';
-       	buf[3] = ((rtc_month>>4)+0x30);
-      	buf[4] = ((rtc_month&0x0f)+0x30);
-       	buf[5] = '-';       
-      	buf[6] = '2';
-      	buf[7] = '0'; 
-       	buf[8] = ((rtc_year>>4)+0x30);
-      	buf[9] = ((rtc_year&0x0f)+0x30);
-	}
-	else if(sys_env.vDATE_FORMAT == ASIA)
-	{        
-		buf[0] = '2';
-       	buf[1] = '0'; 
-       	buf[2] = ((rtc_year>>4)+0x30);
-       	buf[3] = ((rtc_year&0x0f)+0x30);
-       	buf[4] = '-';
-       	buf[5] = ((rtc_month>>4)+0x30);
-      	buf[6] = ((rtc_month&0x0f)+0x30);
-       	buf[7] = '-';
-      	buf[8] = ((rtc_day>>4)+0x30);
-      	buf[9] = ((rtc_day&0x0f)+0x30);
-   	}     
-} 
-
-
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-void OSG_Display_Time(void)
-{
-	static u16 tblTimeDisplayLoc_X[3][3] =
+	if(RTC_GetDisplayTimeStatus() == SET)
 	{
-		0,
-	};
+		RTC_ChangeDisplayTimeStatus(CLEAR);
 
-	u16 PosX;
-	u16 PosY;
-	u8 str_buf[20];
+		if((dateDisplayOn == ON) && (timeDisplayOn == ON))
+		{
+			pStr += CreateDateString(pStr);
+			strcpy(pStr, osdStr_Space2);
+			pStr += strlen(osdStr_Space2);
+			CreateTimeString(pStr);
+		}
+		else if((dateDisplayOn == ON) && (timeDisplayOn == OFF))
+		{
+			CreateDateString(pStr);
+		}
+		else if((dateDisplayOn == OFF) && (timeDisplayOn == ON))
+		{
+			CreateTimeString(pStr);
+		}
 
-
-	if(sec_flag)
-	{
-		sec_flag = 0;       
-
-		tblTimeDisplayLoc_X[0][0] = 6;
-		tblTimeDisplayLoc_X[0][1] = 9;
-		tblTimeDisplayLoc_X[0][2] = 12;
-		tblTimeDisplayLoc_X[1][0] = (1920/2)-120-12;
-		tblTimeDisplayLoc_X[1][1] = (1920/2)-180-12;
-		tblTimeDisplayLoc_X[1][2] = (1920/2)-240-12;
-		tblTimeDisplayLoc_X[2][0] = 1920-246;
-		tblTimeDisplayLoc_X[2][1] = 1920-369;
-		tblTimeDisplayLoc_X[2][2] = 1920-492;
-		
-		//if(sys_env.vOSD_Position < 3) PosY = 1080-24-4;
-		if(sys_env.vOSD_Position < 3 || sys_env.vOSD_Position == 6) PosY = 1080-24-4;
-		else PosY = 4;
-		
-		PosX = tblTimeDisplayLoc_X[sys_env.vTIME_Position][0];
-
-		DateCon(&str_buf[0]);
-		TimeCon(&str_buf[12]);
-		str_buf[10] = ' ';
-		str_buf[11] = ' ';
-		Print_OSD_Char_Time(PosX, PosY, str_buf, 20);			
+		if(strlen(dateTimeString) > 0)
+		{
+			position.pos_x = (DISPLAY_WIDTH - (strlen(dateTimeString)*CHAR_WIDTH_E))/2 - 12;
+			if((IsTitlePositionTop() == FALSE) && (displayMode == DISPLAY_MODE_FULL_SCREEN))
+			{
+				position.pos_y = MARGIN_Y;
+			}
+			else
+			{
+				position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT - MARGIN_Y;
+			}
+			OSD_PrintString(position, dateTimeString, DATE_TIME_LENGTH);
+		}
 	}
 }
 
-void OSG_Display_Time_NOW(void)
+//-----------------------------------------------------------------------------
+// Functions
+//-----------------------------------------------------------------------------
+void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 {
-	static u16 tblTimeDisplayLoc_X[3][3] =
-	{
-		0,
-	};
-
-	u16 PosX;
-	u16 PosY;
-	u8 str_buf[20];
-
-	tblTimeDisplayLoc_X[0][0] = 6;
-	tblTimeDisplayLoc_X[0][1] = 9;
-	tblTimeDisplayLoc_X[0][2] = 12;
-	tblTimeDisplayLoc_X[1][0] = (1920/2)-120-12;
-	tblTimeDisplayLoc_X[1][1] = (1920/2)-180-12;
-	tblTimeDisplayLoc_X[1][2] = (1920/2)-240-12;
-	tblTimeDisplayLoc_X[2][0] = 1920-246;
-	tblTimeDisplayLoc_X[2][1] = 1920-369;
-	tblTimeDisplayLoc_X[2][2] = 1920-492;
-
-	//if(sys_env.vOSD_Position < 3) PosY = 1080-24-4;
-	if(sys_env.vOSD_Position < 3 || sys_env.vOSD_Position == 6) PosY = 1080-24-4;
-	else PosY = 4;
-
-	PosX = tblTimeDisplayLoc_X[sys_env.vTIME_Position][0];
-
-	DateCon(&str_buf[0]);
-	TimeCon(&str_buf[12]);
-	str_buf[10] = ' ';
-	str_buf[11] = ' ';
-	Print_OSD_Char_Time(PosX, PosY, str_buf, 20);			
+	OSD_SetFontGAC(SPRITE_INDEX0);
+	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pData, size, 0);
+	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
 
-void OSG_Display_Time_Erase(void)
+void OSD_Display_ChannelName(void)
 {
-	static u16 tblTimeDisplayLoc_X[3][3] =
+	eChannel_t channel;
+	sPosition_t positionValue;
+	eTitlePosition_t titlePosition;
+	BOOL titleDisplayOn;
+	eDisplayMode_t displayMode;
+	u8 channel_name[CHANNEL_NEME_LENGTH_MAX] = {0,};
+
+	Read_NvItem_TitleDispalyOn(&titleDisplayOn);
+	Read_NvItem_TitlePosition(&titlePosition);
+	Read_NvItem_DisplayMode(&displayMode);
+
+	if(titleDisplayOn == ON)
 	{
-		0,
-	};
-
-	u16 PosX;
-	u16 PosY;
-	u8 str_buf[22];
-
-	tblTimeDisplayLoc_X[0][0] = 6;
-	tblTimeDisplayLoc_X[0][1] = 9;
-	tblTimeDisplayLoc_X[0][2] = 12;
-	tblTimeDisplayLoc_X[1][0] = (1920/2)-120-12;
-	tblTimeDisplayLoc_X[1][1] = (1920/2)-180-12;
-	tblTimeDisplayLoc_X[1][2] = (1920/2)-240-12;
-	tblTimeDisplayLoc_X[2][0] = 1920-246;
-	tblTimeDisplayLoc_X[2][1] = 1920-369;
-	tblTimeDisplayLoc_X[2][2] = 1920-492;
-
-	//if(sys_env.vOSD_Position < 3) PosY = 1080-24-4;
-	if(sys_env.vOSD_Position < 3 || sys_env.vOSD_Position == 6) PosY = 1080-24-4;
-	else PosY = 4;
-
-	PosX = tblTimeDisplayLoc_X[sys_env.vTIME_Position][0];
-
-	memset(str_buf, ' ', 22);
-	Print_OSD_Char_Time(PosX-1, PosY, str_buf, 22);			
+		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+		{
+			channel = (eChannel_t)sys_status.current_split_mode;
+			Read_NvItem_ChannelName(channel_name, channel);
+			positionValue =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
+			Read_NvItem_ChannelName(channel_name, channel);
+			OSD_PrintString(positionValue, channel_name, strlen(channel_name));
+			osd_ch_name_location_buf[channel].state = ON;
+			osd_ch_name_location_buf[channel].length = strlen(channel_name);
+			osd_ch_name_location_buf[channel].location = positionValue;
+		}
+		else if(displayMode == DISPLAY_MODE_4SPLIT)
+		{
+			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+			{
+				Read_NvItem_ChannelName(channel_name, channel);
+				positionValue =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
+				OSD_PrintString(positionValue, channel_name, strlen(channel_name));
+				osd_ch_name_location_buf[channel].state = ON;
+				osd_ch_name_location_buf[channel].length = strlen(channel_name);
+				osd_ch_name_location_buf[channel].location = positionValue;
+			}
+		}
+	}
 }
+//-----------------------------------------------------------------------------
+void Osd_ClearScreen(void)
+{
+	u16 i;
+	BYTE pSTR[DISPLAY_WIDTH/CHAR_WIDTH_E];
 
+	memset(pSTR, ASCII_SPACE, sizeof(pSTR));
 
+	OSD_SetFontGAC(SPRITE_INDEX0);
 
+	for(i = 0; i < DISPLAY_HEIGHT/CHAR_HEIGHT; i++)
+	{
+		MDINGAC_SetDrawXYMode(i*CHAR_HEIGHT, 0, pSTR, sizeof(pSTR), 0);
+	}
 
+	// Initialize channel name location buffer
+	memset(osd_ch_name_location_buf, 0, sizeof(osd_ch_name_location_buf));
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+void OSD_Display(void)
+{
+	BOOL osdDisplayOn;
+
+	Read_NvItem_OsdOn(&osdDisplayOn);
+
+	if((osdDisplayOn == ON) && (GetSystemMode() == SYSTEM_NORMAL_MODE))
+	{
+		OSD_DisplayDateTime();
+		OSD_Display_ChannelName();
+		OSD_Display_Freeze();
+		OSD_Display_AUTO();
+		OSD_Display_Video_Loss();
+	}
+	else if(GetSystemMode() == SYSTEM_SETUP_MODE)
+	{
+		DisplayTimeInMenu();
+	}
+
+	changedDisplayMode = CLEAR;
+}
+//-----------------------------------------------------------------------------
+void OSD_DrawBorderLine(void)
+{
+	BOOL border_line;
+	eDisplayMode_t displayMode;
+
+	Read_NvItem_BorderLineDisplay(&border_line);
+	Read_NvItem_DisplayMode(&displayMode);
+
+	if((border_line == ON) && (displayMode == DISPLAY_MODE_4SPLIT))
+	{
+		MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+		MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
+		MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+		MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+		MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+	}
+	else
+	{
+		MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+	}
+}
