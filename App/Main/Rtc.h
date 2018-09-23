@@ -38,6 +38,8 @@ extern void RTC_IRQHandler(void);
 
 extern void RTC_SetTime(sTimeDate_t *time);
 extern void RTC_GetTime(sTimeDate_t* rtcTimeDate);
+extern void RTC_CheckTime(void);
+extern void RTC_SetDefaultDate(void);
 
 extern void RTC_ChangeRtcTimeStatus(BOOL set);
 extern BOOL RTC_GetRtcTimeStatus(void);

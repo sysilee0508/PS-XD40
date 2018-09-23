@@ -275,18 +275,6 @@ void RTC_SetTime(sTimeDate_t* newTimeDate)
 }
 
 //----------------------------------------------------------------------------
-//void GetTimeDateInBCD(sTimeDateBCD_t* pData)
-//{
-//	RTC_GetTime();
-//	memcpy(pData, &rtcTimeDateInBCD, sizeof(rtcTimeDateInBCD));
-//}
-//
-//sTimeDate_t RTC_GetRtcTimeDate(void)
-//{
-//	RTC_GetTime();
-//	return rtcTimeDate;
-//}
-//----------------------------------------------------------------------------
 void RTC_ChangeRtcTimeStatus(BOOL set)
 {
 	updatedRTCTime = set;
@@ -307,8 +295,23 @@ BOOL RTC_GetDisplayTimeStatus(void)
 	return updateDisplayTime;
 }
 //----------------------------------------------------------------------------
-void InitializeTime(void)
+void RTC_CheckTime(void)
 {
+	sTimeDate_t timeDate;
 
+	RTC_GetTime(&timeDate);
 }
+//----------------------------------------------------------------------------
+// Please call this function when NV is initialized.
+void RTC_SetDefaultDate(void)
+{
+	sTimeDate_t timeDate;
 
+	memset(&timeDate, 0x00, sizeof(timeDate));
+
+	timeDate.year = DEFAULT_YEAR;
+	timeDate.month = DEFAULT_MONTH;
+	timeDate.day = DEFAULT_DAY;
+
+	RTC_SetTime(&timeDate);
+}

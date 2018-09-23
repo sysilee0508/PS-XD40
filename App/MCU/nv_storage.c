@@ -183,6 +183,7 @@ void LoadNvDataFromStorage(void)
 	if(CheckNvStorage() == FALSE)
 	{
 		LoadDefaultNvData();
+		RTC_SetDefaultDate();
 	}
 }
 

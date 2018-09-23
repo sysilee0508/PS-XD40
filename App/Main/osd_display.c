@@ -244,7 +244,7 @@ static u8 CreateDateString(u8 *pDateStr)
 	u8 year[5];
 	u8 month[2];
 	u8 day[2];
-       u8 dateLength;
+	u8 dateLength;
 
 	RTC_GetTime(&rtcDate);
 	Read_NvItem_DateFormat(&dateFormat);
@@ -253,22 +253,22 @@ static u8 CreateDateString(u8 *pDateStr)
 	memset(year, NULL, sizeof(year));
 	if(year4digit == FALSE) //2digit
 	{
-		year[0] = (rtcDate.year >> 4) + ASCII_ZERO;
-		year[1] = (rtcDate.year & 0x0f) + ASCII_ZERO;
+		year[0] = (rtcDate.year / 10) + ASCII_ZERO;
+		year[1] = (rtcDate.year % 10) + ASCII_ZERO;
               dateLength = DATE_LENGTH_2DIGIT;
 	}
 	else //4 digit
 	{
 		year[0] = 2 + ASCII_ZERO;
 		year[1] = ASCII_ZERO;
-		year[2] = (rtcDate.year >> 4) + ASCII_ZERO;
-		year[3] = (rtcDate.year & 0x0f) + ASCII_ZERO;
+		year[2] = (rtcDate.year / 10) + ASCII_ZERO;
+		year[3] = (rtcDate.year % 10) + ASCII_ZERO;
               dateLength = DATE_LENGTH_4DIGIT;
 	}
-	month[0] = (rtcDate.month >> 4) + ASCII_ZERO;
-	month[1] = (rtcDate.month & 0x0f) + ASCII_ZERO;
-	day[0] = (rtcDate.day >> 4) + ASCII_ZERO;
-	day[1] = (rtcDate.day & 0x0f) + ASCII_ZERO;
+	month[0] = (rtcDate.month / 10) + ASCII_ZERO;
+	month[1] = (rtcDate.month % 10) + ASCII_ZERO;
+	day[0] = (rtcDate.day / 10) + ASCII_ZERO;
+	day[1] = (rtcDate.day % 10) + ASCII_ZERO;
 
 
 	switch(dateFormat)
@@ -314,17 +314,17 @@ static u8 CreateDateString(u8 *pDateStr)
 
 static u8 CreateTimeString(u8 *pTimeStr)
 {
-	sTimeDateBCD_t rtcTime;
+	sTimeDate_t rtcTime;
 
-	GetTimeDateInBCD(&rtcTime);
-    *pTimeStr = ((rtcTime.hour>>4)+ ASCII_ZERO);
-    *(++pTimeStr) = ((rtcTime.hour&0x0f)+ ASCII_ZERO);
+	RTC_GetTime(&rtcTime);
+    *pTimeStr = ((rtcTime.hour / 10)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.hour % 10)+ ASCII_ZERO);
     *(++pTimeStr) = ':';
-    *(++pTimeStr) = ((rtcTime.min>>4)+ ASCII_ZERO);
-    *(++pTimeStr) = ((rtcTime.min&0x0f)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.min / 10)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.min % 10)+ ASCII_ZERO);
     *(++pTimeStr) = ':';
-    *(++pTimeStr) = ((rtcTime.sec>>4)+ ASCII_ZERO);
-    *(++pTimeStr) = ((rtcTime.sec&0x0f)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.sec / 10)+ ASCII_ZERO);
+    *(++pTimeStr) = ((rtcTime.sec % 10)+ ASCII_ZERO);
 
 	return TIME_LENGTH;
 }

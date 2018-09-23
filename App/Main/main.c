@@ -340,7 +340,8 @@ void main(void)
 		Auto_Sequence();
 
 		Key_Proc();
-		RTC_GetTime();
+		RTC_CheckTime();
+//		RTC_GetTime();
 		
 		// video process handler
 		VideoProcessHandler();

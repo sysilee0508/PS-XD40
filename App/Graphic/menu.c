@@ -564,7 +564,7 @@ static void Print_StringTimeCorrect(u16 itemX,u8 attribute)
 
 static void Print_StringTime(u16 itemX, u8 attribute)
 {
-	static sTimeDateBCD_t currentTime;
+	sTimeDate_t currentTime;
 	u8 hourStr[2], minStr[2], secStr[2];
 	u8 timeStr[TIME_STRING_LENGTH] = {0,};
        u8 selectedMark[2];
@@ -574,10 +574,10 @@ static void Print_StringTime(u16 itemX, u8 attribute)
 	selectedMark[1] = (itemX & 0x02)?attribute:NULL;
 	selectedMark[2] = (itemX & 0x04)?attribute:NULL;
 
-	GetTimeDateInBCD(&currentTime);
-	Bcd2Str(currentTime.hour, hourStr);
-	Bcd2Str(currentTime.min, minStr);
-	Bcd2Str(currentTime.sec, secStr);
+	RTC_GetTime(&currentTime);
+	Int2Str(currentTime.hour, hourStr);
+	Int2Str(currentTime.min, minStr);
+	Int2Str(currentTime.sec, secStr);
 
 	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time),
@@ -607,7 +607,7 @@ static void Print_StringTime(u16 itemX, u8 attribute)
 
 static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 {
-	static sTimeDateBCD_t date;
+	sTimeDate_t date;
 	u8 yearStr[4] = {'2','0',}, monthStr[2], dayStr[2];
 	u8 dateStr[DATE_STRING_LENGTH] = {'2','0',};
 	char* pStr;
@@ -617,10 +617,10 @@ static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 	selectedMark[1] = (itemX & 0x0002)?attribute:NULL;
 	selectedMark[2] = (itemX & 0x0004)?attribute:NULL;
 
-	GetTimeDateInBCD(&date);
-	Bcd2Str(date.year, yearStr+2);
-	Bcd2Str(date.month, monthStr);
-	Bcd2Str(date.day, dayStr);
+	RTC_GetTime(&date);
+	Int2Str(date.year, yearStr+2);
+	Int2Str(date.month, monthStr);
+	Int2Str(date.day, dayStr);
 
 	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date),
@@ -811,55 +811,36 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 				switch(itemY)
 				{
 					case TIMEDATE_ITEM_Y_TIME:
-						rtcTime = RTC_GetRtcTimeDate();
-//						GetTimeDateInBCD(&rtcTimeInBCD);
+						RTC_GetTime(&rtcTime);
 						switch(pos_x)
 						{
 							case 0://hour
-//								Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
 								IncreaseDecreaseCount(23, 0, inc_dec, &rtcTime.hour);
 								break;
 							case 1://min
-//								Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
 								IncreaseDecreaseCount(59, 0, inc_dec, &rtcTime.min);
 								break;
 							case 2://sec
-//								Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
 								IncreaseDecreaseCount(59, 0, inc_dec, &rtcTime.sec);
 								break;
 						}
-//						Bcd2Int(rtcTimeInBCD.year, &rtcTime.year);
-//						Bcd2Int(rtcTimeInBCD.month, &rtcTime.month);
-////						rtcTime.month--;
-//						Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
-//						rtcTime.day--;
-//						Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
-//						Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
-//						Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
 					    RTC_SetTime(&rtcTime);
 						break;
 
 					case TIMEDATE_ITEM_Y_DATE:
-//						itemX = ITEM_X(pos_x);
-						GetTimeDateInBCD(&rtcTimeInBCD);
+						RTC_GetTime(&rtcTime);
 						switch(pos_x)
 						{
 							case 0://year
-								Bcd2Int(rtcTimeInBCD.year, &rtcTime.year);
 								IncreaseDecreaseCount(99, 0, inc_dec, &rtcTime.year);
 								break;
 							case 1://month
-								Bcd2Int(rtcTimeInBCD.month, &rtcTime.month);
 								IncreaseDecreaseCount(12, 0, inc_dec, &rtcTime.month);
 								break;
 							case 2://day
-								Bcd2Int(rtcTimeInBCD.day, &rtcTime.day);
 								IncreaseDecreaseBcd(GetDaysInMonth(rtcTime.month, rtcTime.year), 0, inc_dec, &rtcTime.day);
 								break;
 						}
-						Bcd2Int(rtcTimeInBCD.hour, &rtcTime.hour);
-						Bcd2Int(rtcTimeInBCD.min, &rtcTime.min);
-						Bcd2Int(rtcTimeInBCD.sec, &rtcTime.sec);
 					    RTC_SetTime(&rtcTime);
 						break;
 
@@ -888,7 +869,6 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						break;
 
 					case TIMEDATE_ITEM_Y_TIME_CORRECTION:
-//						itemX = ITEM_X(pos_x);
 						Read_NvItem_TimeCorrect(&timeCorrect);
 						switch(pos_x)
 						{
