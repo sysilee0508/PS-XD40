@@ -1,8 +1,9 @@
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
-#include	"..\main\common.h"
+#include "common.h"
 
+#if 1
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
@@ -986,6 +987,7 @@ void DEMO_SetPIPViewWIND(WORD nID)
 
 	if(Video_Out_Res_Val >= VIDOUT_1920x1080i60 && Video_Out_Res_Val <= VIDOUT_1920x1080p50)
 	{
+	#if 0
 		if(sys_status.current_split_mode != SPLITMODE_FULL_CH9)
 		{
 			if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2)
@@ -1017,6 +1019,7 @@ void DEMO_SetPIPViewWIND(WORD nID)
 			}
 		}
 		else 
+	#endif
 		{
 			stVIEW.w = 1920;
 			stVIEW.h = 1080;
@@ -1087,7 +1090,8 @@ void DEMO_SetPIPViewWIND(WORD nID)
 	MDIN3xx_EnableWriteFRMB(&stVideo, 0);
 	MDINAUX_SetScaleProcess(&stVideo);
 	MDIN3xx_EnableWriteFRMB(&stVideo, 1);
-	if(sys_status.current_split_mode != SPLITMODE_FULL_CH9) MDIN3xx_EnableMainDisplay(ON);
+	if(sys_status.current_split_mode != SPLITMODE_FULL_CH4) 
+		MDIN3xx_EnableMainDisplay(ON);
 	
 //	DEMO_SetRectBGBOX(stVIEW, 2);	// set RECT-BOX area
 //	DEMO_EnableRectBGBOX(ON);
@@ -1163,270 +1167,6 @@ void DEMO_SetRectBGBOX(MDIN_VIDEO_WINDOW stRECT, BYTE thk)
 
 
 //--------------------------------------------------------------------------------------------------
-void Set_border_line(void)
-{
-	if(sys_env.border_line != 0)
-	{
-		if(sys_status.current_split_mode == SPLITMODE_SPLIT9_1) 
-		{
-			//1920X1080
-			{
-				//9����
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 360-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 0, 720-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 640-1, 0, 2, 1080);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 1280-1, 0, 2, 1080);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX4, 0, 0, 1920, 2);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX5, 0, 1080-2, 1920, 2);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX6, 0, 0, 2, 1080);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX7, 1920-2, 0, 2, 1080);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX4, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX5, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX6, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX7, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_2) 
-		{
-			//1920X1080
-			{
-				//8����_1
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 810-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 1440-1, 0, 2, 1080);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 1440-1,270-1, 480, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 1440-1,540-1, 480, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX4, 480-1,810-1, 2, 270);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX5, 960-1,810-1, 2, 270);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_3) 
-		{
-			//1920X1080
-			{
-				//8����_2
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 810-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 480-1, 0, 2, 1080);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 0,270-1, 480, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 0,540-1, 480, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX4, 960-1,810-1, 2, 270);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX5, 1440-1,810-1, 2, 270);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_4) 
-		{
-			//1920X1080
-			{
-				//8����_3
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 270-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 1440-1, 0, 2, 1080);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 1440-1,540-1, 480, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 1440-1,810-1, 480, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX4, 480-1,0, 2, 270);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX5, 960-1,0, 2, 270);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_5) 
-		{
-			//1920X1080
-			{
-				//8����_4
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 270-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 480-1, 0, 2, 1080);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 0,540-1, 480, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 0,810-1, 480, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX4, 960-1,0, 2, 270);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX5, 1440-1,0, 2, 270);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_6) 
-		{
-			//1920X1080
-			{
-				//6����_1
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 720-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 1280-1, 0, 2, 1080);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 1280-1,360-1, 640, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 640-1,720-1, 2, 360);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_7) 
-		{
-			//1920X1080
-			{
-				//6����_2
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 720-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 640-1, 0, 2, 1080);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 0,360-1, 640, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 1280-1,720-1, 2, 360);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_8) 
-		{
-			//1920X1080
-			{
-				//6����_3
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 360-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 1280-1, 0, 2, 1080);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 1280-1,720-1, 640, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 640-1,0, 2, 360);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if(sys_status.current_split_mode == SPLITMODE_SPLIT9_9) 
-		{
-			//1920X1080
-			{
-				//6����_4
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 360-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 640-1, 0, 2, 1080);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 0,720-1, 640, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 1280-1,0, 2, 360);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if((sys_status.current_split_mode == SPLITMODE_SPLIT4_1) || (sys_status.current_split_mode == SPLITMODE_SPLIT4_2)) 
-		{
-			//1920X1080
-			{
-				//4����
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, 540-1, 1920, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 960-1, 0, 2, 1080);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX4, 0, 0, 1920, 2);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX5, 0, 1080-2, 1920, 2);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX6, 0, 0, 2, 1080);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX7, 1920-2, 0, 2, 1080);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX4, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX5, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX6, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX7, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-		else if(sys_status.current_split_mode <= SPLITMODE_FULL_CH9) 
-		{
-			//1920X1080
-			{
-				//FULL
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX4, 0, 0, 1920, 2);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX5, 0, 1080-2, 1920, 2);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX6, 0, 0, 2, 1080);
-				//MDINOSD_SetBGBoxArea(BGBOX_INDEX7, 1920-2, 0, 2, 1080);
-
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX4, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX5, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX6, ON);
-				//MDINOSD_EnableBGBox(BGBOX_INDEX7, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-			}
-		}
-	}
-	else 
-	{
-		MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-	}
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /*void DEMO_EnableRectBGBOX(BOOL OnOff)
@@ -1442,4 +1182,5 @@ void Set_border_line(void)
 }
 */
 
+#endif
 /*  FILE_END_HERE */

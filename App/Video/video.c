@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
-#include	"..\main\common.h"
+#include	"common.h"
 
 #if defined(SYSTEM_USE_MDIN380)
 // ----------------------------------------------------------------------
@@ -88,7 +88,7 @@ static void MDIN3xx_SetRegInitial(void)
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
 	MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_ALL, ON);
 
-	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP3);		// set in_data_map_mode = ‘11’
+	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP3);		// set in_data_map_mode = ï¿½11ï¿½
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP0);		// disable digital out
 	MDINOSD_SetBGLayerColor(RGB(128,128,128));			// set BG-Layer color
 
@@ -129,7 +129,6 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.dacPATH = DAC_PATH_MAIN_OUT;	// set main only
 	stVideo.encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
-
 	// define video format of PORTA-INPUT
 	stVideo.stSRC_a.frmt =  VIDSRC_1920x1080p60;//VIDSRC_1280x720p60; VIDSRC_1280x1024p60
 	stVideo.stSRC_a.mode = MDIN_SRC_RGB444_8;
@@ -138,6 +137,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stSRC_a.offV = 0;	//API v0.31(2012.05.02)
 
 	// define video format of MAIN-OUTPUT
+
 	stVideo.stOUT_m.frmt = VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
 	stVideo.stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
 	stVideo.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
@@ -207,10 +207,13 @@ static void MDIN3xx_SetRegInitial(void)
 
 //--------------------------------------------------------------------------------------------------
 //static void DEMOKIT_Outputfrmt(BYTE frmt)		//by hungry 2012.03.06
-void DEMOKIT_Outputfrmt(BYTE frmt)		//by hungry 2012.03.06
+void SetVideoOutputfrmt(BYTE frmt)		//by hungry 2012.03.06
 {
-	SetOSDMenuID(0x6210);
-	SetOSDItemID(frmt);	SetMenuStatus(6,2,frmt);
+//	SetOSDMenuID(0x6210);
+//	SetOSDItemID(frmt);
+//	SetMenuStatus(6,2,frmt);
+	stVideo.stOUT_m.frmt = frmt;
+	OutMainFrmt = frmt;
 }
 //--------------------------------------------------------------------------------------------------
 void CreateVideoInstance(void)
@@ -478,11 +481,11 @@ static void SetAUXVideoFilter(void)
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
-static void SetSBoxAreaRefresh(void)
-{
-	PWORD pID = (PWORD)def4CHSBoxWND[SrcMainFrmt%2];
-	MDINOSD_SetSBoxArea(&stSBOX[0], pID[0], pID[1], pID[2], pID[3]);
-}
+//static void SetSBoxAreaRefresh(void)
+//{
+//	PWORD pID = (PWORD)def4CHSBoxWND[SrcMainFrmt%2];
+//	MDINOSD_SetSBoxArea(&stSBOX[0], pID[0], pID[1], pID[2], pID[3]);
+//}
 
 //--------------------------------------------------------------------------------------------------
 //static void SetOSDMenuRefresh(void)
@@ -492,7 +495,7 @@ void SetOSDMenuRefresh(void)
 
 	//OSD_SetFontMAP();	
 
-	SetOSDMenuID(GetOSDMenuID());	// refresh OSD-menu
+	//SetOSDMenuID(GetOSDMenuID());	// refresh OSD-menu
 
 	OSD_ModifyPalette_M((OutMainMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
 	//OSD_ModifyPalette_X((OutAuxMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
@@ -516,7 +519,7 @@ void SetOSDMenuRefresh(void)
 //--------------------------------------------------------------------------------------------------
 static void VideoFrameProcess(BYTE src)
 {
-	unsigned char current_split_mode_tmp = 0;
+//	unsigned char current_split_mode_tmp = 0;
 
 	if (fSyncParsed==FALSE) return;		// wait for sync detection
 
@@ -531,88 +534,90 @@ static void VideoFrameProcess(BYTE src)
 		OutAuxFrmt!=PrevOutAuxFrmt||OutAuxMode!=PrevOutAuxMode)
 		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
 
-	if (stVideo.exeFLAG==0)	return;		// not change video formats
+	if (stVideo.exeFLAG!=0)
+	{//return;		// not change video formats
 
-	stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
-	SetMenuStatus(2,1,0);	//3DNR [off]
+		stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
+		SetMenuStatus(2,1,0);	//3DNR [off]
 
-	if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
-	{
-		stVideo.stSRC_b.frmt = SrcMainFrmt; stVideo.stSRC_b.mode = SrcMainMode;
-		stVideo.stSRC_a.frmt = SrcAuxFrmt; stVideo.stSRC_a.mode = SrcAuxMode;
+		if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
+		{
+			stVideo.stSRC_b.frmt = SrcMainFrmt; stVideo.stSRC_b.mode = SrcMainMode;
+			stVideo.stSRC_a.frmt = SrcAuxFrmt; stVideo.stSRC_a.mode = SrcAuxMode;
+		}
+		else
+		{
+			stVideo.stSRC_a.frmt = SrcMainFrmt; stVideo.stSRC_a.mode = SrcMainMode;
+			stVideo.stSRC_b.frmt = SrcAuxFrmt; stVideo.stSRC_b.mode = SrcAuxMode;
+		}
+		stVideo.stOUT_m.frmt = OutMainFrmt; stVideo.stOUT_m.mode = OutMainMode;
+		stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
+
+		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
+		MDIN3xx_EnableMainDisplay(OFF);
+
+		//SetOSDMenuDisable();		// set OSD menu disable
+		SetOffChipFrmtInA(src);		// set InA offchip format
+		SetOffChipFrmtInB(src);		// set InB offchip format	//by hungry 2012.03.07
+		SetSrcMainFine(src);		// set source video fine (fldid, offset)
+	//	SetOutVideoFine();			// set output video fine (swap)
+
+		//DEMO_SetOutputMode(GetMenuStatus(6,3));		// update out port mode, add on 16Aug2012
+
+		if (OutMainFrmt!=PrevOutMainFrmt) {
+	//		memset(&stVideo.stVIEW_m, 0, 8);	// restore aspect from API
+			stVideo.pHY_m		= 	NULL;		// restore MFCHY from API
+			stVideo.pHC_m		= 	NULL;		// restore MFCHY from API
+			stVideo.pVY_m		= 	NULL;		// restore MFCHY from API
+			stVideo.pVC_m		= 	NULL;		// restore MFCHY from API
+		}
+		MDIN3xx_VideoProcess(&stVideo);		// mdin3xx main video process
+
+	//	GetExtVideoAttb(src);	// update E-Video attribute (edge,swap,clk,offset)	//by hungry 2012.02.15
+		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
+		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS) // blocked by kukuri
+		//Set2HDVideoPathB();		// set 2HD pathB
+
+		SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO)); //by kukuri
+		DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
+		//DEMO_SetAspectRatio(GetMenuStatus(4,6));	// update aspect ratio
+		//DEMO_SetOverScanning(GetMenuStatus(4,5));	// update overscanning
+		//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
+
+		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
+
+	#if 0 //Louis
+		if(SDIRX_change_flag)
+		{
+			SDIRX_change_flag = 0;
+		}
+	#endif
+
+		MDIN3xx_EnableMainDisplay(ON);
+		//if(sys_status.current_split_mode != FULL_9) MDIN3xx_EnableMainDisplay(ON);
+
+		// if src is 2HD input or dual display, trigger soft-reset.
+		if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) 
+			MDIN3xx_SoftReset();
+
+		// Do we need below line? by kukuri
+		SetOSDMenuRefresh();	// for framebuffer map bug
+	//	SetOutHDMI_DVI();
+
+		PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
+		PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
+		// Do not use aux display.. by kukuri
+		PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
+		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
+
+		//test_stVideo_print();
+	#if 0 //Louis
+		if(SDIRX_change_flag)
+		{
+			SDIRX_change_flag = 0;
+		}
+	#endif
 	}
-	else 
-	{
-		stVideo.stSRC_a.frmt = SrcMainFrmt; stVideo.stSRC_a.mode = SrcMainMode;
-		stVideo.stSRC_b.frmt = SrcAuxFrmt; stVideo.stSRC_b.mode = SrcAuxMode;
-	}
-	stVideo.stOUT_m.frmt = OutMainFrmt; stVideo.stOUT_m.mode = OutMainMode;
-	stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
-
-	MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-	MDIN3xx_EnableMainDisplay(OFF);
-
-	//SetOSDMenuDisable();		// set OSD menu disable
-	SetOffChipFrmtInA(src);		// set InA offchip format
-	SetOffChipFrmtInB(src);		// set InB offchip format	//by hungry 2012.03.07
-	SetSrcMainFine(src);		// set source video fine (fldid, offset)
-//	SetOutVideoFine();			// set output video fine (swap)
-
-	//DEMO_SetOutputMode(GetMenuStatus(6,3));		// update out port mode, add on 16Aug2012
-
-	if (OutMainFrmt!=PrevOutMainFrmt) {
-//		memset(&stVideo.stVIEW_m, 0, 8);	// restore aspect from API
-		stVideo.pHY_m		= 	NULL;		// restore MFCHY from API
-		stVideo.pHC_m		= 	NULL;		// restore MFCHY from API
-		stVideo.pVY_m		= 	NULL;		// restore MFCHY from API
-		stVideo.pVC_m		= 	NULL;		// restore MFCHY from API
-	}
-	MDIN3xx_VideoProcess(&stVideo);		// mdin3xx main video process
-
-//	GetExtVideoAttb(src);	// update E-Video attribute (edge,swap,clk,offset)	//by hungry 2012.02.15
-	SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
-	SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
-	//Set2HDVideoPathB();		// set 2HD pathB
-
-
-	SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO));
-	DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window
-	//DEMO_SetAspectRatio(GetMenuStatus(4,6));	// update aspect ratio
-	//DEMO_SetOverScanning(GetMenuStatus(4,5));	// update overscanning
-	//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
-
-#ifdef __4CH__
-	MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-#endif
-
-#if 0 //Louis
-	if(SDIRX_change_flag)
-	{
-		SDIRX_change_flag = 0;
-	}
-#endif
-
-	MDIN3xx_EnableMainDisplay(ON);
-	//if(sys_status.current_split_mode != FULL_9) MDIN3xx_EnableMainDisplay(ON);
-
-	// if src is 2HD input or dual display, trigger soft-reset.
-	if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) MDIN3xx_SoftReset();
-
-	SetOSDMenuRefresh();	// for framebuffer map bug
-//	SetOutHDMI_DVI();
-
-	PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
-	PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
-	PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
-	PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
-
-	//test_stVideo_print();
-#if 0 //Louis
-	if(SDIRX_change_flag)
-	{
-		SDIRX_change_flag = 0;
-	}
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,40 +1,51 @@
-#ifndef __RTC__
-#define __RTC__
+#ifndef __RTC_H__
+#define __RTC_H__
 
 //=============================================================================
-//  
+//  Defines
 //=============================================================================
-struct tm 
+#define SECS_IN_MIN				60
+#define MINS_IN_HOUR			60
+#define HOURS_IN_DAY			24
+#define SECS_IN_HOUR			3600//SECS_IN_MIN * MINS_IN_HOUR	//3600
+#define SECS_IN_DAY				86400//SECS_IN_HOUR * HOURS_IN_DAY	//86400
+#define DAYS_IN_YEAR 			365
+#define DAYS_IN_LEAPYEAR		366
+// DEFAUTL DATE : 2018-JAN-1
+#define DEFAULT_YEAR			18
+#define DEFAULT_MONTH			1
+#define DEFAULT_DAY				1
+
+//=============================================================================
+//  Type definitions
+//=============================================================================
+
+typedef struct
 {
-	BYTE tm_sec;   
-	BYTE tm_min;   
-	BYTE tm_hour;  
-
-	BYTE tm_mday;  
-	BYTE tm_mon;   
-	BYTE tm_year;  
-};
+	u8 sec;
+	u8 min;
+	u8 hour;
+	u8 day;
+	u8 month;
+	u8 year;
+} sTimeDate_t;
 
 //=============================================================================
 //  Function Prototype
 //=============================================================================
-void Change_RTC_Cnt(struct tm *time);
-void Time_Read(void); 
+extern void RTC_Configuration(void);
+extern void RTC_IRQHandler(void);
 
+extern void RTC_SetTime(sTimeDate_t *time);
+extern void RTC_GetTime(sTimeDate_t* rtcTimeDate);
+extern void RTC_CheckTime(void);
+extern void RTC_SetDefaultDate(void);
 
+extern void RTC_ChangeRtcTimeStatus(BOOL set);
+extern BOOL RTC_GetRtcTimeStatus(void);
+extern void RTC_ChangeDisplayTimeStatus(BOOL set);
+extern BOOL RTC_GetDisplayTimeStatus(void);
 
-//=============================================================================
-//  Extern Grobal Variable 
-//=============================================================================
-extern BYTE rtc_year;
-extern BYTE rtc_month;
-extern BYTE rtc_day;
-extern BYTE rtc_hour;
-extern BYTE rtc_min;
-extern BYTE rtc_sec;
-
-extern BYTE rtc_sec_update_flag;
-extern BYTE sec_flag;
-
+extern u8 GetDaysInMonth(u8 month, u16 year);
 
 #endif

@@ -12,10 +12,11 @@
 // Ref. Docment		: 
 // Revision History 	:
 
+#if 0
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
-#include	"..\main\common.h"
+#include	"common.h"
 
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
@@ -232,4 +233,5 @@ void MenuItemExeHandler(void)
 
 }
 
+#endif
 /*  FILE_END_HERE */
