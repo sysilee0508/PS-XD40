@@ -567,7 +567,7 @@ static void Print_StringTime(u16 itemX, u8 attribute)
 	sTimeDate_t currentTime;
 	u8 hourStr[2], minStr[2], secStr[2];
 	u8 timeStr[TIME_STRING_LENGTH] = {0,};
-       u8 selectedMark[2];
+       u8 selectedMark[3];
 	char* pStr;
 
 	selectedMark[0] = (itemX & 0x01)?attribute:NULL;
@@ -611,7 +611,7 @@ static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 	u8 yearStr[4] = {'2','0',}, monthStr[2], dayStr[2];
 	u8 dateStr[DATE_STRING_LENGTH] = {'2','0',};
 	char* pStr;
-	u8 selectedMark[2];
+	u8 selectedMark[3];
 
 	selectedMark[0] = (itemX & 0x0001)?attribute:NULL;
 	selectedMark[1] = (itemX & 0x0002)?attribute:NULL;
@@ -625,7 +625,7 @@ static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date),
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
-			yearStr, attribute, 4);
+			yearStr, selectedMark[0], 4);
 
 	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 4,
@@ -635,7 +635,7 @@ static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 5,
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
-			monthStr, attribute,2);
+			monthStr, selectedMark[1],2);
 
 	Print_StringWithSelectedMarkSize(
 		timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 7,
@@ -645,7 +645,7 @@ static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 8,
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
-			dayStr, attribute, 2);
+			dayStr, selectedMark[2], 2);
 }  
 
 static void Print_StringDateFormat(u8 attribute)

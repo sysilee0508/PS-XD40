@@ -213,12 +213,12 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 			}
 		}
 		memcpy(rtcTimeDate, &timeDate, sizeof(timeDate));
+		oldTimeDate = timeDate;
 	}
 	else
 	{
 		memcpy(rtcTimeDate, &oldTimeDate, sizeof(timeDate));
 	}
-	oldTimeDate = timeDate;
 }
 
 void RTC_SetTime(sTimeDate_t* newTimeDate)
