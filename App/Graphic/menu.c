@@ -796,7 +796,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 	static u8 itemY = TIMEDATE_ITEM_Y_TIME;
 	u16 itemX;
 	BOOL inc_dec = DECREASE;
-	sTimeDate_t rtcTime;
+	static sTimeDate_t rtcTime;
 	BOOL displayOn;
 	eDateFormat_t dateFormat;
 	BOOL yearFormat;
