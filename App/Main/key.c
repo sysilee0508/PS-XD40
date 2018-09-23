@@ -402,7 +402,7 @@ void Key_Proc(void)
 				// If key is changed...
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					OSD_EraseAll();
+					Osd_ClearScreen();//OSD_EraseAll();
 					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
 					changedDisplayMode = SET;
@@ -418,7 +418,7 @@ void Key_Proc(void)
 				{
 //					if(displayMode != DISPLAY_MODE_4SPLIT || bAuto_Seq_Flag || bScreenFreeze)
 //					{
-					OSD_EraseAll();
+					Osd_ClearScreen();//OSD_EraseAll();
 //					}
 					bScreenFreeze = CLEAR;
 					bAuto_Seq_Flag = CLEAR;
@@ -452,7 +452,7 @@ void Key_Proc(void)
 				{
 					if(bAuto_Seq_Flag == CLEAR)
 					{
-						OSD_EraseAll();
+						Osd_ClearScreen();//OSD_EraseAll();
 					}
 					//bMode_change_flag = SET;
 					bScreenFreeze = CLEAR;

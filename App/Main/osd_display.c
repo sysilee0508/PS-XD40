@@ -601,7 +601,7 @@ void OSD_Display_ChannelName(void)
 	}
 }
 //-----------------------------------------------------------------------------
-void Osd_Init_Erase(void)
+void Osd_ClearScreen(void)
 {
 	u16 i;
 	BYTE pSTR[DISPLAY_WIDTH/CHAR_WIDTH_E];

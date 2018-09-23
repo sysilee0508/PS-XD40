@@ -33,8 +33,8 @@ extern BYTE changedDisplayMode;
 //-----------------------------------------------------------------
 // Function declaration
 //-----------------------------------------------------------------
-extern void Osd_Init_Erase(void);
-extern void OSD_EraseAll(void);
+extern void Osd_ClearScreen(void);
+//extern void OSD_EraseAll(void);
 extern void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size);
 extern void OSD_Display(void);
 extern void OSD_Display_Time(void);
