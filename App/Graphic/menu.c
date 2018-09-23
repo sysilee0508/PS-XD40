@@ -358,14 +358,6 @@ static void IncreaseDecreaseBcd(u8 max,u8 min,BOOL Up_Flag,u8 *pBcd)//INC_Dec_Bc
 }
 
 //--------------------------------------------------------------------------------------
-static void Print_String(sPosition_t position, const u8* pChar, u16 size)
-{  
-	OSD_SetFontGAC(SPRITE_INDEX0);
-	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pChar, size, 0);
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
-}
-
-//--------------------------------------------------------------------------------------
 static void Print_StringWithSelectedMarkSize(u16 offset_x, u16 offset_y, const u8 *data, u8 attribute, u16 sizeOfMark)
 {
 	u16 i;
@@ -374,15 +366,15 @@ static void Print_StringWithSelectedMarkSize(u16 offset_x, u16 offset_y, const u
 	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_E);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 	
-	Print_String(position, data, strlen(data));
+	OSD_PrintString(position, data, strlen(data));
 
 	memset(lineBuffer, ASCII_SPACE, CHARACTERS_IN_MENU_LINE);
 	for(i = 0; i < sizeOfMark; i++)
 	{
 		lineBuffer[i] = (attribute == NULL)? ASCII_SPACE : SELECTED_MARK;
 	}
-       position.pos_y += CHAR_HEIGHT;
-	Print_String(position, lineBuffer, sizeOfMark);
+    position.pos_y += CHAR_HEIGHT;
+	OSD_PrintString(position, lineBuffer, sizeOfMark);
 }
 //--------------------------------------------------------------------------------------
 static void Print_StringWithSelectedMark(u16 offset_x, u16 offset_y, const u8 *data, u8 attribute, u16 size)
@@ -393,7 +385,7 @@ static void Print_StringWithSelectedMark(u16 offset_x, u16 offset_y, const u8 *d
 	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_E);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 
-	Print_String(position, data, size);
+	OSD_PrintString(position, data, size);
 
 	memset(lineBuffer, ASCII_SPACE, CHARACTERS_IN_MENU_LINE);
 	for(i = 0; i < size; i++)
@@ -402,7 +394,7 @@ static void Print_StringWithSelectedMark(u16 offset_x, u16 offset_y, const u8 *d
 	}
 
 	position.pos_y += CHAR_HEIGHT;
-	Print_String(position, lineBuffer, size);
+	OSD_PrintString(position, lineBuffer, size);
 }
 //--------------------------------------------------------------------------------------
 static void Print_StringOnOff(u16 offset_x, u16 offset_y, u8 attribute, BOOL on_off)
@@ -441,7 +433,6 @@ static void Erase_AllMenuScreen(void)
 static void DrawSelectMark(u8 verticalItem)
 {	
 	static const u8 offset_x[MENU_PAGE_MAX] = {19,13,18,17,18,17,17,17}; //in characters
-	//static const u8 offset_y[MENU_PAGE_MAX] = {5, 5, 5, 6, 6 ,6, 6, 6};  // in lines
 	static u8 previousLocationX;
 	static u8 previousLocationY;
 	u8 offset_y;
@@ -452,55 +443,15 @@ static void DrawSelectMark(u8 verticalItem)
 	// erase previous mark
 	position.pos_x = MENU_START_POSITION_X + (previousLocationX * CHAR_WIDTH_E);
 	position.pos_y = MENU_START_POSITION_Y + (previousLocationY * CHAR_HEIGHT);
-  	Print_String(position,menuStr_Space1, strlen(menuStr_Space1));
+  	OSD_PrintString(position,menuStr_Space1, strlen(menuStr_Space1));
   	// draw new mark
 	position.pos_x = MENU_START_POSITION_X + (offset_x[currentPage] * CHAR_WIDTH_E);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
-  	Print_String(position, menuStr_ArrowL, strlen(menuStr_ArrowL));
+  	OSD_PrintString(position, menuStr_ArrowL, strlen(menuStr_ArrowL));
 
   	previousLocationX = offset_x[currentPage];
   	previousLocationY = offset_y;
 }
-
-//-----------------------------------------------------------------
-static void MainMenu_Entry(u8 itemY)
-{
-	const sLocationNString_t mainMenu[MAINMENU_ITEM_Y_MAX] =
-	{
-			{24, LINE0_OFFSET_Y, menuStr_MainMenu_Title},
-			{22, LINE1_OFFSET_Y, menuStr_MainMenu_TimeDate},
-			{22, LINE2_OFFSET_Y, menuStr_MainMenu_CameraTitle},
-			{22, LINE3_OFFSET_Y, menuStr_MainMenu_AutoSeq},
-			{22, LINE4_OFFSET_Y, menuStr_MainMenu_Display},
-			{22, LINE5_OFFSET_Y, menuStr_MainMenu_Alarm},
-			{22, LINE6_OFFSET_Y, menuStr_MainMenu_MotionDetection},
-			{22, LINE7_OFFSET_Y, menuStr_MainMenu_DeviceInfo}
-	};
-	u8 index;
-
-	currentPage = MENU_PAGE_MAIN;
-	Erase_AllMenuScreen();
-	requestEnterKeyProc = CLEAR;
-
-	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
-
-	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
-	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-
-	DrawSelectMark(itemY);
-	for(index = 0; index < MAINMENU_ITEM_Y_MAX; index++)
-	{
-		Print_StringWithSelectedMarkSize(mainMenu[index].offset_x, mainMenu[index].offset_y, mainMenu[index].str, NULL, 0);
-	}
-}
-
 
 //------------------------------------------------------------------
 //   Time/Date Page Function
@@ -588,56 +539,31 @@ static void Print_StringTime(u16 itemX, u8 attribute)
 	Bcd2Str(currentTime.hour, hourStr);
 	Bcd2Str(currentTime.min, minStr);
 	Bcd2Str(currentTime.sec, secStr);
-/*
-	pStr = (char *)timeStr;
-	strncpy(pStr, (const char *)hourStr, sizeof(hourStr));
-	pStr += 2;
-	*pStr = ':';//strncpy(pStr, ":", 1);
-	pStr++;
-	strncpy(pStr, (const char *)minStr, sizeof(minStr));
-	pStr += 2;
-	*pStr = ':';//strncpy(pStr, ":", 1);
-	pStr++;
-	strncpy(pStr, (const char *)secStr, sizeof(secStr));
+
 	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time),
 			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
-			(const u8*)timeStr,
-			NULL, sizeof(timeStr));
-	*/
+			hourStr, selectedMark[0], sizeof(hourStr));
 
-	//if(itemX & TIME_ELEMENT_HOUR == TIME_ELEMENT_HOUR)
-	{
-		Print_StringWithSelectedMark(
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time),
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
-				hourStr, selectedMark[0], sizeof(hourStr));
+	Print_StringWithSelectedMarkSize(
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + 2,
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+			":", NULL, 1);
 
-	}
-		Print_StringWithSelectedMarkSize(
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + 2,
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
-				":", NULL, 1);
+	Print_StringWithSelectedMark(
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + sizeof(hourStr) + 1,
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+			minStr, selectedMark[1], sizeof(minStr));
 
-	//if(itemX & TIME_ELEMENT_MIN == TIME_ELEMENT_MIN)
-	{
-		Print_StringWithSelectedMark(
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + sizeof(hourStr) + 1,
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
-				minStr, selectedMark[1], sizeof(minStr));
-	}
-    		Print_StringWithSelectedMarkSize(
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + 5,
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
-				":", NULL, 1);
+	Print_StringWithSelectedMarkSize(
+		timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + 5,
+		timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+		":", NULL, 1);
 
-	//if(itemX & TIME_ELEMENT_SEC == TIME_ELEMENT_SEC)
-	{
-		Print_StringWithSelectedMark(
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + sizeof(hourStr) + sizeof(minStr) + 2,
-				timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
-				secStr, selectedMark[2], sizeof(secStr));
-	}
+	Print_StringWithSelectedMark(
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time) + sizeof(hourStr) + sizeof(minStr) + 2,
+			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_y,
+			secStr, selectedMark[2], sizeof(secStr));
 }
 
 static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
@@ -646,7 +572,7 @@ static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 	u8 yearStr[4] = {'2','0',}, monthStr[2], dayStr[2];
 	u8 dateStr[DATE_STRING_LENGTH] = {'2','0',};
 	char* pStr;
-       u8 selectedMark[2];
+	u8 selectedMark[2];
 
 	selectedMark[0] = (itemX & 0x0001)?attribute:NULL;
 	selectedMark[1] = (itemX & 0x0002)?attribute:NULL;
@@ -656,69 +582,32 @@ static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 	Bcd2Str(date.year, yearStr+2);
 	Bcd2Str(date.month, monthStr);
 	Bcd2Str(date.day, dayStr);
-/*
-	pStr = (char *)dateStr;
-	strncpy(pStr, (const char *)yearStr, sizeof(yearStr));
-	pStr += 4;
-       *pStr = '-';
-	//strncpy(pStr, "-", 1);
-	pStr++;
-	strncpy(pStr, (const char *)monthStr, sizeof(monthStr));
-	pStr += 2;
-	*pStr = '-';
-       pStr++;
-	strncpy(pStr, (const char *)dayStr, sizeof(dayStr));
-    pStr =  (char *)dateStr;
-    
-    	Print_StringWithSelectedMark(
+
+	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date),
 			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
-			(const u8*)dateStr,
-			NULL, sizeof(dateStr));
-*/
-	//if(itemX & 0x0001 == 0x0001)
-	{
-		Print_StringWithSelectedMarkSize(
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date),
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
-				yearStr, attribute, 4);
+			yearStr, attribute, 4);
 
-	}
-		Print_StringWithSelectedMarkSize(
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 4,
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
-				"-", NULL, 1);
+	Print_StringWithSelectedMark(
+			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 4,
+			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
+			"-", NULL, 1);
 
-	//if(itemX & DATE_ELEMENT_MONTH == DATE_ELEMENT_MONTH)
-	{
-		Print_StringWithSelectedMarkSize(
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 5,
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
-				monthStr, attribute,2);
-	}
-    		Print_StringWithSelectedMarkSize(
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 7,
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
-				"-", NULL, 1);
+	Print_StringWithSelectedMark(
+			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 5,
+			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
+			monthStr, attribute,2);
 
-	//if(itemX & DATE_ELEMENT_DAY == DATE_ELEMENT_DAY)
-	{
-		Print_StringWithSelectedMarkSize(
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 8,
-				timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
-				dayStr, attribute, 2);
-	}
+	Print_StringWithSelectedMarkSize(
+		timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 7,
+		timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
+		"-", NULL, 1);
+
+	Print_StringWithSelectedMark(
+			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_x + strlen(menuStr_TimeDate_Date) + 8,
+			timeDateMenu[TIMEDATE_ITEM_Y_DATE].offset_y,
+			dayStr, attribute, 2);
 }  
-
-//void Data_Run(void)
-//{
-////	if(sys_env.vDATE_FORMAT)
-////		Print_StringWithSelectedMarkSize(27,7,cDATE_FORMAT1,NULL,0);
-////	else
-////		Print_StringWithSelectedMarkSize(25,7,cDATE_FORMAT2,NULL,0);
-//
-//	Print_StringDate(DATE_ELEMENT_YEAR | DATE_ELEMENT_MONTH | DATE_ELEMENT_DAY , NULL, 1);
-//}
 
 static void Print_StringDateFormat(u8 attribute)
 {
@@ -753,11 +642,11 @@ static void Print_StringDateFormat(u8 attribute)
 
 static void Print_StringYearFormat(u8 attribute)
 {
-	u8 year_digit;
+	u8 year4digit;
 	u8 strNum;
 
-	Read_NvItem_YearFormat(&year_digit);
-	if(year_digit == FALSE)
+	Read_NvItem_YearFormat(&year4digit);
+	if(year4digit == FALSE)
 	{
 		strNum = '2';
 	}
@@ -765,7 +654,7 @@ static void Print_StringYearFormat(u8 attribute)
 	{
 		strNum = '4';
 	}
-	Print_StringWithSelectedMarkSize(
+	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen((char*)menuStr_TimeDate_YearFormat),
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_y, (const u8*)&strNum, attribute, 1);
 	Print_StringWithSelectedMarkSize(
@@ -813,22 +702,25 @@ static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY)
 
  	    case TIMEDATE_ITEM_Y_TIME_DISPLAY:
  	    	Read_NvItem_TimeDisplayOn(&timeDisplay);
- 	    	Print_StringOnOff(timeDateMenu[itemY].offset_x + strlen((char *)menuStr_TimeDate_TimeDisplay), timeDateMenu[itemY].offset_y, attribute, timeDisplay);
+ 	    	Print_StringOnOff(
+ 	    			timeDateMenu[itemY].offset_x + strlen((char *)timeDateMenu[itemY].str),
+					timeDateMenu[itemY].offset_y,
+					attribute, timeDisplay);
  	    	break;
 
  	    case TIMEDATE_ITEM_Y_DATE_DISPALY :
  	    	Read_NvItem_DateDisplayOn(&dateDisplay);
- 	    	Print_StringOnOff(timeDateMenu[itemY].offset_x + strlen((char *)menuStr_TimeDate_DateDisplay), timeDateMenu[itemY].offset_y, attribute, dateDisplay);
+ 	    	Print_StringOnOff(timeDateMenu[itemY].offset_x + strlen((char *)timeDateMenu[itemY].str),
+ 	    			timeDateMenu[itemY].offset_y,
+					attribute, dateDisplay);
  	    	break;
 
  		case  TIMEDATE_ITEM_Y_DATE_FORMAT:
  	    	Print_StringDateFormat(attribute);
-// 	    	Data_Run();
  			break;
 
  		case TIMEDATE_ITEM_Y_YEAR_FORMAT:
  			Print_StringYearFormat(attribute);
-// 			Print_StringTimeDatePosition(attribute);
  			break;
 
  		case TIMEDATE_ITEM_Y_TIME_CORRECTION:
@@ -1050,8 +942,18 @@ static const u8* pTitlePosition_Str[TITLE_POSITION_MAX] =
 		menuStr_BottomRight,
 		menuStr_Center
 };
+const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
+{
+		{25, LINE0_OFFSET_Y, menuStr_CamaraTitle_Title},
+		{20, LINE1_OFFSET_Y, menuStr_CameraTitle_Ch1},
+		{20, LINE2_OFFSET_Y, menuStr_CameraTitle_Ch2},
+		{20, LINE3_OFFSET_Y, menuStr_CameraTitle_Ch3},
+		{20, LINE4_OFFSET_Y, menuStr_CameraTitle_Ch4},
+		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay},
+		{20, LINE6_OFFSET_Y, menuStr_CameraTitle_Position}
+};
 
-static void CameraTitlePage_UpdatePage(u8 offset_x, u8 offset_y, u8 itemY, u8 pos_x)
+static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 {
 	BOOL titleOn;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];// = {0,};
@@ -1068,35 +970,38 @@ static void CameraTitlePage_UpdatePage(u8 offset_x, u8 offset_y, u8 itemY, u8 po
 			Read_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
 			// print full name
 			Print_StringWithSelectedMarkSize(
-					offset_x + strlen(menuStr_CameraTitle_Ch1),
-					offset_y,
+					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+					cameraTitle[itemY].offset_y,
 					(const u8*)channel_name,
 					NULL, 0);
 			// get selected character
 			pChar = &channel_name[pos_x];
 			// and print
 			Print_StringWithSelectedMark(
-					offset_x + strlen(menuStr_CameraTitle_Ch1) + pos_x,
-					offset_y,
+					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str) + pos_x,
+					cameraTitle[itemY].offset_y,
 					(const u8*)pChar,
 					attribute, 1);
 			break;
 
 		case CAMERATITLE_ITEM_Y_DISPLAY_ON:
 			Read_NvItem_TitleDispalyOn(&titleOn);
-			Print_StringOnOff(offset_x + strlen(menuStr_CameraTitle_TitleDisplay), offset_y, attribute, titleOn);
+			Print_StringOnOff(
+					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+					cameraTitle[itemY].offset_y,
+					attribute, titleOn);
 			break;
 
 		case CAMERATITLE_ITEM_Y_POSITION:
 			Read_NvItem_TitlePosition(&titlePosition);
 			Print_StringWithSelectedMarkSize(
-					offset_x + strlen(menuStr_CameraTitle_Position),
-					offset_y,
+					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+					cameraTitle[itemY].offset_y,
 					menuStr_Space13,
 					NULL, strlen((char *)menuStr_Space13));
 			Print_StringWithSelectedMark(
-					offset_x + strlen(menuStr_CameraTitle_Position),
-					offset_y,
+					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+					cameraTitle[itemY].offset_y,
 					pTitlePosition_Str[titlePosition],
 					attribute,
 					strlen(pTitlePosition_Str[titlePosition]));
@@ -1107,16 +1012,6 @@ static void CameraTitlePage_UpdatePage(u8 offset_x, u8 offset_y, u8 itemY, u8 po
 
 static void CameraTitlePage_Entry(void)
 {
-	const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
-	{
-			{27, LINE0_OFFSET_Y, menuStr_CamaraTitle_Title},
-			{20, LINE1_OFFSET_Y, menuStr_CameraTitle_Ch1},
-			{20, LINE2_OFFSET_Y, menuStr_CameraTitle_Ch2},
-			{20, LINE3_OFFSET_Y, menuStr_CameraTitle_Ch3},
-			{20, LINE4_OFFSET_Y, menuStr_CameraTitle_Ch4},
-			{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay},
-			{20, LINE6_OFFSET_Y, menuStr_CameraTitle_Position}
-	};
 	u8 index = 0;
 
 	currentPage = MENU_PAGE_CAMERA_TITLE;
@@ -1127,7 +1022,7 @@ static void CameraTitlePage_Entry(void)
 	for(index = 0; index < CAMERATITLE_ITEM_Y_MAX; index++)
 	{
 		Print_StringWithSelectedMarkSize(cameraTitle[index].offset_x, cameraTitle[index].offset_y, cameraTitle[index].str, NULL, 0);
-		CameraTitlePage_UpdatePage(cameraTitle[index].offset_x, cameraTitle[index].offset_y, index, 0);
+		CameraTitlePage_UpdatePage(index, 0);
 	}
 }
 
@@ -1172,7 +1067,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 						Write_NvItem_TitlePosition(titlePosition);
 						break;
 				}
-				CameraTitlePage_UpdatePage(20, LINE1_OFFSET_Y + (2*(itemY-1)), itemY, pos_x);
+				CameraTitlePage_UpdatePage(itemY, pos_x);
 			}
 			else
 			{
@@ -1189,10 +1084,10 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 				if((itemY >= CAMERATITLE_ITEM_Y_CH1) && (itemY <= CAMERATITLE_ITEM_Y_CH4))
 				{
 					requestEnterKeyProc = CLEAR;
-					CameraTitlePage_UpdatePage(20, LINE1_OFFSET_Y + (2*(itemY-1)), itemY, pos_x);
+					CameraTitlePage_UpdatePage(itemY, pos_x);
 	  				IncreaseDecreaseCount(CHANNEL_NEME_LENGTH_MAX - 1, 0, inc_dec,&pos_x);
 	  				requestEnterKeyProc = SET;
-	  				CameraTitlePage_UpdatePage(20, LINE1_OFFSET_Y + (2*(itemY-1)), itemY, pos_x);
+	  				CameraTitlePage_UpdatePage(itemY, pos_x);
 				}
 			}
 			else
@@ -1203,18 +1098,18 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	  
 		case KEY_ENTER:
 			Toggle(&requestEnterKeyProc);
-			if(requestEnterKeyProc == SET)
-			{
-				pos_x = 0;
-			}
-			CameraTitlePage_UpdatePage(20, LINE1_OFFSET_Y + (2*(itemY-1)), itemY, pos_x);
+//			if(requestEnterKeyProc == SET)
+//			{
+//				pos_x = 0;
+//			}
+			CameraTitlePage_UpdatePage(itemY, pos_x);
 			break; 	
 
 		case KEY_EXIT :
 	    	if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
-				CameraTitlePage_UpdatePage(20, LINE1_OFFSET_Y + (2*(itemY-1)), itemY, 0);
+				CameraTitlePage_UpdatePage(itemY, 0);
 				DrawSelectMark(itemY);
 			}
 			else 
@@ -1231,6 +1126,16 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 //	Auto Seq Page Function
 //------------------------------------------------------------------
+const sLocationNString_t autoSeqMenu[AUTOSEQ_ITEM_Y_MAX] =
+{
+	{24, LINE0_OFFSET_Y, menuStr_AutoSeq_Title},
+	{20, LINE1_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch1},
+	{20, LINE2_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch2},
+	{20, LINE3_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch3},
+	{20, LINE4_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch4},
+	{20, LINE5_OFFSET_Y, menuStr_AutoSeq_NoVideoSkip}
+};
+
 static void AutoSeqPage_UpdatePage(u8 itemY)
 {
 	u8 displayTime[NUM_OF_CHANNEL];
@@ -1249,13 +1154,13 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 			{
 				// print OFF
 				Print_StringWithSelectedMarkSize(
-				        20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1),
-				        LINE1_OFFSET_Y + ((itemY-1) * 2), 
+						autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+						autoSeqMenu[itemY].offset_y,
 				        menuStr_Space6, 
 				        NULL, strlen(menuStr_Space6));
 				Print_StringWithSelectedMark(
-						20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1),
-						LINE1_OFFSET_Y + ((itemY-1) * 2),
+						autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+						autoSeqMenu[itemY].offset_y,
 						menuStr_Off,
 						attribute, strlen(menuStr_Off));
 			}
@@ -1263,17 +1168,18 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 			{
 				Int2Str(displayTime[itemY-1], displayTimeInStr);
 				Print_StringWithSelectedMarkSize(
-						20 + strlen((char *)menuStr_AutoSeq_DisplayTime_Ch1),
-						LINE1_OFFSET_Y + ((itemY-1) * 2),
+						autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+						autoSeqMenu[itemY].offset_y,
 						menuStr_Space3,
 						NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
-						20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1),
-						LINE1_OFFSET_Y + ((itemY-1) * 2),
+						autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+						autoSeqMenu[itemY].offset_y,
 						(const u8*)displayTimeInStr,
 						attribute, sizeof(displayTimeInStr));
-				Print_StringWithSelectedMarkSize(20 + strlen(menuStr_AutoSeq_DisplayTime_Ch1) + 3, 
-						LINE1_OFFSET_Y + ((itemY-1) * 2),
+				Print_StringWithSelectedMarkSize(
+						autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str) + sizeof(displayTimeInStr),
+						autoSeqMenu[itemY].offset_y,
 						menuStr_Sec,
 						NULL, strlen(menuStr_Sec));
 			}
@@ -1284,21 +1190,21 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
     		if(videoLossSkip == ON) //skip
     		{
     			Print_StringWithSelectedMarkSize(
-    					20 + strlen(menuStr_AutoSeq_NoVideoSkip),
-    					LINE5_OFFSET_Y,
+    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+						autoSeqMenu[itemY].offset_y,
     					menuStr_Space9,
     					NULL, strlen(menuStr_Space9));
     			Print_StringWithSelectedMarkSize(
-    					20 + strlen(menuStr_AutoSeq_NoVideoSkip),
-    					LINE5_OFFSET_Y,
+    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+						autoSeqMenu[itemY].offset_y,
     					menuStr_Skip,
     					attribute, strlen(menuStr_Skip));
     		}
     		else //show
     		{
     			Print_StringWithSelectedMarkSize(
-    					20 + strlen(menuStr_AutoSeq_NoVideoSkip),
-    					LINE5_OFFSET_Y,
+    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+						autoSeqMenu[itemY].offset_y,
     					menuStr_Show,
     					attribute, strlen(menuStr_Show));
     		}
@@ -1308,15 +1214,6 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 
 static void AutoSeqPage_Entry()
 {
-	const sLocationNString_t autoSeqMenu[AUTOSEQ_ITEM_Y_MAX] =
-	{
-		{24, LINE0_OFFSET_Y, menuStr_AutoSeq_Title},
-		{20, LINE1_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch1},
-		{20, LINE2_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch2},
-		{20, LINE3_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch3},
-		{20, LINE4_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch4},
-		{20, LINE5_OFFSET_Y, menuStr_AutoSeq_NoVideoSkip}
-	};
 	u8 index = 0;
 
 	currentPage = MENU_PAGE_AUTO_SEQ;
@@ -1398,10 +1295,16 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 // Display Page Function
 //------------------------------------------------------------------
+const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
+{
+	{24, LINE0_OFFSET_Y, menuStr_Display_Title},
+	{20, LINE1_OFFSET_Y, menuStr_Display_Resolution},
+	{20, LINE2_OFFSET_Y, menuStr_Display_OsdDisplay},
+	{20, LINE3_OFFSET_Y, menuStr_Display_BorderLine}
+};
+
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
-	const u16 offset_x = 20;
-	//u8* pResolutionStr = NULL;
 	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
@@ -1414,15 +1317,17 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 			switch(resolution)
 			{
 				case RESOLUTION_1920_1080_60P:
-					Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution),
-						LINE1_OFFSET_Y,
-						menuStr_Resolution1920X1080_60P,
-						attribute,
-						strlen(menuStr_Resolution1920X1080_60P));
+					Print_StringWithSelectedMark(
+							displayMenu[itemY].offset_x + strlen((char *)displayMenu[itemY].str),
+							displayMenu[itemY].offset_y,
+							menuStr_Resolution1920X1080_60P,
+							attribute,
+							strlen(menuStr_Resolution1920X1080_60P));
 					break;
 				case RESOLUTION_1920_1080_50P:
-					Print_StringWithSelectedMark(offset_x + strlen(menuStr_Display_Resolution), 
-							LINE1_OFFSET_Y,
+					Print_StringWithSelectedMark(
+							displayMenu[itemY].offset_x + strlen((char *)displayMenu[itemY].str),
+							displayMenu[itemY].offset_y,
 							menuStr_Resolution1920X1080_50P,
 							attribute,
 							strlen(menuStr_Resolution1920X1080_50P));
@@ -1432,25 +1337,24 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 
 		case DISPLAY_ITEM_Y_OSD_DISPLAY:
 			Read_NvItem_OsdOn(&osdOn);
-			Print_StringOnOff(offset_x + strlen(menuStr_Display_OsdDisplay), LINE2_OFFSET_Y, attribute, osdOn);
+			Print_StringOnOff(
+					displayMenu[itemY].offset_x + strlen((char *)displayMenu[itemY].str),
+					displayMenu[itemY].offset_y,
+					attribute, osdOn);
 			break;
 
 		case DISPLAY_ITEM_Y_BORDER_LINE_DISPLAY:
 			Read_NvItem_BorderLineDisplay(&borderLineOn);
-			Print_StringOnOff(offset_x + strlen(menuStr_Display_BorderLine), LINE3_OFFSET_Y, attribute, borderLineOn);
+			Print_StringOnOff(
+					displayMenu[itemY].offset_x + strlen((char *)displayMenu[itemY].str),
+					displayMenu[itemY].offset_y,
+					attribute, borderLineOn);
 			break;
 	}
 }
 
 static void DisplayPage_Entry(void)
 {
-	const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
-	{
-		{24, LINE0_OFFSET_Y, menuStr_Display_Title},
-		{20, LINE1_OFFSET_Y, menuStr_Display_Resolution},
-		{20, LINE2_OFFSET_Y, menuStr_Display_OsdDisplay},
-		{20, LINE3_OFFSET_Y, menuStr_Display_BorderLine}
-	};
 	u8 index;
 
 	currentPage = MENU_PAGE_DISPLAY;
@@ -1534,19 +1438,45 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 //   Alarm/Remote Page Function
 //------------------------------------------------------------------
-static void Print_StringAlarmRemoconSelection(u16 offset_x, u16 offset_y, u8 attribute)
+const sLocationNString_t alarmRemoconMenu[ALARM_ITEM_Y_MAX] =
+{
+	{24, LINE0_OFFSET_Y, menuStr_Alarm_Title},
+	{20, LINE1_OFFSET_Y, menuStr_Alarm_AlarmRemocon},
+	{20, LINE2_OFFSET_Y, menuStr_Alarm_Channel1},
+	{20, LINE3_OFFSET_Y, menuStr_Alarm_Channel2},
+	{20, LINE4_OFFSET_Y, menuStr_Alarm_Channel3},
+	{20, LINE5_OFFSET_Y, menuStr_Alarm_Channel4},
+	{20, LINE6_OFFSET_Y, menuStr_Alarm_AlarmOutTime},
+	{20, LINE7_OFFSET_Y, menuStr_Alarm_AlarmBuzzerTime},
+	{20, LINE8_OFFSET_Y, menuStr_Alarm_VideoLossBuzzerTime},
+	{20, LINE9_OFFSET_Y, menuStr_Alarm_RemoconId}
+};
+
+static void Print_StringAlarmRemoconSelection(u8 attribute)
 {
 	BOOL alarmRemoconSelection;
 
 	Read_NvItem_AlarmRemoconSelect(&alarmRemoconSelection);
 	if(alarmRemoconSelection == 0) //alarm
 	{
-		Print_StringWithSelectedMarkSize(offset_x, LINE1_OFFSET_Y, menuStr_Space7, NULL,  strlen((char *)menuStr_Space7));
-		Print_StringWithSelectedMark(offset_x, LINE1_OFFSET_Y, menuStr_Alarm, attribute, strlen((char *)menuStr_Alarm));
+		Print_StringWithSelectedMarkSize(
+				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_x + strlen(menuStr_Alarm_AlarmRemocon),
+				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_y,
+				menuStr_Space7,
+				NULL, strlen((char *)menuStr_Space7));
+		Print_StringWithSelectedMark(
+				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_x + strlen(menuStr_Alarm_AlarmRemocon),
+				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_y,
+				menuStr_Alarm,
+				attribute, strlen((char *)menuStr_Alarm));
 	}
 	else //remocon
 	{
-		Print_StringWithSelectedMark(offset_x, LINE1_OFFSET_Y, menuStr_Remocon, attribute, strlen(menuStr_Remocon));
+		Print_StringWithSelectedMark(
+				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_x + strlen(menuStr_Alarm_AlarmRemocon),
+				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_y,
+				menuStr_Remocon,
+				attribute, strlen(menuStr_Remocon));
 	}
 }
 
@@ -1574,7 +1504,6 @@ static void Print_StringAlarmOption(u16 offset_x, u16 offset_y, u8 attribute, eC
 
 static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 {
-	const u16 offset_x = 20;
 //	u16 itemX = ITEM_X(pos_x);
 	u8 nv_data;
 	u8 remoconId;
@@ -1584,58 +1513,52 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  	switch(itemY)
  	{
 		case ALARM_ITEM_Y_ALARM_REMOCON:
-			Print_StringAlarmRemoconSelection(offset_x + strlen(menuStr_Alarm_AlarmRemocon), LINE1_OFFSET_Y,attribute);
+			Print_StringAlarmRemoconSelection(attribute);
 			break;
 
  	  	case ALARM_ITEM_Y_CH1:
- 	  		Print_StringAlarmOption(offset_x + 15, LINE2_OFFSET_Y, attribute, CHANNEL1);
- 	  		break;
-
  	  	case ALARM_ITEM_Y_CH2:
- 	  		Print_StringAlarmOption(offset_x + 15, LINE3_OFFSET_Y, attribute, CHANNEL2);
- 	  		break;
-
  	  	case ALARM_ITEM_Y_CH3:
- 	  		Print_StringAlarmOption(offset_x + 15, LINE4_OFFSET_Y, attribute, CHANNEL3);
- 	  		break;
-
  	  	case ALARM_ITEM_Y_CH4:
- 	  		Print_StringAlarmOption(offset_x + 15, LINE5_OFFSET_Y, attribute, CHANNEL4);
+ 	  		Print_StringAlarmOption(
+ 	  				alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+					alarmRemoconMenu[itemY].offset_y,
+					attribute, itemY - 2);
  	  		break;
 
-		case ALARM_ITEM_Y_ALARMOUT_TIME:
+ 	  	case ALARM_ITEM_Y_ALARMOUT_TIME:
 			Read_NvItem_AlarmOutTime(&nv_data);
             if(nv_data != 0)
             {
 				Int2Str(nv_data, str2digit);
                 Print_StringWithSelectedMarkSize(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
-					LINE6_OFFSET_Y,
-					menuStr_Space3,
-					NULL, strlen(menuStr_Space3));
+                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Space3,
+						NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
-					LINE6_OFFSET_Y,
-					(const u8*)str2digit,
-					attribute, sizeof(str2digit));
+						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						(const u8*)str2digit,
+						attribute, sizeof(str2digit));
 				Print_StringWithSelectedMarkSize(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime) + sizeof(str2digit) +1,
-					LINE6_OFFSET_Y,
-					menuStr_Sec,
-					NULL, 0);
+						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str) + sizeof(str2digit),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Sec,
+						NULL, 0);
             }
             else // print OFF
             {
                 Print_StringWithSelectedMarkSize(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
-					LINE6_OFFSET_Y,
-					menuStr_Space6,
-					NULL, strlen(menuStr_Space6));
+                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Space6,
+						NULL, strlen(menuStr_Space6));
                 Print_StringWithSelectedMark(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmOutTime),
-					LINE6_OFFSET_Y,
-					menuStr_Off,
-					attribute, strlen(menuStr_Off));
+                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Off,
+						attribute, strlen(menuStr_Off));
             }
 			break; 
 
@@ -1645,33 +1568,33 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 			{
 				Int2Str(nv_data, str2digit);
                 Print_StringWithSelectedMarkSize(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
-					LINE7_OFFSET_Y,
-					menuStr_Space3,
-					NULL, strlen(menuStr_Space3));
+                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Space3,
+						NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
-					LINE7_OFFSET_Y,
-					(const u8*)str2digit,
-					attribute, sizeof(str2digit));
+						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						(const u8*)str2digit,
+						attribute, sizeof(str2digit));
 				Print_StringWithSelectedMarkSize(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime) + sizeof(str2digit) + 1,
-					LINE7_OFFSET_Y,
-					menuStr_Sec,
-					NULL, 0);
+						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str) + sizeof(str2digit),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Sec,
+						NULL, 0);
 			}
             else // print OFF
             {
                 Print_StringWithSelectedMarkSize(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
-					LINE7_OFFSET_Y,
-					menuStr_Space6,
-					NULL, strlen(menuStr_Space6));
+                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Space6,
+						NULL, strlen(menuStr_Space6));
                 Print_StringWithSelectedMark(
-					offset_x + strlen((char *)menuStr_Alarm_AlarmBuzzerTime),
-					LINE7_OFFSET_Y,
-					menuStr_Off,
-					attribute, strlen(menuStr_Off));
+                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Off,
+						attribute, strlen(menuStr_Off));
             }
 
 			break;
@@ -1682,33 +1605,33 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  			{
 				Int2Str(nv_data, str2digit);
                 Print_StringWithSelectedMarkSize(
-					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
-					LINE8_OFFSET_Y,
-					menuStr_Space3,
-					NULL, strlen(menuStr_Space3));
+                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Space3,
+						NULL, strlen(menuStr_Space3));
 				Print_StringWithSelectedMark(
-					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
-					LINE8_OFFSET_Y,
-					(const u8*)str2digit,
-					attribute, sizeof(str2digit));
+						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						(const u8*)str2digit,
+						attribute, sizeof(str2digit));
 				Print_StringWithSelectedMarkSize(
-					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime) + sizeof(str2digit) + 1,
-					LINE8_OFFSET_Y,
-					menuStr_Sec,
-					NULL, 0);
+						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str) + sizeof(str2digit),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Sec,
+						NULL, 0);
  			}
  			else
  			{
                 Print_StringWithSelectedMarkSize(
-					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
-					LINE8_OFFSET_Y,
-					menuStr_Space6,
-					NULL, strlen(menuStr_Space6));
+                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Space6,
+						NULL, strlen(menuStr_Space6));
                 Print_StringWithSelectedMark(
-					offset_x + strlen((char *)menuStr_Alarm_VideoLossBuzzerTime),
-					LINE8_OFFSET_Y,
-					menuStr_Off,
-					attribute, strlen(menuStr_Off));
+                		alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_Off,
+						attribute, strlen(menuStr_Off));
  			}
 			break; 
 
@@ -1718,18 +1641,18 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  			{
 				Int2Str(nv_data, str2digit);
 				Print_StringWithSelectedMark(
-					offset_x + strlen((char *)menuStr_Alarm_RemoconId),
-					LINE9_OFFSET_Y,
-					(const u8*)str2digit,
-					attribute, sizeof(str2digit));
+						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						(const u8*)str2digit,
+						attribute, sizeof(str2digit));
  			}
  			else
  			{
  				Print_StringWithSelectedMark(
-					offset_x + strlen((char *)menuStr_Alarm_RemoconId),
-					LINE9_OFFSET_Y,
-					menuStr_None,
-					attribute, strlen(menuStr_None));
+ 						alarmRemoconMenu[itemY].offset_x + strlen((char *)alarmRemoconMenu[itemY].str),
+						alarmRemoconMenu[itemY].offset_y,
+						menuStr_None,
+						attribute, strlen(menuStr_None));
  			}
  			break;
  	}
@@ -1737,19 +1660,6 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 
 static void AlarmRemoconPage_Entry(void)
 {
-	const sLocationNString_t alarmRemoconMenu[ALARM_ITEM_Y_MAX] =
-	{
-		{24, LINE0_OFFSET_Y, menuStr_Alarm_Title},
-		{20, LINE1_OFFSET_Y, menuStr_Alarm_AlarmRemocon},
-		{20, LINE2_OFFSET_Y, menuStr_Alarm_Channel1},
-		{20, LINE3_OFFSET_Y, menuStr_Alarm_Channel2},
-		{20, LINE4_OFFSET_Y, menuStr_Alarm_Channel3},
-		{20, LINE5_OFFSET_Y, menuStr_Alarm_Channel4},
-		{20, LINE6_OFFSET_Y, menuStr_Alarm_AlarmOutTime},
-		{20, LINE7_OFFSET_Y, menuStr_Alarm_AlarmBuzzerTime},
-		{20, LINE8_OFFSET_Y, menuStr_Alarm_VideoLossBuzzerTime},
-		{20, LINE9_OFFSET_Y, menuStr_Alarm_RemoconId}
-	};
 	u8 index;
 
 	currentPage = MENU_PAGE_ALARM_REMOCON;
@@ -1863,10 +1773,19 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 //   Motion Detection Page Function
 //------------------------------------------------------------------
+const sLocationNString_t motionDetectionMenu[MOTION_ITEM_Y_MAX] =
+{
+	{24, LINE0_OFFSET_Y, menuStr_Motion_Title},
+	{20, LINE1_OFFSET_Y, menuStr_Motion_Channel1},
+	{20, LINE2_OFFSET_Y, menuStr_Motion_Channel2},
+	{20, LINE3_OFFSET_Y, menuStr_Motion_Channel3},
+	{20, LINE4_OFFSET_Y, menuStr_Motion_Channel4},
+	{20, LINE5_OFFSET_Y, menuStr_Motion_Sensitivity},
+	{20, LINE6_OFFSET_Y, menuStr_Motion_CallMode}
+};
 
 static void MotionDetectionPage_UpdatePage(u8 itemY)
 {
-	u16 offset_x = 20;
 	u8 sensitivity;
 	u8 str[2];
 	u8 attribute = (requestEnterKeyProc==SET)?UNDER_BAR:NULL;
@@ -1883,7 +1802,11 @@ static void MotionDetectionPage_UpdatePage(u8 itemY)
 		case MOTION_ITEM_Y_SENSITIVITY:
 			Read_NvItem_MotionSensitivity(&sensitivity);
 			Int2Str(sensitivity, str);
-			Print_StringWithSelectedMark(offset_x + strlen(menuStr_Motion_Sensitivity), LINE5_OFFSET_Y, (const u8*)str, attribute, sizeof(str));
+			Print_StringWithSelectedMark(
+					motionDetectionMenu[itemY].offset_x + strlen((char *)motionDetectionMenu[itemY].str),
+					motionDetectionMenu[itemY].offset_y,
+					(const u8*)str,
+					attribute, sizeof(str));
 			break;
 
 		case MOTION_ITEM_Y_MOTION_MODE:
@@ -1893,16 +1816,6 @@ static void MotionDetectionPage_UpdatePage(u8 itemY)
 
 static void MotionDetectionPage_Entry(void)
 {
-	const sLocationNString_t motionDetectionMenu[MOTION_ITEM_Y_MAX] =
-	{
-		{24, LINE0_OFFSET_Y, menuStr_Motion_Title},
-		{20, LINE1_OFFSET_Y, menuStr_Motion_Channel1},
-		{20, LINE2_OFFSET_Y, menuStr_Motion_Channel2},
-		{20, LINE3_OFFSET_Y, menuStr_Motion_Channel3},
-		{20, LINE4_OFFSET_Y, menuStr_Motion_Channel4},
-		{20, LINE5_OFFSET_Y, menuStr_Motion_Sensitivity},
-		{20, LINE6_OFFSET_Y, menuStr_Motion_CallMode}
-	};
 	u8 index;
 
 	currentPage = MENU_PAGE_MOTION;
@@ -1976,6 +1889,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
+//				pos_x = 0;
 				itemY = MOTION_ITEM_Y_CH1;
 				MainMenu_Entry(currentPage);
 			}
@@ -1986,13 +1900,6 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 //   DeviceInfo Page Function
 //------------------------------------------------------------------
-//void DeviceInfoPage_UpdatePage(u8 itemY)
-//{
-//	switch(itemY)
-//	{
-//
-//	}
-//}
 
 static void DeviceInfoPage_Entry(void)
 {
@@ -2044,7 +1951,7 @@ void DeviceInfoPage_KeyHandler(eKeyData_t key)
 }   
 
 //------------------------------------------------------------------
-//   Main Page
+//   Main Menu Page
 //------------------------------------------------------------------
 static void SelectMainMenu(u8 itemY)
 {
@@ -2072,6 +1979,44 @@ static void SelectMainMenu(u8 itemY)
  		case MAINMENU_ITEM_Y_DEVICE_INFO :
  			DeviceInfoPage_Entry();
  			break;
+	}
+}
+
+static void MainMenu_Entry(u8 itemY)
+{
+	const sLocationNString_t mainMenu[MAINMENU_ITEM_Y_MAX] =
+	{
+			{24, LINE0_OFFSET_Y, menuStr_MainMenu_Title},
+			{22, LINE1_OFFSET_Y, menuStr_MainMenu_TimeDate},
+			{22, LINE2_OFFSET_Y, menuStr_MainMenu_CameraTitle},
+			{22, LINE3_OFFSET_Y, menuStr_MainMenu_AutoSeq},
+			{22, LINE4_OFFSET_Y, menuStr_MainMenu_Display},
+			{22, LINE5_OFFSET_Y, menuStr_MainMenu_Alarm},
+			{22, LINE6_OFFSET_Y, menuStr_MainMenu_MotionDetection},
+			{22, LINE7_OFFSET_Y, menuStr_MainMenu_DeviceInfo}
+	};
+	u8 index;
+
+	currentPage = MENU_PAGE_MAIN;
+	Erase_AllMenuScreen();
+	requestEnterKeyProc = CLEAR;
+
+	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
+
+	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+
+	DrawSelectMark(itemY);
+	for(index = 0; index < MAINMENU_ITEM_Y_MAX; index++)
+	{
+		Print_StringWithSelectedMarkSize(mainMenu[index].offset_x, mainMenu[index].offset_y, mainMenu[index].str, NULL, 0);
 	}
 }
 
@@ -2127,7 +2072,7 @@ void Enter_MainMenu(void)
 	ChangeSystemMode(SYSTEM_SETUP_MODE);
 	requestEnterKeyProc = CLEAR;
 	SetKeyMode(KEY_MODE_REPEAT);
-	OSD_EraseAll();
+	Osd_Init_Erase();//OSD_EraseAll();
 	MainMenu_Entry(MAINMENU_ITEM_Y_TIME_DATE);
 }
 

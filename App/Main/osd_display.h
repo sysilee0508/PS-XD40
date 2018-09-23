@@ -14,9 +14,9 @@
 #define DISPLAY_HEIGHT						DISPLAY_HEIGHT_1920x1080
 
 #define DISPLAY_HALF_WIDTH 					(DISPLAY_WIDTH/2)	//960
-#define DISPLAY_HALF_HEIGHT					(DISPLAY_HEIGHT/2)	//520
+#define DISPLAY_HALF_HEIGHT					(DISPLAY_HEIGHT/2)	//540
 #define DISPLAY_QUAD_WIDTH					(DISPLAY_WIDTH/4)	//480
-#define DISPLAY_QUAD_HEIGHT					(DISPLAY_HEIGHT/4)	//260
+#define DISPLAY_QUAD_HEIGHT					(DISPLAY_HEIGHT/4)	//270
 
 
 //-----------------------------------------------------------------
@@ -35,7 +35,7 @@ extern BYTE changedDisplayMode;
 //-----------------------------------------------------------------
 extern void Osd_Init_Erase(void);
 extern void OSD_EraseAll(void);
-
+extern void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size);
 extern void OSD_Display(void);
 extern void OSD_Display_Time(void);
 extern void OSD_Display_Time_NOW(void);
