@@ -983,7 +983,7 @@ void vs4210_display_proc()
 		dump_count ++ ;
 		TimeOutCount = 0 ;
 		display_output_mode = Get_DisplayoutputMode();
-		if (display_output_mode == SPLITMODE_SPLIT4_1)
+		if (display_output_mode == SPLITMODE_SPLIT4)
 		{
 			VS4210_DisplayoutputMode_Splite4();
 		}

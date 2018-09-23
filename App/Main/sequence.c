@@ -132,9 +132,9 @@ void Auto_Seq_Cnt(void)
 
 	if(TIME_AFTER(currentSystemTime->tickCount_1s,previousSystemTimeIn1s,1))
 	{
-		if(vAuto_Seq_Cnt)
+		if(vAuto_Seq_Cnt[CHANNEL1] > 0)
 		{
-			vAuto_Seq_Cnt--;
+			vAuto_Seq_Cnt[CHANNEL1]--;
 		}
 		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
 	}
