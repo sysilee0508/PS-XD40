@@ -3,18 +3,6 @@
 //=============================================================================
 #include "common.h"
 
-#define SECS_IN_MIN				60
-#define MINS_IN_HOUR			60
-#define HOURS_IN_DAY			24
-#define SECS_IN_HOUR			SECS_IN_MIN * MINS_IN_HOUR	//3600
-#define SECS_IN_DAY				SECS_IN_HOUR * HOURS_IN_DAY	//86400
-#define DAYS_IN_YEAR 			365
-#define DAYS_IN_LEAPYEAR		366
-// DEFAUTL DATE : 2018-JAN-1
-#define DEFAULT_YEAR			2018
-#define DEFAULT_MONTH			1
-#define DEFAULT_DAY				1
-
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
@@ -100,7 +88,7 @@ static BOOL IsLeapYear(u16 year)
 {
 	BOOL leapYear = FALSE;
 
-	if(((year % 4) == 0) && ((year % 400) == 0))
+	if((((year % 4) == 0) && ((year % 100 ) != 0))||((year % 400) == 0))
 	{
 		leapYear = TRUE;
 	}
@@ -134,18 +122,18 @@ u8 GetDaysInMonth(u8 month, u16 year)
 //----------------------------------------------------------------------------
 static void RTC_CalculateTimeDate(u32 count, sTimeDate_t* pTimeDate)
 {
-	u16 days;
-	u32 secs;
-	u8 index;
-	sTimeDate_t timeDate;
+	u32 days = 0;
+	u32 secs = 0;
+	u8 index = 0;;
+	sTimeDate_t timeDate = {0,};
 
-	days = count / SECS_IN_DAY; //days
-	secs = count % SECS_IN_DAY; // secs
+	days = (count / SECS_IN_DAY);//SECS_IN_DAY; //days
+	secs = (count % SECS_IN_DAY); // secs
 
 	index = 0;
 	timeDate.day = DEFAULT_DAY;
 	timeDate.month = DEFAULT_MONTH;
-	timeDate.year = DEFAULT_YEAR;
+	timeDate.year = 0;
 	// Calculate year
 	while(days > DAYS_IN_YEAR)
 	{
@@ -169,10 +157,15 @@ static void RTC_CalculateTimeDate(u32 count, sTimeDate_t* pTimeDate)
 		while(days > GetDaysInMonth(timeDate.month, timeDate.year))
 		{
 			days -= GetDaysInMonth(timeDate.month, timeDate.year);
-			timeDate.month;
+			timeDate.month++;
 		}
-		timeDate.day = days;
+		timeDate.day = days + DEFAULT_DAY;
 	}
+
+    // Calculate hours, minutes, seconds
+    timeDate.hour = secs / SECS_IN_HOUR;
+    timeDate.min = (secs % SECS_IN_HOUR) / SECS_IN_MIN ;
+    timeDate.sec = (secs % SECS_IN_HOUR) % SECS_IN_MIN ;
 
 	memcpy(pTimeDate, &timeDate, sizeof(timeDate));
 }
@@ -219,11 +212,11 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 			    RTC_CalculateTimeDate(rtcCount, &timeDate);
 			}
 		}
-		memcpy(*rtcTimeDate, &timeDate, sizeof(timeDate));
+		memcpy(rtcTimeDate, &timeDate, sizeof(timeDate));
 	}
 	else
 	{
-		memcpy(*rtcTimeDate, &oldTimeDate, sizeof(timeDate));
+		memcpy(rtcTimeDate, &oldTimeDate, sizeof(timeDate));
 	}
 	oldTimeDate = timeDate;
 }
@@ -231,8 +224,7 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 void RTC_SetTime(sTimeDate_t* newTimeDate)
 {
 	u32 count;
-	u16 days;
-	u16 year;
+	u16 days = 0;
 	u8 index;
 
 	//day
@@ -309,7 +301,7 @@ void RTC_SetDefaultDate(void)
 
 	memset(&timeDate, 0x00, sizeof(timeDate));
 
-	timeDate.year = DEFAULT_YEAR;
+	timeDate.year = 0; // default year
 	timeDate.month = DEFAULT_MONTH;
 	timeDate.day = DEFAULT_DAY;
 

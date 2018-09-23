@@ -191,6 +191,7 @@ void LoadNvDataFromStorage(void)
 void InitializeNvData(void)
 {
 	LoadDefaultNvData();
+    		RTC_SetDefaultDate();
 }
 
 // read or write each NV Item------------------------------------------------------

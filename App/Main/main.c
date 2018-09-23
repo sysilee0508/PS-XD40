@@ -275,9 +275,6 @@ void main(void)
 	// Load NV data from flash memory
 	LoadNvDataFromStorage();
 
-	//
-	InitializeTime();
-
 	// initialize Debug Serial
 	USART3_Init();
 

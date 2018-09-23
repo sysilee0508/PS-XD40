@@ -618,7 +618,7 @@ static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 	selectedMark[2] = (itemX & 0x0004)?attribute:NULL;
 
 	RTC_GetTime(&date);
-	Int2Str(date.year, yearStr+2);
+	Int2Str(date.year + DEFAULT_YEAR, yearStr+2);
 	Int2Str(date.month, monthStr);
 	Int2Str(date.day, dayStr);
 
@@ -794,7 +794,6 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 	static u8 itemY = TIMEDATE_ITEM_Y_TIME;
 	u16 itemX;
 	BOOL inc_dec = DECREASE;
-	sTimeDateBCD_t rtcTimeInBCD;
 	sTimeDate_t rtcTime;
 	BOOL displayOn;
 	eDateFormat_t dateFormat;

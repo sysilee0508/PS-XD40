@@ -253,16 +253,16 @@ static u8 CreateDateString(u8 *pDateStr)
 	memset(year, NULL, sizeof(year));
 	if(year4digit == FALSE) //2digit
 	{
-		year[0] = (rtcDate.year / 10) + ASCII_ZERO;
-		year[1] = (rtcDate.year % 10) + ASCII_ZERO;
+		year[0] = ((rtcDate.year + DEFAULT_YEAR)/ 10) + ASCII_ZERO;
+		year[1] = ((rtcDate.year + DEFAULT_YEAR)% 10) + ASCII_ZERO;
               dateLength = DATE_LENGTH_2DIGIT;
 	}
 	else //4 digit
 	{
 		year[0] = 2 + ASCII_ZERO;
 		year[1] = ASCII_ZERO;
-		year[2] = (rtcDate.year / 10) + ASCII_ZERO;
-		year[3] = (rtcDate.year % 10) + ASCII_ZERO;
+		year[2] = ((rtcDate.year + DEFAULT_YEAR)/ 10) + ASCII_ZERO;
+		year[3] = ((rtcDate.year + DEFAULT_YEAR)% 10) + ASCII_ZERO;
               dateLength = DATE_LENGTH_4DIGIT;
 	}
 	month[0] = (rtcDate.month / 10) + ASCII_ZERO;
