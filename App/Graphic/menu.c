@@ -562,9 +562,9 @@ static void Print_StringTimeCorrect(u16 itemX,u8 attribute)
 	}
 }
 
-static void Print_StringTime(u16 itemX, u8 attribute)
+static void Print_StringTime(u16 itemX, u8 attribute, sTimeDate_t time)
 {
-	sTimeDate_t currentTime;
+//	sTimeDate_t currentTime;
 	u8 hourStr[2], minStr[2], secStr[2];
 	u8 timeStr[TIME_STRING_LENGTH] = {0,};
        u8 selectedMark[2];
@@ -574,10 +574,10 @@ static void Print_StringTime(u16 itemX, u8 attribute)
 	selectedMark[1] = (itemX & 0x02)?attribute:NULL;
 	selectedMark[2] = (itemX & 0x04)?attribute:NULL;
 
-	RTC_GetTime(&currentTime);
-	Int2Str(currentTime.hour, hourStr);
-	Int2Str(currentTime.min, minStr);
-	Int2Str(currentTime.sec, secStr);
+//	RTC_GetTime(&currentTime);
+	Int2Str(time.hour, hourStr);
+	Int2Str(time.min, minStr);
+	Int2Str(time.sec, secStr);
 
 	Print_StringWithSelectedMark(
 			timeDateMenu[TIMEDATE_ITEM_Y_TIME].offset_x + strlen(menuStr_TimeDate_Time),
@@ -605,9 +605,9 @@ static void Print_StringTime(u16 itemX, u8 attribute)
 			secStr, selectedMark[2], sizeof(secStr));
 }
 
-static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
+static void Print_StringDate(u16 itemX,u8 attribute,sTimeDate_t date)
 {
-	sTimeDate_t date;
+//	sTimeDate_t date;
 	u8 yearStr[4] = {'2','0',}, monthStr[2], dayStr[2];
 	u8 dateStr[DATE_STRING_LENGTH] = {'2','0',};
 	char* pStr;
@@ -617,7 +617,7 @@ static void Print_StringDate(u16 itemX,u8 attribute)//,u8 forcedUpdate)
 	selectedMark[1] = (itemX & 0x0002)?attribute:NULL;
 	selectedMark[2] = (itemX & 0x0004)?attribute:NULL;
 
-	RTC_GetTime(&date);
+//	RTC_GetTime(&date);
 	Int2Str(date.year + DEFAULT_YEAR, yearStr+2);
 	Int2Str(date.month, monthStr);
 	Int2Str(date.day, dayStr);
@@ -724,7 +724,7 @@ static void Print_StringYearFormat(u8 attribute)
 //	Print_StringWithSelectedMark(44, 15, pStr, attribute, strlen(pStr));
 //}
 
-static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY)
+static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY, sTimeDate_t time)
 {
 	BOOL timeDisplay, dateDisplay;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
@@ -732,11 +732,11 @@ static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY)
 	switch(itemY)
  	{
  	    case TIMEDATE_ITEM_Y_TIME:
- 	    	Print_StringTime(itemX, attribute);
+ 	    	Print_StringTime(itemX, attribute, time);
 			break;
 
  	    case TIMEDATE_ITEM_Y_DATE :
-			Print_StringDate(itemX, attribute);
+			Print_StringDate(itemX, attribute, time);
 			break;
 
  	    case TIMEDATE_ITEM_Y_TIME_DISPLAY:
@@ -772,10 +772,12 @@ static void TimeDatePage_Entry(void)
 {   
 	u8 index = 0;
 	BOOL timeDisplayOn, dateDisplayOn;
+	sTimeDate_t time = {0,};
 
 	currentPage = MENU_PAGE_TIME_DATE;
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
+	RTC_GetTime(&time);
 
 	DrawSelectMark(TIMEDATE_ITEM_Y_TIME);
 	Read_NvItem_TimeDisplayOn(&timeDisplayOn);
@@ -784,7 +786,7 @@ static void TimeDatePage_Entry(void)
 	for(index = 0; index < TIMEDATE_ITEM_Y_MAX; index++)
 	{
 		Print_StringWithSelectedMarkSize(timeDateMenu[index].offset_x, timeDateMenu[index].offset_y, timeDateMenu[index].str, NULL, 0);
-		TimeDatePage_UpdatePage(0, index);
+		TimeDatePage_UpdatePage(0, index, time);
 	}
 }
 
@@ -810,7 +812,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 				switch(itemY)
 				{
 					case TIMEDATE_ITEM_Y_TIME:
-						RTC_GetTime(&rtcTime);
+//						RTC_GetTime(&rtcTime);
 						switch(pos_x)
 						{
 							case 0://hour
@@ -823,11 +825,11 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 								IncreaseDecreaseCount(59, 0, inc_dec, &rtcTime.sec);
 								break;
 						}
-					    RTC_SetTime(&rtcTime);
+//					    RTC_SetTime(&rtcTime);
 						break;
 
 					case TIMEDATE_ITEM_Y_DATE:
-						RTC_GetTime(&rtcTime);
+//						RTC_GetTime(&rtcTime);
 						switch(pos_x)
 						{
 							case 0://year
@@ -840,7 +842,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 								IncreaseDecreaseBcd(GetDaysInMonth(rtcTime.month, rtcTime.year), 0, inc_dec, &rtcTime.day);
 								break;
 						}
-					    RTC_SetTime(&rtcTime);
+//					    RTC_SetTime(&rtcTime);
 						break;
 
 					case TIMEDATE_ITEM_Y_TIME_DISPLAY:
@@ -898,7 +900,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 					    Write_NvItem_TimeCorrect(timeCorrect);
 						break;
 				}
-				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY);
+				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, rtcTime);
 			}
 			else
 			{
@@ -918,24 +920,39 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			  			(itemY == TIMEDATE_ITEM_Y_DATE) ||
 						(itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION))
 				{
-					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY);
+					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, rtcTime);
 					IncreaseDecreaseCount(2, 0,inc_dec, &pos_x);
 					requestEnterKeyProc = SET;
-					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY);
+					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, rtcTime);
 				}
 			}
 			break;
 
 		case KEY_ENTER :
 			Toggle(&requestEnterKeyProc);
-			TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY);
+			if((itemY == TIMEDATE_ITEM_Y_TIME) || (itemY == TIMEDATE_ITEM_Y_DATE))
+			{
+				if(requestEnterKeyProc == SET)
+				{
+					RTC_GetTime(&rtcTime);
+				}
+				else
+				{
+					RTC_SetTime(&rtcTime);
+				}
+			}
+			TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, rtcTime);
 			break; 	
 
 		case KEY_EXIT :
 			if(requestEnterKeyProc == SET)
 			{
 				Toggle(&requestEnterKeyProc);
-				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY);
+				if((itemY == TIMEDATE_ITEM_Y_TIME) || (itemY == TIMEDATE_ITEM_Y_DATE))
+				{
+					RTC_SetTime(&rtcTime);
+				}
+				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, rtcTime);
 			}
 			else
 			{

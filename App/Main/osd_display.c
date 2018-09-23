@@ -255,7 +255,7 @@ static u8 CreateDateString(u8 *pDateStr)
 	{
 		year[0] = ((rtcDate.year + DEFAULT_YEAR)/ 10) + ASCII_ZERO;
 		year[1] = ((rtcDate.year + DEFAULT_YEAR)% 10) + ASCII_ZERO;
-              dateLength = DATE_LENGTH_2DIGIT;
+		dateLength = DATE_LENGTH_2DIGIT;
 	}
 	else //4 digit
 	{
@@ -263,7 +263,7 @@ static u8 CreateDateString(u8 *pDateStr)
 		year[1] = ASCII_ZERO;
 		year[2] = ((rtcDate.year + DEFAULT_YEAR)/ 10) + ASCII_ZERO;
 		year[3] = ((rtcDate.year + DEFAULT_YEAR)% 10) + ASCII_ZERO;
-              dateLength = DATE_LENGTH_4DIGIT;
+		dateLength = DATE_LENGTH_4DIGIT;
 	}
 	month[0] = (rtcDate.month / 10) + ASCII_ZERO;
 	month[1] = (rtcDate.month % 10) + ASCII_ZERO;
