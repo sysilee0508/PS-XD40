@@ -7,15 +7,6 @@
 #define SYSTEM_SETUP_MODE			1	//set-up menu
 #define SYSTEM_NORMAL_MODE			0	//normal working
 
-typedef enum
-{
-	CHANNEL1 = 0,
-	CHANNEL2,
-	CHANNEL3,
-	CHANNEL4,
-	NUM_OF_CHANNEL
-} eChannel_t;
-
 //-----------------------------------------------------------------------------
 //  ���� �ý��� ���� ����
 //-----------------------------------------------------------------------------
