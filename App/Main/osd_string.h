@@ -18,7 +18,7 @@ const u8 osdStr_Space7[] = "       ";
 const u8 osdStr_Space8[] = "        ";
 const u8 osdStr_Space9[] = "         ";
 const u8 osdStr_Space10[] = "          ";
-const u8 str_Space12[] = "            ";
+const u8 osdStr_Space12[] = "            ";
 //-----------------------------------------------------------------------------
 const u8 osdStr_Freeze[] = "FREEZE";
 const u8 osdStr_AUTO[] = "AUTO";

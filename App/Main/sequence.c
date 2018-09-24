@@ -117,8 +117,8 @@ void Auto_Seq_Init(void)
 
 	if((ON == osdDisplayOn) && (ON == titleDisplayOn))
 	{
-		Osd_ClearScreen();//OSD_EraseAll();
-		OSD_Display_ChannelName();
+		Osd_EraseAllText();
+		OSD_DisplayChannelName();
 	}
 
 	bAuto_Seq_Flag = SET;
@@ -229,8 +229,8 @@ void Auto_Sequence(void)
 
 					if((ON == osdDisplayOn) && (ON == titleDisplayOn))
 					{
-						Osd_ClearScreen();//OSD_EraseAll();
-						OSD_Display_ChannelName();
+						Osd_EraseAllText();
+						OSD_DisplayChannelName();
 					}
 				}
 				break;

@@ -17,9 +17,11 @@ struct osd_location
 	sPosition_t location;
 };
 
-struct osd_location osd_ch_name_location_buf[NUM_OF_CHANNEL];
-struct osd_location osd_video_lose_location_buf[NUM_OF_CHANNEL];
-struct osd_location osd_freeze_autoseq_location_buf;
+static struct osd_location osd_ch_name_location_buf[NUM_OF_CHANNEL];
+static struct osd_location osd_video_lose_location_buf[NUM_OF_CHANNEL];
+static struct osd_location osd_freeze_autoseq_location_buf;
+
+static u8 displayingDateTimeLength = 0;
 
 static const sPosition_t tbl_OSD_SPLIT4_POSITION[NUM_OF_CHANNEL][NUM_OF_POSITION] =
 {
@@ -55,60 +57,6 @@ static BOOL IsTitlePositionTop(void)
 	}
 	return result;
 }
-
-//static void OSD_Display_Time_Erase(void)
-//{
-//	sPosition_t position;
-//	u8 str_buf[DATE_TIME_LENGTH];
-////	eTimePosition_t timePosition;
-//
-//	if(IsTitlePositionTop() == TRUE) // if title position is top
-//	{
-//		//if title position is top then time should be located at bottom
-//		position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT - MARGIN_Y;
-//	}
-//	else
-//	{
-//		// If not, time position goes top
-//		position.pos_y = MARGIN_Y;
-//	}
-////
-////	Read_NvItem_TimePosition(&timePosition);
-////	position.pos_x = tblTimeDisplayLoc_X[timePosition];
-//	position.pos_x = (DISPLAY_WIDTH - (DATE_TIME_LENGTH*CHAR_WIDTH_S))/2 - 12;
-//
-//	memset(str_buf, ASCII_SPACE, sizeof(str_buf));
-//	OSD_PrintString(position,  str_buf, sizeof(str_buf));
-//}
-//
-//static void OSD_Str_Loss_Erase(void)
-//{
-//	eChannel_t channel;
-//
-//	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-//	{
-//		if(osd_video_lose_location_buf[channel].state == ON)
-//		{
-//			MDINGAC_SetDrawXYMode(osd_video_lose_location_buf[channel].location.pos_y,
-//					osd_video_lose_location_buf[channel].location.pos_x,
-//					(u8 *)str_Blank,
-//					osd_video_lose_location_buf[channel].length,
-//					0);
-//		}
-//	}
-//}
-//
-//static void OSD_Str_Freeze_autoseq_Erase(void)
-//{
-//	if(osd_freeze_autoseq_location_buf.state == ON)
-//	{
-//		MDINGAC_SetDrawXYMode(osd_freeze_autoseq_location_buf.location.pos_y,
-//				osd_freeze_autoseq_location_buf.location.pos_x,
-//				(u8 *)str_Blank,
-//				osd_freeze_autoseq_location_buf.length,
-//				0);
-//	}
-//}
 
 static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t titlePosition, eDisplayMode_t displayMode, u8 length)
 {
@@ -379,8 +327,130 @@ static sPosition_t OSD_GetAutoFreezePosition(u8 strLength)
 
 	return position;
 }
+
 //-----------------------------------------------------------------------------
-static void OSD_Display_Freeze(void)
+// Erase
+//-----------------------------------------------------------------------------
+static void OSD_EraseChannelName(void)
+{
+	eChannel_t channel;
+	sPosition_t position;
+	eTitlePosition_t titlePosition;
+	eDisplayMode_t displayMode;
+	u8 channel_name[CHANNEL_NEME_LENGTH_MAX] = {0,};
+
+	Read_NvItem_TitlePosition(&titlePosition);
+	Read_NvItem_DisplayMode(&displayMode);
+
+	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+	{
+		channel = (eChannel_t)sys_status.current_split_mode;
+		Read_NvItem_ChannelName(channel_name, channel);
+		position =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
+		OSD_PrintString(position, osdStr_Space12, strlen(channel_name));
+	}
+	else if(displayMode == DISPLAY_MODE_4SPLIT)
+	{
+		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+		{
+			Read_NvItem_ChannelName(channel_name, channel);
+			position =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
+			OSD_PrintString(position, osdStr_Space12, strlen(channel_name));
+		}
+	}
+}
+
+static void OSD_EraseTimeDate(void)
+{
+	sPosition_t position;
+	eDisplayMode_t displayMode;
+//	eTimePosition_t timePosition;
+	u8 strSpaces[DATE_TIME_LENGTH];
+
+	Read_NvItem_DisplayMode(&displayMode);
+	position.pos_x = (DISPLAY_WIDTH - (DATE_TIME_LENGTH*CHAR_WIDTH_S))/2 - 12;
+	if((IsTitlePositionTop() == FALSE) && (displayMode == DISPLAY_MODE_FULL_SCREEN))
+	{
+		position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT - MARGIN_Y;
+	}
+	else
+	{
+		position.pos_y = MARGIN_Y;
+	}
+//
+//	Read_NvItem_TimePosition(&timePosition);
+//	position.pos_x = tblTimeDisplayLoc_X[timePosition];
+
+	memset(strSpaces, ASCII_SPACE, sizeof(strSpaces));
+	OSD_PrintString(position, strSpaces, displayingDateTimeLength);
+	displayingDateTimeLength = 0;
+}
+
+static void OSD_EraseNoVideo(void)
+{
+	eChannel_t channel;
+	sPosition_t position;
+	eDisplayMode_t displayMode;
+
+	Read_NvItem_DisplayMode(&displayMode);
+
+	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+	{
+		OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
+	}
+	else if(displayMode == DISPLAY_MODE_4SPLIT)
+	{
+		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+		{
+			position.pos_x =
+					tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_x - (strlen(osdStr_Space10)*CHAR_WIDTH_S)/2;
+			position.pos_y =
+					tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_y + ((DISPLAY_HEIGHT/2) - CHAR_HEIGHT)/2;
+			OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
+		}
+	}
+//
+//
+//	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//	{
+//		if(osd_video_lose_location_buf[channel].state == ON)
+//		{
+//			MDINGAC_SetDrawXYMode(osd_video_lose_location_buf[channel].location.pos_y,
+//					osd_video_lose_location_buf[channel].location.pos_x,
+//					(u8 *)str_Blank,
+//					osd_video_lose_location_buf[channel].length,
+//					0);
+//		}
+//	}
+}
+
+static void OSD_EraseFreezeAuto(void)
+{
+	sPosition_t position;
+	BOOL timeOn;
+
+	Read_NvItem_TimeDisplayOn(&timeOn);
+	position = OSD_GetAutoFreezePosition(strlen(osdStr_Space6));
+
+	if(timeOn == ON)
+	{
+		position.pos_x += (2 * CHAR_WIDTH_S);
+	}
+	OSD_PrintString(position, osdStr_Space6, sizeof(osdStr_Space6));
+//	if(osd_freeze_autoseq_location_buf.state == ON)
+//	{
+//		MDINGAC_SetDrawXYMode(osd_freeze_autoseq_location_buf.location.pos_y,
+//				osd_freeze_autoseq_location_buf.location.pos_x,
+//				(u8 *)str_Blank,
+//				osd_freeze_autoseq_location_buf.length,
+//				0);
+//	}
+}
+
+//-----------------------------------------------------------------------------
+// Display
+//-----------------------------------------------------------------------------
+static void OSD_DisplayFreeze(BOOL display_erase)
 {
 	BOOL current_freezeMode = IsScreenFreeze();
 	sPosition_t position;
@@ -417,7 +487,7 @@ static void OSD_Display_Freeze(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-static void OSD_Display_AUTO(void)
+static void OSD_DisplayAUTO(void)
 {
 	static u8 Pre_bAuto_Seq_Flag = CLEAR;
 	BOOL timeOn;
@@ -455,7 +525,7 @@ static void OSD_Display_AUTO(void)
 //-----------------------------------------------------------------------------
 // Video Loss
 //-----------------------------------------------------------------------------
-static void OSD_Display_Video_Loss(void)
+static void OSD_DisplayNoVideo(void)
 {
 	sPosition_t position[NUM_OF_CHANNEL];
 	eChannel_t channel;
@@ -554,8 +624,9 @@ static void OSD_DisplayDateTime(void)
 		{
 			CreateTimeString(pStr);
 		}
+		displayingDateTimeLength = strlen(dateTimeString);
 
-		if(strlen(dateTimeString) > 0)
+		if(displayingDateTimeLength > 0)
 		{
 			position.pos_x = (DISPLAY_WIDTH - (strlen(dateTimeString)*CHAR_WIDTH_S))/2 - 12;
 			if((IsTitlePositionTop() == FALSE) && (displayMode == DISPLAY_MODE_FULL_SCREEN))
@@ -566,7 +637,7 @@ static void OSD_DisplayDateTime(void)
 			{
 				position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT - MARGIN_Y;
 			}
-			OSD_PrintString(position, dateTimeString, DATE_TIME_LENGTH);
+			OSD_PrintString(position, dateTimeString, displayingDateTimeLength);
 		}
 	}
 }
@@ -581,7 +652,7 @@ void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
 
-void OSD_Display_ChannelName(void)
+void OSD_DisplayChannelName(void)
 {
 	eChannel_t channel;
 	sPosition_t positionValue;
@@ -640,6 +711,35 @@ void Osd_ClearScreen(void)
 	memset(osd_ch_name_location_buf, 0, sizeof(osd_ch_name_location_buf));
 }
 //-----------------------------------------------------------------------------
+void Osd_EraseAllText(void)
+{
+	BOOL titleOn;
+	BOOL timeOn;
+	BOOL dateOn;
+	BOOL osdOn;
+
+	Read_NvItem_OsdOn(&osdOn);
+	Read_NvItem_TitleDispalyOn(&titleOn);
+	Read_NvItem_TimeDisplayOn(&timeOn);
+	Read_NvItem_DateDisplayOn(&dateOn);
+
+	if(osdOn == TRUE)
+	{
+		// erase freeze or auto
+		if(titleOn == TRUE)
+		{
+			//erase title
+			OSD_EraseChannelName();
+		}
+		if((dateOn == TRUE) || (timeOn == TRUE))
+		{
+			// erase time and/or date
+			OSD_EraseTimeDate();
+		}
+		OSD_EraseNoVideo();
+		OSD_EraseFreezeAuto();
+	}
+}
 
 //-----------------------------------------------------------------------------
 void OSD_Display(void)
@@ -651,10 +751,10 @@ void OSD_Display(void)
 	if((osdDisplayOn == ON) && (GetSystemMode() == SYSTEM_NORMAL_MODE))
 	{
 		OSD_DisplayDateTime();
-		OSD_Display_ChannelName();
-		OSD_Display_Freeze();
-		OSD_Display_AUTO();
-		OSD_Display_Video_Loss();
+		OSD_DisplayChannelName();
+		OSD_DisplayFreeze();
+		OSD_DisplayAUTO();
+		OSD_DisplayNoVideo();
 	}
 	else if(GetSystemMode() == SYSTEM_SETUP_MODE)
 	{
