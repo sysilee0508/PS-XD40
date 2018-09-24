@@ -300,7 +300,7 @@ void main(void)
 
 		Video_Loss_Check();
 		CheckAlarmClearCondition();
-		CheckBuzzer();
+		Loss_Buzzer();//CheckBuzzer();
 
 		Auto_Seq_Cnt();
 		Auto_Sequence();

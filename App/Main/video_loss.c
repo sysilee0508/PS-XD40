@@ -5,7 +5,7 @@ extern void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss);
 //-----------------------------------------------------------------------------
 //	Video Loss Check
 //-----------------------------------------------------------------------------
-u32 vVideo_Loss = 0; //1:Loss 0:Video
+u32 vVideo_Loss = 0; /* 1:Loss 0:Video */
 u8 Loss_Event_Flag = 0;
 u32 videoLossBuzzerCount = 0;
 u32 alarmBuzzerCountIn500ms = 0;
@@ -58,7 +58,7 @@ void Loss_Check(void)
 
 	if(Pre_Video_Loss < vVideo_Loss)
 	{
-		Read_NvItem_VideoLossBuzzerTime(&videoLossBuzzerCount);
+		Read_NvItem_VideoLossBuzzerTime((u8*)&videoLossBuzzerCount);
 		videoLossBuzzerCount *= 2;
 	}
 
