@@ -6,7 +6,7 @@
 #define VIDEO_LOSS_CHANNEL(x)				0x01 << x
 
 
-extern void ScankVideoLossChannels(void);
+extern void ScanVideoLossChannels(void);
 
 extern void SetVideoLossEvent(BOOL event);
 extern BOOL GetVideoLossEvent(void);

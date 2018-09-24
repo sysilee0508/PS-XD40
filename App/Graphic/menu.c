@@ -1518,7 +1518,7 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  	  	case ALARM_ITEM_Y_CH3:
  	  	case ALARM_ITEM_Y_CH4:
  	  		Print_StringAlarmOption(
- 	  				alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
+ 	  				alarmRemoconMenu[itemY].offset_x + 15,//strlen(alarmRemoconMenu[itemY].str),
 					alarmRemoconMenu[itemY].offset_y,
 					attribute, itemY - 2);
  	  		break;

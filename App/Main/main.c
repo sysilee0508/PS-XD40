@@ -330,12 +330,12 @@ void main(void)
     { 
 		NVP6158_VideoDetectionProc();
 
-		ScankVideoLossChannels();
+		ScanVideoLossChannels();
 		CheckAlarmClearCondition();
 		PlayBuzzer();
 
-		Auto_Seq_Cnt();
-		Auto_Sequence();
+		UpdateAutoSeqCount();
+		DisplayAutoSeqChannel();//Auto_Sequence();
 
 		Key_Proc();
 		RTC_CheckTime();

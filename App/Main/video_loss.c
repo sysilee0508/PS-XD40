@@ -10,7 +10,7 @@ static u8 videoLossBuzzerCount = 0;
 //-----------------------------------------------------------------------------
 //	Video Loss Check
 //-----------------------------------------------------------------------------
-void ScankVideoLossChannels(void)
+void ScanVideoLossChannels(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn100ms = 0;

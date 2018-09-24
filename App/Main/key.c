@@ -405,7 +405,7 @@ void Key_Proc(void)
 				{
 					Osd_EraseAllText();
 					bScreenFreeze = CLEAR;
-					bAuto_Seq_Flag = CLEAR;
+					ChangeAutoSeqOn(CLEAR);
 					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = key-1;
@@ -422,7 +422,7 @@ void Key_Proc(void)
 						OSD_EraseAllText();
 //					}
 					bScreenFreeze = CLEAR;
-					bAuto_Seq_Flag = CLEAR;
+					ChangeAutoSeqOn(CLEAR);
 					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
@@ -434,7 +434,7 @@ void Key_Proc(void)
 				}
 				break;
 			case KEY_FREEZE :
-				bAuto_Seq_Flag = CLEAR;
+				ChangeAutoSeqOn(CLEAR);
 				if(bScreenFreeze == CLEAR)
 				{
 					bScreenFreeze = SET;
@@ -449,22 +449,23 @@ void Key_Proc(void)
 
 			case KEY_AUTO_SEQ :
 				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
-				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != 0x0000000f))
+				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
 				{
-					if(bAuto_Seq_Flag == CLEAR)
-					{
-						Osd_EraseAllText();
-					}
+//					if(autoSeqOn == CLEAR)
+//					{
+//						Osd_EraseAllText();
+//					}
 					//bMode_change_flag = SET;
 					bScreenFreeze = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					Auto_Seq_Init();
+
+					InitializeAutoSeq();
 				}
 				break;
 
 			case KEY_MENU :
-				bAuto_Seq_Flag = CLEAR;
-				bScreenFreeze = SET;
+				ChangeAutoSeqOn(CLEAR);
+				bScreenFreeze = CLEAR;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				Enter_MainMenu();
 				break;

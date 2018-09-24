@@ -469,7 +469,7 @@ static void OSD_DisplayFreeze(BOOL display_erase)
 			position.pos_x += (2 * CHAR_WIDTH_S);
 		}
 
-		if(current_freezeMode)
+		if(current_freezeMode == SET)
 		{
 			OSD_PrintString(position,osdStr_Freeze, sizeof(osdStr_Freeze));
 			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_Freeze);
@@ -489,7 +489,7 @@ static void OSD_DisplayFreeze(BOOL display_erase)
 //-----------------------------------------------------------------------------
 static void OSD_DisplayAUTO(void)
 {
-	static u8 Pre_bAuto_Seq_Flag = CLEAR;
+	static BOOL previousAutoSeqOn = CLEAR;
 	BOOL timeOn;
 	eDisplayMode_t displayMode;
 	sPosition_t position;
@@ -497,9 +497,9 @@ static void OSD_DisplayAUTO(void)
 	Read_NvItem_TimeDisplayOn(&timeOn);
 	Read_NvItem_DisplayMode(&displayMode);
 
-	if(Pre_bAuto_Seq_Flag != bAuto_Seq_Flag)
+	if(previousAutoSeqOn != GetAutoSeqOn())
 	{
-		Pre_bAuto_Seq_Flag = bAuto_Seq_Flag;
+		previousAutoSeqOn = GetAutoSeqOn();
 		position = OSD_GetAutoFreezePosition(sizeof(osdStr_AUTO));
 
 		if(timeOn == ON)
@@ -507,7 +507,7 @@ static void OSD_DisplayAUTO(void)
 			position.pos_x += (2 * CHAR_WIDTH_S);
 		}
 
-		if(bAuto_Seq_Flag)
+		if(GetAutoSeqOn() == SET)
 		{
 			OSD_PrintString(position, osdStr_AUTO, sizeof(osdStr_AUTO));
 			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_AUTO);
