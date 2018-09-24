@@ -88,6 +88,8 @@ static BOOL IsLeapYear(u16 year)
 {
 	BOOL leapYear = FALSE;
 
+	year += DEFAULT_YEAR;
+
 	if((((year % 4) == 0) && ((year % 100 ) != 0))||((year % 400) == 0))
 	{
 		leapYear = TRUE;
@@ -119,6 +121,43 @@ u8 GetDaysInMonth(u8 month, u16 year)
 
 	return days;
 }
+
+static void RTC_CheckBoundaryCondition(sTimeDate_t* newTimeDate)
+{
+	if(newTimeDate->sec >= SECS_IN_MIN)
+	{
+		newTimeDate->sec -= SECS_IN_MIN;
+		newTimeDate->min++;
+	}
+	if(newTimeDate->min >= MINS_IN_HOUR)
+	{
+		newTimeDate->min -= MINS_IN_HOUR;
+		newTimeDate->hour++;
+	}
+	if(newTimeDate->hour >= HOURS_IN_DAY)
+	{
+		newTimeDate->hour -= HOURS_IN_DAY;
+		newTimeDate->day++;
+	}
+	if(newTimeDate->day > GetDaysInMonth(newTimeDate->month, newTimeDate->year))
+	{
+		newTimeDate->day -= GetDaysInMonth(newTimeDate->month, newTimeDate->year);
+		newTimeDate->month++;
+	}
+	else if(newTimeDate->day == 0)
+	{
+		newTimeDate->day = 1;
+	}
+	if(newTimeDate->month > 12)
+	{
+		newTimeDate->month -= 12;
+		newTimeDate->year++;
+	}
+	else if(newTimeDate->month == 0)
+	{
+		newTimeDate->month = 1;
+	}
+}
 //----------------------------------------------------------------------------
 static void RTC_CalculateTimeDate(u32 count, sTimeDate_t* pTimeDate)
 {
@@ -138,7 +177,7 @@ static void RTC_CalculateTimeDate(u32 count, sTimeDate_t* pTimeDate)
 	while(days > DAYS_IN_YEAR)
 	{
 		timeDate.year++;
-		if(IsLeapYear(DEFAULT_YEAR + index) == TRUE)
+		if(IsLeapYear(index) == TRUE)
 		{
 			days -= DAYS_IN_LEAPYEAR;
 		}
@@ -212,6 +251,9 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 			    RTC_CalculateTimeDate(rtcCount, &timeDate);
 			}
 		}
+		// boundary condition
+		RTC_CheckBoundaryCondition(&timeDate);
+
 		memcpy(rtcTimeDate, &timeDate, sizeof(timeDate));
 		oldTimeDate = timeDate;
 	}
@@ -226,6 +268,9 @@ void RTC_SetTime(sTimeDate_t* newTimeDate)
 	u32 count;
 	u16 days = 0;
 	u8 index;
+
+	// boundary condition
+	RTC_CheckBoundaryCondition(newTimeDate);
 
 	//day
 	if(newTimeDate->day > DEFAULT_DAY)
@@ -245,7 +290,7 @@ void RTC_SetTime(sTimeDate_t* newTimeDate)
 	{
 		for(index = 0; index < newTimeDate->year; index++)
 		{
-			if(IsLeapYear(index + DEFAULT_YEAR) == TRUE)
+			if(IsLeapYear(index) == TRUE)
 			{
 				days += DAYS_IN_LEAPYEAR;
 			}
