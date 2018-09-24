@@ -19,22 +19,39 @@ const u8 osdStr_Space8[] = "        ";
 const u8 osdStr_Space9[] = "         ";
 const u8 osdStr_Space10[] = "          ";
 const u8 str_Space12[] = "            ";
-
-const u8 str_Blank[] = "            ";
 //-----------------------------------------------------------------------------
-//const u8 str_Freeze[] 		= "FREEZE  ";
-const u8 osdStr_Freeze[] 		= "FREEZE";
-//const u8 str_Freeze3[] 		= "  FREEZE";
-//const u8 str_Freeze_BLK[] 	= "        ";
-//const u8 str_Freeze_BLK2[] 	= "      ";
-//-----------------------------------------------------------------------------
-//const u8 str_AUTO[] = "AUTO  ";
+const u8 osdStr_Freeze[] = "FREEZE";
 const u8 osdStr_AUTO[] = "AUTO";
-//const u8 str_AUTO3[] = "  AUTO";
-//const u8 str_AUTO_BLK[] = "      ";
-//const u8 str_AUTO_BLK2[] = "    ";
-//-----------------------------------------------------------------------------
 const u8 osdStr_NoVideo[]= "VIDEO LOSS";
-//const u8 str_NO_VIDEO_Blk[]= "          ";
+//-----------------------------------------------------------------------------
+const u8 osdStr_JAN[] = "JAN";
+const u8 osdStr_FEB[] = "FEB";
+const u8 osdStr_MAR[] = "MAR";
+const u8 osdStr_APR[] = "APR";
+const u8 osdStr_MAY[] = "MAY";
+const u8 osdStr_JUN[] = "JUN";
+const u8 osdStr_JUL[] = "JUL";
+const u8 osdStr_AUG[] = "AUG";
+const u8 osdStr_SEP[] = "SEP";
+const u8 osdStr_OCT[] = "OCT";
+const u8 osdStr_NOV[] = "NOV";
+const u8 osdStr_DEC[] = "DEC";
+
+const u8* pStrMonthName[12] =
+{
+		osdStr_JAN,
+		osdStr_FEB,
+		osdStr_MAR,
+		osdStr_APR,
+		osdStr_MAY,
+		osdStr_JUN,
+		osdStr_JUL,
+		osdStr_AUG,
+		osdStr_SEP,
+		osdStr_OCT,
+		osdStr_NOV,
+		osdStr_DEC
+};
+
 
 #endif

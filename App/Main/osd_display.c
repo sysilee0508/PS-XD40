@@ -5,9 +5,9 @@
 #define MARGIN_X						2
 #define MARGIN_Y						4
 
-#define DATE_TIME_LENGTH				20 // "yyyy-mm-dd hh:mm:ss "
-#define DATE_LENGTH_4DIGIT				10 // "yyyy-mm-dd"
-#define DATE_LENGTH_2DIGIT				8 // "yy-mm-dd"
+#define DATE_TIME_LENGTH				21 // "yyyy-mmm-dd hh:mm:ss "
+#define DATE_LENGTH_4DIGIT				11 // "yyyy-mmm-dd"
+#define DATE_LENGTH_2DIGIT				9 // "yy-mmm-dd"
 #define TIME_LENGTH						8 // "hh:mm:ss"
 
 struct osd_location 
@@ -242,7 +242,7 @@ static u8 CreateDateString(u8 *pDateStr)
 	eDateFormat_t dateFormat;
 	BOOL year4digit;
 	u8 year[5];
-	u8 month[2];
+	u8 month[3];
 	u8 day[2];
 	u8 dateLength;
 
@@ -265,8 +265,9 @@ static u8 CreateDateString(u8 *pDateStr)
 		year[3] = ((rtcDate.year + DEFAULT_YEAR)% 10) + ASCII_ZERO;
 		dateLength = DATE_LENGTH_4DIGIT;
 	}
-	month[0] = (rtcDate.month / 10) + ASCII_ZERO;
-	month[1] = (rtcDate.month % 10) + ASCII_ZERO;
+	strncpy(month, pStrMonthName[rtcDate.month - 1], sizeof(month));
+//	month[0] = (rtcDate.month / 10) + ASCII_ZERO;
+//	month[1] = (rtcDate.month % 10) + ASCII_ZERO;
 	day[0] = (rtcDate.day / 10) + ASCII_ZERO;
 	day[1] = (rtcDate.day % 10) + ASCII_ZERO;
 
