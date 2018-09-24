@@ -29,8 +29,8 @@
 
 #include "mdintype.h"
 
-#include "mdintype.h"
 #include "nv_storage.h"
+
 #include "main.h"
 #include "key.h"
 #include "Rtc.h"

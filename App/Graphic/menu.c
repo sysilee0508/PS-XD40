@@ -16,7 +16,7 @@
 // Include files
 // ----------------------------------------------------------------------
 #include "common.h"
-#include "alarm_remotekey.h"
+#include "menu.h"
 #include "menu_string.h"
 
 // -----------------------------------------------------------------------------
@@ -168,9 +168,7 @@ typedef struct
 // Static Global Data section variables
 // ----------------------------------------------------------------------
 static WORD OSDMenuID, OSDCombID;
-static BYTE fMenuUpdate, fMenuGraphic;
-BYTE fMenuUpdate;			  //by hungry 2012.03.06
-static BYTE fMenuGraphic;	  //by hungry 2012.03.06
+static BYTE fMenuUpdate;//, fMenuGraphic;
 
 //-----------------------------------------------------------------
 // declare static variables
@@ -257,7 +255,7 @@ void SetMenuStatus(BYTE nID, BYTE sID, BYTE val)
 	if (nID==8) demoAudio[sID-1] = val;		   //by hungry 2012.03.14
 }
 
-//--------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 void SetMenuDefaultStatus(void)
 {
 	memcpy(demoIPCMode, defIPCMode, sizeof(defIPCMode));
@@ -273,31 +271,16 @@ void SetMenuDefaultStatus(void)
 }
 
 #endif
-//-----------------------------------------------------------------
-// Static Functions
-//-----------------------------------------------------------------
-//static u8 Get_ItemX_Position(u8 x)
-//{
-//	u8 index;
-//
-//	for(index = 0; index < 16; index++)
-//	{
-//		if(x == ITEM_X(index))
-//			break;
-//	}
-//
-//	return index;
-//}
-
+//--------------------------------------------------------------------------------------------------
 static void Toggle(BOOL* pObject)
 {
 	*pObject = (*pObject == FALSE)?TRUE:FALSE;
 }
 
-static void Int2Bcd(u8 in_data, u8* out_data)
-{
-	*out_data = ((in_data / 10) << 4) | ((in_data % 10) & 0x0F);
-}
+//static void Int2Bcd(u8 in_data, u8* out_data)
+//{
+//	*out_data = ((in_data / 10) << 4) | ((in_data % 10) & 0x0F);
+//}
 
 static void Int2Str(u8 in_data, u8* out_data)
 {

@@ -18,7 +18,6 @@
 #define DISPLAY_QUAD_WIDTH					(DISPLAY_WIDTH/4)	//480
 #define DISPLAY_QUAD_HEIGHT					(DISPLAY_HEIGHT/4)	//270
 
-
 //-----------------------------------------------------------------
 // type definitions - struct/enum/etc
 //-----------------------------------------------------------------
@@ -28,12 +27,10 @@ typedef struct
 	u16 pos_y;
 } sPosition_t;
 
-
 //-----------------------------------------------------------------
 // exported variable declaration
 //-----------------------------------------------------------------
 extern BYTE changedDisplayMode;
-
 
 //-----------------------------------------------------------------
 // Function declaration

@@ -16,8 +16,8 @@
 
 #define MENU_WIDTH						792//800
 #define MENU_HEIGHT						672//700
-#define MENU_START_POSITION_X 			(DISPLAY_WIDTH_1920X1080 - MENU_WIDTH) / 2
-#define MENU_START_POSITION_Y 			(DISPLAY_HEIGHT_1920x1080 - MENU_HEIGHT) / 2
+#define MENU_START_POSITION_X 			(DISPLAY_WIDTH - MENU_WIDTH) / 2
+#define MENU_START_POSITION_Y 			(DISPLAY_HEIGHT - MENU_HEIGHT) / 2
 
 // ----------------------------------------------------------------------
 // Exported Variables
