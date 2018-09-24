@@ -406,7 +406,7 @@ static void OSD_EraseNoVideo(void)
 					tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_x - (strlen(osdStr_Space10)*CHAR_WIDTH_S)/2;
 			position.pos_y =
 					tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_y + ((DISPLAY_HEIGHT/2) - CHAR_HEIGHT)/2;
-			OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
+			OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
 		}
 	}
 //
@@ -450,7 +450,7 @@ static void OSD_EraseFreezeAuto(void)
 //-----------------------------------------------------------------------------
 // Display
 //-----------------------------------------------------------------------------
-static void OSD_DisplayFreeze(BOOL display_erase)
+static void OSD_DisplayFreeze(void)
 {
 	BOOL current_freezeMode = IsScreenFreeze();
 	sPosition_t position;

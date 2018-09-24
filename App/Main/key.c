@@ -419,7 +419,7 @@ void Key_Proc(void)
 				{
 //					if(displayMode != DISPLAY_MODE_4SPLIT || bAuto_Seq_Flag || bScreenFreeze)
 //					{
-						OSD_EraseAllText();
+						Osd_EraseAllText();
 //					}
 					bScreenFreeze = CLEAR;
 					ChangeAutoSeqOn(CLEAR);
