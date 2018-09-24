@@ -449,7 +449,7 @@ void Key_Proc(void)
 
 			case KEY_AUTO_SEQ :
 				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
-				if((OFF == autoSeq_skipNoVideoChannel) || ((vVideo_Loss&0x0000000f) != 0x0000000f))
+				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != 0x0000000f))
 				{
 					if(bAuto_Seq_Flag == CLEAR)
 					{

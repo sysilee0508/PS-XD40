@@ -23,27 +23,20 @@
 #include <string.h>
 
 #include "constants.h"
-
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
-
 #include "mdintype.h"
+#include "mdin3xx.h"
 
 #include "nv_storage.h"
-
 #include "main.h"
 #include "key.h"
 #include "Rtc.h"
 #include "osd_display.h"
 #include "Sequence.h"
-
 #include "MCU.h"
 #include "i2c.h"
-
 #include "delay.h"
-
-#include "mdin3xx.h"
-
 #include "video.h"
 #include "mfccoef.h"
 
@@ -51,7 +44,6 @@
 #include "osdmenu.h"
 #include "menu.h"
 #include "item.h"
-
 #include "video_loss.h"
 
 #include "alarm_remotekey.h"
@@ -67,18 +59,13 @@ typedef enum {
 	MSG_LEVEL = 0, MSG_SHIFT, MSG_ZMOVE
 } 	MSG_EXE_SPEED;
 
-
 //#define TIME_AFTER(unknown,known)	(((long)(known)-(long)(unknown))<0)
 //#define TIME_BEFORE(unknown,known)	(((long)(unknown)-(long)(known))<0)
 
 #define NOP()	asm("NOP")
 
+#define CLEAR							0
 // -----------------------------------------------------------------------------
-
-#define CHAR_WIDTH_E					12
-#define CHAR_WIDTH_K					24
-#define CHAR_HEIGHT						24
-
 
 // -----------------------------------------------------------------------------
 // Typedef

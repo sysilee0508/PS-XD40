@@ -75,7 +75,7 @@ static BOOL IsTitlePositionTop(void)
 ////
 ////	Read_NvItem_TimePosition(&timePosition);
 ////	position.pos_x = tblTimeDisplayLoc_X[timePosition];
-//	position.pos_x = (DISPLAY_WIDTH - (DATE_TIME_LENGTH*CHAR_WIDTH_E))/2 - 12;
+//	position.pos_x = (DISPLAY_WIDTH - (DATE_TIME_LENGTH*CHAR_WIDTH_S))/2 - 12;
 //
 //	memset(str_buf, ASCII_SPACE, sizeof(str_buf));
 //	OSD_PrintString(position,  str_buf, sizeof(str_buf));
@@ -138,12 +138,12 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 			switch(displayMode)
 			{
 				case DISPLAY_MODE_FULL_SCREEN:
-					position.pos_x = (DISPLAY_WIDTH - (strlen(channel_name) * CHAR_WIDTH_K)) / 2;
+					position.pos_x = (DISPLAY_WIDTH - (strlen(channel_name) * CHAR_WIDTH_L)) / 2;
 					position.pos_y = 0;
 					break;
 
 				case DISPLAY_MODE_4SPLIT:
-					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - (length * CHAR_WIDTH_E)/2;
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - (length * CHAR_WIDTH_S)/2;
 					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y;
 					break;
 			}
@@ -153,12 +153,12 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 			switch(displayMode)
 			{
 				case DISPLAY_MODE_FULL_SCREEN:
-					position.pos_x = DISPLAY_WIDTH - MARGIN_X - (length * CHAR_WIDTH_K);
+					position.pos_x = DISPLAY_WIDTH - MARGIN_X - (length * CHAR_WIDTH_L);
 					position.pos_y = 0;
 				break;
 
 				case DISPLAY_MODE_4SPLIT:
-					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - (length * CHAR_WIDTH_E) - MARGIN_X;
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - (length * CHAR_WIDTH_S) - MARGIN_X;
 					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y;
 				break;
 
@@ -184,12 +184,12 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 			switch(displayMode)
 			{
 				case DISPLAY_MODE_FULL_SCREEN:
-					position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH_K)) / 2;
+					position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH_L)) / 2;
 					position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT;
 				break;
 
 				case DISPLAY_MODE_4SPLIT:
-					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - (length * CHAR_WIDTH_E) / 2;
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - (length * CHAR_WIDTH_S) / 2;
 					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y - CHAR_HEIGHT;
 				break;
 			}
@@ -199,12 +199,12 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 			switch(displayMode)
 			{
 				case DISPLAY_MODE_FULL_SCREEN:
-					position.pos_x = DISPLAY_WIDTH - MARGIN_X - (length * CHAR_WIDTH_K);
+					position.pos_x = DISPLAY_WIDTH - MARGIN_X - (length * CHAR_WIDTH_L);
 					position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT;
 					break;
 
 				case DISPLAY_MODE_4SPLIT:
-					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - MARGIN_X - (length * CHAR_WIDTH_E);
+					position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_x - MARGIN_X - (length * CHAR_WIDTH_S);
 					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][titlePosition].pos_y - CHAR_HEIGHT;
 				break;
 			}
@@ -214,19 +214,19 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eTitlePosition_t 
 			switch(displayMode)
 			{
 				case DISPLAY_MODE_FULL_SCREEN: //center-top
-					position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH_K)) / 2;
+					position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH_L)) / 2;
 					position.pos_y = 0;
 				break;
 
 				case DISPLAY_MODE_4SPLIT:
 					if(channel == CHANNEL1 || channel == CHANNEL2) //center-bottom
 					{
-						position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_BOTTOM_CENTER].pos_x - (length * CHAR_WIDTH_E) / 2;
+						position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_BOTTOM_CENTER].pos_x - (length * CHAR_WIDTH_S) / 2;
 						position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_BOTTOM_CENTER].pos_y - CHAR_HEIGHT;
 					}
 					else if(channel == CHANNEL3 || channel == CHANNEL4) //center-top
 					{
-						position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_x - (length * CHAR_WIDTH_E)/2;
+						position.pos_x = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_x - (length * CHAR_WIDTH_S)/2;
 					position.pos_y = tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_y;
 					}
 				break;
@@ -361,11 +361,11 @@ static sPosition_t OSD_GetAutoFreezePosition(u8 strLength)
 	// x
 	if(dateTimeLength > 0)
 	{
-		position.pos_x = (DISPLAY_WIDTH + (MIN(DATE_TIME_LENGTH, dateTimeLength) * CHAR_WIDTH_E)) / 2 ;
+		position.pos_x = (DISPLAY_WIDTH + (MIN(DATE_TIME_LENGTH, dateTimeLength) * CHAR_WIDTH_S)) / 2 ;
 	}
 	else
 	{
-		position.pos_x = (DISPLAY_WIDTH - (strLength * CHAR_WIDTH_E)) / 2;
+		position.pos_x = (DISPLAY_WIDTH - (strLength * CHAR_WIDTH_S)) / 2;
 	}
 	// y
 	if((IsTitlePositionTop() == FALSE) && (displayMode == DISPLAY_MODE_FULL_SCREEN))
@@ -396,7 +396,7 @@ static void OSD_Display_Freeze(void)
 
 		if(timeOn == ON)
 		{
-			position.pos_x += (2 * CHAR_WIDTH_E);
+			position.pos_x += (2 * CHAR_WIDTH_S);
 		}
 
 		if(current_freezeMode)
@@ -434,7 +434,7 @@ static void OSD_Display_AUTO(void)
 
 		if(timeOn == ON)
 		{
-			position.pos_x += (2 * CHAR_WIDTH_E);
+			position.pos_x += (2 * CHAR_WIDTH_S);
 		}
 
 		if(bAuto_Seq_Flag)
@@ -466,21 +466,21 @@ static void OSD_Display_Video_Loss(void)
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
 	Read_NvItem_DisplayMode(&displayMode);
 	
-	if((videoLossDiplayOn == ON) & ((Loss_Event_Flag == SET) || (changedDisplayMode == SET)))
+	if((videoLossDiplayOn == ON) & ((GetVideoLossEvent() == SET) || (changedDisplayMode == SET)))
 	{
 		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
 			channel = (eChannel_t)sys_status.current_split_mode;
 		}
 
-		Loss_Event_Flag = CLEAR;
+		SetVideoLossEvent(CLEAR);
 	
 		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
-			position[channel].pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideo)*CHAR_WIDTH_E))/2;
+			position[channel].pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideo)*CHAR_WIDTH_S))/2;
 			position[channel].pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
 
-			if(vVideo_Loss & (0x01<<channel))
+			if(IsVideoLossChannel(channel) == TRUE)
 			{
 				OSD_PrintString(position[channel], osdStr_NoVideo, strlen(osdStr_NoVideo));
 				osd_video_lose_location_buf[channel].length = strlen(osdStr_NoVideo);
@@ -498,10 +498,10 @@ static void OSD_Display_Video_Loss(void)
 			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 			{
 				position[channel].pos_x =
-						tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_x - (strlen(osdStr_NoVideo)*CHAR_WIDTH_E)/2;
+						tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_x - (strlen(osdStr_NoVideo)*CHAR_WIDTH_S)/2;
 				position[channel].pos_y =
 						tbl_OSD_SPLIT4_POSITION[channel][TITLE_POSITION_TOP_CENTER].pos_y + ((DISPLAY_HEIGHT/2) - CHAR_HEIGHT)/2;
-				if(vVideo_Loss & (0x01<<channel))
+				if(IsVideoLossChannel(channel) == TRUE)
 				{
 					OSD_PrintString(position[channel], osdStr_NoVideo, strlen(osdStr_NoVideo));
 					osd_video_lose_location_buf[channel].length = strlen(osdStr_NoVideo);
@@ -557,7 +557,7 @@ static void OSD_DisplayDateTime(void)
 
 		if(strlen(dateTimeString) > 0)
 		{
-			position.pos_x = (DISPLAY_WIDTH - (strlen(dateTimeString)*CHAR_WIDTH_E))/2 - 12;
+			position.pos_x = (DISPLAY_WIDTH - (strlen(dateTimeString)*CHAR_WIDTH_S))/2 - 12;
 			if((IsTitlePositionTop() == FALSE) && (displayMode == DISPLAY_MODE_FULL_SCREEN))
 			{
 				position.pos_y = MARGIN_Y;
@@ -625,7 +625,7 @@ void OSD_Display_ChannelName(void)
 void Osd_ClearScreen(void)
 {
 	u16 i;
-	BYTE pSTR[DISPLAY_WIDTH/CHAR_WIDTH_E];
+	BYTE pSTR[DISPLAY_WIDTH/CHAR_WIDTH_S];
 
 	memset(pSTR, ASCII_SPACE, sizeof(pSTR));
 
