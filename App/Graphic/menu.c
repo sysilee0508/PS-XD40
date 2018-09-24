@@ -795,13 +795,13 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						switch(pos_x)
 						{
 							case 0://year
-								IncreaseDecreaseCount(99, 0, inc_dec, &rtcTime.year);
+								IncreaseDecreaseCount(81, 0, inc_dec, &rtcTime.year); //2018~2099
 								break;
 							case 1://month
-								IncreaseDecreaseCount(12, 0, inc_dec, &rtcTime.month);
+								IncreaseDecreaseCount(12, 1, inc_dec, &rtcTime.month);
 								break;
 							case 2://day
-								IncreaseDecreaseCount(GetDaysInMonth(rtcTime.month, rtcTime.year), 0, inc_dec, &rtcTime.day);
+								IncreaseDecreaseCount(GetDaysInMonth(rtcTime.month, rtcTime.year), 1, inc_dec, &rtcTime.day);
 								break;
 						}
 						break;
