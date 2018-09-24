@@ -189,7 +189,7 @@ void Auto_Sequence(void)
 					{
 						do
 						{
-							if(IsVideoLossChannel(Auto_Seq_Index) == TRUE)
+							if(IsVideoLossChannel(vAuto_Seq_Index) == TRUE)
 							{
 								if(vAuto_Seq_Index < SPLITMODE_FULL_CH4)
 									vAuto_Seq_Index++;

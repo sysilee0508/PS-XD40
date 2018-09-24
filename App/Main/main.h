@@ -48,7 +48,6 @@ extern int cmode;
 extern u8 aux_display_flag;
 
 //extern u32 videoLossChannels;
-extern u32 videoLossBuzzerCount;
 
 
 //extern BYTE sysenv_split_mode;

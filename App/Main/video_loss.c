@@ -41,7 +41,7 @@ void ScankVideoLossChannels(void)
 //-----------------------------------------------------------------------------
 BOOL IsVideoLossChannel(eChannel_t channel)
 {
-	return  ((u8)videoLossChannels & 0x0F) >> (u8)channel;
+	return (((u8)videoLossChannels & VIDEO_LOSS_CHANNEL(channel)) == 0)?FALSE:TRUE;
 }
 //-----------------------------------------------------------------------------
 u8 GetVideoLossChannels(void)
