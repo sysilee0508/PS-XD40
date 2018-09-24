@@ -194,6 +194,40 @@ void USART3_IRQHandler(void)
 	}
 }
 
+static void PlayBuzzer(void)
+{
+	sSystemTick_t* currentSystemTime = GetSystemTime();
+	static u32 previousSystemTimeIn100ms = 0;
+	u8 lossCount = GetVideoLossBuzzerCount();
+	u8 alarmCount = GetAlarmBuzzerCount();
+	u8 buzzerCount = MAX(lossCount, alarmCount);
+
+	if(TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn100ms,5))
+	{
+		if(buzzerCount > 0)
+		{
+			if(buzzerCount%2)
+				BUZZER_LOW;
+			else
+				BUZZER_HIGH;
+
+			if(lossCount > 0)
+			{
+				DecreaseVideoLossBuzzerCount();//videoLossBuzzerCount--;
+			}
+			if(alarmCount > 0)
+			{
+				DecreaseAlarmBuzzerCount();
+			}
+		}
+		else
+		{
+			BUZZER_LOW;
+		}
+		previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
+	}
+}
+
 //=============================================================================
 //  main function
 //=============================================================================
@@ -275,9 +309,7 @@ void main(void)
 	Delay_ms(10);
 	//NVP6158 device initialization
 	NVP6158_init();
-
-	Loss_Event_Flag = 0;
-	videoLossBuzzerCount = 0;
+	InitVideoLossCheck();
 
 	InputSelect = VIDEO_DIGITAL_SDI;
 //	InputSelect = VIDEO_SDI_2HD_POP;
@@ -298,9 +330,9 @@ void main(void)
     { 
 		NVP6158_VideoDetectionProc();
 
-		Video_Loss_Check();
+		ScankVideoLossChannels();
 		CheckAlarmClearCondition();
-		Loss_Buzzer();//CheckBuzzer();
+		PlayBuzzer();
 
 		Auto_Seq_Cnt();
 		Auto_Sequence();

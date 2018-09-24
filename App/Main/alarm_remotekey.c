@@ -17,6 +17,7 @@
 //=============================================================================
 static BYTE alarm_remotekey_mode = ALARM_MODE;
 static u32 alarmOutTimeCountInSec = 0;
+static u8 alarmBuzzerCountIn500ms = 0;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -107,6 +108,20 @@ void StartStopAlarm(BOOL start_stop)
 }
 
 //------------------------------------------------------------------------------
+u8 GetAlarmBuzzerCount(void)
+{
+	return alarmBuzzerCountIn500ms;
+}
+
+void ClearAlarmBuzzerCount(void)
+{
+	alarmBuzzerCountIn500ms = 0;
+}
+
+void DecreaseAlarmBuzzerCount(void)
+{
+	alarmBuzzerCountIn500ms--;
+}
 //------------------------------------------------------------------------------
 
 void CheckAlarm(void)

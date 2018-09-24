@@ -38,9 +38,6 @@ const u8 menuStr_BottomLeft[] = "BOTTOM-LEFT";
 const u8 menuStr_BottomCenter[] = "BOTTOM-CENTER";
 const u8 menuStr_BottomRight[] = "BOTTOM-RIGHT";
 
-//const u8 menuStr_Semicolon[] = ":";
-//const u8 menuStr_dash[] = "-";
-
 const u8 menuStr_Asia[] = "ASIA (yyyy-mm-dd)";
 const u8 menuStr_Usa[] =   "USA  (mm-dd-yyyy)";
 const u8 menuStr_Euro[] = "EURO (dd-mm-yyyy)";
@@ -124,10 +121,8 @@ const u8 menuStr_Motion_Sensitivity[] = "5. MOTION SENSITIVITY : ";
 const u8 menuStr_Motion_CallMode[] =    "6. MOTION MODE : ";
 //const u8 menuStr_Motion_Saving[] = "SAVING AREA...";
 
-// Miscellaneous
+// Device Info
 const u8 menuStr_DeviceInfo_Title[] =   "-- DEVICE INFO --";
 const u8 menuStr_DeviceInfo_Version[] = "1. F/W VERSION : v";
-//const u8 menuStr_Miscellaneous_
-//const u8 menuStr_Miscellaneous_
 
 #endif

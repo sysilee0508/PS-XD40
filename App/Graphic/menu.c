@@ -25,7 +25,7 @@
 #define	INCREASE					1
 #define	DECREASE					0
 
-#define CHARACTERS_IN_MENU_LINE		MENU_WIDTH / CHAR_WIDTH_E
+#define CHARACTERS_IN_MENU_LINE		MENU_WIDTH / CHAR_WIDTH_S
 #define LINES_IN_MENU				MENU_HEIGHT / CHAR_HEIGHT
 
 #define ASCII_SPACE					0x20
@@ -325,7 +325,7 @@ static void Print_StringWithSelectedMarkSize(u16 offset_x, u16 offset_y, const u
 	u16 i;
 	sPosition_t position;
 
-	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_E);
+	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_S);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 	
 	OSD_PrintString(position, data, strlen(data));
@@ -344,7 +344,7 @@ static void Print_StringWithSelectedMark(u16 offset_x, u16 offset_y, const u8 *d
 	u16 i;
 	sPosition_t position;
 
-	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_E);
+	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_S);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 
 	OSD_PrintString(position, data, size);
@@ -403,11 +403,11 @@ static void DrawSelectMark(u8 verticalItem)
 	offset_y = LINE1_OFFSET_Y + (2 * (verticalItem-1));
 
 	// erase previous mark
-	position.pos_x = MENU_START_POSITION_X + (previousLocationX * CHAR_WIDTH_E);
+	position.pos_x = MENU_START_POSITION_X + (previousLocationX * CHAR_WIDTH_S);
 	position.pos_y = MENU_START_POSITION_Y + (previousLocationY * CHAR_HEIGHT);
   	OSD_PrintString(position,menuStr_Space1, strlen(menuStr_Space1));
   	// draw new mark
-	position.pos_x = MENU_START_POSITION_X + (offset_x[currentPage] * CHAR_WIDTH_E);
+	position.pos_x = MENU_START_POSITION_X + (offset_x[currentPage] * CHAR_WIDTH_S);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
   	OSD_PrintString(position, menuStr_ArrowL, strlen(menuStr_ArrowL));
 

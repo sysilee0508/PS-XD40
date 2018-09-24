@@ -41,7 +41,7 @@ void Auto_Seq_Init(void)
 	//Find video loss channels
 	if(ON == videoLossChannelSkip)
 	{
-		videoLossChannel = Find_Video_Loss_Channel();
+		videoLossChannel = GetVideoLossChannels();
 		if(videoLossChannel & VIDEO_LOSS_CHANNEL_ALL)
 		{
 			memset(auto_display_channels, SKIP_CHANNEL, sizeof(auto_display_channels));
@@ -169,7 +169,7 @@ void Auto_Sequence(void)
 	{
 		if(videoLossChannelSkip == ON)
 		{
-			if(vVideo_Loss == 0x0000000f)
+			if(GetVideoLossChannels() == VIDEO_LOSS_CHANNEL_ALL)
 				return;
 		}
 		
@@ -189,7 +189,7 @@ void Auto_Sequence(void)
 					{
 						do
 						{
-							if(vVideo_Loss&(0x00000001<<vAuto_Seq_Index)) 
+							if(IsVideoLossChannel(Auto_Seq_Index) == TRUE)
 							{
 								if(vAuto_Seq_Index < SPLITMODE_FULL_CH4)
 									vAuto_Seq_Index++;

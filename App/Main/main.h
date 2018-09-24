@@ -47,8 +47,7 @@ extern int cmode;
 
 extern u8 aux_display_flag;
 
-extern u32 vVideo_Loss;
-extern u8 Loss_Event_Flag;
+//extern u32 videoLossChannels;
 extern u32 videoLossBuzzerCount;
 
 
