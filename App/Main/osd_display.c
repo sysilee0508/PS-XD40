@@ -333,7 +333,8 @@ static void OSD_EraseChannelName(void)
 
 	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 	{
-		channel = (eChannel_t)sys_status.current_split_mode;
+		//channel = (eChannel_t)sys_status.current_split_mode;
+		Read_NvItem_DisplayChannel(&channel);
 		Read_NvItem_ChannelName(channel_name, channel);
 		position =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
 		OSD_PrintString(position, osdStr_Space12, strlen(channel_name));
@@ -496,7 +497,8 @@ static void OSD_DisplayNoVideo(void)
 	{
 		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
-			channel = (eChannel_t)sys_status.current_split_mode;
+			//channel = (eChannel_t)sys_status.current_split_mode;
+			Read_NvItem_DisplayChannel(&channel);
 		}
 
 		SetVideoLossEvent(CLEAR);
@@ -617,7 +619,8 @@ void OSD_DisplayChannelName(void)
 	{
 		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
-			channel = (eChannel_t)sys_status.current_split_mode;
+//			channel = (eChannel_t)sys_status.current_split_mode;
+			Read_NvItem_DisplayChannel(&channel);
 			Read_NvItem_ChannelName(channel_name, channel);
 			positionValue =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
 			Read_NvItem_ChannelName(channel_name, channel);

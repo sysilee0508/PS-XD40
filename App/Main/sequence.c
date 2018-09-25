@@ -57,10 +57,12 @@ void InitializeAutoSeq(void)
 	BOOL skipOn;
 	u8 videoLossChannel;
 	eChannel_t iChannel;
+	eDisplayMode_t displayMode;
 
 	// Read NV Data
 	Read_NvItem_AutoSeqLossSkip(&skipOn);
 	Read_NvItem_AutoSeqTime(displayTime);
+	Read_NvItem_DisplayMode(&displayMode);
 
 	UpdateAutoSeqDisplayTime();
 //	//Find video loss channels
@@ -77,7 +79,7 @@ void InitializeAutoSeq(void)
 //	}
 
 	// Set auto sequence start channel
-	if(sys_status.current_split_mode <= SPLITMODE_FULL_CH4)
+	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 	{
 		if(autoSeqOn == SET)
 		{
@@ -86,7 +88,8 @@ void InitializeAutoSeq(void)
 		}
 		else
 		{
-			displayChannel = sys_status.current_split_mode; //current displaying channel
+			//displayChannel = sys_status.current_split_mode; //current displaying channel
+			Read_NvItem_DisplayChannel(&displayChannel);
 			while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == SKIP_CHANNEL))
 			{
 				// move to next channel
@@ -94,7 +97,7 @@ void InitializeAutoSeq(void)
 			}
 		}
 	}
-	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4)
+	else if(displayMode == DISPLAY_MODE_4SPLIT)
 	{
 		displayChannel = CHANNEL1;
 	}
@@ -108,7 +111,8 @@ void InitializeAutoSeq(void)
 
 	Osd_EraseAllText();
 
-	sys_status.current_split_mode = (eSplitmode_t)displayChannel;
+//	sys_status.current_split_mode = (eSplitmode_t)displayChannel;
+	Write_NvItem_DisplayChannel(displayChannel);
 	// update display mode as full screen
 	Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
 	// set autoSeqOn
@@ -152,12 +156,16 @@ void UpdateAutoSeqCount(void)
 
 void DisplayAutoSeqChannel(void)
 {
-	if((sys_status.current_split_mode != displayChannel) && (autoSeqOn == SET))
+	eChannel_t currentChannel;
+
+	Read_NvItem_DisplayChannel(&currentChannel);
+	if((currentChannel != displayChannel) && (autoSeqOn == SET))
 	{
 		//TO DO : display new channel
 //		Display_FullScreen(displayChannel);
 		// update current channel
-		sys_status.current_split_mode = (eSplitmode_t)displayChannel;
+		Write_NvItem_DisplayChannel(displayChannel);
+		//sys_status.current_split_mode = (eSplitmode_t)displayChannel;
 		// Update OSD
 		Osd_EraseAllText();
 		OSD_Display();

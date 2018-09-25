@@ -983,13 +983,13 @@ void vs4210_display_proc()
 		dump_count ++ ;
 		TimeOutCount = 0 ;
 		display_output_mode = Get_DisplayoutputMode();
-		if (display_output_mode == SPLITMODE_SPLIT4)
+		if (display_output_mode == DISPLAY_MODE_4SPLIT)//SPLITMODE_SPLIT4)
 		{
 			VS4210_DisplayoutputMode_Splite4();
 		}
 		else
 		{
-			VS4210_DisplayoutputMode_FullScreen(display_output_mode);
+			VS4210_DisplayoutputMode_FullScreen(Get_DisplayoutputChannel());
 		}
 		
 		for (gHDMI_Index = 0 ; gHDMI_Index < CH_IN_NUMBER ; gHDMI_Index++)

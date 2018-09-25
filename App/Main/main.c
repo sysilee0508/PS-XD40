@@ -313,7 +313,8 @@ void main(void)
 
 	InputSelect = VIDEO_DIGITAL_SDI;
 //	InputSelect = VIDEO_SDI_2HD_POP;
-	sys_status.current_split_mode = SPLITMODE_SPLIT4;
+//	sys_status.current_split_mode = SPLITMODE_SPLIT4;
+	Write_NvItem_DisplayChannel(CHANNEL_QUAD);
 
 	UpdateKeyData(KEY_4SPLIT);
 	SetKeyReady();
