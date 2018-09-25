@@ -451,10 +451,6 @@ void Key_Proc(void)
 				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
 				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
 				{
-//					if(autoSeqOn == CLEAR)
-//					{
-//						Osd_EraseAllText();
-//					}
 					//bMode_change_flag = SET;
 					bScreenFreeze = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off

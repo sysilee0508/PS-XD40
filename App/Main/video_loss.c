@@ -33,6 +33,10 @@ void ScanVideoLossChannels(void)
     			Read_NvItem_VideoLossBuzzerTime((u8*)&videoLossBuzzerCount);
     			videoLossBuzzerCount *= 2;
     		}
+    		if(GetAutoSeqOn() == SET)
+    		{
+    			UpdateSkipChannels();
+    		}
     	}
     	previousLossChannels = lossChannels;
     	previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;

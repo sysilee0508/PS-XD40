@@ -10,17 +10,6 @@
 #define DATE_LENGTH_2DIGIT				9 // "yy-mmm-dd"
 #define TIME_LENGTH						8 // "hh:mm:ss"
 
-struct osd_location 
-{
-	u8 state;
-	u8 length;
-	sPosition_t location;
-};
-
-static struct osd_location osd_ch_name_location_buf[NUM_OF_CHANNEL];
-static struct osd_location osd_video_lose_location_buf[NUM_OF_CHANNEL];
-static struct osd_location osd_freeze_autoseq_location_buf;
-
 static u8 displayingDateTimeLength = 0;
 
 static const sPosition_t tbl_OSD_SPLIT4_POSITION[NUM_OF_CHANNEL][NUM_OF_POSITION] =
@@ -409,19 +398,6 @@ static void OSD_EraseNoVideo(void)
 			OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
 		}
 	}
-//
-//
-//	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-//	{
-//		if(osd_video_lose_location_buf[channel].state == ON)
-//		{
-//			MDINGAC_SetDrawXYMode(osd_video_lose_location_buf[channel].location.pos_y,
-//					osd_video_lose_location_buf[channel].location.pos_x,
-//					(u8 *)str_Blank,
-//					osd_video_lose_location_buf[channel].length,
-//					0);
-//		}
-//	}
 }
 
 static void OSD_EraseFreezeAuto(void)
@@ -437,14 +413,6 @@ static void OSD_EraseFreezeAuto(void)
 		position.pos_x += (2 * CHAR_WIDTH_S);
 	}
 	OSD_PrintString(position, osdStr_Space6, sizeof(osdStr_Space6));
-//	if(osd_freeze_autoseq_location_buf.state == ON)
-//	{
-//		MDINGAC_SetDrawXYMode(osd_freeze_autoseq_location_buf.location.pos_y,
-//				osd_freeze_autoseq_location_buf.location.pos_x,
-//				(u8 *)str_Blank,
-//				osd_freeze_autoseq_location_buf.length,
-//				0);
-//	}
 }
 
 //-----------------------------------------------------------------------------
@@ -457,13 +425,12 @@ static void OSD_DisplayFreeze(void)
 	BOOL timeOn;
 	static BOOL previous_freezeMode = CLEAR;
 
-	Read_NvItem_TimeDisplayOn(&timeOn);
-
 	if(previous_freezeMode != current_freezeMode)
 	{
 		previous_freezeMode = current_freezeMode;
 		position = OSD_GetAutoFreezePosition(sizeof(osdStr_Freeze));
 
+		Read_NvItem_TimeDisplayOn(&timeOn);
 		if(timeOn == ON)
 		{
 			position.pos_x += (2 * CHAR_WIDTH_S);
@@ -472,15 +439,11 @@ static void OSD_DisplayFreeze(void)
 		if(current_freezeMode == SET)
 		{
 			OSD_PrintString(position,osdStr_Freeze, sizeof(osdStr_Freeze));
-			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_Freeze);
 		}
 		else
 		{
 			OSD_PrintString(position, osdStr_Space6, sizeof(osdStr_Space6));
-			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_Space6);
 		}
-		osd_freeze_autoseq_location_buf.state = ON;//1
-		osd_freeze_autoseq_location_buf.location = position;
 	}
 }
 
@@ -491,17 +454,14 @@ static void OSD_DisplayAUTO(void)
 {
 	static BOOL previousAutoSeqOn = CLEAR;
 	BOOL timeOn;
-	eDisplayMode_t displayMode;
 	sPosition_t position;
-
-	Read_NvItem_TimeDisplayOn(&timeOn);
-	Read_NvItem_DisplayMode(&displayMode);
 
 	if(previousAutoSeqOn != GetAutoSeqOn())
 	{
 		previousAutoSeqOn = GetAutoSeqOn();
 		position = OSD_GetAutoFreezePosition(sizeof(osdStr_AUTO));
 
+		Read_NvItem_TimeDisplayOn(&timeOn);
 		if(timeOn == ON)
 		{
 			position.pos_x += (2 * CHAR_WIDTH_S);
@@ -510,15 +470,11 @@ static void OSD_DisplayAUTO(void)
 		if(GetAutoSeqOn() == SET)
 		{
 			OSD_PrintString(position, osdStr_AUTO, sizeof(osdStr_AUTO));
-			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_AUTO);
 		}
 		else
 		{
 			OSD_PrintString(position, osdStr_Space6, sizeof(osdStr_Space6));
-			osd_freeze_autoseq_location_buf.length = sizeof(osdStr_Space6);
 		}
-		osd_freeze_autoseq_location_buf.state = ON;//1
-		osd_freeze_autoseq_location_buf.location = position;
 	}
 }
 
@@ -553,15 +509,11 @@ static void OSD_DisplayNoVideo(void)
 			if(IsVideoLossChannel(channel) == TRUE)
 			{
 				OSD_PrintString(position[channel], osdStr_NoVideo, strlen(osdStr_NoVideo));
-				osd_video_lose_location_buf[channel].length = strlen(osdStr_NoVideo);
 			}
 			else
 			{
 				OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
-				osd_video_lose_location_buf[channel].length = strlen(osdStr_Space10);
 			}
-			osd_video_lose_location_buf[channel].state = ON;
-			osd_video_lose_location_buf[channel].location = position[channel];
 		}
 		else if(displayMode == DISPLAY_MODE_4SPLIT)
 		{
@@ -574,15 +526,11 @@ static void OSD_DisplayNoVideo(void)
 				if(IsVideoLossChannel(channel) == TRUE)
 				{
 					OSD_PrintString(position[channel], osdStr_NoVideo, strlen(osdStr_NoVideo));
-					osd_video_lose_location_buf[channel].length = strlen(osdStr_NoVideo);
 				}
 				else
 				{
 					OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
-					osd_video_lose_location_buf[channel].length = strlen(osdStr_Space10);
 				}
-				osd_video_lose_location_buf[channel].state = ON;
-				osd_video_lose_location_buf[channel].location = position[channel];
 			}
 		}
 	}
@@ -674,9 +622,6 @@ void OSD_DisplayChannelName(void)
 			positionValue =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
 			Read_NvItem_ChannelName(channel_name, channel);
 			OSD_PrintString(positionValue, channel_name, strlen(channel_name));
-			osd_ch_name_location_buf[channel].state = ON;
-			osd_ch_name_location_buf[channel].length = strlen(channel_name);
-			osd_ch_name_location_buf[channel].location = positionValue;
 		}
 		else if(displayMode == DISPLAY_MODE_4SPLIT)
 		{
@@ -685,9 +630,6 @@ void OSD_DisplayChannelName(void)
 				Read_NvItem_ChannelName(channel_name, channel);
 				positionValue =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
 				OSD_PrintString(positionValue, channel_name, strlen(channel_name));
-				osd_ch_name_location_buf[channel].state = ON;
-				osd_ch_name_location_buf[channel].length = strlen(channel_name);
-				osd_ch_name_location_buf[channel].location = positionValue;
 			}
 		}
 	}
@@ -706,9 +648,6 @@ void Osd_ClearScreen(void)
 	{
 		MDINGAC_SetDrawXYMode(i*CHAR_HEIGHT, 0, pSTR, sizeof(pSTR), 0);
 	}
-
-	// Initialize channel name location buffer
-	memset(osd_ch_name_location_buf, 0, sizeof(osd_ch_name_location_buf));
 }
 //-----------------------------------------------------------------------------
 void Osd_EraseAllText(void)
