@@ -8,7 +8,7 @@
 //extern u8 bMotion_Call_FULL_Flag;
 //extern u8 bMotion_Call_SPLIT_Flag;
 //
-
+extern void UpdateAutoSeqDisplayTime(void);
 extern void InitializeAutoSeq(void);
 extern void UpdateAutoSeqCount(void);
 extern void DisplayAutoSeqChannel(void);

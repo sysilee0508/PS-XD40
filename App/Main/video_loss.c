@@ -23,10 +23,11 @@ void ScanVideoLossChannels(void)
     	videoLossChannels = VIDEO_LOSS_CHANNEL_NONE;
     	NVP6158_Video_Loss_Check(&videoLossChannels);
     	lossChannels = (u8)videoLossChannels & 0x0F;
-    	if(previousLossChannels != lossChannels)
+		changedChannels = previousLossChannels ^ lossChannels;
+    	if(changedChannels != 0)
     	{
     		SetVideoLossEvent(SET);
-    		if(((previousLossChannels ^ lossChannels) & lossChannels) != (u8)VIDEO_LOSS_CHANNEL_NONE)
+    		if((changedChannels & lossChannels) != (u8)VIDEO_LOSS_CHANNEL_NONE)
     		{
     			// There is new loss channel..
     			// Should reset the buzzer count for video loss
@@ -35,7 +36,7 @@ void ScanVideoLossChannels(void)
     		}
     		if(GetAutoSeqOn() == SET)
     		{
-    			UpdateSkipChannels();
+    			UpdateAutoSeqDisplayTime();
     		}
     	}
     	previousLossChannels = lossChannels;

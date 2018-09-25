@@ -9,7 +9,7 @@ static eChannel_t displayChannel = 0xFF;
 //-----------------------------------------------------------------------------
 // this function should be called when new video loss event is occurred.
 //-----------------------------------------------------------------------------
-void UpdateSkipChannels(void)
+void UpdateAutoSeqDisplayTime(void)
 {
 	BOOL skipOn;
 	u8 skipChannels;
@@ -62,7 +62,7 @@ void InitializeAutoSeq(void)
 	Read_NvItem_AutoSeqLossSkip(&skipOn);
 	Read_NvItem_AutoSeqTime(displayTime);
 
-	UpdateSkipChannels();
+	UpdateAutoSeqDisplayTime();
 //	//Find video loss channels
 //	if(ON == skipOn)
 //	{
