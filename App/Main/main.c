@@ -202,9 +202,9 @@ static void PlayBuzzer(void)
 	u8 buzzerCount;
 	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
 	{
-	        lossCount = GetVideoLossBuzzerCount();
-            alarmCount = GetAlarmBuzzerCount();
-            buzzerCount = MAX(lossCount, alarmCount);
+		lossCount = GetVideoLossBuzzerCount();
+		alarmCount = GetAlarmBuzzerCount();
+		buzzerCount = MAX(lossCount, alarmCount);
 
 		if(buzzerCount > 0)
 		{
