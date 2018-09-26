@@ -163,7 +163,7 @@ void DisplayAutoSeqChannel(void)
 		Write_NvItem_DisplayChannel(displayChannel);
 		//sys_status.current_split_mode = (eSplitmode_t)displayChannel;
 		// Update OSD
-		changedDisplayMode = SET;
+		OSD_RefreshScreen();
 		Osd_EraseAllText();
 		OSD_Display();
 	}

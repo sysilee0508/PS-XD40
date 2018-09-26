@@ -18,6 +18,7 @@
 static BYTE alarm_remotekey_mode = ALARM_MODE;
 static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
+static eChannel_t lastAlarmChannel = CHANNEL_QUAD;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -175,14 +176,14 @@ void CheckAlarm(void)
 			{
 				alarmInfo[channel].alarm_status = ALARM_SET;
 				alarmInfo[channel].check_count = 0;
-				//Occur key data (key_alarm) to display alarm screen
-//				UpdateKeyData(KEY_ALARM);
-//				SetKeyReady();
 				//buzzer & alarm output
 				StartStopAlarm(ALARM_START);
+				lastAlarmChannel = channel;
+				//Occur key data (key_alarm) to display alarm screen
+				UpdateKeyData(KEY_ALARM);
+				SetKeyReady();
 			}
 		}
-
 		alarmInfo[channel].previous_data = alarmInfo[channel].raw_data;
 	}
 }
@@ -212,4 +213,9 @@ void ClearAllAlarm(void)
 	{
 		alarmInfo[channel].alarm_status = ALARM_CLEAR;
 	}
+}
+
+eChannel_t GetLastAlarmChannel(void)
+{
+	return lastAlarmChannel;
 }

@@ -31,28 +31,9 @@ typedef enum
 	SPLITMODE_MAX
 } eSplitmode_t;
 
-//typedef struct
-//{
-//	eSplitmode_t current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
-//} sys_stat_t;
-
-//extern sys_stat_t sys_status;
-
 extern s8 Video1_In_Res_Val;
 extern s8 Video2_In_Res_Val;
-
 extern s8 Video_Out_Res_Val;
-
-extern const unsigned char change_mode[4];
-
-extern int cmode;
-
-extern u8 aux_display_flag;
-
-//extern u32 videoLossChannels;
-
-
-//extern BYTE sysenv_split_mode;
 
 extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);

@@ -26,7 +26,7 @@ static const sPosition_t tbl_OSD_SPLIT4_POSITION[NUM_OF_CHANNEL][NUM_OF_POSITION
 			{DISPLAY_HALF_WIDTH,DISPLAY_HEIGHT},		{DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH,DISPLAY_HEIGHT},		{DISPLAY_WIDTH,DISPLAY_HEIGHT}}	//CH04
 };
 
-BYTE changedDisplayMode = CLEAR;
+static BOOL requestRefreshScreen = CLEAR;
 
 //-----------------------------------------------------------------------------
 // static Functions
@@ -423,75 +423,42 @@ static void OSD_EraseFreezeAuto(void)
 //-----------------------------------------------------------------------------
 static void OSD_DisplayFreezeAuto(void)
 {
-	BOOL freezeOn;// = IsScreenFreeze();
-	BOOL autoOn;
+	BOOL freezeOn = IsScreenFreeze();
+	BOOL autoOn = GetAutoSeqOn();;
 	sPosition_t position;
 	BOOL timeOn;
 	static BOOL previousFreeze = CLEAR;
-       static BOOL previousAutoSeqOn = CLEAR;
-        u8* pStr;
-
-	freezeOn = IsScreenFreeze();
-       autoOn = GetAutoSeqOn();
-
-       if((previousFreeze != freezeOn) || (previousAutoSeqOn !=  autoOn) || (changedDisplayMode))
-        {
-            previousFreeze = freezeOn;
-            previousAutoSeqOn = autoOn;
-              position = OSD_GetAutoFreezePosition(sizeof(osdStr_Freeze));
-        	Read_NvItem_TimeDisplayOn(&timeOn);
-        	if(timeOn == ON)
-        	{
-        		position.pos_x += (2 * CHAR_WIDTH_S);
-        	}
-
-               
-        	if(freezeOn == SET)
-        	{
-        	    pStr = (u8 *)osdStr_Freeze;
-        	}
-            	else if(autoOn == SET)
-        	{
-        	    pStr = (u8 *)osdStr_AUTO;
-        	}
-        	else
-        	{
-        	    pStr = (u8 *)osdStr_Space6;
-        	}
-        	OSD_PrintString(position, pStr, strlen(pStr));
-        }
-}
-
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-/*
-static void OSD_DisplayAUTO(void)
-{
 	static BOOL previousAutoSeqOn = CLEAR;
-	BOOL timeOn;
-	sPosition_t position;
-    u8* pStr;
+	u8* pStr;
 
-	if((previousAutoSeqOn != GetAutoSeqOn()) || (changedDisplayMode == SET))
+	if((previousFreeze != freezeOn) || (previousAutoSeqOn !=  autoOn) || (requestRefreshScreen == SET))
 	{
-		previousAutoSeqOn = GetAutoSeqOn();
-		position = OSD_GetAutoFreezePosition(sizeof(osdStr_AUTO));
+		previousFreeze = freezeOn;
+		previousAutoSeqOn = autoOn;
 
+		position = OSD_GetAutoFreezePosition(sizeof(osdStr_Freeze));
 		Read_NvItem_TimeDisplayOn(&timeOn);
 		if(timeOn == ON)
 		{
 			position.pos_x += (2 * CHAR_WIDTH_S);
 		}
 
+		if(freezeOn == SET)
+		{
+			pStr = (u8 *)osdStr_Freeze;
+		}
+			else if(autoOn == SET)
+		{
+			pStr = (u8 *)osdStr_AUTO;
+		}
 		else
 		{
-		    pStr = (u8 *)osdStr_Space6;
+			pStr = (u8 *)osdStr_Space6;
 		}
-            OSD_PrintString(position, pStr, strlen(pStr));
+		OSD_PrintString(position, pStr, strlen(pStr));
 	}
 }
-*/
+
 //-----------------------------------------------------------------------------
 // Video Loss
 //-----------------------------------------------------------------------------
@@ -506,7 +473,7 @@ static void OSD_DisplayNoVideo(void)
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
 	Read_NvItem_DisplayMode(&displayMode);
 	
-	if((videoLossDiplayOn == ON) & ((GetVideoLossEvent() == SET) || (changedDisplayMode == SET)))
+	if((videoLossDiplayOn == ON) & ((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET)))
 	{
 		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
@@ -608,6 +575,11 @@ static void OSD_DisplayDateTime(void)
 //-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
+void OSD_RefreshScreen(void)
+{
+	requestRefreshScreen = SET;
+}
+
 void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 {
 	OSD_SetFontGAC(SPRITE_INDEX0);
@@ -716,7 +688,7 @@ void OSD_Display(void)
 		DisplayTimeInMenu();
 	}
 
-	changedDisplayMode = CLEAR;
+	requestRefreshScreen = CLEAR;
 }
 //-----------------------------------------------------------------------------
 void OSD_DrawBorderLine(void)

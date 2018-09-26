@@ -7,7 +7,7 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
-BOOL bScreenFreeze = CLEAR;
+BOOL screenFreezeOn = CLEAR;
 u8 pre_special_mode = LEFT_TOP;
 
 //=============================================================================
@@ -143,7 +143,7 @@ eKeyData_t GetCurrentKey(void)
 //-----------------------------------------------------------------------------
 BOOL IsScreenFreeze(void)
 {
-	return bScreenFreeze;
+	return screenFreezeOn;
 }
 
 //-----------------------------------------------------------------------------
@@ -404,9 +404,9 @@ void Key_Proc(void)
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
 					Osd_EraseAllText();
-					bScreenFreeze = CLEAR;
+					screenFreezeOn = CLEAR;
 					ChangeAutoSeqOn(CLEAR);
-					changedDisplayMode = SET;
+					OSD_RefreshScreen();
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					//pre_split_mode = sys_status.current_split_mode = key-1;
 					Write_NvItem_DisplayChannel((eChannel_t)(key - 1)); // this line shoul be moved into DisplayFullScreen()
@@ -424,9 +424,9 @@ void Key_Proc(void)
 //					{
 						Osd_EraseAllText();
 //					}
-					bScreenFreeze = CLEAR;
+					screenFreezeOn = CLEAR;
 					ChangeAutoSeqOn(CLEAR);
-					changedDisplayMode = SET;
+					OSD_RefreshScreen();
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					//pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
 					// below 2 lines should be moved into DisplayQuadScreen();
@@ -442,14 +442,14 @@ void Key_Proc(void)
 				break;
 			case KEY_FREEZE :
 				ChangeAutoSeqOn(CLEAR);
-				if(bScreenFreeze == CLEAR)
+				if(screenFreezeOn == CLEAR)
 				{
-					bScreenFreeze = SET;
+					screenFreezeOn = SET;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
 				}
 				else
 				{
-					bScreenFreeze = CLEAR;
+					screenFreezeOn = CLEAR;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				break;
@@ -459,8 +459,8 @@ void Key_Proc(void)
 				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
 				{
 					//bMode_change_flag = SET;
-					bScreenFreeze = CLEAR;
-                                   changedDisplayMode = SET;
+					screenFreezeOn = CLEAR;
+					OSD_RefreshScreen();
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 
 					InitializeAutoSeq();
@@ -469,7 +469,7 @@ void Key_Proc(void)
 
 			case KEY_MENU :
 				ChangeAutoSeqOn(CLEAR);
-				bScreenFreeze = CLEAR;
+				screenFreezeOn = CLEAR;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				Enter_MainMenu();
 				break;
@@ -480,6 +480,12 @@ void Key_Proc(void)
 				// To Do
 				// Display alarmed channel on the full screen.
 				// If there are more than 1 channel to display, they will be displayed one by one.
+				// for the 1st step, display latest alarm channel
+				Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
+				Write_NvItem_DisplayChannel(GetLastAlarmChannel());
+				ChangeAutoSeqOn(CLEAR);
+				screenFreezeOn = CLEAR;
+				OSD_RefreshScreen();
 				break;
 
 			case KEY_UP:

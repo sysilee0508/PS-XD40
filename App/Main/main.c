@@ -24,12 +24,11 @@ u8 Pre_PIP_mode = 0xff;
 
 BYTE sysenv_split_mode = 0;
 
-u8 aux_display_flag = 0;
+//u8 aux_display_flag = 0;
 
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
-u32 tick_10ms = 0;
 
 //-----------------------------------------------------------------------------
 //	USART3 Rx Interrupt
@@ -315,13 +314,14 @@ void main(void)
 //	InputSelect = VIDEO_SDI_2HD_POP;
 //	sys_status.current_split_mode = SPLITMODE_SPLIT4;
 	Write_NvItem_DisplayChannel(CHANNEL_QUAD);
+	Write_NvItem_DisplayMode(DISPLAY_MODE_4SPLIT);
 
 	UpdateKeyData(KEY_4SPLIT);
 	SetKeyReady();
 	sysenv_split_mode = 5; //OMG! what is 5?!
 
 	OSD_DrawBorderLine();
-	changedDisplayMode = SET;
+	OSD_RefreshScreen();
 
 #if 0 //for verify video input source test
 	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
@@ -336,11 +336,10 @@ void main(void)
 		PlayBuzzer();
 
 		UpdateAutoSeqCount();
-		DisplayAutoSeqChannel();//Auto_Sequence();
+		DisplayAutoSeqChannel();
 
 		Key_Proc();
 		RTC_CheckTime();
-//		RTC_GetTime();
 		
 		// video process handler
 		VideoProcessHandler();
@@ -348,11 +347,9 @@ void main(void)
 		// delay for HDMI-Tx register !!
 		MDINDLY_mSec(1);
 
-		if(InputSelect == VIDEO_DIGITAL_SDI)
-			if(sysenv_split_mode != Pre_PIP_mode)
+		if((InputSelect == VIDEO_DIGITAL_SDI) && (sysenv_split_mode != Pre_PIP_mode))
 		{
 			Pre_PIP_mode = sysenv_split_mode;
-
 			DEMO_SetPIPDisplay(sysenv_split_mode);
 		}
 
@@ -362,6 +359,8 @@ void main(void)
 		VideoHTXCtrlHandler();
 
 		OSD_Display();
+
+		StoreNvDataToStorage();
 //		printf("While end \n");
     }
 }

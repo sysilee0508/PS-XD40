@@ -35,7 +35,7 @@ typedef struct
 //-----------------------------------------------------------------
 // exported variable declaration
 //-----------------------------------------------------------------
-extern BYTE changedDisplayMode;
+//extern BYTE requestRefreshScreen;
 
 //-----------------------------------------------------------------
 // Function declaration
