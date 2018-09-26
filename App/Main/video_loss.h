@@ -13,4 +13,8 @@ extern BOOL GetVideoLossEvent(void);
 extern BOOL IsVideoLossChannel(eChannel_t channel);
 extern u8 GetVideoLossChannels(void);
 extern void InitVideoLossCheck(void);
+
+extern u8 GetVideoLossBuzzerCount(void);
+extern void ClearVideoLossBuzzerCount(void);
+extern void DecreaseVideoLossBuzzerCount(void);
 #endif
