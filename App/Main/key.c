@@ -453,6 +453,7 @@ void Key_Proc(void)
 				{
 					//bMode_change_flag = SET;
 					bScreenFreeze = CLEAR;
+                                   changedDisplayMode = SET;
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 
 					InitializeAutoSeq();

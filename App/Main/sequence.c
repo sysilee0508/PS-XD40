@@ -1,10 +1,12 @@
 #include "common.h"
 
 #define SKIP_CHANNEL				0xFF
+#define NO_SKIP_CHANNEL                     0x00
 
 static u8 autoSeqOn = CLEAR;
 static u8 displayTime[NUM_OF_CHANNEL] = 0;
 static eChannel_t displayChannel = 0xFF;
+static u8 oldSkipChannels = NO_SKIP_CHANNEL;
 
 //-----------------------------------------------------------------------------
 // this function should be called when new video loss event is occurred.
@@ -16,7 +18,6 @@ void UpdateAutoSeqDisplayTime(void)
 	eChannel_t iChannel;
 	u8 changedChannels;
 	u8 timeInSecs[NUM_OF_CHANNEL] = {0,};
-	static u8 oldSkipChannels = 0x00;
 
 	Read_NvItem_AutoSeqLossSkip(&skipOn);
 	Read_NvItem_AutoSeqTime(timeInSecs);
@@ -44,7 +45,7 @@ void UpdateAutoSeqDisplayTime(void)
 	}
 	else
 	{
-		oldSkipChannels = 0x00;
+		oldSkipChannels = NO_SKIP_CHANNEL;
 	}
 }
 
@@ -87,11 +88,11 @@ void InitializeAutoSeq(void)
 		else
 		{
 			displayChannel = sys_status.current_split_mode; //current displaying channel
-			while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == SKIP_CHANNEL))
-			{
-				// move to next channel
-				displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
-			}
+		}
+		while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == SKIP_CHANNEL))
+		{
+			// move to next channel
+			displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
 		}
 	}
 	else if(sys_status.current_split_mode == SPLITMODE_SPLIT4)
@@ -159,6 +160,7 @@ void DisplayAutoSeqChannel(void)
 		// update current channel
 		sys_status.current_split_mode = (eSplitmode_t)displayChannel;
 		// Update OSD
+		changedDisplayMode = SET;
 		Osd_EraseAllText();
 		OSD_Display();
 	}
@@ -172,4 +174,8 @@ BOOL GetAutoSeqOn(void)
 void ChangeAutoSeqOn(BOOL set)
 {
 	autoSeqOn = set;
+        if(set == CLEAR)
+        {
+            oldSkipChannels = NO_SKIP_CHANNEL;
+        }
 }

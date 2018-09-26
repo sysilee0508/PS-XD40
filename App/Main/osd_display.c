@@ -385,6 +385,8 @@ static void OSD_EraseNoVideo(void)
 
 	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 	{
+		position.pos_x = (DISPLAY_WIDTH - (strlen(osdStr_Space10)*CHAR_WIDTH_S))/2;
+		position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
 		OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
 	}
 	else if(displayMode == DISPLAY_MODE_4SPLIT)
@@ -418,45 +420,57 @@ static void OSD_EraseFreezeAuto(void)
 //-----------------------------------------------------------------------------
 // Display
 //-----------------------------------------------------------------------------
-static void OSD_DisplayFreeze(void)
+static void OSD_DisplayFreezeAuto(void)
 {
-	BOOL current_freezeMode = IsScreenFreeze();
+	BOOL freezeOn;// = IsScreenFreeze();
+	BOOL autoOn;
 	sPosition_t position;
 	BOOL timeOn;
-	static BOOL previous_freezeMode = CLEAR;
+	static BOOL previousFreeze = CLEAR;
+       static BOOL previousAutoSeqOn = CLEAR;
+        u8* pStr;
 
-	if(previous_freezeMode != current_freezeMode)
-	{
-		previous_freezeMode = current_freezeMode;
-		position = OSD_GetAutoFreezePosition(sizeof(osdStr_Freeze));
+	freezeOn = IsScreenFreeze();
+       autoOn = GetAutoSeqOn();
 
-		Read_NvItem_TimeDisplayOn(&timeOn);
-		if(timeOn == ON)
-		{
-			position.pos_x += (2 * CHAR_WIDTH_S);
-		}
+       if((previousFreeze != freezeOn) || (previousAutoSeqOn !=  autoOn) || (changedDisplayMode))
+        {
+              position = OSD_GetAutoFreezePosition(sizeof(osdStr_Freeze));
+        	Read_NvItem_TimeDisplayOn(&timeOn);
+        	if(timeOn == ON)
+        	{
+        		position.pos_x += (2 * CHAR_WIDTH_S);
+        	}
 
-		if(current_freezeMode == SET)
-		{
-			OSD_PrintString(position,osdStr_Freeze, sizeof(osdStr_Freeze));
-		}
-		else
-		{
-			OSD_PrintString(position, osdStr_Space6, sizeof(osdStr_Space6));
-		}
-	}
+               
+        	if(freezeOn == SET)
+        	{
+        	    pStr = (u8 *)osdStr_Freeze;
+        	}
+            	else if(autoOn == SET)
+        	{
+        	    pStr = (u8 *)osdStr_AUTO;
+        	}
+        	else
+        	{
+        	    pStr = (u8 *)osdStr_Space6;
+        	}
+        	OSD_PrintString(position, pStr, strlen(pStr));
+        }
 }
 
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
+/*
 static void OSD_DisplayAUTO(void)
 {
 	static BOOL previousAutoSeqOn = CLEAR;
 	BOOL timeOn;
 	sPosition_t position;
+    u8* pStr;
 
-	if(previousAutoSeqOn != GetAutoSeqOn())
+	if((previousAutoSeqOn != GetAutoSeqOn()) || (changedDisplayMode == SET))
 	{
 		previousAutoSeqOn = GetAutoSeqOn();
 		position = OSD_GetAutoFreezePosition(sizeof(osdStr_AUTO));
@@ -467,17 +481,14 @@ static void OSD_DisplayAUTO(void)
 			position.pos_x += (2 * CHAR_WIDTH_S);
 		}
 
-		if(GetAutoSeqOn() == SET)
-		{
-			OSD_PrintString(position, osdStr_AUTO, sizeof(osdStr_AUTO));
-		}
 		else
 		{
-			OSD_PrintString(position, osdStr_Space6, sizeof(osdStr_Space6));
+		    pStr = (u8 *)osdStr_Space6;
 		}
+            OSD_PrintString(position, pStr, strlen(pStr));
 	}
 }
-
+*/
 //-----------------------------------------------------------------------------
 // Video Loss
 //-----------------------------------------------------------------------------
@@ -691,9 +702,9 @@ void OSD_Display(void)
 	{
 		OSD_DisplayDateTime();
 		OSD_DisplayChannelName();
-		OSD_DisplayFreeze();
-		OSD_DisplayAUTO();
 		OSD_DisplayNoVideo();
+		//OSD_DisplayAUTO();
+		OSD_DisplayFreezeAuto();
 	}
 	else if(GetSystemMode() == SYSTEM_SETUP_MODE)
 	{

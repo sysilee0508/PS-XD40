@@ -114,6 +114,7 @@ static void LoadDefaultNvData(void)
 	nv_data.data.timeCorrection.timeCorrectDirection = DIRECTION_UP;
 	nv_data.data.timeCorrection.timeCorrectUint = TIME_UNIT_DAY;
 	nv_data.data.dateFormat = DATE_FORMAT_YMD;
+	nv_data.data.yearFormat = 1; //4 // 4 digit
 	nv_data.data.timeDisplayOn = ON;
 	nv_data.data.dateDisplayOn = ON;       
 //	nv_data.data.timeDisplayPosition = DISPLAY_POSITION_MIDDLE_BOTTOM;
@@ -126,7 +127,7 @@ static void LoadDefaultNvData(void)
 	nv_data.data.autoSeqLossSkip = ON;
 	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
 	nv_data.data.osdOn = ON;
-	nv_data.data.titlePosition = TITLE_POSITION_TOP_CENTER;
+	nv_data.data.titlePosition = TITLE_POSITION_4SPILIT_CENTER;
 	nv_data.data.borderLineOn = ON;
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
