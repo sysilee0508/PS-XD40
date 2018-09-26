@@ -36,7 +36,7 @@ typedef enum
 //	eSplitmode_t current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
 //} sys_stat_t;
 
-extern sys_stat_t sys_status;
+//extern sys_stat_t sys_status;
 
 extern s8 Video1_In_Res_Val;
 extern s8 Video2_In_Res_Val;

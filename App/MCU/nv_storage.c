@@ -127,7 +127,7 @@ static void LoadDefaultNvData(void)
 	{
 		nv_data.data.autoSeqTime[index] = 3;
 	}
-	nv_data.data.autoSeqLossSkip = OFF;
+	nv_data.data.autoSeqLossSkip = ON;
 	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
 	nv_data.data.osdOn = ON;
 	nv_data.data.titlePosition = TITLE_POSITION_4SPILIT_CENTER;

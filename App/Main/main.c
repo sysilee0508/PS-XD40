@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-sys_stat_t sys_status;
+//sys_stat_t sys_status;
 //sys_env_t sys_env;
 
 volatile BOOL fZOOMMove, fCROPMove;

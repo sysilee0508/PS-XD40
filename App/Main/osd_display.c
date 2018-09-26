@@ -436,6 +436,8 @@ static void OSD_DisplayFreezeAuto(void)
 
        if((previousFreeze != freezeOn) || (previousAutoSeqOn !=  autoOn) || (changedDisplayMode))
         {
+            previousFreeze = freezeOn;
+            previousAutoSeqOn = autoOn;
               position = OSD_GetAutoFreezePosition(sizeof(osdStr_Freeze));
         	Read_NvItem_TimeDisplayOn(&timeOn);
         	if(timeOn == ON)

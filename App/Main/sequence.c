@@ -66,18 +66,18 @@ void InitializeAutoSeq(void)
 	Read_NvItem_DisplayMode(&displayMode);
 
 	UpdateAutoSeqDisplayTime();
-//	//Find video loss channels
-//	if(ON == skipOn)
-//	{
-//		videoLossChannel = GetVideoLossChannels();
-//		for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
-//		{
-//			if(IsVideoLossChannel(iChannel) == TRUE)
-//			{
-//				displayTime[iChannel] = SKIP_CHANNEL;
-//			}
-//		}
-//	}
+	//Find video loss channels
+	if(ON == skipOn)
+	{
+		videoLossChannel = GetVideoLossChannels();
+		for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
+		{
+			if(IsVideoLossChannel(iChannel) == TRUE)
+			{
+				displayTime[iChannel] = SKIP_CHANNEL;
+			}
+		}
+	}
 
 	// Set auto sequence start channel
 	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
@@ -91,11 +91,6 @@ void InitializeAutoSeq(void)
 		{
 			//displayChannel = sys_status.current_split_mode; //current displaying channel
 			Read_NvItem_DisplayChannel(&displayChannel);
-		}
-		while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == SKIP_CHANNEL))
-		{
-			// move to next channel
-			displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
 		}
 	}
 	else if(displayMode == DISPLAY_MODE_4SPLIT)
