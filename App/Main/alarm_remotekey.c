@@ -213,6 +213,7 @@ void ClearAllAlarm(void)
 	{
 		alarmInfo[channel].alarm_status = ALARM_CLEAR;
 	}
+	lastAlarmChannel = CHANNEL_QUAD;
 }
 
 eChannel_t GetLastAlarmChannel(void)

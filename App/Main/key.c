@@ -481,11 +481,16 @@ void Key_Proc(void)
 				// Display alarmed channel on the full screen.
 				// If there are more than 1 channel to display, they will be displayed one by one.
 				// for the 1st step, display latest alarm channel
-				Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
-				Write_NvItem_DisplayChannel(GetLastAlarmChannel());
+				Osd_EraseAllText();
 				ChangeAutoSeqOn(CLEAR);
 				screenFreezeOn = CLEAR;
 				OSD_RefreshScreen();
+				if(GetLastAlarmChannel() < NUM_OF_CHANNEL)
+				{
+					Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
+					Write_NvItem_DisplayChannel(GetLastAlarmChannel());
+				}
+				OSD_DrawBorderLine();
 				break;
 
 			case KEY_UP:
