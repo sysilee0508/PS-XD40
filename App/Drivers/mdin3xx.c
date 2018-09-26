@@ -1299,14 +1299,15 @@ MDIN_ERROR_t MDIN3xx_EnableWriteFRMB(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 
 	//if(aux_display_flag && (ch9_loss == 0) && (SDIRX_change_flag == 0))
 	//if(aux_display_flag && (ch9_loss == 0))
-	if(aux_display_flag)
+
+	//if(aux_display_flag) // we don't 
 	// aux_display
 	//if(OnOff == OFF)	
-	{
-		ctrl = MBIT(pINFO->dspFLAG,MDIN_AUX_DISPLAY_ON);
-		if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 0, 1, (OnOff)? ctrl : OFF)) return MDIN_I2C_ERROR;
-	}
-	else 
+	//{
+	//	ctrl = MBIT(pINFO->dspFLAG,MDIN_AUX_DISPLAY_ON);
+	//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 0, 1, (OnOff)? ctrl : OFF)) return MDIN_I2C_ERROR;
+	//}
+	//else 
 	{
 		if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 0, 1, OFF)) return MDIN_I2C_ERROR;
 	}

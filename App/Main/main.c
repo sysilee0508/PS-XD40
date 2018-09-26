@@ -197,12 +197,15 @@ static void PlayBuzzer(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn100ms = 0;
-	u8 lossCount = GetVideoLossBuzzerCount();
-	u8 alarmCount = GetAlarmBuzzerCount();
-	u8 buzzerCount = MAX(lossCount, alarmCount);
-
-	if(TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn100ms,5))
+	u8 lossCount;	
+    u8 alarmCount;
+	u8 buzzerCount;
+	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
 	{
+	        lossCount = GetVideoLossBuzzerCount();
+            alarmCount = GetAlarmBuzzerCount();
+            buzzerCount = MAX(lossCount, alarmCount);
+
 		if(buzzerCount > 0)
 		{
 			if(buzzerCount%2)
