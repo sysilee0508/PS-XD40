@@ -19,6 +19,8 @@ typedef enum
 	NUM_OF_CHANNEL
 } eChannel_t;
 
+#define CHANNEL_QUAD		NUM_OF_CHANNEL
+
 typedef enum
 {
 	SPLITMODE_FULL_CH1 = 0x00,
@@ -29,10 +31,10 @@ typedef enum
 	SPLITMODE_MAX
 } eSplitmode_t;
 
-typedef struct
-{
-	eSplitmode_t current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
-} sys_stat_t;
+//typedef struct
+//{
+//	eSplitmode_t current_split_mode;		// ���� ���Ҹ�� ���� (FULL, 4����, 9����)
+//} sys_stat_t;
 
 extern sys_stat_t sys_status;
 

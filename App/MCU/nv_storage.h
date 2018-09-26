@@ -18,7 +18,7 @@
 #define NVSTORAGE_END_CHECK				0x5A5A5A5A
 
 #define NV_VERSION_MAJOR				(uint8_t)1
-#define NV_VERSION_MINOR				(uint8_t)0
+#define NV_VERSION_MINOR				(uint8_t)1
 
 #define FW_VERSION_MAJOR				(uint8_t)90	//engineer version starts 90 
 #define FW_VERSION_MINOR				(uint8_t)0
@@ -64,6 +64,7 @@ typedef enum
 //-- system data ---------------------------------------------------------------
 //	If you want to store any system data (item) in NV memory, it comes here
 	NV_ITEM_DISPLAY_MODE,
+	NV_ITEM_DISPLAY_CHANNEL,
 //	NV_ITEM_INPUT_VIDEO_FORMAT,
 //------------------------------------------------------------------------------
 	NV_ITEM_END_CHECK,
@@ -72,8 +73,8 @@ typedef enum
 
 typedef struct
 {
-        uint8_t major;
-        uint8_t minor;
+	uint8_t major;
+	uint8_t minor;
 } sVersion_t;
 
 typedef enum
@@ -164,8 +165,8 @@ typedef struct
 typedef struct
 {
 	uint32_t				storageStartCheck;
-	sVersion_t			nvVersion;
-	sVersion_t			fwVersion;
+	sVersion_t				nvVersion;
+	sVersion_t				fwVersion;
 
 	sTimeCorrect_t			timeCorrection;
 	eDateFormat_t			dateFormat;
@@ -193,9 +194,21 @@ typedef struct
 
 //	uint8_t baud_rate;			// baud_rate
 	eDisplayMode_t			displayMode;
+	eChannel_t				currentChannel;
 
 	uint32_t				storageEndCheck;
 } sNvData_t;
+
+//--------------------------------------------------------------------------------------
+typedef struct
+{
+	u8				systemOutputResolution;
+	eDisplayMode_t	systemDisplayMode;
+	eChannel_t		systemDisplayChannel;
+	BOOL			systemScreenFreeze;
+	BOOL			systemAutoSequencialDisplay;
+	u8				systemVideoLossChannels;
+} sSystemStatusData_t;
 
 //=============================================================================
 //  Function Prototype

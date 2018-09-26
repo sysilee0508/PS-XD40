@@ -20,7 +20,8 @@ static eKeyMode_t saved_key_mode = KEY_MODE_LONG;
 static eKeyStatus_t key_status = KEY_STATUS_RELEASED;
 static BOOL bKeyReady = CLEAR;
 static eKeyData_t current_keydata = KEY_NONE;
-static eSplitmode_t pre_split_mode = SPLITMODE_FULL_CH1;
+static eChannel_t previousChannel = CHANNEL1;
+//static eSplitmode_t pre_split_mode = SPLITMODE_FULL_CH1;
 
 
 //=============================================================================
@@ -383,7 +384,6 @@ void Key_Proc(void)
 	BOOL autoSeq_skipNoVideoChannel;
 	eDisplayMode_t displayMode;
 
-
 	if(IsKeyReady()==TRUE)
 	{
 		ClearKeyReady();
@@ -408,8 +408,11 @@ void Key_Proc(void)
 					ChangeAutoSeqOn(CLEAR);
 					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = key-1;
-					Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
+					//pre_split_mode = sys_status.current_split_mode = key-1;
+					Write_NvItem_DisplayChannel((eChannel_t)(key - 1)); // this line shoul be moved into DisplayFullScreen()
+					Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN); // this line shoul be moved into DisplayFullScreen()
+					// To Do : Display current channel on the full screen
+					// DisplayFullScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -425,8 +428,12 @@ void Key_Proc(void)
 					ChangeAutoSeqOn(CLEAR);
 					changedDisplayMode = SET;
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
+					//pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
+					// below 2 lines should be moved into DisplayQuadScreen();
+					Write_NvItem_DisplayChannel(CHANNEL_QUAD);
 					Write_NvItem_DisplayMode(DISPLAY_MODE_4SPLIT);
+					// To Do : Display Quad Screen
+					// DisplayQuadScreen();
 #if 0 //Louis
 				    SGQ_4CH_INIT(change_mode[cmode]);
 #endif

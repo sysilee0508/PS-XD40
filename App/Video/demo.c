@@ -1090,7 +1090,7 @@ void DEMO_SetPIPViewWIND(WORD nID)
 	MDIN3xx_EnableWriteFRMB(&stVideo, 0);
 	MDINAUX_SetScaleProcess(&stVideo);
 	MDIN3xx_EnableWriteFRMB(&stVideo, 1);
-	if(sys_status.current_split_mode != SPLITMODE_FULL_CH4) 
+//	if(sys_status.current_split_mode != SPLITMODE_FULL_CH4)  //blocked by kukuri
 		MDIN3xx_EnableMainDisplay(ON);
 	
 //	DEMO_SetRectBGBOX(stVIEW, 2);	// set RECT-BOX area
