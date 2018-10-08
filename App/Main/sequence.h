@@ -2,18 +2,22 @@
 #define __SEQUENCE_H__
 
 
-//extern u8 autoSeqOn;
+typedef enum
+{
+	AUTO_SEQ_NONE,
+	AUTO_SEQ_NORMAL,
+	AUTO_SEQ_ALARM,
+	AUTO_SEQ_MOTION,
+	AUTO_SEQ_MAX
+} eAutoSeqType_t;
 
-//extern u8 Motion_Call_Cnt[16];
-//extern u8 bMotion_Call_FULL_Flag;
-//extern u8 bMotion_Call_SPLIT_Flag;
-//
+
 extern void UpdateAutoSeqDisplayTime(void);
-extern void InitializeAutoSeq(void);
+extern void InitializeAutoSeq(eAutoSeqType_t type);
 extern void UpdateAutoSeqCount(void);
 extern void DisplayAutoSeqChannel(void);
-//extern void Auto_Sequence(void);
-extern BOOL GetAutoSeqOn(void);
-extern void ChangeAutoSeqOn(BOOL set);
+//extern BOOL GetAutoSeqOn(void);
+//extern void ChangeAutoSeqOn(BOOL set);
+extern eAutoSeqType_t GetCurrentAutoSeq(void);
 
 #endif

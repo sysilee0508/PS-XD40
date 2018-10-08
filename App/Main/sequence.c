@@ -1,65 +1,27 @@
 #include "common.h"
 
 #define SKIP_CHANNEL				0xFF
-#define NO_SKIP_CHANNEL                     0x00
+#define NO_SKIP_CHANNEL				0x00
+#define DEFAULT_DISPLAY_TIME		3
 
+static eAutoSeqType_t autoSeqStatus = AUTO_SEQ_NONE;
 static u8 autoSeqOn = CLEAR;
 static u8 displayTime[NUM_OF_CHANNEL] = 0;
 static eChannel_t displayChannel = 0xFF;
 static u8 oldSkipChannels = NO_SKIP_CHANNEL;
 
 //-----------------------------------------------------------------------------
-// this function should be called when new video loss event is occurred.
-//-----------------------------------------------------------------------------
-void UpdateAutoSeqDisplayTime(void)
-{
-	BOOL skipOn;
-	u8 skipChannels;
-	eChannel_t iChannel;
-	u8 changedChannels;
-	u8 timeInSecs[NUM_OF_CHANNEL] = {0,};
-
-	Read_NvItem_AutoSeqLossSkip(&skipOn);
-	Read_NvItem_AutoSeqTime(timeInSecs);
-
-	if(ON == skipOn)
-	{
-		skipChannels = GetVideoLossChannels();
-		changedChannels = (oldSkipChannels ^ skipChannels);
-
-		for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
-		{
-			if(changedChannels & (0x01 << iChannel))
-			{
-				if(IsVideoLossChannel(iChannel) == TRUE)
-				{
-					displayTime[iChannel] = SKIP_CHANNEL;
-				}
-				else
-				{
-					displayTime[iChannel] = timeInSecs[iChannel];
-				}
-			}
-		}
-		oldSkipChannels = skipChannels;
-	}
-	else
-	{
-		oldSkipChannels = NO_SKIP_CHANNEL;
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Update display time of each channels and display first screen
 // no video channel's display time will be set as 0xFF
 //-----------------------------------------------------------------------------
-void InitializeAutoSeq(void)
+static void InitializeAutoSeq_Normal(void)
 {
 	BOOL skipOn;
 	u8 videoLossChannel;
 	eChannel_t iChannel;
 	eDisplayMode_t displayMode;
 
+	autoSeqStatus = AUTO_SEQ_NORMAL;
 	// Read NV Data
 	Read_NvItem_AutoSeqLossSkip(&skipOn);
 	Read_NvItem_AutoSeqTime(displayTime);
@@ -105,20 +67,113 @@ void InitializeAutoSeq(void)
 		displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
 	}
 
-	Osd_EraseAllText();
-
-//	sys_status.current_split_mode = (eSplitmode_t)displayChannel;
+	OSD_EraseAllText();
 	Write_NvItem_DisplayChannel(displayChannel);
 	// update display mode as full screen
 	Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
 	// set autoSeqOn
-	ChangeAutoSeqOn(SET);
-
+	//ChangeAutoSeqOn(SET);
 	OSD_DrawBorderLine();
 	OSD_Display();
 
 	// TO DO : Update displaying Channel here in full screen mode
 	//Display_FullScreen(displayChannel);
+}
+
+static void InitializeAutoSeq_Alarm(void)
+{
+	eChannel_t channel;
+
+	memset(displayTime, 0x00, sizeof(displayTime));
+	if(GetLastAlarmChannel() < NUM_OF_CHANNEL)
+	{
+		autoSeqStatus = AUTO_SEQ_ALARM;
+		// the last alarm channel should be start channel
+		displayChannel = GetLastAlarmChannel();
+
+		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+		{
+			if(GetAlarmStatus(channel) == SET)
+			{
+				displayTime[channel] = DEFAULT_DISPLAY_TIME;
+			}
+		}
+		Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
+		Write_NvItem_DisplayChannel(displayChannel);
+
+		// TO DO : Update displaying Channel here in full screen mode
+		//Display_FullScreen(displayChannel);
+	}
+}
+
+static void InitializeAutoSeq_Motion(void)
+{
+	autoSeqStatus = AUTO_SEQ_MOTION;
+}
+
+//-----------------------------------------------------------------------------
+void InitializeAutoSeq(eAutoSeqType_t type)
+{
+	switch(type)
+	{
+		case AUTO_SEQ_NORMAL:
+			InitializeAutoSeq_Normal();
+			break;
+
+		case AUTO_SEQ_ALARM:
+			InitializeAutoSeq_Alarm();
+			break;
+
+		case AUTO_SEQ_MOTION:
+			InitializeAutoSeq_Motion();
+			break;
+
+		case AUTO_SEQ_NONE:
+			autoSeqStatus = AUTO_SEQ_NONE;
+			memset(displayTime, 0x00, sizeof(displayTime));
+			break;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// this function should be called when new video loss event is occurred.
+//-----------------------------------------------------------------------------
+void UpdateAutoSeqDisplayTime(void)
+{
+	BOOL skipOn;
+	u8 skipChannels;
+	eChannel_t iChannel;
+	u8 changedChannels;
+	u8 timeInSecs[NUM_OF_CHANNEL] = {0,};
+
+	Read_NvItem_AutoSeqLossSkip(&skipOn);
+	Read_NvItem_AutoSeqTime(timeInSecs);
+
+	if(ON == skipOn)
+	{
+		skipChannels = GetVideoLossChannels();
+		changedChannels = (oldSkipChannels ^ skipChannels);
+
+		for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
+		{
+			if(changedChannels & (0x01 << iChannel))
+			{
+				if(IsVideoLossChannel(iChannel) == TRUE)
+				{
+					displayTime[iChannel] = SKIP_CHANNEL;
+				}
+				else
+				{
+					displayTime[iChannel] = timeInSecs[iChannel];
+				}
+			}
+		}
+		oldSkipChannels = skipChannels;
+	}
+	else
+	{
+		oldSkipChannels = NO_SKIP_CHANNEL;
+	}
 }
 
 void UpdateAutoSeqCount(void)
@@ -129,7 +184,7 @@ void UpdateAutoSeqCount(void)
 
 	if(TIME_AFTER(currentSystemTime->tickCount_1s,previousSystemTimeIn1s,1))
 	{
-		if((autoSeqOn == SET) && (displayTime[displayChannel] != SKIP_CHANNEL))
+		if(((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)) && (displayTime[displayChannel] != SKIP_CHANNEL))
 		{
 			if(displayTime[displayChannel] > 0)
 			{
@@ -137,13 +192,28 @@ void UpdateAutoSeqCount(void)
 			}
 			else
 			{
-				Read_NvItem_AutoSeqTime(autoSeqTime);
-				displayTime[displayChannel] = autoSeqTime[displayChannel];
-				// move to next channel
-				do
+				if(autoSeqStatus == AUTO_SEQ_NORMAL)
 				{
-					displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
-				} while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == SKIP_CHANNEL));
+					Read_NvItem_AutoSeqTime(autoSeqTime);
+					displayTime[displayChannel] = autoSeqTime[displayChannel];
+					// move to next channel
+					do
+					{
+						displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
+					} while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == SKIP_CHANNEL));
+				}
+				else if(autoSeqStatus == AUTO_SEQ_ALARM)
+				{
+					do
+					{
+						displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
+					} while(GetAlarmStatus(displayChannel) == CLEAR);
+					displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
+				}
+				else if(autoSeqStatus == AUTO_SEQ_MOTION)
+				{
+					// to do
+				}
 			}
 		}
 		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
@@ -155,7 +225,8 @@ void DisplayAutoSeqChannel(void)
 	eChannel_t currentChannel;
 
 	Read_NvItem_DisplayChannel(&currentChannel);
-	if((currentChannel != displayChannel) && (autoSeqOn == SET))
+	if((currentChannel != displayChannel) &&
+			((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)))
 	{
 		//TO DO : display new channel
 //		Display_FullScreen(displayChannel);
@@ -164,21 +235,27 @@ void DisplayAutoSeqChannel(void)
 		//sys_status.current_split_mode = (eSplitmode_t)displayChannel;
 		// Update OSD
 		OSD_RefreshScreen();
-		Osd_EraseAllText();
+		OSD_EraseAllText();
 		OSD_Display();
 	}
 }
-
-BOOL GetAutoSeqOn(void)
+//
+//BOOL GetAutoSeqOn(void)
+//{
+//	return autoSeqOn;
+//}
+//
+//void ChangeAutoSeqOn(BOOL set)
+//{
+//	autoSeqOn = set;
+//	if(set == CLEAR)
+//	{
+//		oldSkipChannels = NO_SKIP_CHANNEL;
+//		autoSeqStatus = AUTO_SEQ_NONE;
+//	}
+//}
+//
+eAutoSeqType_t GetCurrentAutoSeq(void)
 {
-	return autoSeqOn;
-}
-
-void ChangeAutoSeqOn(BOOL set)
-{
-	autoSeqOn = set;
-        if(set == CLEAR)
-        {
-            oldSkipChannels = NO_SKIP_CHANNEL;
-        }
+	return autoSeqStatus;
 }

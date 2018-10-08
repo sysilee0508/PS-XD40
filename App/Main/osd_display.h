@@ -41,7 +41,7 @@ typedef struct
 // Function declaration
 //-----------------------------------------------------------------
 extern void Osd_ClearScreen(void);
-extern void Osd_EraseAllText(void);
+extern void OSD_EraseAllText(void);
 //extern void OSD_EraseAll(void);
 extern void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size);
 extern void OSD_Display(void);
