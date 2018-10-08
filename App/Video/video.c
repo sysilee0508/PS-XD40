@@ -122,7 +122,7 @@ static void MDIN3xx_SetRegInitial(void)
 	MDIN3xx_SetMFCVCFilterCoef(&stVideo, NULL);
 
 	// set aux display ON
-	stVideo.dspFLAG = MDIN_AUX_DISPLAY_OFF;
+	stVideo.dspFLAG = MDIN_AUX_DISPLAY_ON;
 
 	// set video path
 	stVideo.srcPATH = PATH_MAIN_A_AUX_A;	// set main is A, aux is A
@@ -130,7 +130,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
 	// define video format of PORTA-INPUT
-	stVideo.stSRC_a.frmt =  VIDSRC_1280x720p60;//VIDSRC_1920x1080p60;//VIDSRC_1280x720p60; VIDSRC_1280x1024p60
+	stVideo.stSRC_a.frmt =  VIDSRC_1920x1080p60;//VIDSRC_1280x720p60; VIDSRC_1280x1024p60
 	stVideo.stSRC_a.mode = MDIN_SRC_RGB444_8;
 	stVideo.stSRC_a.fine = MDIN_FIELDID_INPUT | MDIN_LOW_IS_TOPFLD;
 	stVideo.stSRC_a.offH = 0;	//API v0.31(2012.05.02)
@@ -401,7 +401,8 @@ static void SetOffChipFrmtInA(BYTE src)
 
 		case VIDEO_SDI_2HD_POP : MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY5); break;
 // 		case VIDEO_DIGITAL_HDMI: MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY5); break;	  //by hungry 2012.02.09
- 		case VIDEO_DIGITAL_SDI: MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY5); break;	  //by hungry 2012.02.15
+//  		case VIDEO_DIGITAL_SDI: MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY5); break;	  //by hungry 2012.02.15
+ 		case VIDEO_DIGITAL_SDI: MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY0); break;	  //by hungry 2012.02.15
  		case VIDEO_DIGITAL_SDI2: MDIN3xx_SetDelayCLK_B(MDIN_CLK_DELAY5); break;	  //by flcl 2013.04.23
 //		default:				 MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY0); break;
 	}
