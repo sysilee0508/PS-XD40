@@ -34,7 +34,7 @@ void ScanVideoLossChannels(void)
     			Read_NvItem_VideoLossBuzzerTime((u8*)&videoLossBuzzerCount);
     			videoLossBuzzerCount *= 2;
     		}
-    		if(GetAutoSeqOn() == SET)
+    		if(GetCurrentAutoSeq() == AUTO_SEQ_NORMAL)
     		{
     			UpdateAutoSeqDisplayTime();
     		}

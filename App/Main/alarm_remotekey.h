@@ -54,4 +54,5 @@ extern void CheckAlarm(void);
 extern void CheckAlarmClearCondition(void);
 extern void ClearAllAlarm(void);
 extern eChannel_t GetLastAlarmChannel(void);
+extern BOOL GetAlarmStatus(eChannel_t channel);
 #endif

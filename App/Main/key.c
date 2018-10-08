@@ -403,9 +403,9 @@ void Key_Proc(void)
 				// If key is changed...
 				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
 				{
-					Osd_EraseAllText();
+					OSD_EraseAllText();
 					screenFreezeOn = CLEAR;
-					ChangeAutoSeqOn(CLEAR);
+					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 					OSD_RefreshScreen();
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					//pre_split_mode = sys_status.current_split_mode = key-1;
@@ -422,10 +422,10 @@ void Key_Proc(void)
 				{
 //					if(displayMode != DISPLAY_MODE_4SPLIT || bAuto_Seq_Flag || bScreenFreeze)
 //					{
-						Osd_EraseAllText();
+						OSD_EraseAllText();
 //					}
 					screenFreezeOn = CLEAR;
-					ChangeAutoSeqOn(CLEAR);
+					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 					OSD_RefreshScreen();
 					//InputSelect = VIDEO_SDI_2HD_POP;
 					//pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
@@ -441,7 +441,7 @@ void Key_Proc(void)
 				}
 				break;
 			case KEY_FREEZE :
-				ChangeAutoSeqOn(CLEAR);
+				InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 				if(screenFreezeOn == CLEAR)
 				{
 					screenFreezeOn = SET;
@@ -463,12 +463,12 @@ void Key_Proc(void)
 					OSD_RefreshScreen();
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 
-					InitializeAutoSeq();
+					InitializeAutoSeq(AUTO_SEQ_NORMAL);
 				}
 				break;
 
 			case KEY_MENU :
-				ChangeAutoSeqOn(CLEAR);
+				InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 				screenFreezeOn = CLEAR;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				Enter_MainMenu();
@@ -481,15 +481,11 @@ void Key_Proc(void)
 				// Display alarmed channel on the full screen.
 				// If there are more than 1 channel to display, they will be displayed one by one.
 				// for the 1st step, display latest alarm channel
-				Osd_EraseAllText();
-				ChangeAutoSeqOn(CLEAR);
+				OSD_EraseAllText();
+				//InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 				screenFreezeOn = CLEAR;
 				OSD_RefreshScreen();
-				if(GetLastAlarmChannel() < NUM_OF_CHANNEL)
-				{
-					Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
-					Write_NvItem_DisplayChannel(GetLastAlarmChannel());
-				}
+				InitializeAutoSeq(AUTO_SEQ_ALARM);
 				OSD_DrawBorderLine();
 				break;
 

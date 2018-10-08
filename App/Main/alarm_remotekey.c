@@ -214,9 +214,19 @@ void ClearAllAlarm(void)
 		alarmInfo[channel].alarm_status = ALARM_CLEAR;
 	}
 	lastAlarmChannel = CHANNEL_QUAD;
+
+	if(GetCurrentAutoSeq() == AUTO_SEQ_ALARM)
+	{
+		InitializeAutoSeq(AUTO_SEQ_NONE);
+	}
 }
 
 eChannel_t GetLastAlarmChannel(void)
 {
 	return lastAlarmChannel;
+}
+
+BOOL GetAlarmStatus(eChannel_t channel)
+{
+	return alarmInfo[channel].alarm_status;
 }

@@ -424,12 +424,14 @@ static void OSD_EraseFreezeAuto(void)
 static void OSD_DisplayFreezeAuto(void)
 {
 	BOOL freezeOn = IsScreenFreeze();
-	BOOL autoOn = GetAutoSeqOn();;
+	BOOL autoOn;
 	sPosition_t position;
 	BOOL timeOn;
 	static BOOL previousFreeze = CLEAR;
 	static BOOL previousAutoSeqOn = CLEAR;
 	u8* pStr;
+
+	autoOn = (GetCurrentAutoSeq() == AUTO_SEQ_NORMAL)?SET:CLEAR;//GetAutoSeqOn();;
 
 	if((previousFreeze != freezeOn) || (previousAutoSeqOn !=  autoOn) || (requestRefreshScreen == SET))
 	{
@@ -447,7 +449,7 @@ static void OSD_DisplayFreezeAuto(void)
 		{
 			pStr = (u8 *)osdStr_Freeze;
 		}
-			else if(autoOn == SET)
+		else if(autoOn == SET)
 		{
 			pStr = (u8 *)osdStr_AUTO;
 		}
@@ -638,7 +640,7 @@ void Osd_ClearScreen(void)
 	}
 }
 //-----------------------------------------------------------------------------
-void Osd_EraseAllText(void)
+void OSD_EraseAllText(void)
 {
 	BOOL titleOn;
 	BOOL timeOn;
