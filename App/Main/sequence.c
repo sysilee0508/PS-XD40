@@ -90,14 +90,15 @@ static void InitializeAutoSeq_Alarm(void)
 		autoSeqStatus = AUTO_SEQ_ALARM;
 		// the last alarm channel should be start channel
 		displayChannel = GetLastAlarmChannel();
+                displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
 
-		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-		{
-			if(GetAlarmStatus(channel) == SET)
-			{
-				displayTime[channel] = DEFAULT_DISPLAY_TIME;
-			}
-		}
+//		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//		{
+//			if(GetAlarmStatus(channel) == SET)
+//			{
+//				displayTime[channel] = DEFAULT_DISPLAY_TIME;
+//			}
+//		}
 		Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
 		Write_NvItem_DisplayChannel(displayChannel);
 
