@@ -18,16 +18,48 @@
 #define SPI_MISO_HIGH				0x00000001
 #define SPI_MISO_LOW				0x00000000
 
+#define REMOCON_ID_NONE 				0
+#define REMOCON_ID_MAX					16
+
 //=============================================================================
 //  enum
 //=============================================================================
+enum
+{
+	VIRTUAL_KEY_NONE     = 0x00,
+	VIRTUAL_KEY_CH1	     = 0x80,
+	VIRTUAL_KEY_CH2      = 0x81,
+	VIRTUAL_KEY_CH3      = 0x82,
+	VIRTUAL_KEY_CH4      = 0x83,
+	VIRTUAL_KEY_4SPLIT   = 0x84,
+	VIRTUAL_KEY_MENU     = 0x8A,
+	VIRTUAL_KEY_FREEZE   = 0x9A,
+	VIRTUAL_KEY_AUTO_SEQ = 0x9B
+};
 
+enum
+{
+	UART_PROC_SOH = 0,
+	UART_PROC_HEADER,
+	UART_PROC_STX,
+	UART_PROC_CODE,
+	UART_PROC_ETX,
+	UART_PROC_MAX
+};
+
+enum
+{
+	ERROR_NONE = 0,				// no error
+	ERROR_INVALID_CONTROL, 		// soh, stx, etx error
+	ERROR_REMOCONID_MISMATCH,	// remocon id is not matched
+	ERROR_INVALID_REMOCONID,
+	ERROR_INVALID_DATA			// data(code) is invalid
+};
 //=============================================================================
 //  struct
 //=============================================================================
 typedef struct
 {
-	eAlarmOption_t option;
 	BOOL alarm_status;
 	BOOL raw_data;
 	BOOL previous_data;
@@ -37,6 +69,11 @@ typedef struct
 //=============================================================================
 //  typedef
 //=============================================================================
+typedef struct
+{
+	eKeyData_t	keydata;
+	u8			virtual_key;
+} sVirtualKeys_t;
 
 //=============================================================================
 //  Extern Grobal Variable
@@ -45,14 +82,11 @@ typedef struct
 //=============================================================================
 //  Function Prototype
 //=============================================================================
-extern BYTE GetAlarmRemoteKeyMode(void);
 extern void ChangeAlarmRemoteKeyMode(BYTE mode);
-extern eAlarmOption_t GetAlarmOption(eChannel_t channel);
-extern void SetAlarmOption(eChannel_t channel, eAlarmOption_t option);
 extern void StartStopAlarm(BOOL start_stop);
-extern void CheckAlarm(void);
 extern void CheckAlarmClearCondition(void);
-extern void ClearAllAlarm(void);
 extern eChannel_t GetLastAlarmChannel(void);
 extern BOOL GetAlarmStatus(eChannel_t channel);
+extern BYTE GetAlarmRemoteKeyMode(void);
+extern void CheckAlarm(void);
 #endif

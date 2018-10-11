@@ -48,6 +48,7 @@
 
 #include "alarm_remotekey.h"
 #include "timer.h"
+#include "display_mode.h"
 
 
 // msg.c

@@ -1,6 +1,4 @@
-#include "..\main\common.h"
-
-/* Private function prototypes -----------------------------------------------*/
+#include "common.h"
 
 //-----------------------------------------------------------------------------
 //	MCU Initialize (STM32F100x)  MAX 64MHz
@@ -114,74 +112,32 @@ void MCU_init(void)
 }
 
 //-----------------------------------------------------------------------------
-//	USART3 Initialize (Debeg serial)
-//-----------------------------------------------------------------------------
-#define CR1_UE_Set                ((uint16_t)0x2000)  //!< USART Enable Mask 
-#define CR1_UE_Reset              ((uint16_t)0xDFFF)  //!< USART Disable Mask 
-
-void USART3_Init(void)
-{
-    USART_InitTypeDef USART_InitStructure;
-
-    //USARTx configuration
-    //USARTx configured as follow:
-    //-Baudrate = 115200
-    //-Word Length = 8bits
-    //-One stop bit
-    //-No parity
-    //-Flow control None.
-    //-Receive and transmit enabled
-
-#if 0
-	if(sys_env.baud_rate == 0) USART_InitStructure.USART_BaudRate = 1200;
-	else if(sys_env.baud_rate == 1) USART_InitStructure.USART_BaudRate = 2400;
-	else if(sys_env.baud_rate == 2) USART_InitStructure.USART_BaudRate = 4800;
-	else if(sys_env.baud_rate == 3) USART_InitStructure.USART_BaudRate = 9600;
-	else if(sys_env.baud_rate == 4) USART_InitStructure.USART_BaudRate = 19200;
-#else
-	USART_InitStructure.USART_BaudRate = 19200; // this is temporary. we need to check requested baud rate
-#endif
-    USART_InitStructure.USART_WordLength    = USART_WordLength_8b;
-    USART_InitStructure.USART_StopBits      = USART_StopBits_1;
-    USART_InitStructure.USART_Parity        = USART_Parity_No; 
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode          = USART_Mode_Rx | USART_Mode_Tx;
-
-    USART_Init(USART3, &USART_InitStructure);
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
-
-    //Enable the USART3
-    USART3->CR1 |= CR1_UE_Set;
-}
-
-
-//-----------------------------------------------------------------------------
 //  IThe IAR compiler uses the fputc function when using the printf function.
 //-----------------------------------------------------------------------------
-int fputc(int ch, FILE *f)
-{
-    //Use USART3 as debug port
-    //Write a character to the USART3
-
-    if(ch == '\n')
-    {
-        USART_SendData(USART3, '\r');
-        while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
-        USART_SendData(USART3, '\n');
-    }
-    else 
-    {
-        USART_SendData(USART3, (uint8_t)ch);
-    }
-
-    //Loop until the end of transmission
-    while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
-
-    return ch;
-}
+//int fputc(int ch, FILE *f)
+//{
+//    //Use USART3 as debug port
+//    //Write a character to the USART3
+//
+//    if(ch == '\n')
+//    {
+//        USART_SendData(USART3, '\r');
+//        while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
+//        USART_SendData(USART3, '\n');
+//    }
+//    else
+//    {
+//        USART_SendData(USART3, (uint8_t)ch);
+//    }
+//
+//    //Loop until the end of transmission
+//    while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
+//
+//    return ch;
+//}
 
 //-----------------------------------------------------------------------------
-//	Interrupt initialize (timer interrupt) 
+//	Interrupt initialize
 //-----------------------------------------------------------------------------
 void IRQ_Init(void)		
 {
@@ -197,14 +153,6 @@ void IRQ_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
-	TIM2->CR1 = 0x0005;				// up-counter enable
-	TIM2->PSC = 639;				
-	//TIM2->ARR = 9;					// 64MHz/(1+639)/(1+9) = 10000Hz
-	TIM2->ARR = 99;					// 64MHz/(1+639)/(1+99) = 1000Hz
-	TIM2->SR = 0x0000;				// clear TIM2 interrupt flags
-	TIM2->DIER = 0x0001;			// enable TIM2 update interrupt
-	//Setting timer interrupt 1ms--------------------------------------------
-
 	// Timer3
 	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
@@ -212,31 +160,17 @@ void IRQ_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
-	TIM3->CR1 = 0x0005;				// up-counter enable
-	TIM3->PSC = 639;	
-	TIM3->ARR = 999;					// 64MHz/(1+639)/(1+1999) = 50Hz  --> 20ms
-	TIM3->SR = 0x0000;				// clear TIM3 interrupt flags
-	TIM3->DIER = 0x0001;			// enable TIM3 update interrupt
-	//Setting timer interrupt 20ms--------------------------------------------
-
-	//Setting UART3 interrupt -------------------------------------------------
+	//UART3 interrupt -------------------------------------------------
 	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
-	//Setting UART3 interrupt  -------------------------------------------------
 
-	//Setting RTC -------------------------------------------------------------
+	// RTC -------------------------------------------------------------
 	NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 9;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
-	//Setting RTC -------------------------------------------------------------
 }
-
-
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------

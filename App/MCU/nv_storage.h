@@ -128,7 +128,7 @@ typedef enum
 typedef enum
 {
 	DISPLAY_MODE_FULL_SCREEN,	// full screen mode for any channel
-	DISPLAY_MODE_4SPLIT,		// 4 split screen
+	DISPLAY_MODE_QUAD,		// 4 split screen
 	DISPLAY_MODE_MAX
 } eDisplayMode_t;
 

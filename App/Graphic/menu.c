@@ -1454,7 +1454,7 @@ static void Print_StringAlarmRemoconSelection(u8 attribute)
 	BOOL alarmRemoconSelection;
 
 	Read_NvItem_AlarmRemoconSelect(&alarmRemoconSelection);
-	if(alarmRemoconSelection == 0) //alarm
+	if(alarmRemoconSelection == ALARM_MODE)
 	{
 		Print_StringWithSelectedMarkSize(
 				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_x + strlen(menuStr_Alarm_AlarmRemocon),
@@ -1467,7 +1467,7 @@ static void Print_StringAlarmRemoconSelection(u8 attribute)
 				menuStr_Alarm,
 				attribute, strlen(menuStr_Alarm));
 	}
-	else //remocon
+	else //remote key
 	{
 		Print_StringWithSelectedMark(
 				alarmRemoconMenu[ALARM_ITEM_Y_ALARM_REMOCON].offset_x + strlen(menuStr_Alarm_AlarmRemocon),
@@ -1485,11 +1485,11 @@ static void Print_StringAlarmOption(u16 offset_x, u16 offset_y, u8 attribute, eC
 
 	switch(alarmOption)
 	{
-		case ALARM_OPTION_NO:
+		case ALARM_OPTION_NO: // normal open
 			Print_StringWithSelectedMark(offset_x, offset_y, menuStr_NO, attribute, strlen(menuStr_NO));
 			break;
 
-		case ALARM_OPTION_NC:
+		case ALARM_OPTION_NC: // normal close
 			Print_StringWithSelectedMark(offset_x, offset_y, menuStr_NC, attribute, strlen(menuStr_NC));
 			break;
 
@@ -1697,6 +1697,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
     				case ALARM_ITEM_Y_ALARM_REMOCON:
     					Read_NvItem_AlarmRemoconSelect(&alarmRemoconSel);
     					Toggle(&alarmRemoconSel);
+    					ChangeAlarmRemoteKeyMode(alarmRemoconSel);
     					Write_NvItem_AlarmRemoconSelect(alarmRemoconSel);
     					break;
 
@@ -1729,7 +1730,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 
     				case ALARM_ITEM_Y_REMOCONID:
     					Read_NvItem_RemoconId(&intData);
-    					IncreaseDecreaseCount(99, 1, inc_dec, &intData);
+    					IncreaseDecreaseCount(REMOCON_ID_MAX, REMOCON_ID_NONE, inc_dec, &intData);
     					Write_NvItem_RemoconId(intData);
     					break;
     			}

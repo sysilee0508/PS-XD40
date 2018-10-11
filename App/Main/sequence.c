@@ -51,11 +51,10 @@ static void InitializeAutoSeq_Normal(void)
 		}
 		else
 		{
-			//displayChannel = sys_status.current_split_mode; //current displaying channel
-			Read_NvItem_DisplayChannel(&displayChannel);
+			displayChannel = Get_CurrentDisplayChannel();
 		}
 	}
-	else if(displayMode == DISPLAY_MODE_4SPLIT)
+	else if(displayMode == DISPLAY_MODE_QUAD)
 	{
 		displayChannel = CHANNEL1;
 	}
@@ -68,9 +67,8 @@ static void InitializeAutoSeq_Normal(void)
 	}
 
 	OSD_EraseAllText();
-	Write_NvItem_DisplayChannel(displayChannel);
 	// update display mode as full screen
-	Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
+	Set_DisplayMode_FullScreen(displayChannel);
 	// set autoSeqOn
 	//ChangeAutoSeqOn(SET);
 	OSD_DrawBorderLine();
@@ -90,20 +88,9 @@ static void InitializeAutoSeq_Alarm(void)
 		autoSeqStatus = AUTO_SEQ_ALARM;
 		// the last alarm channel should be start channel
 		displayChannel = GetLastAlarmChannel();
-                displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
+		displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
 
-//		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-//		{
-//			if(GetAlarmStatus(channel) == SET)
-//			{
-//				displayTime[channel] = DEFAULT_DISPLAY_TIME;
-//			}
-//		}
-		Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
-		Write_NvItem_DisplayChannel(displayChannel);
-
-		// TO DO : Update displaying Channel here in full screen mode
-		//Display_FullScreen(displayChannel);
+		Set_DisplayMode_FullScreen(displayChannel);
 	}
 }
 
@@ -223,17 +210,13 @@ void UpdateAutoSeqCount(void)
 
 void DisplayAutoSeqChannel(void)
 {
-	eChannel_t currentChannel;
+	eChannel_t currentChannel = Get_CurrentDisplayChannel();
 
-	Read_NvItem_DisplayChannel(&currentChannel);
 	if((currentChannel != displayChannel) &&
 			((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)))
 	{
-		//TO DO : display new channel
-//		Display_FullScreen(displayChannel);
 		// update current channel
-		Write_NvItem_DisplayChannel(displayChannel);
-		//sys_status.current_split_mode = (eSplitmode_t)displayChannel;
+		Set_DisplayMode_FullScreen(displayChannel);
 		// Update OSD
 		OSD_RefreshScreen();
 		OSD_EraseAllText();

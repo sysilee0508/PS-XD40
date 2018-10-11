@@ -144,10 +144,10 @@ static void LoadDefaultNvData(void)
 	}
 	nv_data.data.videoLossBuzzerTime = 3;
 	nv_data.data.videoLossDisplayOn = ON;
-	nv_data.data.remoconId = 0;
-	nv_data.data.alarm_remote_sel = 0; //alarm
+	nv_data.data.remoconId = REMOCON_ID_NONE;
+	nv_data.data.alarm_remote_sel = ALARM_MODE;
 	nv_data.data.motionSensitivity = 10;
-	nv_data.data.displayMode = DISPLAY_MODE_4SPLIT;
+	nv_data.data.displayMode = DISPLAY_MODE_QUAD;
 	nv_data.data.currentChannel = (eChannel_t)CHANNEL_QUAD;
 
 	// set anyone of nv items dirty in order to write nv data to flash
