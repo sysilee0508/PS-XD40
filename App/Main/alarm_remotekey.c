@@ -243,28 +243,28 @@ static u8 GetRemotconId(void)
 
 void USART3_Init(void)
 {
-    USART_InitTypeDef USART_InitStructure;
+	USART_InitTypeDef USART_InitStructure;
 
-    //USARTx configuration
-    //USARTx configured as follow:
-    //-Baudrate = 19200
-    //-Word Length = 8bits
-    //-One stop bit
-    //-No parity
-    //-Flow control None.
-    //-Receive enabled
+	//USARTx configuration
+	//USARTx configured as follow:
+	//-Baudrate = 19200
+	//-Word Length = 8bits
+	//-One stop bit
+	//-No parity
+	//-Flow control None.
+	//-Receive enabled
 
 	USART_InitStructure.USART_BaudRate = 9600;
-    USART_InitStructure.USART_WordLength    = USART_WordLength_8b;
-    USART_InitStructure.USART_StopBits      = USART_StopBits_1;
-    USART_InitStructure.USART_Parity        = USART_Parity_No;
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode          = USART_Mode_Rx;// | USART_Mode_Tx;
+	USART_InitStructure.USART_WordLength    = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits      = USART_StopBits_1;
+	USART_InitStructure.USART_Parity        = USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode          = USART_Mode_Rx;// | USART_Mode_Tx;
 
-    USART_Init(USART3, &USART_InitStructure);
+	USART_Init(USART3, &USART_InitStructure);
 	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 
-    //Disable the USART3 at start
+	//Disable the USART3 at start
 	if(GetAlarmRemoteKeyMode() == REMOTEKEY_MODE)
 	{
 		USART_Cmd(USART3, ENABLE);
@@ -277,104 +277,99 @@ void USART3_Init(void)
 
 void USART3_IRQHandler(void)
 {
-	static u8 bSOH_FLAG = 0;
-	static u8 bHEADER_FLAG = 0;
-	static u8 bSTX_FLAG = 0;
-	static u8 bETX_FLAG = 0;
 	static u8 errorCode = ERROR_NONE;
 	u8 receivedData;
 	u8 i;
 	u8 remoconId = GetRemotconId();
 
 	receivedData = USART_ReceiveData(USART3);
-    // Clear the USART3 RX interrupt
-    USART_ClearITPendingBit(USART3,USART_IT_RXNE);
+	// Clear the USART3 RX interrupt
+	USART_ClearITPendingBit(USART3,USART_IT_RXNE);
 
+	switch(uartProc_Stage)
+	{
+		case UART_PROC_SOH:
+			if(receivedData == UART_SOH)
+			{
+				// valid data is received. move to next step
+				uartProc_Stage = UART_PROC_HEADER;
+			}
+			else
+			{
+				// invalid data. do nothing
+				errorCode = ERROR_INVALID_CONTROL;
+			}
+			break;
 
-    switch(uartProc_Stage)
-    {
-    	case UART_PROC_SOH:
-    		if(receivedData == UART_SOH)
-    		{
-    			// valid data is received. move to next step
-    			uartProc_Stage = UART_PROC_HEADER;
-    		}
-    		else
-    		{
-    			// invalid data. do nothing
-    			errorCode = ERROR_INVALID_CONTROL;
-    		}
-    		break;
+		case UART_PROC_HEADER:
+			if(receivedData > REMOCON_ID_MAX)
+			{
+				errorCode = ERROR_INVALID_REMOCONID;
+				uartProc_Stage = UART_PROC_SOH;
+			}
+			else if(receivedData != remoconId)
+			{
+				errorCode = ERROR_REMOCONID_MISMATCH;
+				uartProc_Stage = UART_PROC_SOH;
+			}
+			else
+			{
+				// move to next step
+				uartProc_Stage = UART_PROC_STX;
+			}
+			break;
 
-    	case UART_PROC_HEADER:
-    		if(receivedData > REMOCON_ID_MAX)
-    		{
-    			errorCode = ERROR_INVALID_REMOCONID;
-    			uartProc_Stage = UART_PROC_SOH;
-    		}
-    		else if(receivedData != remoconId)
-    		{
-    			errorCode = ERROR_REMOCONID_MISMATCH;
-    			uartProc_Stage = UART_PROC_SOH;
-    		}
-    		else
-    		{
-    			// move to next step
-    			uartProc_Stage = UART_PROC_STX;
-    		}
-    		break;
+		case UART_PROC_STX:
+			if(receivedData == UART_STX)
+			{
+				uartProc_Stage = UART_PROC_CODE;
+			}
+			else
+			{
+				errorCode = ERROR_INVALID_CONTROL;
+				uartProc_Stage = UART_PROC_SOH;
+			}
+			break;
 
-    	case UART_PROC_STX:
-    		if(receivedData == UART_STX)
-    		{
-    			uartProc_Stage = UART_PROC_CODE;
-    		}
-    		else
-    		{
-    			errorCode = ERROR_INVALID_CONTROL;
-    			uartProc_Stage = UART_PROC_SOH;
-    		}
-    		break;
+		case UART_PROC_CODE:
+			uartProc_Stage = UART_PROC_ETX;
 
-    	case UART_PROC_CODE:
-    		uartProc_Stage = UART_PROC_ETX;
+			if((receivedData >= 0x90) && (receivedData != VIRTUAL_KEY_FREEZE) && (receivedData != VIRTUAL_KEY_AUTO_SEQ))
+			{
+				receivedData -= 0x10;
+			}
 
-    		if((receivedData >= 0x90) && (receivedData != VIRTUAL_KEY_FREEZE) && (receivedData != VIRTUAL_KEY_AUTO_SEQ))
-    		{
-    			receivedData -= 0x10;
-    		}
+			if(GetSystemMode() == SYSTEM_SETUP_MODE)
+			{
+				if(receivedData == VIRTUAL_KEY_MENU)
+				{
+					receivedData = VIRTUAL_KEY_FREEZE; //KEY_MENU -> KEY_FREEZE
+				}
+			}
 
-    		if(GetSystemMode() == SYSTEM_SETUP_MODE)
-    		{
-    			if(receivedData == VIRTUAL_KEY_MENU)
-    			{
-    				receivedData = VIRTUAL_KEY_FREEZE; //KEY_MENU -> KEY_FREEZE
-    			}
-    		}
+			for(i = 0; i < sizeof(virtual_key_tabla)/sizeof(sVirtualKeys_t); i++)
+			{
+				if(virtual_key_tabla[i].virtual_key == receivedData)
+				{
+					UpdateKeyData(virtual_key_tabla[i].keydata);
+					break;
+				}
+			}
+			break;
 
-    		for(i = 0; i < sizeof(virtual_key_tabla)/sizeof(sVirtualKeys_t); i++)
-    		{
-    			if(virtual_key_tabla[i].virtual_key == receivedData)
-    			{
-    				UpdateKeyData(virtual_key_tabla[i].keydata);
-    				break;
-    			}
-    		}
-    		break;
-
-    	case UART_PROC_ETX:
-    		if(receivedData == UART_ETX)
-    		{
-    			SetKeyReady();
-    		}
-    		else
-    		{
-    			errorCode = ERROR_INVALID_CONTROL;
-    			ClearKeyReady();
-    		}
-    		uartProc_Stage = UART_PROC_SOH;
-    		break;
-    }
+		case UART_PROC_ETX:
+			if(receivedData == UART_ETX)
+			{
+				SetKeyReady();
+			}
+			else
+			{
+				errorCode = ERROR_INVALID_CONTROL;
+				ClearKeyReady();
+			}
+			uartProc_Stage = UART_PROC_SOH;
+			break;
+	}
 }
 
 //------------------------------------------------------------------------------

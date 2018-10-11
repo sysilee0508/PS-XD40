@@ -114,6 +114,8 @@ void main(void)
 	MCU_init();
 	// initialize interrupt
 	IRQ_Init();
+	TIM2_Init();
+	TIM3_Init();
 	// initialize RTC
 	RTC_Configuration();
 

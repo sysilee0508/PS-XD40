@@ -29,14 +29,14 @@ static eChannel_t previousChannel = CHANNEL1;
 //=============================================================================
 const static keycode_t keycode_table[] =
 {
-	KEYCODE_CH1, 		//0xFE	1111 1110	254
- 	KEYCODE_CH2, 		//0xFD 	1111 1101	253
-	KEYCODE_CH3, 		//0xFB 	1111 1011 	251
-	KEYCODE_CH4, 		//0xF7 	1111 0111 	247
+	KEYCODE_CH1,		//0xFE	1111 1110	254
+	KEYCODE_CH2,		//0xFD 	1111 1101	253
+	KEYCODE_CH3,		//0xFB 	1111 1011 	251
+	KEYCODE_CH4,		//0xF7 	1111 0111 	247
 
-	KEYCODE_SPLIT, 		//0xEF 	1110 1111 	239
-	KEYCODE_FREEZE, 	//0xDF 	1101 1111 	223
-	KEYCODE_SEQUENCE, 	//0xBF 	1011 1111 	191
+	KEYCODE_SPLIT,		//0xEF 	1110 1111 	239
+	KEYCODE_FREEZE,		//0xDF 	1101 1111 	223
+	KEYCODE_SEQUENCE,	//0xBF 	1011 1111 	191
 	KEYCODE_NONE		//0x7f	0111 1111	127
 };
 
@@ -332,9 +332,9 @@ void Key_Check(void)
 					bLongKey = SET;
 					if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
-				  		bRepeatKey = SET;
+						bRepeatKey = SET;
 
-				  		UpdateKeyData(processing_key_data | KEY_LONG);
+						UpdateKeyData(processing_key_data | KEY_LONG);
 						SetKeyReady();
 					}
 					else

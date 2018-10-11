@@ -405,14 +405,14 @@ static void DrawSelectMark(u8 verticalItem)
 	// erase previous mark
 	position.pos_x = MENU_START_POSITION_X + (previousLocationX * CHAR_WIDTH_S);
 	position.pos_y = MENU_START_POSITION_Y + (previousLocationY * CHAR_HEIGHT);
-  	OSD_PrintString(position,menuStr_Space1, strlen(menuStr_Space1));
-  	// draw new mark
+	OSD_PrintString(position,menuStr_Space1, strlen(menuStr_Space1));
+	// draw new mark
 	position.pos_x = MENU_START_POSITION_X + (offset_x[currentPage] * CHAR_WIDTH_S);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
-  	OSD_PrintString(position, menuStr_ArrowL, strlen(menuStr_ArrowL));
+	OSD_PrintString(position, menuStr_ArrowL, strlen(menuStr_ArrowL));
 
-  	previousLocationX = offset_x[currentPage];
-  	previousLocationY = offset_y;
+	previousLocationX = offset_x[currentPage];
+	previousLocationY = offset_y;
 }
 
 static void MainMenu_Entry(u8 itemY)
@@ -533,7 +533,7 @@ static void Print_StringTime(u16 itemX, u8 attribute, sTimeDate_t time)
 //	sTimeDate_t currentTime;
 	u8 hourStr[2], minStr[2], secStr[2];
 	u8 timeStr[TIME_STRING_LENGTH] = {0,};
-       u8 selectedMark[3];
+	u8 selectedMark[3];
 	char* pStr;
 
 	selectedMark[0] = (itemX & 0x01)?attribute:NULL;
@@ -695,41 +695,41 @@ static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY, sTimeDate_t time)
 	BOOL timeDisplay, dateDisplay;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 	switch(itemY)
- 	{
- 	    case TIMEDATE_ITEM_Y_TIME:
- 	    	Print_StringTime(itemX, attribute, time);
+	{
+		case TIMEDATE_ITEM_Y_TIME:
+			Print_StringTime(itemX, attribute, time);
 			break;
 
- 	    case TIMEDATE_ITEM_Y_DATE :
+		case TIMEDATE_ITEM_Y_DATE :
 			Print_StringDate(itemX, attribute, time);
 			break;
 
- 	    case TIMEDATE_ITEM_Y_TIME_DISPLAY:
- 	    	Read_NvItem_TimeDisplayOn(&timeDisplay);
- 	    	Print_StringOnOff(
- 	    			timeDateMenu[itemY].offset_x + strlen(timeDateMenu[itemY].str),
-					timeDateMenu[itemY].offset_y,
-					attribute, timeDisplay);
- 	    	break;
+		case TIMEDATE_ITEM_Y_TIME_DISPLAY:
+			Read_NvItem_TimeDisplayOn(&timeDisplay);
+			Print_StringOnOff(
+			timeDateMenu[itemY].offset_x + strlen(timeDateMenu[itemY].str),
+			timeDateMenu[itemY].offset_y,
+			attribute, timeDisplay);
+			break;
 
- 	    case TIMEDATE_ITEM_Y_DATE_DISPALY :
- 	    	Read_NvItem_DateDisplayOn(&dateDisplay);
- 	    	Print_StringOnOff(timeDateMenu[itemY].offset_x + strlen(timeDateMenu[itemY].str),
- 	    			timeDateMenu[itemY].offset_y,
-					attribute, dateDisplay);
- 	    	break;
+		case TIMEDATE_ITEM_Y_DATE_DISPALY :
+			Read_NvItem_DateDisplayOn(&dateDisplay);
+			Print_StringOnOff(timeDateMenu[itemY].offset_x + strlen(timeDateMenu[itemY].str),
+			timeDateMenu[itemY].offset_y,
+			attribute, dateDisplay);
+			break;
 
- 		case  TIMEDATE_ITEM_Y_DATE_FORMAT:
- 	    	Print_StringDateFormat(attribute);
- 			break;
+		case TIMEDATE_ITEM_Y_DATE_FORMAT:
+			Print_StringDateFormat(attribute);
+			break;
 
- 		case TIMEDATE_ITEM_Y_YEAR_FORMAT:
- 			Print_StringYearFormat(attribute);
- 			break;
+		case TIMEDATE_ITEM_Y_YEAR_FORMAT:
+			Print_StringYearFormat(attribute);
+			break;
 
- 		case TIMEDATE_ITEM_Y_TIME_CORRECTION:
- 			Print_StringTimeCorrect(itemX, attribute);
- 			break;
+		case TIMEDATE_ITEM_Y_TIME_CORRECTION:
+			Print_StringTimeCorrect(itemX, attribute);
+			break;
 	}
 }
 
@@ -835,20 +835,20 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						switch(pos_x)
 						{
 							case 0: //direction
-			               		if(timeCorrect.timeCorrectDirection == DIRECTION_UP)
-			               		{
-			               			timeCorrect.timeCorrectDirection = DIRECTION_DOWN;
-			               		}
-			               		else if(timeCorrect.timeCorrectDirection == DIRECTION_DOWN)
-			               		{
-			               			timeCorrect.timeCorrectDirection = DIRECTION_UP;
-			               		}
-			               		break;
+								if(timeCorrect.timeCorrectDirection == DIRECTION_UP)
+								{
+									timeCorrect.timeCorrectDirection = DIRECTION_DOWN;
+								}
+								else if(timeCorrect.timeCorrectDirection == DIRECTION_DOWN)
+								{
+									timeCorrect.timeCorrectDirection = DIRECTION_UP;
+								}
+								break;
 							case 1: //offset
 								IncreaseDecreaseCount(59,0,inc_dec,&timeCorrect.timeCorrectOffset);
 								break;
 							case 2: //unit
-						    	if(timeCorrect.timeCorrectUint == TIME_UNIT_DAY)
+								if(timeCorrect.timeCorrectUint == TIME_UNIT_DAY)
 								{
 									timeCorrect.timeCorrectUint = TIME_UNIT_MONTH;
 								}
@@ -856,9 +856,9 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 								{
 									timeCorrect.timeCorrectUint = TIME_UNIT_DAY;
 								}
-						    	break;
+								break;
 						}
-					    Write_NvItem_TimeCorrect(timeCorrect);
+						Write_NvItem_TimeCorrect(timeCorrect);
 						break;
 				}
 				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, rtcTime);
@@ -877,8 +877,8 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
-			  	if((itemY == TIMEDATE_ITEM_Y_TIME) ||
-			  			(itemY == TIMEDATE_ITEM_Y_DATE) ||
+				if((itemY == TIMEDATE_ITEM_Y_TIME) ||
+						(itemY == TIMEDATE_ITEM_Y_DATE) ||
 						(itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION))
 				{
 					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, rtcTime);

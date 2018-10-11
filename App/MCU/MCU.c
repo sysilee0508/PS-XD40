@@ -5,37 +5,37 @@
 //-----------------------------------------------------------------------------
 void MCU_init(void)			
 {
-    /* activate HSI (Internal 8MHz High Speed oscillator) */
-    RCC->CR |= 0x00000001;		//HSI on (Use Internal 8MHz clock)
-    RCC->CFGR = 0x00000000;		//system clock = HSI
-    while((RCC->CFGR & 0x0000000C) != 0); //HSI oscillator used as system clock
+	/* activate HSI (Internal 8MHz High Speed oscillator) */
+	RCC->CR |= 0x00000001;		//HSI on (Use Internal 8MHz clock)
+	RCC->CFGR = 0x00000000;		//system clock = HSI
+	while((RCC->CFGR & 0x0000000C) != 0); //HSI oscillator used as system clock
 
-    RCC->CR &= 0xFEFFFFFF;		//PLL off
-    FLASH->ACR |= 0x00000002;	//Set Latency (In case of  72MHz, set 0x00000002)
+	RCC->CR &= 0xFEFFFFFF;		//PLL off
+	FLASH->ACR |= 0x00000002;	//Set Latency (In case of  72MHz, set 0x00000002)
 
-    RCC->CFGR = 0x00388400;		//PLL setting(PLLSRC=HSI/2, PLLMUL=16 Total=64MHz)
-    RCC->CR |= 0x01000000;		//PLL on
-    while((RCC->CR & 0x02000000) == 0); //PLL clock ready
+	RCC->CFGR = 0x00388400;		//PLL setting(PLLSRC=HSI/2, PLLMUL=16 Total=64MHz)
+	RCC->CR |= 0x01000000;		//PLL on
+	while((RCC->CR & 0x02000000) == 0); //PLL clock ready
 
-    RCC->CFGR |= 0x00000002;	//system clock=PLL(PCLK1=32MHz, PCLK2=64MHz)
-    while((RCC->CFGR & 0x0000000C) != 0x00000008); //PLL used as system clock
-    //-------------------------------------------------------------------------
-    
-    //Clock Enable  (Remap �ϱ� ���� ���� �����ؾ� Remap�� ���������� �۵��Ѵ�)  
-    RCC->APB1ENR |= RCC_APB1Periph_USART3; 
-    RCC->APB1ENR |= RCC_APB1Periph_TIM2;
-    RCC->APB1ENR |= RCC_APB1Periph_TIM3;
-    RCC->APB2ENR |= RCC_APB2Periph_GPIOA; 
-    RCC->APB2ENR |= RCC_APB2Periph_GPIOB; 
-    RCC->APB2ENR |= RCC_APB2Periph_GPIOC; 
-    RCC->APB2ENR |= RCC_APB2Periph_GPIOD; 
-    RCC->APB2ENR |= RCC_APB2Periph_AFIO; 
+	RCC->CFGR |= 0x00000002;	//system clock=PLL(PCLK1=32MHz, PCLK2=64MHz)
+	while((RCC->CFGR & 0x0000000C) != 0x00000008); //PLL used as system clock
+	//-------------------------------------------------------------------------
 
-    //Alternative function remap
-    // SW-DG Enable (JTAG Disable)
-    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE); //PA13,14 REmap
-    // Using HSE Oscillator
-    GPIO_PinRemapConfig(GPIO_Remap_PD01, ENABLE);    		 //PD0,1 REmap
+	//Clock Enable  (Remap �ϱ� ���� ���� �����ؾ� Remap�� ���������� �۵��Ѵ�)  
+	RCC->APB1ENR |= RCC_APB1Periph_USART3; 
+	RCC->APB1ENR |= RCC_APB1Periph_TIM2;
+	RCC->APB1ENR |= RCC_APB1Periph_TIM3;
+	RCC->APB2ENR |= RCC_APB2Periph_GPIOA; 
+	RCC->APB2ENR |= RCC_APB2Periph_GPIOB; 
+	RCC->APB2ENR |= RCC_APB2Periph_GPIOC; 
+	RCC->APB2ENR |= RCC_APB2Periph_GPIOD; 
+	RCC->APB2ENR |= RCC_APB2Periph_AFIO; 
+
+	//Alternative function remap
+	// SW-DG Enable (JTAG Disable)
+	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE); //PA13,14 REmap
+	// Using HSE Oscillator
+	GPIO_PinRemapConfig(GPIO_Remap_PD01, ENABLE);    		 //PD0,1 REmap
 
 //	[GPIO A]
 //	 0 : H_AD0
@@ -54,9 +54,9 @@ void MCU_init(void)
 //	13 : SWDIO
 //	14 : SWCLK
 //	15 : H_WRB //MDIN Write strobe (active low)
-    GPIOA->CRH = 0x33333333;			//Configure all PAs as OUTPUT why?
-    GPIOA->CRL = 0x33333333;
-    GPIOA->ODR = 0x0000FFFF;			//Initialize PAs to High
+	GPIOA->CRH = 0x33333333;			//Configure all PAs as OUTPUT why?
+	GPIOA->CRL = 0x33333333;
+	GPIOA->ODR = 0x0000FFFF;			//Initialize PAs to High
 
 //	[GPIO B]
 //    0 : NC
@@ -75,9 +75,9 @@ void MCU_init(void)
 //	13: K_CL1_MOSI
 //	14: K_CL2_CLK
 //	15: K_CL3_KCS
-    GPIOB->CRH = 0x33334B33;		//PB10 uart_TX(alternate function), GPIO11-uart_RX
-    GPIOB->CRL = 0x33377333; 		//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
-    GPIOB->ODR = 0x0000FCFB;		//GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
+	GPIOB->CRH = 0x33334B33;		//PB10 uart_TX(alternate function), GPIO11-uart_RX
+	GPIOB->CRL = 0x33377333; 		//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
+	GPIOB->ODR = 0x0000FCFB;		//GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
 
 //	[GPIO C]
 //  0 : SPI_MISO
@@ -96,19 +96,19 @@ void MCU_init(void)
 //	13: INT (TAMPER_RTC)
 //	14: OSC32I
 //	15: OSC32O
-    GPIOC->CRH = 0x33833333;			//GPIOC13 is used for TAMPER-RTC INT
-    GPIOC->CRL = 0x33333338;			//PC0 : input(pull-up)
-    GPIOC->ODR = 0x0000FFFF;			//spi_clk & spi_cs is low (active high)
+	GPIOC->CRH = 0x33833333;			//GPIOC13 is used for TAMPER-RTC INT
+	GPIOC->CRL = 0x33333338;			//PC0 : input(pull-up)
+	GPIOC->ODR = 0x0000FFFF;			//spi_clk & spi_cs is low (active high)
 
 //	[GPIO D]
 //  0 : OSCI
 //	1 : OSCO
 //	2 : NC
-    GPIOD->CRH = 0x33333333;			//Only PD0 and PD1 is used for OSCI and OSCO. They are already remapped.
-    GPIOD->CRL = 0x33333333;
-    GPIOD->ODR = 0x0000ffff;			//
+	GPIOD->CRH = 0x33333333;			//Only PD0 and PD1 is used for OSCI and OSCO. They are already remapped.
+	GPIOD->CRL = 0x33333333;
+	GPIOD->ODR = 0x0000ffff;			//
 
-    Delay_ms(200); // why we need delay 200ms here?
+	Delay_ms(200); // why we need delay 200ms here?
 }
 
 //-----------------------------------------------------------------------------
