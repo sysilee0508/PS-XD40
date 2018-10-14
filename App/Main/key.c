@@ -412,7 +412,7 @@ void Key_Proc(void)
 					Write_NvItem_DisplayChannel((eChannel_t)(key - 1)); // this line shoul be moved into DisplayFullScreen()
 					Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN); // this line shoul be moved into DisplayFullScreen()
 					// To Do : Display current channel on the full screen
-					// DisplayFullScreen((eChannel_t)(key - 1));
+					Display_FullScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -433,7 +433,7 @@ void Key_Proc(void)
 					Write_NvItem_DisplayChannel(CHANNEL_QUAD);
 					Write_NvItem_DisplayMode(DISPLAY_MODE_4SPLIT);
 					// To Do : Display Quad Screen
-					// DisplayQuadScreen();
+					Display_QuadScreen();
 #if 0 //Louis
 				    SGQ_4CH_INIT(change_mode[cmode]);
 #endif

@@ -325,6 +325,12 @@ void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss)
 	}
 }
 
+NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel)
+{
+
+		return s_raptor3_vfmts.curvideofmt[oLogicalChannel];
+}
+
 void NVP6158_VideoDetectionProc(void)
 {
 
@@ -532,7 +538,9 @@ void NVP6158_init(void)
 		NC_VD_AUTO_AutoMode_Set(ch, ch/4);
 		Delay_ms(100);
 	}
-
+	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x01);
+	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0xcb, 0x01);
+	
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;
 }
 
