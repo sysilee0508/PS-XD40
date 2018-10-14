@@ -13,6 +13,7 @@ int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInfor
 {
 	video_input_vfc sVFC;
 	video_input_novid sNoVideo;
+	motion_mode sMotion;
 	NC_VIVO_CH_FORMATDEF oCurVidFmt;
 
 	/* initialize current video format - pInformation structure is for app */
@@ -41,11 +42,27 @@ int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInfor
 		pInformation->vfc[ch] = sVFC.vfc;
 	}
 
+	sMotion.ch = ch%4;
+	sMotion.devnum = ch/4;
+	sMotion.fmtdef = pInformation->curvideofmt[ch];
+	sMotion.set_val = Get_MotionDetect_OnOff(sMotion.ch);
+	
+	motion_onoff_set(&sMotion);
+
+	motion_pixel_all_onoff_set(&sMotion);
+	sMotion.set_val = Get_MotionDetect_Sensitivity(sMotion.ch);
+	motion_tsen_set(&sMotion);
+
 	/* check novideo option */
 	if( !sNoVideo.novid )
 	{
 		pInformation->curvideoloss[ch] = VIDEO_LOSS_ON;
 		pInformation->videolosscheck[ch] = 0;
+		if(Get_MotionDetect_OnOff(sMotion.ch))
+		{
+			motion_detection_get(&sMotion);
+			pInformation->motiondetect |= sMotion.set_val;
+		}
 	}
 	else
 	{

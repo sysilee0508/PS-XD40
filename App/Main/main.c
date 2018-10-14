@@ -337,6 +337,8 @@ void main(void)
 		ScanVideoLossChannels();
 		CheckAlarmClearCondition();
 		PlayBuzzer();
+		
+		MotionDetectCheck();
 
 		UpdateAutoSeqCount();
 		DisplayAutoSeqChannel();

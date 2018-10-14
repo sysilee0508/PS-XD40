@@ -325,6 +325,11 @@ void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss)
 	}
 }
 
+unsigned char NVP6158_MotionDetect_Check(void)
+{
+	return s_raptor3_vfmts.motiondetect;
+}
+
 void NVP6158_VideoDetectionProc(void)
 {
 
@@ -340,6 +345,8 @@ void NVP6158_VideoDetectionProc(void)
 	decoder_dev_ch_info_s sDevChInfo;
 	video_output_data_out_mode DataOutMode;
 
+	s_raptor3_vfmts.motiondetect = 0; //initialize Motion Detection for each channel
+	
 	/* process video format on/off */
 	for( oLogicalChannel = 0; oLogicalChannel < 4; oLogicalChannel++ )
 	{

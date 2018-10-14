@@ -38,6 +38,7 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_VIDEO_LOSS_DISPLAY_ON,		sizeof(BOOL),								CLEAR},
 		{NV_ITEM_REMOCON_ID,				sizeof(uint8_t),							CLEAR},
 		{NV_ITEM_ALARM_REMOCON_SELECT,		sizeof(BOOL),								CLEAR},
+		{NV_ITEM_MOTION_DETECT_ON,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_MOTION_SENSITIVITY,		sizeof(uint8_t),							CLEAR},
 		{NV_ITEM_DISPLAY_MODE,				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_DISPLAY_CHANNEL,			sizeof(eChannel_t),							CLEAR},
@@ -146,7 +147,11 @@ static void LoadDefaultNvData(void)
 	nv_data.data.videoLossDisplayOn = ON;
 	nv_data.data.remoconId = 0;
 	nv_data.data.alarm_remote_sel = 0; //alarm
-	nv_data.data.motionSensitivity = 10;
+	for(index = 0; index < NUM_OF_CHANNEL; index++)
+	{	
+		nv_data.data.motionDetect_On[index] = OFF;
+	}
+	nv_data.data.motionSensitivity = 0x60;
 	nv_data.data.displayMode = DISPLAY_MODE_4SPLIT;
 	nv_data.data.currentChannel = (eChannel_t)CHANNEL_QUAD;
 
@@ -520,6 +525,22 @@ void Write_NvItem_RemoconId(uint8_t data)
 {
 	nv_data.data.remoconId = data;
 	nvInfo[NV_ITEM_REMOCON_ID].dirty = SET;
+}
+
+void Read_NvItem_MotionDetectOnOff(uint8_t *pData, eChannel_t channel)
+{
+	if(channel < NUM_OF_CHANNEL)
+	{
+		*pData = nv_data.data.motionDetect_On[channel];
+	}	
+}
+void Write_NvItem_MotionDetectOnOff(uint8_t data, eChannel_t channel)
+{
+	if(channel < NUM_OF_CHANNEL)
+	{
+		nv_data.data.motionDetect_On[channel] = data;
+		nvInfo[NV_ITEM_MOTION_DETECT_ON].dirty = SET;
+	}	
 }
 
 void Read_NvItem_MotionSensitivity(uint8_t *pData)
