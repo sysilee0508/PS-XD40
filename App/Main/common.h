@@ -49,6 +49,8 @@
 #include "alarm_remotekey.h"
 #include "timer.h"
 
+#include "display_mode.h"
+#include "VS4210.h"
 
 // msg.c
 typedef enum {

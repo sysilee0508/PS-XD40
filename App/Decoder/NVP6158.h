@@ -876,6 +876,7 @@ void NVP6158_VideoDetectionProc(void);
 unsigned char NVP6158_I2C_READ(unsigned char slaveaddr, unsigned char regaddr);
 void NVP6158_I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data);
 void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss);
+NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel);
 
 int check_id(unsigned char dec);
 void video_input_auto_detect_set(video_input_auto_detect *vin_auto_det);

@@ -277,7 +277,7 @@
                 <option>
                     <name>CCAllowList</name>
                     <version>1</version>
-                    <state>01111110</state>
+                    <state>11111110</state>
                 </option>
                 <option>
                     <name>CCDebugInfo</name>
@@ -351,7 +351,7 @@
                     <state>$PROJ_DIR$\..\App\Graphic</state>
                     <state>$PROJ_DIR$\..\App\Video</state>
                     <state>$PROJ_DIR$\..\App</state>
-                    <state>$PROJ_DIR$\..\App\Splitter\VS4210Inc</state>
+                    <state>$PROJ_DIR$\..\App\Splitter</state>
                     <state>$PROJ_DIR$\..\App\Decoder</state>
                 </option>
                 <option>

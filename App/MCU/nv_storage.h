@@ -223,6 +223,8 @@ extern BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size);
 extern void Read_NvItem_FwVersion(sVersion_t* pData);
 extern void Read_NvItem_DisplayMode(eDisplayMode_t* pData);
 extern void Write_NvItem_DisplayMode(eDisplayMode_t data);
+extern void Read_NvItem_DisplayChannel(eChannel_t* pData);
+extern void Write_NvItem_DisplayChannel(eChannel_t data);
 extern void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData);
 extern void Write_NvItem_TimeCorrect(sTimeCorrect_t data);
 extern void Read_NvItem_VideoLossBuzzerTime(uint8_t *pData);
