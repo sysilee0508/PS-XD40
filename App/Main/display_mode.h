@@ -128,5 +128,6 @@ typedef enum NC_VIVO_CH_FORMATDEF
 //=============================================================================
 extern void Display_FullScreen(eChannel_t ch);
 extern void Display_QuadScreen(void);
+extern void Set_DisplayoutputMode_table(void);
 #endif
 
