@@ -9,7 +9,6 @@
 
 RAPTOR3_INFORMATION_S	s_raptor3_vfmts;
 
-static NC_CH _CHSEQ[4];
 static char g_MergeEn;
 
 
@@ -101,12 +100,6 @@ void NC_VD_VO_Mode_Set_New( unsigned char ch, unsigned char devnum, unsigned cha
 	VOutSeq.devnum = devnum;
 	VoutChID.devnum = devnum;
 	sVOutSeqreg.devnum = devnum;
-
-
-	_CHSEQ[0] = SEQ0;
-	_CHSEQ[1] = SEQ1;
-	_CHSEQ[2] = SEQ2;
-	_CHSEQ[3] = SEQ3;
 
 	/********************************
 	 * Set sequence
@@ -330,6 +323,11 @@ unsigned char NVP6158_MotionDetect_Check(void)
 	return s_raptor3_vfmts.motiondetect;
 }
 
+NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel)
+{
+	return s_raptor3_vfmts.curvideofmt[oLogicalChannel];
+}
+
 void NVP6158_VideoDetectionProc(void)
 {
 
@@ -338,8 +336,6 @@ void NVP6158_VideoDetectionProc(void)
 	unsigned char 		oLogicalChannel = 0;
 	unsigned char 		oCurVideofmt = 0x00;
 	unsigned char 		oPreVideofmt = 0x00;
-	CABLE_DISTANCE 		CableDistance = 0;
-	NC_VI_CH_FMT_S 		*pChFmt;
 	NC_VIVO_CH_FORMATDEF oFmtDef;
 	NC_VIVO_CH_FORMATDEF oFmtB5Def;
 	decoder_dev_ch_info_s sDevChInfo;
@@ -463,7 +459,6 @@ void NVP6158_init(void)
 	unsigned char ch;
 	unsigned char port;
 	unsigned char val_9x44;
-	static unsigned char temp;
 
 	chip_id = check_id(NVP6158_ADDR);
 	if(chip_id != RAPTOR3_4PORT_R0_ID )
@@ -539,7 +534,9 @@ void NVP6158_init(void)
 		NC_VD_AUTO_AutoMode_Set(ch, ch/4);
 		Delay_ms(100);
 	}
-
+	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x01);
+	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0xcb, 0x01);
+	
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;
 }
 
