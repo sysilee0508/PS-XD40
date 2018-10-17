@@ -13,6 +13,8 @@ const u8 menuStr_SecDay[] = "SEC/DAY";
 const u8 menuStr_SecMonth[] = "SEC/MONTH";
 
 const u8 menuStr_ArrowL[]= {0x80,0x00};
+const u8 menuStr_SelectedMark[] = "V";
+const u8 menuStr_UnselectedMart[] = "-";
 
 const u8 menuStr_None[] = "--";
 const u8 menuStr_Space1[] = " ";
@@ -117,9 +119,8 @@ const u8 menuStr_Motion_Channel1[] =    "1. CH 1:     / AREA";
 const u8 menuStr_Motion_Channel2[] =    "2. CH 2:     / AREA";
 const u8 menuStr_Motion_Channel3[] =    "3. CH 3:     / AREA";
 const u8 menuStr_Motion_Channel4[] =    "4. CH 4:     / AREA";
-const u8 menuStr_Motion_Sensitivity[] = "5. MOTION SENSITIVITY : ";
+const u8 menuStr_Motion_Sensitivity[] = "5. MOTION SENSITIVITY (1~99) : ";
 const u8 menuStr_Motion_CallMode[] =    "6. MOTION MODE : ";
-//const u8 menuStr_Motion_Saving[] = "SAVING AREA...";
 
 // Device Info
 const u8 menuStr_DeviceInfo_Title[] =   "-- DEVICE INFO --";

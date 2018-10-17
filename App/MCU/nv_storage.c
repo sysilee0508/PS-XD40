@@ -152,6 +152,8 @@ static void LoadDefaultNvData(void)
 		nv_data.data.motionDetect_On[index] = OFF;
 	}
 	nv_data.data.motionSensitivity = 0x60;
+	msmset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
+
 	nv_data.data.displayMode = DISPLAY_MODE_4SPLIT;
 	nv_data.data.currentChannel = (eChannel_t)CHANNEL_QUAD;
 
@@ -551,6 +553,16 @@ void Write_NvItem_MotionSensitivity(uint8_t data)
 {
 	nv_data.data.motionSensitivity = data;
 	nvInfo[NV_ITEM_MOTION_SENSITIVITY].dirty = SET;
+}
+
+void Read_NvItem_MotionBlock(uint16_t *pData, eChannel_t channel)
+{
+	memcpy(pData, &nv_data.data.motionBlocks[channel][0], sizeof(uint16_t)*ROWS_OF_BLOCKS);
+}
+void Write_NvItem_MotionBlock(uint16_t *pData, eChannel_t channel)
+{
+	memcpy(&nv_data.data.motionBlocks[channel][0], pData, sizeof(uint16_t)*ROWS_OF_BLOCKS);
+	nvInfo[NV_ITEM_MOTION_DETECT_BLOCK].dirty = SET;
 }
 
 //--------------------------------------------------------------------------------

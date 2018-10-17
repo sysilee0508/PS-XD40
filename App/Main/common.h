@@ -28,7 +28,6 @@
 #include "mdintype.h"
 #include "mdin3xx.h"
 
-#include "nv_storage.h"
 #include "main.h"
 #include "key.h"
 #include "Rtc.h"
@@ -48,7 +47,8 @@
 
 #include "alarm_remotekey.h"
 #include "timer.h"
-
+#include "MotionDetect.h"
+#include "nv_storage.h"
 
 // msg.c
 typedef enum {

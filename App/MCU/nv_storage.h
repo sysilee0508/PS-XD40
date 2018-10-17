@@ -62,6 +62,7 @@ typedef enum
 	NV_ITEM_ALARM_REMOCON_SELECT,
 	NV_ITEM_MOTION_DETECT_ON,
 	NV_ITEM_MOTION_SENSITIVITY,
+	NV_ITEM_MOTION_DETECT_BLOCK,
 //-- system data ---------------------------------------------------------------
 //	If you want to store any system data (item) in NV memory, it comes here
 	NV_ITEM_DISPLAY_MODE,
@@ -193,6 +194,7 @@ typedef struct
 	BOOL					alarm_remote_sel; //0 : alarm, 1: remocon
 	BOOL					motionDetect_On[NUM_OF_CHANNEL];
 	uint8_t					motionSensitivity;
+	uint16_t				motionBlocks[NUM_OF_CHANNEL][ROWS_OF_BLOCKS];
 
 //	uint8_t baud_rate;			// baud_rate
 	eDisplayMode_t			displayMode;
