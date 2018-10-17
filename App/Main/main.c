@@ -339,6 +339,7 @@ void main(void)
 		CheckAlarmClearCondition();
 		PlayBuzzer();
 		
+		Read_MotionDetect_OnOff();
 		MotionDetectCheck();
 
 		UpdateAutoSeqCount();

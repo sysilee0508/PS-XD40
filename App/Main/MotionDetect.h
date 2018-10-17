@@ -22,7 +22,7 @@
 //=============================================================================
 //  Function Definition
 //=============================================================================
-void Read_MotionDetect_OnOff(BYTE ch);
+void Read_MotionDetect_OnOff(void);
 void Write_MotionDetect_OnOff(BYTE ch, BOOL enabled);
 BOOL Get_MotionDetect_OnOff(BYTE ch);
 void Set_MotionDetect_OnOff(BYTE ch, BOOL enabled);

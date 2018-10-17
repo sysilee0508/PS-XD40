@@ -19,10 +19,10 @@ typedef struct
 //=============================================================================
 static sMotionDetectInfo_t motiondetectionInfo[NUM_OF_CHANNEL] = 
 {
-	{TRUE/*FALSE*/, {0, }, 0x60, FALSE },
-	{TRUE/*FALSE*/, {0, }, 0x60, FALSE },
-	{TRUE/*FALSE*/, {0, }, 0x60, FALSE },
-	{TRUE/*FALSE*/, {0, }, 0x60, FALSE }
+	{FALSE, {0, }, 0x60, FALSE },
+	{FALSE, {0, }, 0x60, FALSE },
+	{FALSE, {0, }, 0x60, FALSE },
+	{FALSE, {0, }, 0x60, FALSE }
 };
 //=============================================================================
 //  Array Declaration (data table)
@@ -31,9 +31,14 @@ static sMotionDetectInfo_t motiondetectionInfo[NUM_OF_CHANNEL] =
 //=============================================================================
 //  Function Definition
 //=============================================================================
-void Read_MotionDetect_OnOff(BYTE ch)
+void Read_MotionDetect_OnOff(void)
 {
-	Read_NvItem_MotionDetectOnOff(&motiondetectionInfo[ch].motiondetect_enabled, ch);
+	unsigned char channel_num;
+	
+	for(channel_num = 0; channel_num < 4; channel_num++)
+	{
+		Read_NvItem_MotionDetectOnOff(&motiondetectionInfo[channel_num].motiondetect_enabled, channel_num);
+	}
 }
 
 void Write_MotionDetect_OnOff(BYTE ch, BOOL enabled)

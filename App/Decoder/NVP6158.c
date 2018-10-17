@@ -534,9 +534,7 @@ void NVP6158_init(void)
 		NC_VD_AUTO_AutoMode_Set(ch, ch/4);
 		Delay_ms(100);
 	}
-	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x01);
-	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0xcb, 0x01);
-	
+
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;
 }
 
