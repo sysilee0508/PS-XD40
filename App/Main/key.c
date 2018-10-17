@@ -29,14 +29,14 @@ static eChannel_t previousChannel = CHANNEL1;
 //=============================================================================
 const static keycode_t keycode_table[] =
 {
-	KEYCODE_CH1, 		//0xFE	1111 1110	254
- 	KEYCODE_CH2, 		//0xFD 	1111 1101	253
-	KEYCODE_CH3, 		//0xFB 	1111 1011 	251
-	KEYCODE_CH4, 		//0xF7 	1111 0111 	247
+	KEYCODE_CH1,		//0xFE	1111 1110	254
+	KEYCODE_CH2,		//0xFD 	1111 1101	253
+	KEYCODE_CH3,		//0xFB 	1111 1011 	251
+	KEYCODE_CH4,		//0xF7 	1111 0111 	247
 
-	KEYCODE_SPLIT, 		//0xEF 	1110 1111 	239
-	KEYCODE_FREEZE, 	//0xDF 	1101 1111 	223
-	KEYCODE_SEQUENCE, 	//0xBF 	1011 1111 	191
+	KEYCODE_SPLIT,		//0xEF 	1110 1111 	239
+	KEYCODE_FREEZE,		//0xDF 	1101 1111 	223
+	KEYCODE_SEQUENCE,	//0xBF 	1011 1111 	191
 	KEYCODE_NONE		//0x7f	0111 1111	127
 };
 
@@ -332,9 +332,9 @@ void Key_Check(void)
 					bLongKey = SET;
 					if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
-				  		bRepeatKey = SET;
+						bRepeatKey = SET;
 
-				  		UpdateKeyData(processing_key_data | KEY_LONG);
+						UpdateKeyData(processing_key_data | KEY_LONG);
 						SetKeyReady();
 					}
 					else
@@ -408,11 +408,7 @@ void Key_Proc(void)
 					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 					OSD_RefreshScreen();
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					//pre_split_mode = sys_status.current_split_mode = key-1;
-					Write_NvItem_DisplayChannel((eChannel_t)(key - 1)); // this line shoul be moved into DisplayFullScreen()
-					Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN); // this line shoul be moved into DisplayFullScreen()
-					// To Do : Display current channel on the full screen
-					Display_FullScreen((eChannel_t)(key - 1));
+					Set_DisplayMode_FullScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -428,15 +424,7 @@ void Key_Proc(void)
 					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 					OSD_RefreshScreen();
 					//InputSelect = VIDEO_SDI_2HD_POP;
-					//pre_split_mode = sys_status.current_split_mode = SPLITMODE_SPLIT4;
-					// below 2 lines should be moved into DisplayQuadScreen();
-					Write_NvItem_DisplayChannel(CHANNEL_QUAD);
-					Write_NvItem_DisplayMode(DISPLAY_MODE_4SPLIT);
-					// To Do : Display Quad Screen
-					Display_QuadScreen();
-#if 0 //Louis
-				    SGQ_4CH_INIT(change_mode[cmode]);
-#endif
+					Set_DisplayMode_Quad();
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -476,11 +464,6 @@ void Key_Proc(void)
 
 			case KEY_ALARM :
 				// Sound out beep for configured time(in sec)
-//				alarmBuzzerCount = sys_env.vAlarmBuzzerTime * 2;
-				// To Do
-				// Display alarmed channel on the full screen.
-				// If there are more than 1 channel to display, they will be displayed one by one.
-				// for the 1st step, display latest alarm channel
 				OSD_EraseAllText();
 				//InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 				screenFreezeOn = CLEAR;

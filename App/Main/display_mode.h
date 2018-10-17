@@ -126,8 +126,12 @@ typedef enum NC_VIVO_CH_FORMATDEF
 //=============================================================================
 //  Function Prototype
 //=============================================================================
+extern BYTE Get_CurrentDisplayMode(void);
+extern BYTE Get_CurrentDisplayChannel(void);
+extern void Set_DisplayMode_FullScreen(BYTE ch);
+extern void Set_DisplayMode_Quad(void);
 extern void Display_FullScreen(eChannel_t ch);
 extern void Display_QuadScreen(void);
 extern void Set_DisplayoutputMode_table(void);
-#endif
 
+#endif

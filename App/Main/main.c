@@ -66,133 +66,6 @@ BYTE sysenv_split_mode = 0;
 //	0x00,	//0x1b
 //	0x8a,	//0x99
 //};
-typedef struct
-{
-	eKeyData_t	keydata;
-	u8			virtual_key;
-} VirtualKeys_t;
-
-enum
-{
-	VIRTUAL_KEY_NONE = 0x00,
-	VIRTUAL_KEY_CH1	 = 0x80,
-	VIRTUAL_KEY_CH2,
-	VIRTUAL_KEY_CH3,
-	VIRTUAL_KEY_CH4,
-	VIRTUAL_KEY_4SPLIT,
-	VIRTUAL_KEY_MENU = 0x8A,
-	VIRTUAL_KEY_FREEZE = 0x9A,
-	VIRTUAL_KEY_AUTO_SEQ
-};
-
-VirtualKeys_t virtual_key_tabla[] =
-{
-	{KEY_NONE,			VIRTUAL_KEY_NONE},
-	{KEY_FULL_CH1,		VIRTUAL_KEY_CH1},
-	{KEY_FULL_CH2,		VIRTUAL_KEY_CH2},
-	{KEY_FULL_CH3,		VIRTUAL_KEY_CH3},
-	{KEY_FULL_CH4,		VIRTUAL_KEY_CH4},
-	{KEY_4SPLIT,		VIRTUAL_KEY_4SPLIT},
-	{KEY_FREEZE,		VIRTUAL_KEY_FREEZE},
-	{KEY_AUTO_SEQ,		VIRTUAL_KEY_AUTO_SEQ},
-	{KEY_MENU,			VIRTUAL_KEY_MENU}
-};
-
-void USART3_IRQHandler(void)
-{
-	static u8 bSOH_FLAG = 0;
-	static u8 bHEADER_FLAG = 0;
-	static u8 bSTX_FLAG = 0;
-	static u8 bETX_FLAG = 0;
-	u8 Data;
-	u8 i;
-	u8 remoconId;
-
-	Data = USART_ReceiveData(USART3);
-
-    // Clear the USART3 RX interrupt
-    USART_ClearITPendingBit(USART3,USART_IT_RXNE);
-
-    ReadNvItem(NV_ITEM_REMOCON_ID, &remoconId, sizeof(remoconId));
-
-	if(remoconId != 0)
-	{
- 		if(!bSOH_FLAG)
-		{
-   		  	if(Data == 1)
-				bSOH_FLAG = 1;
-			else
-			{
-				bSOH_FLAG = 0;
-				bHEADER_FLAG = 0;
-				bSTX_FLAG = 0;
-				bETX_FLAG = 0;
-			}
-			return;
-		}
-		else if(!bHEADER_FLAG)
-		{
-			if(Data == remoconId)
-				bHEADER_FLAG = 1;
-			else 
-			{
-				bSOH_FLAG = 0;
-				bHEADER_FLAG = 0;
-				bSTX_FLAG = 0;
-				bETX_FLAG = 0;
-			}
-			return;
-		}
-	}
-
-	if(!bSTX_FLAG)
-	{
-		if(Data == 2)
-			bSTX_FLAG = 1;
-		else
-		{
-			bSOH_FLAG = 0;
-			bHEADER_FLAG = 0;
-			bSTX_FLAG = 0;
-			bETX_FLAG = 0;
-		}
-	}
-	else if(bETX_FLAG)
-	{
-		if(Data == 3)
-			SetKeyReady();
-		bSOH_FLAG = 0;
-		bHEADER_FLAG = 0;
-		bSTX_FLAG = 0;
-		bETX_FLAG = 0;
-	}
-	else
-	{
-		bETX_FLAG = 1;
-		if((Data >= 0x90) && (Data != VIRTUAL_KEY_FREEZE) && (Data != VIRTUAL_KEY_AUTO_SEQ))
-		{
-			Data -= 0x10;
-		}
-
-		if(GetSystemMode() == SYSTEM_SETUP_MODE)//(systemMode)
-		{
-			if(Data == VIRTUAL_KEY_MENU)
-			{
-				Data = VIRTUAL_KEY_FREEZE; //KEY_MENU -> KEY_FREEZE
-			}
-		}
-
-		for(i = 0; i < sizeof(virtual_key_tabla)/sizeof(VirtualKeys_t); i++)
-		{
-			if(virtual_key_tabla[i].virtual_key == Data)
-			{
-				UpdateKeyData(virtual_key_tabla[i].keydata);
-				break;
-			}
-		}
-	}
-}
-
 static void PlayBuzzer(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
@@ -241,6 +114,8 @@ void main(void)
 	MCU_init();
 	// initialize interrupt
 	IRQ_Init();
+	TIM2_Init();
+	TIM3_Init();
 	// initialize RTC
 	RTC_Configuration();
 
@@ -315,9 +190,7 @@ void main(void)
 
 	InputSelect = VIDEO_DIGITAL_SDI;
 //	InputSelect = VIDEO_SDI_2HD_POP;
-//	sys_status.current_split_mode = SPLITMODE_SPLIT4;
-	Write_NvItem_DisplayChannel(CHANNEL_QUAD);
-	Write_NvItem_DisplayMode(DISPLAY_MODE_4SPLIT);
+	Set_DisplayMode_Quad();
 
 	UpdateKeyData(KEY_4SPLIT);
 	SetKeyReady();
