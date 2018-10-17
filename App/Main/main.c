@@ -333,7 +333,8 @@ void main(void)
 	while(TRUE)
     { 
 		NVP6158_VideoDetectionProc();
-
+		Set_DisplayoutputMode_table();
+		
 		ScanVideoLossChannels();
 		CheckAlarmClearCondition();
 		PlayBuzzer();

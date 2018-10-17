@@ -77,7 +77,7 @@ static void InitializeAutoSeq_Normal(void)
 	OSD_Display();
 
 	// TO DO : Update displaying Channel here in full screen mode
-	//Display_FullScreen(displayChannel);
+	Display_FullScreen(displayChannel);
 }
 
 static void InitializeAutoSeq_Alarm(void)
@@ -103,7 +103,7 @@ static void InitializeAutoSeq_Alarm(void)
 		Write_NvItem_DisplayChannel(displayChannel);
 
 		// TO DO : Update displaying Channel here in full screen mode
-		//Display_FullScreen(displayChannel);
+		Display_FullScreen(displayChannel);
 	}
 }
 
@@ -230,7 +230,7 @@ void DisplayAutoSeqChannel(void)
 			((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)))
 	{
 		//TO DO : display new channel
-//		Display_FullScreen(displayChannel);
+		Display_FullScreen(displayChannel);
 		// update current channel
 		Write_NvItem_DisplayChannel(displayChannel);
 		//sys_status.current_split_mode = (eSplitmode_t)displayChannel;

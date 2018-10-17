@@ -49,6 +49,8 @@
 #include "timer.h"
 #include "MotionDetect.h"
 #include "nv_storage.h"
+#include "display_mode.h"
+#include "VS4210.h"
 
 // msg.c
 typedef enum {
