@@ -107,7 +107,7 @@ void Display_FullScreen(eChannel_t ch)
 					VS4210_Input1080P_Output1080P_Mode0_w0();
 					break;
 				case VIDEO_RESOLUTION_720P:
-					VS4210_Input1080P_Output1080P_Mode0_w0();
+					VS4210_Input720P_Output1080P_Mode0_w0();
 					break;	
 				default : 
 					VS4210_Input1080P_Output1080P_Mode0_w0();
@@ -123,7 +123,7 @@ void Display_FullScreen(eChannel_t ch)
 					VS4210_Input1080P_Output1080P_Mode0_w1();
 					break;
 				case VIDEO_RESOLUTION_720P:
-					VS4210_Input1080P_Output1080P_Mode0_w1();
+					VS4210_Input720P_Output1080P_Mode0_w1();
 					break;	
 				default : 
 					VS4210_Input1080P_Output1080P_Mode0_w1();
@@ -136,29 +136,29 @@ void Display_FullScreen(eChannel_t ch)
 			switch(oCurVideoRes)
 			{
 				case VIDEO_RESOLUTION_1080P:
-					VS4210_Input1080P_Output1080P_Mode0_w1();
+					VS4210_Input1080P_Output1080P_Mode0_w2();
 					break;
 				case VIDEO_RESOLUTION_720P:
-					VS4210_Input1080P_Output1080P_Mode0_w1();
+					VS4210_Input720P_Output1080P_Mode0_w2();
 					break;	
 				default : 
-					VS4210_Input1080P_Output1080P_Mode0_w1();
+					VS4210_Input1080P_Output1080P_Mode0_w2();
 				break;	
 			}
 			break;			
 
 		case CHANNEL4:
-			oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL2);
+			oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL4);
 			switch(oCurVideoRes)
 			{
 				case VIDEO_RESOLUTION_1080P:
-					VS4210_Input1080P_Output1080P_Mode0_w0();
+					VS4210_Input1080P_Output1080P_Mode0_w3();
 					break;
 				case VIDEO_RESOLUTION_720P:
-					VS4210_Input1080P_Output1080P_Mode0_w0();
+					VS4210_Input720P_Output1080P_Mode0_w3();
 					break;	
 				default : 
-					VS4210_Input1080P_Output1080P_Mode0_w0();
+					VS4210_Input1080P_Output1080P_Mode0_w3();
 				break;	
 			}
 			break;			
