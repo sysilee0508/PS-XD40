@@ -25,7 +25,7 @@ static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_QUAD;
 
-static u8 uartProc_Stage = UART_PROC_SOH;
+static u8 uartProc_State = UART_STATE_SOH;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -286,13 +286,13 @@ void USART3_IRQHandler(void)
 	// Clear the USART3 RX interrupt
 	USART_ClearITPendingBit(USART3,USART_IT_RXNE);
 
-	switch(uartProc_Stage)
+	switch(uartProc_State)
 	{
-		case UART_PROC_SOH:
+		case UART_STATE_SOH:
 			if(receivedData == UART_SOH)
 			{
 				// valid data is received. move to next step
-				uartProc_Stage = UART_PROC_HEADER;
+				uartProc_State = UART_STATE_HEADER;
 			}
 			else
 			{
@@ -301,38 +301,38 @@ void USART3_IRQHandler(void)
 			}
 			break;
 
-		case UART_PROC_HEADER:
+		case UART_STATE_HEADER:
 			if(receivedData > REMOCON_ID_MAX)
 			{
 				errorCode = ERROR_INVALID_REMOCONID;
-				uartProc_Stage = UART_PROC_SOH;
+				uartProc_State = UART_STATE_SOH;
 			}
 			else if(receivedData != remoconId)
 			{
 				errorCode = ERROR_REMOCONID_MISMATCH;
-				uartProc_Stage = UART_PROC_SOH;
+				uartProc_State = UART_STATE_SOH;
 			}
 			else
 			{
 				// move to next step
-				uartProc_Stage = UART_PROC_STX;
+				uartProc_State = UART_STATE_STX;
 			}
 			break;
 
-		case UART_PROC_STX:
+		case UART_STATE_STX:
 			if(receivedData == UART_STX)
 			{
-				uartProc_Stage = UART_PROC_CODE;
+				uartProc_State = UART_STATE_CODE;
 			}
 			else
 			{
 				errorCode = ERROR_INVALID_CONTROL;
-				uartProc_Stage = UART_PROC_SOH;
+				uartProc_State = UART_STATE_SOH;
 			}
 			break;
 
-		case UART_PROC_CODE:
-			uartProc_Stage = UART_PROC_ETX;
+		case UART_STATE_CODE:
+			uartProc_State = UART_STATE_ETX;
 
 			if((receivedData >= 0x90) && (receivedData != VIRTUAL_KEY_FREEZE) && (receivedData != VIRTUAL_KEY_AUTO_SEQ))
 			{
@@ -357,7 +357,7 @@ void USART3_IRQHandler(void)
 			}
 			break;
 
-		case UART_PROC_ETX:
+		case UART_STATE_ETX:
 			if(receivedData == UART_ETX)
 			{
 				SetKeyReady();
@@ -367,7 +367,7 @@ void USART3_IRQHandler(void)
 				errorCode = ERROR_INVALID_CONTROL;
 				ClearKeyReady();
 			}
-			uartProc_Stage = UART_PROC_SOH;
+			uartProc_State = UART_STATE_SOH;
 			break;
 	}
 }
