@@ -56,6 +56,10 @@ const u8 menuStr_NC[] = "N.C";
 
 const u8 menuStr_Digit[] = "DIGIT";
 
+const u8 menuStr_Baudrate1200[] = "1200bps";
+const u8 menuStr_Baudrate2400[] = "2400bps";
+const u8 menuStr_Baudrate9600[] = "9600bps";
+
 // Main Menu
 const u8 menuStr_MainMenu_Title[] =           "-- MAIN MENU --";
 const u8 menuStr_MainMenu_TimeDate[] =        "1. TIME / DATE";
@@ -109,7 +113,8 @@ const u8 menuStr_Alarm_Channel4[] =            "5. CH4 ALARM :     / VIDEO LOSS 
 const u8 menuStr_Alarm_AlarmOutTime[] =        "6. ALARM OUT TIME : ";
 const u8 menuStr_Alarm_AlarmBuzzerTime[] =     "7. ALARM BUZZER TIME : ";
 const u8 menuStr_Alarm_VideoLossBuzzerTime[] = "8. VIDEO LOSS BUZZER TIME : ";
-const u8 menuStr_Alarm_RemoconId[] =           "9. REMOCON ID : ";
+const u8 menuStr_Alarm_RemoconId[] =           "9. SERIAL ID : ";
+const u8 menuStr_Alarm_BaudRate[] =            "10. BAUD RATE : ";
 
 // Motion Detection
 const u8 menuStr_Motion_Title[] =       "-- MOTION DETECTION OPTION --";

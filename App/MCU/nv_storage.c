@@ -39,6 +39,7 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_REMOCON_ID,				sizeof(uint8_t),							CLEAR},
 		{NV_ITEM_ALARM_REMOCON_SELECT,		sizeof(BOOL),								CLEAR},
 		{NV_ITEM_MOTION_SENSITIVITY,		sizeof(uint8_t),							CLEAR},
+		{NV_ITEM_SERIAL_BAUDRATE,			sizeof(eBaudRate_t),						CLEAR},
 		{NV_ITEM_DISPLAY_MODE,				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_DISPLAY_CHANNEL,			sizeof(eChannel_t),							CLEAR},
 		{NV_ITEM_END_CHECK,					sizeof(uint32_t),							CLEAR}
@@ -146,6 +147,7 @@ static void LoadDefaultNvData(void)
 	nv_data.data.videoLossDisplayOn = ON;
 	nv_data.data.remoconId = REMOCON_ID_NONE;
 	nv_data.data.alarm_remote_sel = ALARM_MODE;
+	nv_data.data.baudrate = BAUDRATE_9600;
 	nv_data.data.motionSensitivity = 10;
 	nv_data.data.displayMode = DISPLAY_MODE_QUAD;
 	nv_data.data.currentChannel = (eChannel_t)CHANNEL_QUAD;
@@ -520,6 +522,16 @@ void Write_NvItem_RemoconId(uint8_t data)
 {
 	nv_data.data.remoconId = data;
 	nvInfo[NV_ITEM_REMOCON_ID].dirty = SET;
+}
+
+void Read_NvItem_SerialBaudrate(eBaudRate_t *pData)
+{
+	*pData = nv_data.data.baudrate;
+}
+void Write_NvItem_SerialBaudrate(eBaudRate_t data)
+{
+	nv_data.data.baudrate = data;
+	nvInfo[NV_ITEM_SERIAL_BAUDRATE].dirty = SET;
 }
 
 void Read_NvItem_MotionSensitivity(uint8_t *pData)

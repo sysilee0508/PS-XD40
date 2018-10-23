@@ -241,6 +241,28 @@ static u8 GetRemotconId(void)
 	return id;
 }
 
+static u32 Get_BaudRate(void)
+{
+	eBaudRate_t rate;
+	u32 baudrate = 9600;
+
+	Read_NvItem_SerialBaudrate(&rate);
+	switch(rate)
+	{
+		case BAUDRATE_1200:
+			baudrate = 1200;
+			break;
+		case BAUDRATE_2400:
+			baudrate = 2400;
+			break;
+		case BAUDRATE_9600:
+			baudrate = 9600;
+			break;
+	}
+
+	return baudrate;
+}
+
 void USART3_Init(void)
 {
 	USART_InitTypeDef USART_InitStructure;
@@ -254,7 +276,7 @@ void USART3_Init(void)
 	//-Flow control None.
 	//-Receive enabled
 
-	USART_InitStructure.USART_BaudRate = 9600;
+	USART_InitStructure.USART_BaudRate = Get_BaudRate();
 	USART_InitStructure.USART_WordLength    = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits      = USART_StopBits_1;
 	USART_InitStructure.USART_Parity        = USART_Parity_No;
