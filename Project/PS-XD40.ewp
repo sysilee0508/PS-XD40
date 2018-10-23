@@ -2219,6 +2219,12 @@
                 <name>$PROJ_DIR$\..\App\Main\main.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\App\Main\MotionDetect.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\Main\MotionDetect.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\App\Main\osd_display.c</name>
             </file>
             <file>

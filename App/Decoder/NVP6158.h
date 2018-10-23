@@ -868,7 +868,8 @@ typedef struct _RAPTOR3_INFORMATION_S
 	unsigned char			vfc[4];
 	unsigned char			debounce[4][5];
 	unsigned char			debounceidx[4];
-	unsigned int 			videolosscheck[4]; //1:Loss 0:Video
+	unsigned int 			videolosscheck[4]; /* 1:Loss 0:Video */
+	unsigned char 			motiondetect;
 } RAPTOR3_INFORMATION_S;
 
 void NVP6158_init(void);
@@ -905,6 +906,10 @@ void video_input_vafe_init(decoder_dev_ch_info_s *decoder_info);
 void video_input_new_format_set(decoder_dev_ch_info_s *decoder_info);
 void video_input_onvideo_check_data(video_input_vfc *vin_vfc);
 void video_input_no_video_set(video_input_novid_set *auto_novid);
+void motion_detection_get(motion_mode *motion_set);
+void motion_onoff_set(motion_mode *motion_set);
+void motion_pixel_all_onoff_set(motion_mode *motion_set);
+void motion_tsen_set(motion_mode *motion_set);
 
 int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInformation );
 int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInformation );

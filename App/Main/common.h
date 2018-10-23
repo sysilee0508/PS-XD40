@@ -28,7 +28,6 @@
 #include "mdintype.h"
 #include "mdin3xx.h"
 
-#include "nv_storage.h"
 #include "main.h"
 #include "key.h"
 #include "Rtc.h"
@@ -46,10 +45,10 @@
 #include "item.h"
 #include "video_loss.h"
 
-#include "alarm_remotekey.h"
 #include "timer.h"
-#include "display_mode.h"
-
+#include "MotionDetect.h"
+#include "nv_storage.h"
+#include "alarm_remotekey.h"
 #include "display_mode.h"
 #include "VS4210.h"
 

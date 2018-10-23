@@ -38,6 +38,7 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_VIDEO_LOSS_DISPLAY_ON,		sizeof(BOOL),								CLEAR},
 		{NV_ITEM_REMOCON_ID,				sizeof(uint8_t),							CLEAR},
 		{NV_ITEM_ALARM_REMOCON_SELECT,		sizeof(BOOL),								CLEAR},
+		{NV_ITEM_MOTION_DETECT_ON,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_MOTION_SENSITIVITY,		sizeof(uint8_t),							CLEAR},
 		{NV_ITEM_DISPLAY_MODE,				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_DISPLAY_CHANNEL,			sizeof(eChannel_t),							CLEAR},
@@ -144,10 +145,17 @@ static void LoadDefaultNvData(void)
 	}
 	nv_data.data.videoLossBuzzerTime = 3;
 	nv_data.data.videoLossDisplayOn = ON;
+
 	nv_data.data.remoconId = REMOCON_ID_NONE;
 	nv_data.data.alarm_remote_sel = ALARM_MODE;
-	nv_data.data.motionSensitivity = 10;
 	nv_data.data.displayMode = DISPLAY_MODE_QUAD;
+	for(index = 0; index < NUM_OF_CHANNEL; index++)
+	{	
+		nv_data.data.motionDetect_On[index] = OFF;
+	}
+	nv_data.data.motionSensitivity = 0x60;
+	memset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
+
 	nv_data.data.currentChannel = (eChannel_t)CHANNEL_QUAD;
 
 	// set anyone of nv items dirty in order to write nv data to flash
@@ -522,6 +530,22 @@ void Write_NvItem_RemoconId(uint8_t data)
 	nvInfo[NV_ITEM_REMOCON_ID].dirty = SET;
 }
 
+void Read_NvItem_MotionDetectOnOff(uint8_t *pData, eChannel_t channel)
+{
+	if(channel < NUM_OF_CHANNEL)
+	{
+		*pData = nv_data.data.motionDetect_On[channel];
+	}	
+}
+void Write_NvItem_MotionDetectOnOff(uint8_t data, eChannel_t channel)
+{
+	if(channel < NUM_OF_CHANNEL)
+	{
+		nv_data.data.motionDetect_On[channel] = data;
+		nvInfo[NV_ITEM_MOTION_DETECT_ON].dirty = SET;
+	}	
+}
+
 void Read_NvItem_MotionSensitivity(uint8_t *pData)
 {
 	*pData = nv_data.data.motionSensitivity;
@@ -530,6 +554,16 @@ void Write_NvItem_MotionSensitivity(uint8_t data)
 {
 	nv_data.data.motionSensitivity = data;
 	nvInfo[NV_ITEM_MOTION_SENSITIVITY].dirty = SET;
+}
+
+void Read_NvItem_MotionBlock(uint16_t *pData, eChannel_t channel)
+{
+	memcpy(pData, &nv_data.data.motionBlocks[channel][0], sizeof(uint16_t)*ROWS_OF_BLOCKS);
+}
+void Write_NvItem_MotionBlock(uint16_t *pData, eChannel_t channel)
+{
+	memcpy(&nv_data.data.motionBlocks[channel][0], pData, sizeof(uint16_t)*ROWS_OF_BLOCKS);
+	nvInfo[NV_ITEM_MOTION_DETECT_BLOCK].dirty = SET;
 }
 
 //--------------------------------------------------------------------------------

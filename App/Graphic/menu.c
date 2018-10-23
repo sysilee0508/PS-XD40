@@ -1743,8 +1743,9 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 			}
   			break;	
 
-    	case KEY_LEFT:
     	case KEY_RIGHT:
+    		inc_dec = INCREASE;
+    	case KEY_LEFT:
     		// To Do : video loss alarm set for each channel
     		break;
 
@@ -1782,11 +1783,63 @@ const sLocationNString_t motionDetectionMenu[MOTION_ITEM_Y_MAX] =
 	{20, LINE6_OFFSET_Y, menuStr_Motion_CallMode}
 };
 
-static void MotionDetectionPage_UpdatePage(u8 itemY)
+static SBOX_CTL_INFO motionSBox;
+static BOOL areaSelecting = FALSE;
+static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
+{
+	u8 block_width = DISPLAY_WIDTH / COLUMMS_OF_BLOCKS; //120
+	u8 block_height = DISPLAY_HEIGHT / ROWS_OF_BLOCKS;	//90
+	u8 index;
+	sPosition_t mark;
+	u16 blocks[ROWS_OF_BLOCKS];
+	u16 block_mask;
+
+	areaSelecting = TRUE;
+	// Step 1. Draw lines
+	for(index = 0; index < ROWS_OF_BLOCKS/2; index++)
+	{
+		// draw h-line
+		MDINOSD_SetBGBoxArea(BGBOX_INDEX0+index, 0, index * block_height * 2, DISPLAY_WIDTH, block_height);
+		MDINOSD_EnableBGBox(BGBOX_INDEX0+index, ON);
+	}
+	for(index = 0; index < COLUMMS_OF_BLOCKS/2; index++)
+	{
+		//draw v-line
+		motionSBox.index = index;
+		MDINOSD_SetSBoxBorderColor(&motionSBox, RGB(255,255,255));
+		MDINOSD_SetSBoxArea(&motionSBox, index * block_width, 0, (index+1)*block_width - 1, DISPLAY_HEIGHT);
+		MDINOSD_EnableSBoxBorder(&motionSBox, ON);
+	}
+
+	// Step 2. Draw "V" mark on activated block
+	Read_NvItem_MotionBlock(blocks, channel);
+	for(index = 0; index < ROWS_OF_BLOCKS; index++)
+	{
+		mark.pos_x = (index * block_width) + (block_width - CHAR_WIDTH_S)/2 - 1;
+		mark.pos_y = (block_height - CHAR_HEIGHT)/2 - 1;
+		block_mask = 0x0001 << index;
+		if(blocks[index] & block_mask)
+		{
+			// activated... Print selected mark
+			OSD_PrintString(mark, menuStr_SelectedMark, strlen(menuStr_SelectedMark));
+		}
+		else
+		{
+			OSD_PrintString(mark, menuStr_UnselectedMart, strlen(menuStr_UnselectedMart));
+		}
+	}
+
+	// Step 3. Draw cursor
+	// ToDo... should discuss about how to make it
+	// refer mdincur.c
+}
+
+static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
 {
 	u8 sensitivity;
 	u8 str[2];
 	u8 attribute = (requestEnterKeyProc==SET)?UNDER_BAR:NULL;
+	BOOL motionOn;
 
 	//To Do
 	switch(itemY)
@@ -1795,6 +1848,18 @@ static void MotionDetectionPage_UpdatePage(u8 itemY)
 		case MOTION_ITEM_Y_CH2:
 		case MOTION_ITEM_Y_CH3:
 		case MOTION_ITEM_Y_CH4:
+			if(itemX == 0)
+			{
+				Read_NvItem_MotionDetectOnOff(&motionOn, itemY - 1);
+				Print_StringOnOff(
+						motionDetectionMenu[itemY].offset_x + 9,
+						motionDetectionMenu[itemY].offset_y,
+						attribute, motionOn);
+			}
+			else
+			{
+				MotionDetectionPage_DrawSelectedArea((eChannel_t)(itemY - 1));
+			}
 			break;
 
 		case MOTION_ITEM_Y_SENSITIVITY:
@@ -1828,7 +1893,7 @@ static void MotionDetectionPage_Entry(void)
 				motionDetectionMenu[index].offset_y,
 				motionDetectionMenu[index].str,
 				NULL, 0);
-		MotionDetectionPage_UpdatePage(index);
+		MotionDetectionPage_UpdatePage(index, 0);
 	}
 }
 
@@ -1836,9 +1901,10 @@ static void MotionDetectionPage_Entry(void)
 static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = MOTION_ITEM_Y_CH1;
-//	static u8 pos_x = 0;
+	static u8 pos_x = 0;
 	u8 inc_dec = DECREASE;
 	u8 sensitivity;
+	BOOL motionOn;
 
 	switch(key)
 	{
@@ -1854,6 +1920,9 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 					case MOTION_ITEM_Y_CH2:
 					case MOTION_ITEM_Y_CH3:
 					case MOTION_ITEM_Y_CH4:
+						Read_NvItem_MotionDetectOnOff(&motionOn, itemY - 1);
+						Toggle(&motionOn);
+						Write_NvItem_MotionDetectOnOff(motionOn, itemY-1);
 						break;
 
 					case MOTION_ITEM_Y_SENSITIVITY:
@@ -1865,7 +1934,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 					case MOTION_ITEM_Y_MOTION_MODE:
 						break;
 				}
-				MotionDetectionPage_UpdatePage(itemY);
+				MotionDetectionPage_UpdatePage(itemY, pos_x);
 			}
 			else
 			{
@@ -1874,20 +1943,38 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 			}
 			break;
 
-		case KEY_ENTER:
+    	case KEY_RIGHT:
+    		inc_dec = INCREASE;
+    	case KEY_LEFT:
+	    	if(requestEnterKeyProc)
+			{
+				if((itemY >= MOTION_ITEM_Y_CH1) && (itemY <= MOTION_ITEM_Y_CH4))
+				{
+					requestEnterKeyProc = CLEAR;
+	  				IncreaseDecreaseCount(1, 0, inc_dec,&pos_x);
+	  				MotionDetectionPage_UpdatePage(itemY, pos_x);
+				}
+			}
+			else
+			{
+				DrawSelectMark(itemY);
+			}
+    		break;
+
+    	case KEY_ENTER:
 			Toggle(&requestEnterKeyProc);
-			MotionDetectionPage_UpdatePage(itemY);
+			MotionDetectionPage_UpdatePage(itemY, pos_x);
 			break;
 
 		case KEY_EXIT :
 			if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
-				MotionDetectionPage_UpdatePage(itemY);
+				MotionDetectionPage_UpdatePage(itemY, pos_x);
 			}
 			else
 			{
-//				pos_x = 0;
+				pos_x = 0;
 				itemY = MOTION_ITEM_Y_CH1;
 				MainMenu_Entry(currentPage);
 			}

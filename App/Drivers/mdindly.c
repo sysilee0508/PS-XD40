@@ -16,7 +16,7 @@
 // Include files
 // ----------------------------------------------------------------------
 #include	"mdin3xx.h"
-#include 	"..\main\common.h"
+#include 	"common.h"
 
 // ----------------------------------------------------------------------
 // Struct/Union Types and define
