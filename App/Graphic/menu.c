@@ -1674,7 +1674,7 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  					alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 					alarmRemoconMenu[itemY].offset_y,
 					(const u8*)baudrateStr,
-					attribute, strlen(baudrateStr)-3);
+					attribute, strlen(baudrateStr));
 
  			break;
  	}
@@ -1771,7 +1771,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
-				IncreaseDecreaseCount(9, 1, inc_dec, &itemY);
+				IncreaseDecreaseCount(ALARM_ITEM_Y_MAX-1, 1, inc_dec, &itemY);
 				DrawSelectMark(itemY);//,0);
 			}
   			break;	

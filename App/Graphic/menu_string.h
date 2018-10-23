@@ -49,16 +49,16 @@ const u8 menuStr_Resolution1920X1080_60P[] = "1920 X 1080 60P";
 const u8 menuStr_Resolution1920X1080_50P[] = "1920 X 1080 50P";
 
 const u8 menuStr_Alarm[] =   "ALARM";
-const u8 menuStr_Remocon[] = "REMOCON";
+const u8 menuStr_Remocon[] = "SERIAL";
 
 const u8 menuStr_NO[] = "N.O";
 const u8 menuStr_NC[] = "N.C";
 
 const u8 menuStr_Digit[] = "DIGIT";
 
-const u8 menuStr_Baudrate1200[] = "1200bps";
-const u8 menuStr_Baudrate2400[] = "2400bps";
-const u8 menuStr_Baudrate9600[] = "9600bps";
+const u8 menuStr_Baudrate1200[] = "1200";
+const u8 menuStr_Baudrate2400[] = "2400";
+const u8 menuStr_Baudrate9600[] = "9600";
 
 // Main Menu
 const u8 menuStr_MainMenu_Title[] =           "-- MAIN MENU --";
@@ -66,7 +66,7 @@ const u8 menuStr_MainMenu_TimeDate[] =        "1. TIME / DATE";
 const u8 menuStr_MainMenu_CameraTitle[] =     "2. CAMERA TITLE";
 const u8 menuStr_MainMenu_AutoSeq[] =         "3. AUTO SEQUENCE OPTION";
 const u8 menuStr_MainMenu_Display[] =         "4. DISPALY OPTION";
-const u8 menuStr_MainMenu_Alarm[] =           "5. ALARM / REMOCON OPTION";
+const u8 menuStr_MainMenu_Alarm[] =           "5. ALARM / SERIAL OPTION";
 const u8 menuStr_MainMenu_MotionDetection[] = "6. MOTION DETECTION OPTION";
 const u8 menuStr_MainMenu_DeviceInfo[] =      "7. DEVICE INFO";
 
@@ -104,8 +104,8 @@ const u8 menuStr_Display_OsdDisplay[] = "2. OSD DISPLAY : ";
 const u8 menuStr_Display_BorderLine[] = "3. BORDER LINE DISPLAY : ";
 
 // Alarm
-const u8 menuStr_Alarm_Title[] =               "-- ALARM / REMOCON OPTION --";
-const u8 menuStr_Alarm_AlarmRemocon[] =        "1. ALARM/REMOCON SELECT : "; //ALARM(default) / REMOCON
+const u8 menuStr_Alarm_Title[] =               "-- ALARM / SERIAL OPTION --";
+const u8 menuStr_Alarm_AlarmRemocon[] =        "1. ALARM/SERIAL SELECT : "; //ALARM(default) / REMOCON
 const u8 menuStr_Alarm_Channel1[] =            "2. CH1 ALARM :     / VIDEO LOSS : ";
 const u8 menuStr_Alarm_Channel2[] =            "3. CH2 ALARM :     / VIDEO LOSS : ";
 const u8 menuStr_Alarm_Channel3[] =            "4. CH3 ALARM :     / VIDEO LOSS : ";
@@ -114,7 +114,7 @@ const u8 menuStr_Alarm_AlarmOutTime[] =        "6. ALARM OUT TIME : ";
 const u8 menuStr_Alarm_AlarmBuzzerTime[] =     "7. ALARM BUZZER TIME : ";
 const u8 menuStr_Alarm_VideoLossBuzzerTime[] = "8. VIDEO LOSS BUZZER TIME : ";
 const u8 menuStr_Alarm_RemoconId[] =           "9. SERIAL ID : ";
-const u8 menuStr_Alarm_BaudRate[] =            "10. BAUD RATE : ";
+const u8 menuStr_Alarm_BaudRate[] =            "10. SERIAL BAUDRATE(bps) : ";
 
 // Motion Detection
 const u8 menuStr_Motion_Title[] =       "-- MOTION DETECTION OPTION --";

@@ -415,7 +415,7 @@ static void OSD_EraseFreezeAuto(void)
 	{
 		position.pos_x += (2 * CHAR_WIDTH_S);
 	}
-	OSD_PrintString(position, osdStr_Space6, sizeof(osdStr_Space6));
+	OSD_PrintString(position, osdStr_Space6, strlen(osdStr_Space6));
 }
 
 //-----------------------------------------------------------------------------
