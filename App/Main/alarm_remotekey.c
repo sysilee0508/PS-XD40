@@ -19,8 +19,6 @@
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
-static BYTE alarm_remotekey_mode = ALARM_MODE;
-
 static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_QUAD;
@@ -92,7 +90,7 @@ void CheckAlarm(void)
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
 		alarmInfo[channel].raw_data = spiData & spiDataMask[channel];
-		Read_NvItem_AlarmOption(&alarmOption, channel);
+		Read_NvItem_AlarmOption(&alarmOption, (eChannel_t)channel);
 
 		switch(alarmOption)
 		{
@@ -138,7 +136,7 @@ void CheckAlarm(void)
 				alarmInfo[channel].check_count = 0;
 				//buzzer & alarm output
 				StartStopAlarm(ALARM_START);
-				lastAlarmChannel = channel;
+				lastAlarmChannel = (eChannel_t)channel;
 				//Occur key data (key_alarm) to display alarm screen
 				UpdateKeyData(KEY_ALARM);
 				SetKeyReady();

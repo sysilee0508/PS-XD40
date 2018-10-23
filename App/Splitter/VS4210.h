@@ -28,12 +28,18 @@
 //=============================================================================
 //  Function Prototype
 //=============================================================================
+extern void VS4210_Input720P_Output1080P_Mode0_w0(void);
+extern void VS4210_Input720P_Output1080P_Mode0_w1(void);
+extern void VS4210_Input720P_Output1080P_Mode0_w2(void);
+extern void VS4210_Input720P_Output1080P_Mode0_w3(void);
 extern void VS4210_Input720P_Output1080P_Mode1_w0(void);
 extern void VS4210_Input720P_Output1080P_Mode1_w1(void);
 extern void VS4210_Input720P_Output1080P_Mode1_w2(void);
 extern void VS4210_Input720P_Output1080P_Mode1_w3(void);
 extern void VS4210_Input1080P_Output1080P_Mode0_w0(void);
 extern void VS4210_Input1080P_Output1080P_Mode0_w1(void);
+extern void VS4210_Input1080P_Output1080P_Mode0_w2(void);
+extern void VS4210_Input1080P_Output1080P_Mode0_w3(void);
 extern void VS4210_Input1080P_Output1080P_Mode1_w0(void);
 extern void VS4210_Input1080P_Output1080P_Mode1_w1(void);
 extern void VS4210_Input1080P_Output1080P_Mode1_w2(void);
