@@ -63,6 +63,7 @@ typedef enum
 	NV_ITEM_MOTION_DETECT_ON,
 	NV_ITEM_MOTION_SENSITIVITY,
 	NV_ITEM_MOTION_DETECT_BLOCK,
+	NV_ITEM_SERIAL_BAUDRATE,
 //-- system data ---------------------------------------------------------------
 //	If you want to store any system data (item) in NV memory, it comes here
 	NV_ITEM_DISPLAY_MODE,
@@ -156,6 +157,13 @@ typedef struct
 	eTimeUnit_t 			timeCorrectUint;
 } sTimeCorrect_t;
 
+typedef enum
+{
+	BAUDRATE_1200,
+	BAUDRATE_2400,
+	BAUDRATE_9600,
+	BAUDRATE_MAX
+} eBaudRate_t;
 //--------------------------------------------------------------------------------------
 typedef struct
 {
@@ -195,8 +203,8 @@ typedef struct
 	BOOL					motionDetect_On[NUM_OF_CHANNEL];
 	uint8_t					motionSensitivity;
 	uint16_t				motionBlocks[NUM_OF_CHANNEL][ROWS_OF_BLOCKS];
+	eBaudRate_t 			baudrate;
 
-//	uint8_t baud_rate;			// baud_rate
 	eDisplayMode_t			displayMode;
 	eChannel_t				currentChannel;
 
@@ -273,5 +281,6 @@ extern void Read_NvItem_RemoconId(uint8_t *pData);
 extern void Write_NvItem_RemoconId(uint8_t data);
 extern void Read_NvItem_MotionSensitivity(uint8_t *pData);
 extern void Write_NvItem_MotionSensitivity(uint8_t data);
-
+extern void Read_NvItem_SerialBaudrate(eBaudRate_t *pData);
+extern void Write_NvItem_SerialBaudrate(eBaudRate_t data);
 #endif

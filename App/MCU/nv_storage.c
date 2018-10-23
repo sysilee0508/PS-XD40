@@ -40,6 +40,7 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_ALARM_REMOCON_SELECT,		sizeof(BOOL),								CLEAR},
 		{NV_ITEM_MOTION_DETECT_ON,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_MOTION_SENSITIVITY,		sizeof(uint8_t),							CLEAR},
+		{NV_ITEM_SERIAL_BAUDRATE,			sizeof(eBaudRate_t),						CLEAR},
 		{NV_ITEM_DISPLAY_MODE,				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_DISPLAY_CHANNEL,			sizeof(eChannel_t),							CLEAR},
 		{NV_ITEM_END_CHECK,					sizeof(uint32_t),							CLEAR}
@@ -148,7 +149,8 @@ static void LoadDefaultNvData(void)
 
 	nv_data.data.remoconId = REMOCON_ID_NONE;
 	nv_data.data.alarm_remote_sel = ALARM_MODE;
-	nv_data.data.displayMode = DISPLAY_MODE_QUAD;
+	nv_data.data.baudrate = BAUDRATE_9600;
+	
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{	
 		nv_data.data.motionDetect_On[index] = OFF;
@@ -156,6 +158,7 @@ static void LoadDefaultNvData(void)
 	nv_data.data.motionSensitivity = 0x60;
 	memset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
 
+	nv_data.data.displayMode = DISPLAY_MODE_QUAD;
 	nv_data.data.currentChannel = (eChannel_t)CHANNEL_QUAD;
 
 	// set anyone of nv items dirty in order to write nv data to flash
@@ -544,6 +547,16 @@ void Write_NvItem_MotionDetectOnOff(uint8_t data, eChannel_t channel)
 		nv_data.data.motionDetect_On[channel] = data;
 		nvInfo[NV_ITEM_MOTION_DETECT_ON].dirty = SET;
 	}	
+}
+
+void Read_NvItem_SerialBaudrate(eBaudRate_t *pData)
+{
+	*pData = nv_data.data.baudrate;
+}
+void Write_NvItem_SerialBaudrate(eBaudRate_t data)
+{
+	nv_data.data.baudrate = data;
+	nvInfo[NV_ITEM_SERIAL_BAUDRATE].dirty = SET;
 }
 
 void Read_NvItem_MotionSensitivity(uint8_t *pData)

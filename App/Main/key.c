@@ -401,29 +401,22 @@ void Key_Proc(void)
 			case KEY_FULL_CH3 : 
 			case KEY_FULL_CH4 : 
 				// If key is changed...
-				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
+				if((previous_keydata != key) && (screenFreezeOn == CLEAR))
 				{
 					OSD_EraseAllText();
-					screenFreezeOn = CLEAR;
 					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 					OSD_RefreshScreen();
-					//InputSelect = VIDEO_SDI_2HD_POP;
 					Set_DisplayMode_FullScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
 				}
 				break;
 				
 			case KEY_4SPLIT : 
-				if(previous_keydata != key /*|| SDIRX_change_flag	Louis block*/)
+				if((previous_keydata != key) && (screenFreezeOn == CLEAR))
 				{
-//					if(displayMode != DISPLAY_MODE_4SPLIT || bAuto_Seq_Flag || bScreenFreeze)
-//					{
-						OSD_EraseAllText();
-//					}
-					screenFreezeOn = CLEAR;
+					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 					OSD_RefreshScreen();
-					//InputSelect = VIDEO_SDI_2HD_POP;
 					Set_DisplayMode_Quad();
 					OSD_DrawBorderLine();
 				}
@@ -446,10 +439,9 @@ void Key_Proc(void)
 				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
 				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
 				{
-					//bMode_change_flag = SET;
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					screenFreezeOn = CLEAR;
 					OSD_RefreshScreen();
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 
 					InitializeAutoSeq(AUTO_SEQ_NORMAL);
 				}
@@ -464,9 +456,9 @@ void Key_Proc(void)
 
 			case KEY_ALARM :
 				// Sound out beep for configured time(in sec)
-				OSD_EraseAllText();
-				//InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 				screenFreezeOn = CLEAR;
+				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+				OSD_EraseAllText();
 				OSD_RefreshScreen();
 				InitializeAutoSeq(AUTO_SEQ_ALARM);
 				OSD_DrawBorderLine();

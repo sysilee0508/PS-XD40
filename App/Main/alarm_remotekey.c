@@ -23,7 +23,7 @@ static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_QUAD;
 
-static u8 uartProc_Stage = UART_PROC_SOH;
+static u8 uartProc_State = UART_STATE_SOH;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -239,25 +239,35 @@ static u8 GetRemotconId(void)
 	return id;
 }
 
+static u32 Get_BaudRate(void)
+{
+	eBaudRate_t rate;
+	u32 baudrate = 9600;
+
+	Read_NvItem_SerialBaudrate(&rate);
+	switch(rate)
+	{
+		case BAUDRATE_1200:
+			baudrate = 1200;
+			break;
+		case BAUDRATE_2400:
+			baudrate = 2400;
+			break;
+		case BAUDRATE_9600:
+			baudrate = 9600;
+			break;
+	}
+
+	return baudrate;
+}
+
 void USART3_Init(void)
 {
 	USART_InitTypeDef USART_InitStructure;
 
-	//USARTx configuration
-	//USARTx configured as follow:
-	//-Baudrate = 19200
-	//-Word Length = 8bits
-	//-One stop bit
-	//-No parity
-	//-Flow control None.
-	//-Receive enabled
-
-	USART_InitStructure.USART_BaudRate = 9600;
-	USART_InitStructure.USART_WordLength    = USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits      = USART_StopBits_1;
-	USART_InitStructure.USART_Parity        = USART_Parity_No;
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode          = USART_Mode_Rx;// | USART_Mode_Tx;
+	USART_StructInit(&USART_InitStructure);
+	USART_InitStructure.USART_BaudRate = Get_BaudRate();
+	USART_InitStructure.USART_Mode = USART_Mode_Rx;
 
 	USART_Init(USART3, &USART_InitStructure);
 	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
@@ -284,13 +294,13 @@ void USART3_IRQHandler(void)
 	// Clear the USART3 RX interrupt
 	USART_ClearITPendingBit(USART3,USART_IT_RXNE);
 
-	switch(uartProc_Stage)
+	switch(uartProc_State)
 	{
-		case UART_PROC_SOH:
+		case UART_STATE_SOH:
 			if(receivedData == UART_SOH)
 			{
 				// valid data is received. move to next step
-				uartProc_Stage = UART_PROC_HEADER;
+				uartProc_State = UART_STATE_HEADER;
 			}
 			else
 			{
@@ -299,38 +309,38 @@ void USART3_IRQHandler(void)
 			}
 			break;
 
-		case UART_PROC_HEADER:
+		case UART_STATE_HEADER:
 			if(receivedData > REMOCON_ID_MAX)
 			{
 				errorCode = ERROR_INVALID_REMOCONID;
-				uartProc_Stage = UART_PROC_SOH;
+				uartProc_State = UART_STATE_SOH;
 			}
 			else if(receivedData != remoconId)
 			{
 				errorCode = ERROR_REMOCONID_MISMATCH;
-				uartProc_Stage = UART_PROC_SOH;
+				uartProc_State = UART_STATE_SOH;
 			}
 			else
 			{
 				// move to next step
-				uartProc_Stage = UART_PROC_STX;
+				uartProc_State = UART_STATE_STX;
 			}
 			break;
 
-		case UART_PROC_STX:
+		case UART_STATE_STX:
 			if(receivedData == UART_STX)
 			{
-				uartProc_Stage = UART_PROC_CODE;
+				uartProc_State = UART_STATE_CODE;
 			}
 			else
 			{
 				errorCode = ERROR_INVALID_CONTROL;
-				uartProc_Stage = UART_PROC_SOH;
+				uartProc_State = UART_STATE_SOH;
 			}
 			break;
 
-		case UART_PROC_CODE:
-			uartProc_Stage = UART_PROC_ETX;
+		case UART_STATE_CODE:
+			uartProc_State = UART_STATE_ETX;
 
 			if((receivedData >= 0x90) && (receivedData != VIRTUAL_KEY_FREEZE) && (receivedData != VIRTUAL_KEY_AUTO_SEQ))
 			{
@@ -355,7 +365,7 @@ void USART3_IRQHandler(void)
 			}
 			break;
 
-		case UART_PROC_ETX:
+		case UART_STATE_ETX:
 			if(receivedData == UART_ETX)
 			{
 				SetKeyReady();
@@ -365,7 +375,7 @@ void USART3_IRQHandler(void)
 				errorCode = ERROR_INVALID_CONTROL;
 				ClearKeyReady();
 			}
-			uartProc_Stage = UART_PROC_SOH;
+			uartProc_State = UART_STATE_SOH;
 			break;
 	}
 }
@@ -382,6 +392,17 @@ void ChangeAlarmRemoteKeyMode(BYTE mode)
 	{
 		USART_Cmd(USART3, DISABLE);
 	}
+}
+
+void ChangeBaudrate(eBaudRate_t baudrate)
+{
+	USART_InitTypeDef USART_InitStructure;
+
+	USART_StructInit(&USART_InitStructure);
+	USART_InitStructure.USART_BaudRate = Get_BaudRate();
+	USART_InitStructure.USART_Mode = USART_Mode_Rx;
+
+	USART_Init(USART3, &USART_InitStructure);
 }
 
 BYTE GetAlarmRemoteKeyMode(void)

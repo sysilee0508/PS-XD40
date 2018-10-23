@@ -49,6 +49,7 @@
 #define LINE7_OFFSET_Y				17
 #define LINE8_OFFSET_Y				19
 #define LINE9_OFFSET_Y				21
+#define LINE10_OFFSET_Y				23
 
 #define ITEM_X(x)					0x0001 << x
 
@@ -135,6 +136,7 @@ enum
 	ALARM_ITEM_Y_ALARM_BUZZER_TIME,
 	ALARM_ITEM_Y_LOSS_BUZZER_TIME,
 	ALARM_ITEM_Y_REMOCONID,
+	ALARM_ITEM_Y_BAUDRATE,
 	ALARM_ITEM_Y_MAX
 };
 
@@ -1446,7 +1448,8 @@ const sLocationNString_t alarmRemoconMenu[ALARM_ITEM_Y_MAX] =
 	{20, LINE6_OFFSET_Y, menuStr_Alarm_AlarmOutTime},
 	{20, LINE7_OFFSET_Y, menuStr_Alarm_AlarmBuzzerTime},
 	{20, LINE8_OFFSET_Y, menuStr_Alarm_VideoLossBuzzerTime},
-	{20, LINE9_OFFSET_Y, menuStr_Alarm_RemoconId}
+	{20, LINE9_OFFSET_Y, menuStr_Alarm_RemoconId},
+	{20, LINE10_OFFSET_Y, menuStr_Alarm_BaudRate}
 };
 
 static void Print_StringAlarmRemoconSelection(u8 attribute)
@@ -1503,9 +1506,9 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 {
 //	u16 itemX = ITEM_X(pos_x);
 	u8 nv_data;
-	u8 remoconId;
 	u8 str2digit[2];
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
+	u8* baudrateStr;
 
  	switch(itemY)
  	{
@@ -1652,6 +1655,28 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 						attribute, strlen(menuStr_None));
  			}
  			break;
+
+ 		case ALARM_ITEM_Y_BAUDRATE:
+ 			Read_NvItem_SerialBaudrate((eBaudRate_t *)&nv_data);
+ 			switch(nv_data)
+ 			{
+				case BAUDRATE_1200:
+					baudrateStr = (u8*)menuStr_Baudrate1200;
+					break;
+				case BAUDRATE_2400:
+					baudrateStr = (u8*)menuStr_Baudrate2400;
+					break;
+				case BAUDRATE_9600:
+					baudrateStr = (u8*)menuStr_Baudrate9600;
+					break;
+ 			}
+ 			Print_StringWithSelectedMark(
+ 					alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
+					alarmRemoconMenu[itemY].offset_y,
+					(const u8*)baudrateStr,
+					attribute, strlen(baudrateStr));
+
+ 			break;
  	}
 }
 
@@ -1684,6 +1709,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 	BOOL alarmRemoconSel;
 	eAlarmOption_t alarmOption;
 	u8 intData;
+	eBaudRate_t baudrate;
 
 	switch(key)
 	{
@@ -1733,12 +1759,19 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
     					IncreaseDecreaseCount(REMOCON_ID_MAX, REMOCON_ID_NONE, inc_dec, &intData);
     					Write_NvItem_RemoconId(intData);
     					break;
+
+    				case ALARM_ITEM_Y_BAUDRATE:
+    					Read_NvItem_SerialBaudrate(&baudrate);
+    					IncreaseDecreaseCount(2, 0, inc_dec, &baudrate);
+    					Write_NvItem_SerialBaudrate(baudrate);
+    					break;
+
     			}
     			AlarmRemoconPage_UpdatePageOption(itemY);
 			}
 			else 
 			{
-				IncreaseDecreaseCount(9, 1, inc_dec, &itemY);
+				IncreaseDecreaseCount(ALARM_ITEM_Y_MAX-1, 1, inc_dec, &itemY);
 				DrawSelectMark(itemY);//,0);
 			}
   			break;	
