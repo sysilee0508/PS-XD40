@@ -232,10 +232,10 @@ void Set_DisplayoutputMode_table(void)
 	BYTE displayMode;
 	BYTE displayChannel;
 
-	displayMode = Get_DisplayoutputMode();
+	displayMode = Get_CurrentDisplayMode();
 	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 	{
-		displayChannel = Get_DisplayoutputChannel();
+		displayChannel = Get_CurrentDisplayChannel();
 		{
 			Display_FullScreen((eChannel_t)displayChannel);
 		}

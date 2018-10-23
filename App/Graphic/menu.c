@@ -1657,17 +1657,17 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  			break;
 
  		case ALARM_ITEM_Y_BAUDRATE:
- 			Read_NvItem_SerialBaudrate((eBuadRate_t *)&nv_data);
+ 			Read_NvItem_SerialBaudrate((eBaudRate_t *)&nv_data);
  			switch(nv_data)
  			{
 				case BAUDRATE_1200:
-					baudrateStr = menuStr_Baudrate1200;
+					baudrateStr = (u8*)menuStr_Baudrate1200;
 					break;
 				case BAUDRATE_2400:
-					baudrateStr = menuStr_Baudrate2400;
+					baudrateStr = (u8*)menuStr_Baudrate2400;
 					break;
 				case BAUDRATE_9600:
-					baudrateStr = menuStr_Baudrate9600;
+					baudrateStr = (u8*)menuStr_Baudrate9600;
 					break;
  			}
  			Print_StringWithSelectedMark(
