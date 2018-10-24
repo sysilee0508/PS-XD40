@@ -97,7 +97,7 @@ eVideoResolution_t Get_Current_Video_Resolution_Each_Channel(eChannel_t ch)
 void Display_FullScreen(eChannel_t ch)
 {
 	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
-	
+
 	switch(ch)
 	{
 		case CHANNEL1:
@@ -227,26 +227,50 @@ void Display_QuadScreen(void)
 	}		
 }
 
+BYTE Check_VideoFormat_Change(void)
+{
+	BYTE channel;
+	BYTE oCurVideofmt;
+	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0,};
+	BYTE videoFormatChanged;
+
+	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
+	{
+		oCurVideofmt = NVP6158_Current_Video_Format_Check(channel);
+		if(oCurVideofmt != oPreVideofmt[channel])
+		{
+			oPreVideofmt[channel] = oCurVideofmt;
+			videoFormatChanged = TRUE;
+		}
+	}
+
+	return videoFormatChanged;	
+}
+
 void Set_DisplayoutputMode_table(void)
 {
 	BYTE displayMode;
 	BYTE displayChannel;
 
-	displayMode = Get_CurrentDisplayMode();
-	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+	if(Check_VideoFormat_Change() == TRUE)
 	{
-		displayChannel = Get_CurrentDisplayChannel();
+		displayMode = Get_CurrentDisplayMode();
+		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
-			Display_FullScreen((eChannel_t)displayChannel);
+			displayChannel = Get_CurrentDisplayChannel();
+			{
+				Display_FullScreen((eChannel_t)displayChannel);
+			}
 		}
+		else if(displayMode == DISPLAY_MODE_QUAD)
+		{
+			Display_QuadScreen();
+		}
+		else
+		{
+			Display_QuadScreen();
+		}
+		Delay_ms(500);
 	}
-	else if(displayMode == DISPLAY_MODE_QUAD)
-	{
-		Display_QuadScreen();
-	}
-	else
-	{
-		Display_QuadScreen();
-	}		
 }
 
