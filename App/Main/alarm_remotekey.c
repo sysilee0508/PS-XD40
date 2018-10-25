@@ -287,7 +287,7 @@ void USART3_IRQHandler(void)
 	u8 i;
 	u8 remoconId = GetRemotconId();
 
-	if((remoconId == 0) && (uartProc_State == UART_SOH))
+	if((remoconId == 0) && (uartProc_State == UART_STATE_SOH))
 	{
 		uartProc_State = UART_STATE_STX;
 	}
