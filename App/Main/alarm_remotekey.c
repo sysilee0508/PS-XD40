@@ -283,97 +283,105 @@ void USART3_Init(void)
 void USART3_IRQHandler(void)
 {
 	static u8 errorCode = ERROR_NONE;
-	u8 receivedData;
+	u16 receivedData;
 	u8 i;
 	u8 remoconId = GetRemotconId();
 
-	receivedData = USART_ReceiveData(USART3);
-	// Clear the USART3 RX interrupt
-	USART_ClearITPendingBit(USART3,USART_IT_RXNE);
-
-	switch(uartProc_State)
+	if((remoconId == 0) && (uartProc_State == UART_SOH))
 	{
-		case UART_STATE_SOH:
-			if(receivedData == UART_SOH)
-			{
-				// valid data is received. move to next step
-				uartProc_State = UART_STATE_HEADER;
-			}
-			else
-			{
-				// invalid data. do nothing
-				errorCode = ERROR_INVALID_CONTROL;
-			}
-			break;
+		uartProc_State = UART_STATE_STX;
+	}
 
-		case UART_STATE_HEADER:
-			if(receivedData > REMOCON_ID_MAX)
-			{
-				errorCode = ERROR_INVALID_REMOCONID;
-				uartProc_State = UART_STATE_SOH;
-			}
-			else if(receivedData != remoconId)
-			{
-				errorCode = ERROR_REMOCONID_MISMATCH;
-				uartProc_State = UART_STATE_SOH;
-			}
-			else
-			{
-				// move to next step
-				uartProc_State = UART_STATE_STX;
-			}
-			break;
+	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
+	{
+		receivedData = USART_ReceiveData(USART3);
+		// Clear the USART3 RX interrupt
+		//USART_ClearITPendingBit(USART3,USART_IT_RXNE);
 
-		case UART_STATE_STX:
-			if(receivedData == UART_STX)
-			{
-				uartProc_State = UART_STATE_CODE;
-			}
-			else
-			{
-				errorCode = ERROR_INVALID_CONTROL;
-				uartProc_State = UART_STATE_SOH;
-			}
-			break;
-
-		case UART_STATE_CODE:
-			uartProc_State = UART_STATE_ETX;
-
-			if((receivedData >= 0x90) && (receivedData != VIRTUAL_KEY_FREEZE) && (receivedData != VIRTUAL_KEY_AUTO_SEQ))
-			{
-				receivedData -= 0x10;
-			}
-
-			if(GetSystemMode() == SYSTEM_SETUP_MODE)
-			{
-				if(receivedData == VIRTUAL_KEY_MENU)
+		switch(uartProc_State)
+		{
+			case UART_STATE_SOH:
+				if(receivedData == UART_SOH)
 				{
-					receivedData = VIRTUAL_KEY_FREEZE; //KEY_MENU -> KEY_FREEZE
+					// valid data is received. move to next step
+					uartProc_State = UART_STATE_HEADER;
 				}
-			}
-
-			for(i = 0; i < sizeof(virtual_key_tabla)/sizeof(sVirtualKeys_t); i++)
-			{
-				if(virtual_key_tabla[i].virtual_key == receivedData)
+				else
 				{
-					UpdateKeyData(virtual_key_tabla[i].keydata);
-					break;
+					// invalid data. do nothing
+					errorCode = ERROR_INVALID_CONTROL;
 				}
-			}
-			break;
+				break;
 
-		case UART_STATE_ETX:
-			if(receivedData == UART_ETX)
-			{
-				SetKeyReady();
-			}
-			else
-			{
-				errorCode = ERROR_INVALID_CONTROL;
-				ClearKeyReady();
-			}
-			uartProc_State = UART_STATE_SOH;
-			break;
+			case UART_STATE_HEADER:
+				if(receivedData > REMOCON_ID_MAX)
+				{
+					errorCode = ERROR_INVALID_REMOCONID;
+					uartProc_State = UART_STATE_SOH;
+				}
+				else if(receivedData != remoconId)
+				{
+					errorCode = ERROR_REMOCONID_MISMATCH;
+					uartProc_State = UART_STATE_SOH;
+				}
+				else
+				{
+					// move to next step
+					uartProc_State = UART_STATE_STX;
+				}
+				break;
+
+			case UART_STATE_STX:
+				if(receivedData == UART_STX)
+				{
+					uartProc_State = UART_STATE_CODE;
+				}
+				else
+				{
+					errorCode = ERROR_INVALID_CONTROL;
+					uartProc_State = UART_STATE_SOH;
+				}
+				break;
+
+			case UART_STATE_CODE:
+				uartProc_State = UART_STATE_ETX;
+
+				if((receivedData >= 0x90) && (receivedData != VIRTUAL_KEY_FREEZE) && (receivedData != VIRTUAL_KEY_AUTO_SEQ))
+				{
+					receivedData -= 0x10;
+				}
+
+				if(GetSystemMode() == SYSTEM_SETUP_MODE)
+				{
+					if(receivedData == VIRTUAL_KEY_MENU)
+					{
+						receivedData = VIRTUAL_KEY_FREEZE; //KEY_MENU -> KEY_FREEZE
+					}
+				}
+
+				for(i = 0; i < sizeof(virtual_key_tabla)/sizeof(sVirtualKeys_t); i++)
+				{
+					if(virtual_key_tabla[i].virtual_key == receivedData)
+					{
+						UpdateKeyData(virtual_key_tabla[i].keydata);
+						break;
+					}
+				}
+				break;
+
+			case UART_STATE_ETX:
+				if(receivedData == UART_ETX)
+				{
+					SetKeyReady();
+				}
+				else
+				{
+					errorCode = ERROR_INVALID_CONTROL;
+					ClearKeyReady();
+				}
+				uartProc_State = UART_STATE_SOH;
+				break;
+		}
 	}
 }
 
