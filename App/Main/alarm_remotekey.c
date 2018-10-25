@@ -291,6 +291,10 @@ void USART3_IRQHandler(void)
 	{
 		uartProc_State = UART_STATE_STX;
 	}
+	else if(remoconId != 0)
+	{
+		remoconId += 0x9F;
+	}
 
 	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
 	{
@@ -314,12 +318,7 @@ void USART3_IRQHandler(void)
 				break;
 
 			case UART_STATE_HEADER:
-				if(receivedData > REMOCON_ID_MAX)
-				{
-					errorCode = ERROR_INVALID_REMOCONID;
-					uartProc_State = UART_STATE_SOH;
-				}
-				else if(receivedData != remoconId)
+				if(receivedData != remoconId)
 				{
 					errorCode = ERROR_REMOCONID_MISMATCH;
 					uartProc_State = UART_STATE_SOH;
