@@ -1,7 +1,6 @@
 //=============================================================================
 //  Header Declaration
 //=============================================================================
-#include <stdio.h>
 #include "common.h"
 
 //=============================================================================
@@ -35,45 +34,50 @@ void Read_MotionDetect_OnOff(void)
 {
 	unsigned char channel_num;
 	
-	for(channel_num = 0; channel_num < 4; channel_num++)
+	for(channel_num = CHANNEL1; channel_num < NUM_OF_CHANNEL; channel_num++)
 	{
 		Read_NvItem_MotionDetectOnOff(&motiondetectionInfo[channel_num].motiondetect_enabled, channel_num);
 	}
 }
 
-void Write_MotionDetect_OnOff(BYTE ch, BOOL enabled)
+void Write_MotionDetect_OnOff(eChannel_t ch, BOOL enabled)
 {
 	motiondetectionInfo[ch].motiondetect_enabled = enabled;
 	Write_NvItem_MotionDetectOnOff(motiondetectionInfo[ch].motiondetect_enabled, ch);
 }
 
-BOOL Get_MotionDetect_OnOff(BYTE ch)
+BOOL Get_MotionDetect_OnOff(eChannel_t ch)
 {
 	return motiondetectionInfo[ch].motiondetect_enabled;
 }
 
-void Set_MotionDetect_OnOff(BYTE ch, BOOL enabled)
+void Set_MotionDetect_OnOff(eChannel_t ch, BOOL enabled)
 {
 	motiondetectionInfo[ch].motiondetect_enabled = enabled;
 }
 
-void Read_MotionDetect_Sensitivity(BYTE ch)
+void Read_MotionDetect_Sensitivity(eChannel_t ch)
 {
 	Read_NvItem_MotionDetectOnOff(&motiondetectionInfo[ch].temporal_sensitivity);
 }
 
-void Write_MotionDetect_Sensitivity(BYTE ch, BYTE value)
+void Write_MotionDetect_Sensitivity(eChannel_t ch, BYTE value)
 {
 	motiondetectionInfo[ch].temporal_sensitivity = value;
 	Write_NvItem_MotionDetectOnOff(motiondetectionInfo[ch].temporal_sensitivity);
 }
 
-BYTE Get_MotionDetect_Sensitivity(BYTE ch)
+BYTE Get_MotionDetect_Sensitivity(eChannel_t ch)
 {
 	return motiondetectionInfo[ch].temporal_sensitivity;
 }
 
-void Set_MotionDetect_Sensitivity(BYTE ch, BYTE value)
+void Set_MotionDetect_Sensitivity(eChannel_t ch, BYTE value)
+{
+
+}
+
+void Set_MotionDetect_ActivatedArea(void)
 {
 	
 }
@@ -84,27 +88,17 @@ void MotionDetectCheck(void)
 	unsigned char channel_num;
 	vMotion = NVP6158_MotionDetect_Check();
 
-	for(channel_num = 0; channel_num < 4; channel_num++)
+	for(channel_num = 0; channel_num < NUM_OF_CHANNEL; channel_num++)
 	{
 		motiondetectionInfo[channel_num].motion_detected = vMotion >> channel_num;
 	}
-	if (motiondetectionInfo[0].motion_detected)
+	if (motiondetectionInfo[CHANNEL1].motion_detected)
 	{
 		BUZZER_HIGH;
 		Delay_ms(100);
 		BUZZER_LOW;
 	}
-	if (motiondetectionInfo[1].motion_detected)
-	{
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-		Delay_ms(100);
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-	}
-	if (motiondetectionInfo[2].motion_detected)
+	if (motiondetectionInfo[CHANNEL2].motion_detected)
 	{
 		BUZZER_HIGH;
 		Delay_ms(100);
@@ -113,12 +107,22 @@ void MotionDetectCheck(void)
 		BUZZER_HIGH;
 		Delay_ms(100);
 		BUZZER_LOW;
+	}
+	if (motiondetectionInfo[CHANNEL3].motion_detected)
+	{
+		BUZZER_HIGH;
+		Delay_ms(100);
+		BUZZER_LOW;
+		Delay_ms(100);
+		BUZZER_HIGH;
+		Delay_ms(100);
+		BUZZER_LOW;
 		Delay_ms(100);
 		BUZZER_HIGH;
 		Delay_ms(100);
 		BUZZER_LOW;
 	}
-	if (motiondetectionInfo[3].motion_detected)
+	if (motiondetectionInfo[CHANNEL4].motion_detected)
 	{
 		BUZZER_HIGH;
 		Delay_ms(100);
