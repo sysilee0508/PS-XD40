@@ -229,7 +229,12 @@ BOOL GetAlarmStatus(eChannel_t channel)
 }
 
 //------------------------------------------------------------------------------
-// Remote controller (UART function)
+// Parallel Keys (SPI)
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+// RS232 Communication
 //------------------------------------------------------------------------------
 static u8 GetRemotconId(void)
 {
@@ -272,15 +277,7 @@ void USART3_Init(void)
 	USART_Init(USART3, &USART_InitStructure);
 	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 
-	//Disable the USART3 at start
-	if(GetAlarmRemoteKeyMode() == REMOTEKEY_MODE)
-	{
-		USART_Cmd(USART3, ENABLE);
-	}
-	else
-	{
-		USART_Cmd(USART3, DISABLE);
-	}
+	USART_Cmd(USART3, ENABLE);
 }
 
 void USART3_IRQHandler(void)
@@ -381,18 +378,18 @@ void USART3_IRQHandler(void)
 }
 
 //------------------------------------------------------------------------------
-void ChangeAlarmRemoteKeyMode(BYTE mode)
-{
-	if(mode == REMOTEKEY_MODE)
-	{
-		//enable uart
-		USART_Cmd(USART3, ENABLE);
-	}
-	else
-	{
-		USART_Cmd(USART3, DISABLE);
-	}
-}
+//void ChangeAlarmRemoteKeyMode(BYTE mode)
+//{
+//	if(mode == REMOTEKEY_MODE)
+//	{
+//		//enable uart
+//		USART_Cmd(USART3, ENABLE);
+//	}
+//	else
+//	{
+//		USART_Cmd(USART3, DISABLE);
+//	}
+//}
 
 void ChangeBaudrate(eBaudRate_t baudrate)
 {
@@ -413,11 +410,20 @@ BYTE GetAlarmRemoteKeyMode(void)
 
 	return select;
 }
+
+static void CheckParallelKeys(void)
+{
+	// to do
+}
 //------------------------------------------------------------------------------
 void AlarmRemoteKey_Proc(void)
 {
 	if(GetAlarmRemoteKeyMode() == ALARM_MODE)
 	{
 		CheckAlarm();
+	}
+	else
+	{
+		CheckParallelKeys();
 	}
 }

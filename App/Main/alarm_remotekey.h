@@ -82,7 +82,7 @@ typedef struct
 //=============================================================================
 //  Function Prototype
 //=============================================================================
-extern void ChangeAlarmRemoteKeyMode(BYTE mode);
+//extern void ChangeAlarmRemoteKeyMode(BYTE mode);
 extern void StartStopAlarm(BOOL start_stop);
 extern void CheckAlarmClearCondition(void);
 extern eChannel_t GetLastAlarmChannel(void);
