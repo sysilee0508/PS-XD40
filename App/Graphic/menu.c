@@ -1795,6 +1795,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
+				ChangeBaudrate();
 				itemY = ALARM_ITEM_Y_ALARM_REMOCON;
 				MainMenu_Entry(currentPage);
 			}

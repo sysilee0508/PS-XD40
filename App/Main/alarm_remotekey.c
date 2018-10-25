@@ -391,15 +391,14 @@ void USART3_IRQHandler(void)
 //	}
 //}
 
-void ChangeBaudrate(eBaudRate_t baudrate)
+void ChangeBaudrate(void)
 {
 	USART_InitTypeDef USART_InitStructure;
 
-	USART_StructInit(&USART_InitStructure);
-	USART_InitStructure.USART_BaudRate = Get_BaudRate();
-	USART_InitStructure.USART_Mode = USART_Mode_Rx;
+	USART_Cmd(USART3, DISABLE);
+	USART_DeInit(USART3);
 
-	USART_Init(USART3, &USART_InitStructure);
+	USART3_Init();
 }
 
 BYTE GetAlarmRemoteKeyMode(void)
