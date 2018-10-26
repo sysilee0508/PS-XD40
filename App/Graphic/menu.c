@@ -1816,7 +1816,17 @@ const sLocationNString_t motionDetectionMenu[MOTION_ITEM_Y_MAX] =
 	{20, LINE6_OFFSET_Y, menuStr_Motion_CallMode}
 };
 
-static SBOX_CTL_INFO motionSBox;
+static void Print_StringSelectArea(u16 offset_x, u16 offset_y,BOOL active)
+{
+	u8 attribute = NULL;
+
+	if(active)
+	{
+		attribute = UNDER_BAR;
+	}
+	Print_StringWithSelectedMark(offset_x, offset_y, menuStr_SelectArea, attribute, strlen(menuStr_SelectArea));
+}
+//static SBOX_CTL_INFO motionSBox;
 static BOOL areaSelecting = FALSE;
 static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 {
@@ -1827,28 +1837,28 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 	u16 blocks[ROWS_OF_BLOCKS];
 	u16 block_mask;
 
+	// Clear screnn
 	Erase_AllMenuScreen();
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 	Set_DisplayMode_FullScreen(channel);
-	//MDINOSD_SetBGBoxColor(RGB(255,255,255));
+
 	areaSelecting = TRUE;
 	// Step 1. Draw lines
-/*
-	for(index = 0; index < ROWS_OF_BLOCKS/2; index++)
-	{
-		// draw h-line
-		MDINOSD_SetBGBoxArea(BGBOX_INDEX0+index, 0, index * block_height * 2, DISPLAY_WIDTH, block_height);
-		MDINOSD_EnableBGBox(BGBOX_INDEX0+index, ON);
-	}
-	for(index = 0; index < COLUMMS_OF_BLOCKS/2; index++)
-	{
-		//draw v-line
-		motionSBox.index = index;
-		MDINOSD_SetSBoxBorderColor(&motionSBox, RGB(255,255,255));
-		MDINOSD_SetSBoxArea(&motionSBox, index * block_width, 0, (index+1)*block_width - 1, DISPLAY_HEIGHT);
-		MDINOSD_EnableSBoxBorder(&motionSBox, ON);
-	}
-*/
+//	for(index = 0; index < ROWS_OF_BLOCKS/2; index++)
+//	{
+//		// draw h-line
+//		MDINOSD_SetBGBoxArea(BGBOX_INDEX0+index, 0, index * block_height * 2, DISPLAY_WIDTH, block_height);
+//		MDINOSD_EnableBGBox(BGBOX_INDEX0+index, ON);
+//	}
+//	for(index = 0; index < COLUMMS_OF_BLOCKS/2; index++)
+//	{
+//		//draw v-line
+//		motionSBox.index = index;
+//		MDINOSD_SetSBoxBorderColor(&motionSBox, RGB(255,255,255));
+//		MDINOSD_SetSBoxArea(&motionSBox, index * block_width, 0, (index+1)*block_width - 1, DISPLAY_HEIGHT);
+//		MDINOSD_EnableSBoxBorder(&motionSBox, ON);
+//	}
+
 	// Step 2. Draw "V" mark on activated block
 	Read_NvItem_MotionBlock(blocks, channel);
 	for(indexRow = 0; indexRow < ROWS_OF_BLOCKS; indexRow++)
@@ -1896,10 +1906,24 @@ static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
 						motionDetectionMenu[itemY].offset_x + 9,
 						motionDetectionMenu[itemY].offset_y,
 						attribute, motionOn);
+				Print_StringSelectArea(
+						motionDetectionMenu[itemY].offset_x + strlen(motionDetectionMenu[itemY].str),
+						motionDetectionMenu[itemY].offset_y,
+						FALSE);
 			}
 			else
 			{
-				MotionDetectionPage_DrawSelectedArea((eChannel_t)(itemY - 1));
+				if(attribute == NULL)
+				{
+					Print_StringSelectArea(
+							motionDetectionMenu[itemY].offset_x + strlen(motionDetectionMenu[itemY].str),
+							motionDetectionMenu[itemY].offset_y,
+							TRUE);
+				}
+				else
+				{
+					MotionDetectionPage_DrawSelectedArea((eChannel_t)(itemY - 1));
+				}
 			}
 			break;
 
