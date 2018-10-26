@@ -68,7 +68,7 @@ const u8 menuStr_MainMenu_TimeDate[] =        "1. TIME / DATE";
 const u8 menuStr_MainMenu_CameraTitle[] =     "2. CAMERA TITLE";
 const u8 menuStr_MainMenu_AutoSeq[] =         "3. AUTO SEQUENCE OPTION";
 const u8 menuStr_MainMenu_Display[] =         "4. DISPALY OPTION";
-const u8 menuStr_MainMenu_Alarm[] =           "5. ALARM / SERIAL OPTION";
+const u8 menuStr_MainMenu_Alarm[] =           "5. ALARM / REMOTE OPTION";
 const u8 menuStr_MainMenu_MotionDetection[] = "6. MOTION DETECTION OPTION";
 const u8 menuStr_MainMenu_DeviceInfo[] =      "7. DEVICE INFO";
 

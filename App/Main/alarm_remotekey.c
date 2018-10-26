@@ -207,11 +207,7 @@ u8 GetAlarmBuzzerCount(void)
 {
 	return alarmBuzzerCountIn500ms;
 }
-//
-//void ClearAlarmBuzzerCount(void)
-//{
-//	alarmBuzzerCountIn500ms = 0;
-//}
+
 //------------------------------------------------------------------------------
 void DecreaseAlarmBuzzerCount(void)
 {
@@ -252,7 +248,7 @@ static void CheckParallelKeys(void)
 {
 	u8 spiData = ReadSpiDataByte();
 	u8 index;
-	static u8 previousData;
+	static u8 previousData = 0;
 
 	if((spiData != 0x00) && (spiData == previousData))
 	{
@@ -270,6 +266,7 @@ static void CheckParallelKeys(void)
 			if(parallel_key_table[index].virtual_key == spiData)
 			{
 				UpdateKeyData(parallel_key_table[index].keydata);
+				SetKeyReady();
 				break;
 			}
 		}
@@ -288,15 +285,6 @@ void ChangeAlarmRemoteKeyMode(BYTE mode)
 		parallelKeyDebounceCount = 0;
 	}
 }
-//
-//BYTE GetAlarmRemoteKeyMode(void)
-//{
-//	BYTE select;
-//
-//	Read_NvItem_AlarmRemoconSelect(&select);
-//
-//	return select;
-//}
 
 //------------------------------------------------------------------------------
 void AlarmRemoteKey_Proc(void)
