@@ -1822,13 +1822,18 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 {
 	u8 block_width = DISPLAY_WIDTH / COLUMMS_OF_BLOCKS; //120
 	u8 block_height = DISPLAY_HEIGHT / ROWS_OF_BLOCKS;	//90
-	u8 index;
+	u8 index, indexRow;
 	sPosition_t mark;
 	u16 blocks[ROWS_OF_BLOCKS];
 	u16 block_mask;
 
+	Erase_AllMenuScreen();
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+	Set_DisplayMode_FullScreen(channel);
+	//MDINOSD_SetBGBoxColor(RGB(255,255,255));
 	areaSelecting = TRUE;
 	// Step 1. Draw lines
+/*
 	for(index = 0; index < ROWS_OF_BLOCKS/2; index++)
 	{
 		// draw h-line
@@ -1843,22 +1848,25 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 		MDINOSD_SetSBoxArea(&motionSBox, index * block_width, 0, (index+1)*block_width - 1, DISPLAY_HEIGHT);
 		MDINOSD_EnableSBoxBorder(&motionSBox, ON);
 	}
-
+*/
 	// Step 2. Draw "V" mark on activated block
 	Read_NvItem_MotionBlock(blocks, channel);
-	for(index = 0; index < ROWS_OF_BLOCKS; index++)
+	for(indexRow = 0; indexRow < ROWS_OF_BLOCKS; indexRow++)
 	{
-		mark.pos_x = (index * block_width) + (block_width - CHAR_WIDTH_S)/2 - 1;
-		mark.pos_y = (block_height - CHAR_HEIGHT)/2 - 1;
-		block_mask = 0x0001 << index;
-		if(blocks[index] & block_mask)
+		for(index = 0; index < COLUMMS_OF_BLOCKS; index++)
 		{
-			// activated... Print selected mark
-			OSD_PrintString(mark, menuStr_SelectedMark, strlen(menuStr_SelectedMark));
-		}
-		else
-		{
-			OSD_PrintString(mark, menuStr_UnselectedMart, strlen(menuStr_UnselectedMart));
+			mark.pos_x = (index * block_width) + (block_width - CHAR_WIDTH_S)/2 - 1;
+			mark.pos_y = (indexRow * block_height) + ((block_height - CHAR_HEIGHT)/2 - 1);
+			block_mask = 0x0001 << index;
+			if(blocks[index] & block_mask)
+			{
+				// activated... Print selected mark
+				OSD_PrintString(mark, menuStr_SelectedMark, strlen(menuStr_SelectedMark));
+			}
+			else
+			{
+				OSD_PrintString(mark, menuStr_UnselectedMart, strlen(menuStr_UnselectedMart));
+			}
 		}
 	}
 
@@ -1985,7 +1993,9 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 				{
 					requestEnterKeyProc = CLEAR;
 	  				IncreaseDecreaseCount(1, 0, inc_dec,&pos_x);
-	  				MotionDetectionPage_UpdatePage(itemY, pos_x);
+					
+	  				//MotionDetectionPage_UpdatePage(itemY, pos_x);
+	  				
 				}
 			}
 			else

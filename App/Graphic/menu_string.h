@@ -13,8 +13,8 @@ const u8 menuStr_SecDay[] = "SEC/DAY";
 const u8 menuStr_SecMonth[] = "SEC/MONTH";
 
 const u8 menuStr_ArrowL[]= {0x80,0x00};
-const u8 menuStr_SelectedMark[] = "V";
-const u8 menuStr_UnselectedMart[] = "-";
+const u8 menuStr_SelectedMark[] = "O";
+const u8 menuStr_UnselectedMart[] = "X";
 
 const u8 menuStr_None[] = "--";
 const u8 menuStr_Space1[] = " ";
