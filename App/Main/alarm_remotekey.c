@@ -7,10 +7,12 @@
 //=============================================================================
 //  Define & MACRO
 //=============================================================================
-#define ALARM_DEBOUNCE_COUNT_MAX		5
+#define ALARM_DEBOUNCE_COUNT_MAX		4
 //#define ALL_ALARM_STATE
 #define ALARM_START						1
 #define ALARM_STOP						0
+
+#define PARALLELKEY_DEBOUNCE_COUNT_MAX	2
 
 #define UART_SOH						1
 #define UART_STX						2
@@ -22,6 +24,8 @@
 static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_QUAD;
+
+static u8 parallelKeyDebounceCount = 0;
 
 static u8 uartProc_State = UART_STATE_SOH;
 
@@ -38,7 +42,7 @@ static sAlarmInfo_t alarmInfo[NUM_OF_CHANNEL] =
 };
 static u8 spiDataMask[NUM_OF_CHANNEL] = { 0x01, 0x02, 0x04, 0x08 };
 
-static sVirtualKeys_t virtual_key_tabla[] =
+static sVirtualKeys_t virtual_key_table[] =
 {
 	{KEY_NONE,			VIRTUAL_KEY_NONE},
 	{KEY_FULL_CH1,		VIRTUAL_KEY_CH1},
@@ -49,6 +53,18 @@ static sVirtualKeys_t virtual_key_tabla[] =
 	{KEY_FREEZE,		VIRTUAL_KEY_FREEZE},
 	{KEY_AUTO_SEQ,		VIRTUAL_KEY_AUTO_SEQ},
 	{KEY_MENU,			VIRTUAL_KEY_MENU}
+};
+
+static sVirtualKeys_t parallel_key_table[] =
+{
+	{KEY_NONE,			0x00},
+	{KEY_FULL_CH1,		0x01},
+	{KEY_FULL_CH2,		0x02},
+	{KEY_FULL_CH3,		0x04},
+	{KEY_FULL_CH4,		0x08},
+	{KEY_4SPLIT,		0x10},
+	{KEY_FREEZE,		0x20},
+	{KEY_AUTO_SEQ,		0x40}
 };
 
 //=============================================================================
@@ -153,6 +169,7 @@ static void ClearAllAlarm(void)
 	for(channel = CHANNEL1; channel<NUM_OF_CHANNEL; channel++)
 	{
 		alarmInfo[channel].alarm_status = ALARM_CLEAR;
+		alarmInfo[channel].check_count = 0;
 	}
 	lastAlarmChannel = CHANNEL_QUAD;
 
@@ -231,19 +248,38 @@ BOOL GetAlarmStatus(eChannel_t channel)
 //------------------------------------------------------------------------------
 // Parallel Keys (SPI)
 //------------------------------------------------------------------------------
+static void CheckParallelKeys(void)
+{
+	u8 spiData = ReadSpiDataByte();
+	u8 index;
+	static u8 previousData;
+
+	if((spiData != 0x00) && (spiData == previousData))
+	{
+		parallelKeyDebounceCount++;
+	}
+	else
+	{
+		parallelKeyDebounceCount = 0;
+	}
+	previousData = spiData;
+	if(parallelKeyDebounceCount > PARALLELKEY_DEBOUNCE_COUNT_MAX)
+	{
+		for(index = 0; index < sizeof(parallel_key_table)/sizeof(sVirtualKeys_t); index++)
+		{
+			if(parallel_key_table[index].virtual_key == spiData)
+			{
+				UpdateKeyData(parallel_key_table[index].keydata);
+				break;
+			}
+		}
+	}
+}
 
 
 //------------------------------------------------------------------------------
 // RS232 Communication
 //------------------------------------------------------------------------------
-static u8 GetRemotconId(void)
-{
-	u8 id;
-
-	Read_NvItem_RemoconId(&id);
-	return id;
-}
-
 static u32 Get_BaudRate(void)
 {
 	eBaudRate_t rate;
@@ -262,7 +298,6 @@ static u32 Get_BaudRate(void)
 			baudrate = 9600;
 			break;
 	}
-
 	return baudrate;
 }
 
@@ -285,7 +320,9 @@ void USART3_IRQHandler(void)
 	static u8 errorCode = ERROR_NONE;
 	u16 receivedData;
 	u8 i;
-	u8 remoconId = GetRemotconId();
+	u8 remoconId;
+
+	Read_NvItem_RemoconId(&remoconId);
 
 	if((remoconId == 0) && (uartProc_State == UART_STATE_SOH))
 	{
@@ -358,11 +395,11 @@ void USART3_IRQHandler(void)
 					}
 				}
 
-				for(i = 0; i < sizeof(virtual_key_tabla)/sizeof(sVirtualKeys_t); i++)
+				for(i = 0; i < sizeof(virtual_key_table)/sizeof(sVirtualKeys_t); i++)
 				{
-					if(virtual_key_tabla[i].virtual_key == receivedData)
+					if(virtual_key_table[i].virtual_key == receivedData)
 					{
-						UpdateKeyData(virtual_key_tabla[i].keydata);
+						UpdateKeyData(virtual_key_table[i].keydata);
 						break;
 					}
 				}
@@ -384,20 +421,6 @@ void USART3_IRQHandler(void)
 	}
 }
 
-//------------------------------------------------------------------------------
-//void ChangeAlarmRemoteKeyMode(BYTE mode)
-//{
-//	if(mode == REMOTEKEY_MODE)
-//	{
-//		//enable uart
-//		USART_Cmd(USART3, ENABLE);
-//	}
-//	else
-//	{
-//		USART_Cmd(USART3, DISABLE);
-//	}
-//}
-
 void ChangeBaudrate(void)
 {
 	USART_InitTypeDef USART_InitStructure;
@@ -406,6 +429,18 @@ void ChangeBaudrate(void)
 	USART_DeInit(USART3);
 
 	USART3_Init();
+}
+//------------------------------------------------------------------------------
+void ChangeAlarmRemoteKeyMode(BYTE mode)
+{
+	if(mode == REMOTEKEY_MODE)
+	{
+		ClearAllAlarm();
+	}
+	else
+	{
+		parallelKeyDebounceCount = 0;
+	}
 }
 
 BYTE GetAlarmRemoteKeyMode(void)
@@ -417,10 +452,6 @@ BYTE GetAlarmRemoteKeyMode(void)
 	return select;
 }
 
-static void CheckParallelKeys(void)
-{
-	// to do
-}
 //------------------------------------------------------------------------------
 void AlarmRemoteKey_Proc(void)
 {

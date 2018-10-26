@@ -1723,7 +1723,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
     				case ALARM_ITEM_Y_ALARM_REMOCON:
     					Read_NvItem_AlarmRemoconSelect(&alarmRemoconSel);
     					Toggle(&alarmRemoconSel);
-    					//ChangeAlarmRemoteKeyMode(alarmRemoconSel);
+    					ChangeAlarmRemoteKeyMode(alarmRemoconSel);
     					Write_NvItem_AlarmRemoconSelect(alarmRemoconSel);
     					break;
 
