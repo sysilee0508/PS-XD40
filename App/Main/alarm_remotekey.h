@@ -87,7 +87,6 @@ extern void StartStopAlarm(BOOL start_stop);
 extern void CheckAlarmClearCondition(void);
 extern eChannel_t GetLastAlarmChannel(void);
 extern BOOL GetAlarmStatus(eChannel_t channel);
-extern BYTE GetAlarmRemoteKeyMode(void);
 extern void CheckAlarm(void);
 extern void AlarmRemoteKey_Proc(void);
 extern void ChangeBaudrate(void);

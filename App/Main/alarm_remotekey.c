@@ -62,9 +62,9 @@ static sVirtualKeys_t parallel_key_table[] =
 	{KEY_FULL_CH2,		0x02},
 	{KEY_FULL_CH3,		0x04},
 	{KEY_FULL_CH4,		0x08},
-	{KEY_4SPLIT,		0x10},
-	{KEY_FREEZE,		0x20},
-	{KEY_AUTO_SEQ,		0x40}
+	{KEY_4SPLIT,		0x20},
+	{KEY_FREEZE,		0x40},
+	{KEY_AUTO_SEQ,		0x80}
 };
 
 //=============================================================================
@@ -276,6 +276,45 @@ static void CheckParallelKeys(void)
 	}
 }
 
+//------------------------------------------------------------------------------
+void ChangeAlarmRemoteKeyMode(BYTE mode)
+{
+	if(mode == REMOTEKEY_MODE)
+	{
+		ClearAllAlarm();
+	}
+	else
+	{
+		parallelKeyDebounceCount = 0;
+	}
+}
+//
+//BYTE GetAlarmRemoteKeyMode(void)
+//{
+//	BYTE select;
+//
+//	Read_NvItem_AlarmRemoconSelect(&select);
+//
+//	return select;
+//}
+
+//------------------------------------------------------------------------------
+void AlarmRemoteKey_Proc(void)
+{
+	BOOL alarmSelect;
+
+	Read_NvItem_AlarmRemoconSelect(&alarmSelect);
+
+	if(alarmSelect == ALARM_MODE)
+	{
+		CheckAlarm();
+	}
+	else
+	{
+		CheckParallelKeys();
+	}
+}
+
 
 //------------------------------------------------------------------------------
 // RS232 Communication
@@ -430,37 +469,4 @@ void ChangeBaudrate(void)
 
 	USART3_Init();
 }
-//------------------------------------------------------------------------------
-void ChangeAlarmRemoteKeyMode(BYTE mode)
-{
-	if(mode == REMOTEKEY_MODE)
-	{
-		ClearAllAlarm();
-	}
-	else
-	{
-		parallelKeyDebounceCount = 0;
-	}
-}
 
-BYTE GetAlarmRemoteKeyMode(void)
-{
-	BYTE select;
-
-	Read_NvItem_AlarmRemoconSelect(&select);
-
-	return select;
-}
-
-//------------------------------------------------------------------------------
-void AlarmRemoteKey_Proc(void)
-{
-	if(GetAlarmRemoteKeyMode() == ALARM_MODE)
-	{
-		CheckAlarm();
-	}
-	else
-	{
-		CheckParallelKeys();
-	}
-}
