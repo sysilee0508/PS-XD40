@@ -11,6 +11,9 @@
 #define ROWS_OF_BLOCKS						12
 #define COLUMMS_OF_BLOCKS					16
 
+#define BLOCK_WIDTH							DISPLAY_WIDTH / COLUMMS_OF_BLOCKS //120
+#define BLOCK_HEIGHT						DISPLAY_HEIGHT / ROWS_OF_BLOCKS	//90
+
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================

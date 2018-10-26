@@ -1828,10 +1828,19 @@ static void Print_StringSelectArea(u16 offset_x, u16 offset_y,BOOL active)
 }
 //static SBOX_CTL_INFO motionSBox;
 static BOOL areaSelecting = FALSE;
+
+static void MotionDetectionPage_DrawCursor(u8 offset_x, u8 offset_y)
+{
+	sPosition_t position;
+	const u8 cursorData = SELECTED_MARK;
+
+	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+	position.pos_y = (offset_y * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1) + CHAR_HEIGHT;
+	OSD_PrintString(position, &cursorData, sizeof(cursorData));
+}
+
 static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 {
-	u8 block_width = DISPLAY_WIDTH / COLUMMS_OF_BLOCKS; //120
-	u8 block_height = DISPLAY_HEIGHT / ROWS_OF_BLOCKS;	//90
 	u8 index, indexRow;
 	sPosition_t mark;
 	u16 blocks[ROWS_OF_BLOCKS];
@@ -1859,14 +1868,13 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 //		MDINOSD_EnableSBoxBorder(&motionSBox, ON);
 //	}
 
-	// Step 2. Draw "V" mark on activated block
 	Read_NvItem_MotionBlock(blocks, channel);
 	for(indexRow = 0; indexRow < ROWS_OF_BLOCKS; indexRow++)
 	{
 		for(index = 0; index < COLUMMS_OF_BLOCKS; index++)
 		{
-			mark.pos_x = (index * block_width) + (block_width - CHAR_WIDTH_S)/2 - 1;
-			mark.pos_y = (indexRow * block_height) + ((block_height - CHAR_HEIGHT)/2 - 1);
+			mark.pos_x = (index * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+			mark.pos_y = (indexRow * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1);
 			block_mask = 0x0001 << index;
 			if(blocks[index] & block_mask)
 			{
@@ -1880,9 +1888,7 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 		}
 	}
 
-	// Step 3. Draw cursor
-	// ToDo... should discuss about how to make it
-	// refer mdincur.c
+	MotionDetectionPage_DrawCursor(0, 0);
 }
 
 static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
@@ -2017,9 +2023,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 				{
 					requestEnterKeyProc = CLEAR;
 	  				IncreaseDecreaseCount(1, 0, inc_dec,&pos_x);
-					
-	  				//MotionDetectionPage_UpdatePage(itemY, pos_x);
-	  				
+	  				MotionDetectionPage_UpdatePage(itemY, pos_x);
 				}
 			}
 			else
