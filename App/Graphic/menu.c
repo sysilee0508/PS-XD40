@@ -1864,6 +1864,22 @@ static void MotionDetectionPage_DrawBlockMark(u8 offset_x, u8 offset_y, BOOL act
 	}
 }
 
+static void MotionDetectionPage_EraseAllBlockMark(void)
+{
+	sPosition_t position;
+	u8 blockX, blockY;
+
+	for(blockY = 0; blockY < ROWS_OF_BLOCKS; blockY++)
+	{
+		for(blockX = 0; blockX < COLUMMS_OF_BLOCKS; blockX++)
+		{
+			position.pos_x = (blockX * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+			position.pos_y = (blockY * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1);
+			OSD_PrintString(position, menuStr_Space1, strlen(menuStr_Space1));
+		}
+	}
+}
+
 static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 {
 	u8 blockX, blockY;
@@ -1871,12 +1887,12 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 	u16 blocks[ROWS_OF_BLOCKS];
 	u16 block_mask;
 
-	// Clear screnn
+	// Clear screen
 	Erase_AllMenuScreen();
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 	Set_DisplayMode_FullScreen(channel);
 
-	areaSelecting = TRUE;
+//	areaSelecting = TRUE;
 	// Step 1. Draw lines
 //	for(index = 0; index < ROWS_OF_BLOCKS/2; index++)
 //	{
@@ -1893,16 +1909,15 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 //		MDINOSD_EnableSBoxBorder(&motionSBox, ON);
 //	}
 
+	MotionDetectionPage_DrawCursor(0, 0, TRUE);
 	Read_NvItem_MotionBlock(blocks, channel);
 	for(blockY = 0; blockY < ROWS_OF_BLOCKS; blockY++)
 	{
 		for(blockX = 0; blockX < COLUMMS_OF_BLOCKS; blockX++)
 		{
-			block_mask = 0x0001 << blockX;
-			MotionDetectionPage_DrawBlockMark(blockX, blockY, blocks[blockY] & block_mask);
+			MotionDetectionPage_DrawBlockMark(blockX, blockY, (blocks[blockY]>>blockX)&0x0001);
 		}
 	}
-	MotionDetectionPage_DrawCursor(0, 0, TRUE);
 }
 
 static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
@@ -1912,16 +1927,15 @@ static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
 	u8 attribute = (requestEnterKeyProc==SET)?UNDER_BAR:NULL;
 	BOOL motionOn;
 
-	//To Do
 	switch(itemY)
 	{
 		case MOTION_ITEM_Y_CH1:
 		case MOTION_ITEM_Y_CH2:
 		case MOTION_ITEM_Y_CH3:
 		case MOTION_ITEM_Y_CH4:
+			Read_NvItem_MotionDetectOnOff(&motionOn, itemY - 1);
 			if(itemX == 0)
 			{
-				Read_NvItem_MotionDetectOnOff(&motionOn, itemY - 1);
 				Print_StringOnOff(
 						motionDetectionMenu[itemY].offset_x + 9,
 						motionDetectionMenu[itemY].offset_y,
@@ -1933,17 +1947,14 @@ static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
 			}
 			else
 			{
-				if(attribute == NULL)
-				{
-					Print_StringSelectArea(
-							motionDetectionMenu[itemY].offset_x + strlen(motionDetectionMenu[itemY].str),
-							motionDetectionMenu[itemY].offset_y,
-							TRUE);
-				}
-				else
-				{
-					MotionDetectionPage_DrawSelectedArea((eChannel_t)(itemY - 1));
-				}
+				Print_StringOnOff(
+						motionDetectionMenu[itemY].offset_x + 9,
+						motionDetectionMenu[itemY].offset_y,
+						NULL, motionOn);
+				Print_StringSelectArea(
+						motionDetectionMenu[itemY].offset_x + strlen(motionDetectionMenu[itemY].str),
+						motionDetectionMenu[itemY].offset_y,
+						attribute);
 			}
 			break;
 
@@ -2037,7 +2048,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 			{
 				//selecting area
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
-				IncreaseDecreaseCount(ROWS_OF_BLOCKS-1, 0, &cursorY);
+				IncreaseDecreaseCount(ROWS_OF_BLOCKS-1, 0, inc_dec, &cursorY);
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, TRUE);
 			}
 			break;
@@ -2052,7 +2063,9 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 					if((itemY >= MOTION_ITEM_Y_CH1) && (itemY <= MOTION_ITEM_Y_CH4))
 					{
 						requestEnterKeyProc = CLEAR;
+						MotionDetectionPage_UpdatePage(itemY, pos_x);
 						IncreaseDecreaseCount(1, 0, inc_dec,&pos_x);
+						requestEnterKeyProc = SET;
 						MotionDetectionPage_UpdatePage(itemY, pos_x);
 					}
 				}
@@ -2065,7 +2078,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
     		{
 				//selecting area
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
-				IncreaseDecreaseCount(COLUMMS_OF_BLOCKS-1, 0, &cursorX);
+				IncreaseDecreaseCount(COLUMMS_OF_BLOCKS-1, 0, inc_dec, &cursorX);
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, TRUE);
     		}
     		break;
@@ -2073,31 +2086,54 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
     	case KEY_ENTER:
     		if(!areaSelecting)
     		{
+    			if(pos_x == 0)
+    			{
 				Toggle(&requestEnterKeyProc);
 				MotionDetectionPage_UpdatePage(itemY, pos_x);
+    			}
+			else
+			{
+				areaSelecting = TRUE;
+				MotionDetectionPage_DrawSelectedArea((eChannel_t)(itemY-1));
+			}
     		}
     		else
     		{
     			// toggle active/deactive block
     			Read_NvItem_MotionBlock(activeBlocks, (eChannel_t)(itemY-1));
     			activeBlocks[cursorY] ^= (0x0001 << cursorX);
-    			active = (activeBlocks[cursorY] & (0x0001 << cursorX) != 0x0000)?TRUE:FALSE;
+    			active = (activeBlocks[cursorY]>>cursorX) & 0x0001;
     			MotionDetectionPage_DrawBlockMark(cursorX, cursorY, active);
     			Write_NvItem_MotionBlock(activeBlocks, (eChannel_t)(itemY-1));
     		}
 			break;
 
 		case KEY_EXIT:
-			if(requestEnterKeyProc)
+			if(areaSelecting)
 			{
-				Toggle(&requestEnterKeyProc);
-				MotionDetectionPage_UpdatePage(itemY, pos_x);
+				cursorX = 0;
+				cursorY = 0;
+				Toggle(&areaSelecting);
+				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
+				MotionDetectionPage_EraseAllBlockMark();
+				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+				pos_x = 0;
+				MotionDetectionPage_Entry();
+				DrawSelectMark(itemY);
 			}
 			else
 			{
-				pos_x = 0;
-				itemY = MOTION_ITEM_Y_CH1;
-				MainMenu_Entry(currentPage);
+				if(requestEnterKeyProc)
+				{
+					Toggle(&requestEnterKeyProc);
+					MotionDetectionPage_UpdatePage(itemY, pos_x);
+				}
+				else
+				{
+					pos_x = 0;
+					itemY = MOTION_ITEM_Y_CH1;
+					MainMenu_Entry(currentPage);
+				}
 			}
 			break;
 	}
