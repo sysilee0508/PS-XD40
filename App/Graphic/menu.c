@@ -2022,15 +2022,16 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 						case MOTION_ITEM_Y_CH2:
 						case MOTION_ITEM_Y_CH3:
 						case MOTION_ITEM_Y_CH4:
-							Read_NvItem_MotionDetectOnOff(&motionOn, itemY - 1);
+							Read_NvItem_MotionDetectOnOff(&motionOn, (eChannel_t)(itemY - 1));
 							Toggle(&motionOn);
-							Write_NvItem_MotionDetectOnOff(motionOn, itemY-1);
+							Write_NvItem_MotionDetectOnOff(motionOn, (eChannel_t)(itemY - 1));
 							break;
 
 						case MOTION_ITEM_Y_SENSITIVITY:
 							Read_NvItem_MotionSensitivity(&sensitivity);
-							IncreaseDecreaseCount(99,0,inc_dec,&sensitivity);
+							IncreaseDecreaseCount(99,1,inc_dec,&sensitivity);
 							Write_NvItem_MotionSensitivity(sensitivity);
+							Set_MotionDetect_Sensitivity(sensitivity);
 							break;
 
 						case MOTION_ITEM_Y_MOTION_MODE:
@@ -2088,14 +2089,14 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
     		{
     			if(pos_x == 0)
     			{
-				Toggle(&requestEnterKeyProc);
-				MotionDetectionPage_UpdatePage(itemY, pos_x);
+					Toggle(&requestEnterKeyProc);
+					MotionDetectionPage_UpdatePage(itemY, pos_x);
     			}
-			else
-			{
-				areaSelecting = TRUE;
-				MotionDetectionPage_DrawSelectedArea((eChannel_t)(itemY-1));
-			}
+				else
+				{
+					areaSelecting = TRUE;
+					MotionDetectionPage_DrawSelectedArea((eChannel_t)(itemY-1));
+				}
     		}
     		else
     		{
@@ -2111,6 +2112,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 		case KEY_EXIT:
 			if(areaSelecting)
 			{
+				Set_MotionDetect_ActivatedArea((eChannel_t)(itemY-1));
 				cursorX = 0;
 				cursorY = 0;
 				Toggle(&areaSelecting);

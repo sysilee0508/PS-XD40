@@ -25,14 +25,15 @@
 //=============================================================================
 //  Function Definition
 //=============================================================================
-void Read_MotionDetect_OnOff(void);
-void Write_MotionDetect_OnOff(eChannel_t ch, BOOL enabled);
+//void Read_MotionDetect_OnOff(void);
+//void Write_MotionDetect_OnOff(eChannel_t ch, BOOL enabled);
 BOOL Get_MotionDetect_OnOff(eChannel_t ch);
-void Set_MotionDetect_OnOff(eChannel_t ch, BOOL enabled);
-void Read_MotionDetect_Sensitivity(eChannel_t ch);
-void Write_MotionDetect_Sensitivity(eChannel_t ch, BYTE value);
-BYTE Get_MotionDetect_Sensitivity(eChannel_t ch);
-void Set_MotionDetect_Sensitivity(eChannel_t ch, BYTE value);
+//void Set_MotionDetect_OnOff(eChannel_t ch, BOOL enabled);
+//void Read_MotionDetect_Sensitivity(eChannel_t ch);
+//void Write_MotionDetect_Sensitivity(eChannel_t ch, BYTE value);
+BYTE Get_MotionDetect_Sensitivity(void);
+void Set_MotionDetect_Sensitivity(BYTE value);
+void Set_MotionDetect_ActivatedArea(eChannel_t channel);
 void MotionDetectCheck(void);
 
 #endif
