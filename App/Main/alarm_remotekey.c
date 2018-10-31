@@ -55,17 +55,17 @@ static sVirtualKeys_t virtual_key_table[] =
 	{KEY_MENU,			VIRTUAL_KEY_MENU}
 };
 
-static sVirtualKeys_t parallel_key_table[] =
-{
-	{KEY_NONE,			0xFF},
-	{KEY_FULL_CH1,		KEYCODE_CH1},
-	{KEY_FULL_CH2,		KEYCODE_CH2},
-	{KEY_FULL_CH3,		KEYCODE_CH3},
-	{KEY_FULL_CH4,		KEYCODE_CH4},
-	{KEY_4SPLIT,		KEYCODE_SPLIT},
-	{KEY_FREEZE,		KEYCODE_FREEZE},
-	{KEY_AUTO_SEQ,		KEYCODE_SEQUENCE}
-};
+//static sVirtualKeys_t parallel_key_table[] =
+//{
+//	{KEY_NONE,			0xFF},
+//	{KEY_FULL_CH1,		KEYCODE_CH1},
+//	{KEY_FULL_CH2,		KEYCODE_CH2},
+//	{KEY_FULL_CH3,		KEYCODE_CH3},
+//	{KEY_FULL_CH4,		KEYCODE_CH4},
+//	{KEY_4SPLIT,		KEYCODE_SPLIT},
+//	{KEY_FREEZE,		KEYCODE_FREEZE},
+//	{KEY_AUTO_SEQ,		KEYCODE_SEQUENCE}
+//};
 
 //=============================================================================
 //  Function Definition
@@ -74,7 +74,7 @@ static sVirtualKeys_t parallel_key_table[] =
 //------------------------------------------------------------------------------
 // Alarm (SPI function)
 //------------------------------------------------------------------------------
-static BYTE ReadSpiDataByte(void)
+BYTE ReadSpiDataByte(void)
 {
 	u8 index;
 	BYTE spiDataByte = 0x00;
@@ -102,63 +102,68 @@ void CheckAlarm(void)
 	u8 spiData = ReadSpiDataByte();
 	u8 channel;
 	eAlarmOption_t alarmOption;
+	BOOL alarmSelect;
 
-	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+	Read_NvItem_AlarmRemoconSelect(&alarmSelect);
+	if(alarmSelect == ALARM_MODE)
 	{
-		alarmInfo[channel].raw_data = spiData & spiDataMask[channel];
-		Read_NvItem_AlarmOption(&alarmOption, (eChannel_t)channel);
-
-		switch(alarmOption)
+		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 		{
-			case ALARM_OPTION_OFF:
-				alarmInfo[channel].alarm_status = ALARM_CLEAR;
-				alarmInfo[channel].check_count = 0;
-				break;
+			alarmInfo[channel].raw_data = spiData & spiDataMask[channel];
+			Read_NvItem_AlarmOption(&alarmOption, (eChannel_t)channel);
 
-			case ALARM_OPTION_NO:
-				if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
-					(alarmInfo[channel].raw_data == spiDataMask[channel])) //high
-				{
-					alarmInfo[channel].check_count = 0;
-				}
-				else
-				{
-					alarmInfo[channel].check_count++;
-				}
-				break;
-
-			case ALARM_OPTION_NC:
-				if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
-					(alarmInfo[channel].raw_data == LOW))
-				{
-					alarmInfo[channel].check_count = 0;
-				}
-				else
-				{
-					alarmInfo[channel].check_count++;
-				}
-				break;
-
-			default:
-				alarmInfo[channel].check_count = 0;
-				break;
-		}
-
-		if(alarmInfo[channel].check_count > ALARM_DEBOUNCE_COUNT_MAX)
-		{
-			if(alarmInfo[channel].alarm_status == ALARM_CLEAR)
+			switch(alarmOption)
 			{
-				alarmInfo[channel].alarm_status = ALARM_SET;
-				alarmInfo[channel].check_count = 0;
-				//buzzer & alarm output
-				StartStopAlarm(ALARM_START);
-				lastAlarmChannel = (eChannel_t)channel;
-				//Occur key data (key_alarm) to display alarm screen
-				UpdateKeyData(KEY_ALARM);
-				SetKeyReady();
+				case ALARM_OPTION_OFF:
+					alarmInfo[channel].alarm_status = ALARM_CLEAR;
+					alarmInfo[channel].check_count = 0;
+					break;
+
+				case ALARM_OPTION_NO:
+					if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
+						(alarmInfo[channel].raw_data == spiDataMask[channel])) //high
+					{
+						alarmInfo[channel].check_count = 0;
+					}
+					else
+					{
+						alarmInfo[channel].check_count++;
+					}
+					break;
+
+				case ALARM_OPTION_NC:
+					if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
+						(alarmInfo[channel].raw_data == LOW))
+					{
+						alarmInfo[channel].check_count = 0;
+					}
+					else
+					{
+						alarmInfo[channel].check_count++;
+					}
+					break;
+
+				default:
+					alarmInfo[channel].check_count = 0;
+					break;
 			}
+
+			if(alarmInfo[channel].check_count > ALARM_DEBOUNCE_COUNT_MAX)
+			{
+				if(alarmInfo[channel].alarm_status == ALARM_CLEAR)
+				{
+					alarmInfo[channel].alarm_status = ALARM_SET;
+					alarmInfo[channel].check_count = 0;
+					//buzzer & alarm output
+					StartStopAlarm(ALARM_START);
+					lastAlarmChannel = (eChannel_t)channel;
+					//Occur key data (key_alarm) to display alarm screen
+					UpdateKeyData(KEY_ALARM);
+					SetKeyReady();
+				}
+			}
+			alarmInfo[channel].previous_data = alarmInfo[channel].raw_data;
 		}
-		alarmInfo[channel].previous_data = alarmInfo[channel].raw_data;
 	}
 }
 //------------------------------------------------------------------------------
@@ -244,34 +249,34 @@ BOOL GetAlarmStatus(eChannel_t channel)
 //------------------------------------------------------------------------------
 // Parallel Keys (SPI)
 //------------------------------------------------------------------------------
-static void CheckParallelKeys(void)
-{
-	u8 spiData = ReadSpiDataByte();
-	u8 index;
-	static u8 previousData = 0;
-
-	if((spiData != 0x00) && (spiData == previousData))
-	{
-		parallelKeyDebounceCount++;
-	}
-	else
-	{
-		parallelKeyDebounceCount = 0;
-	}
-	previousData = spiData;
-	if(parallelKeyDebounceCount > PARALLELKEY_DEBOUNCE_COUNT_MAX)
-	{
-		for(index = 0; index < sizeof(parallel_key_table)/sizeof(sVirtualKeys_t); index++)
-		{
-			if(parallel_key_table[index].virtual_key == spiData)
-			{
-				UpdateKeyData(parallel_key_table[index].keydata);
-				SetKeyReady();
-				break;
-			}
-		}
-	}
-}
+//static void CheckParallelKeys(void)
+//{
+//	u8 spiData = ReadSpiDataByte();
+//	u8 index;
+//	static u8 previousData = 0;
+//
+//	if((spiData != 0x00) && (spiData == previousData))
+//	{
+//		parallelKeyDebounceCount++;
+//	}
+//	else
+//	{
+//		parallelKeyDebounceCount = 0;
+//	}
+//	previousData = spiData;
+//	if(parallelKeyDebounceCount > PARALLELKEY_DEBOUNCE_COUNT_MAX)
+//	{
+//		for(index = 0; index < sizeof(parallel_key_table)/sizeof(sVirtualKeys_t); index++)
+//		{
+//			if(parallel_key_table[index].virtual_key == spiData)
+//			{
+//				UpdateKeyData(parallel_key_table[index].keydata);
+//				SetKeyReady();
+//				break;
+//			}
+//		}
+//	}
+//}
 
 //------------------------------------------------------------------------------
 void ChangeAlarmRemoteKeyMode(BYTE mode)
@@ -280,28 +285,28 @@ void ChangeAlarmRemoteKeyMode(BYTE mode)
 	{
 		ClearAllAlarm();
 	}
-	else
-	{
-		parallelKeyDebounceCount = 0;
-	}
+//	else
+//	{
+//		parallelKeyDebounceCount = 0;
+//	}
 }
 
 //------------------------------------------------------------------------------
-void AlarmRemoteKey_Proc(void)
-{
-	BOOL alarmSelect;
-
-	Read_NvItem_AlarmRemoconSelect(&alarmSelect);
-
-	if(alarmSelect == ALARM_MODE)
-	{
-		CheckAlarm();
-	}
-	else
-	{
-		CheckParallelKeys();
-	}
-}
+//void AlarmRemoteKey_Proc(void)
+//{
+//	BOOL alarmSelect;
+//
+//	Read_NvItem_AlarmRemoconSelect(&alarmSelect);
+//
+//	if(alarmSelect == ALARM_MODE)
+//	{
+//		CheckAlarm();
+//	}
+//	else
+//	{
+//		CheckParallelKeys();
+//	}
+//}
 
 
 //------------------------------------------------------------------------------

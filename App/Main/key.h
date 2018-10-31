@@ -10,7 +10,8 @@
 //  define
 //=============================================================================
 // Key Codes
-#define KEYCODE_NONE		0x7F	//0111 1111
+#define KEYCODE_NONE		0xFF	//0111 1111
+//#define KEYCODE_NONE_BACK	0xFF
 // Left 4keys
 #define KEYCODE_CH1			0xFE	//1111 1110
 #define KEYCODE_CH2			0xFD	//1111 1101
@@ -99,6 +100,7 @@ extern void Key_Led_Ctrl(void);
 extern void SetKeyMode(eKeyMode_t mode);
 extern eKeyMode_t GetKeyMode(void);
 extern keycode_t GetKeyCode(eKeyData_t key);
+extern void SetCurrentKeyCode(keycode_t keycode);
 extern void UpdateKeyStatus(eKeyStatus_t status);
 extern eKeyStatus_t GetKeyStatus(void);
 extern void SetKeyReady(void);
