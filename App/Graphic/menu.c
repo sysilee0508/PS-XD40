@@ -2015,7 +2015,6 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 			{
 				if(requestEnterKeyProc)
 				{
-					//To Do
 					switch(itemY)
 					{
 						case MOTION_ITEM_Y_CH1:
@@ -2031,7 +2030,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 							Read_NvItem_MotionSensitivity(&sensitivity);
 							IncreaseDecreaseCount(99,1,inc_dec,&sensitivity);
 							Write_NvItem_MotionSensitivity(sensitivity);
-							Set_MotionDetect_Sensitivity(sensitivity);
+							//Set_MotionDetect_Sensitivity(sensitivity);
 							break;
 
 						case MOTION_ITEM_Y_MOTION_MODE:
@@ -2112,14 +2111,14 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 		case KEY_EXIT:
 			if(areaSelecting)
 			{
-				Set_MotionDetect_ActivatedArea((eChannel_t)(itemY-1));
-				cursorX = 0;
-				cursorY = 0;
-				Toggle(&areaSelecting);
+				//Set_MotionDetect_ActivatedArea((eChannel_t)(itemY-1));
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
 				MotionDetectionPage_EraseAllBlockMark();
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+				Toggle(&areaSelecting);
+				cursorX = 0;
+				cursorY = 0;
 				pos_x = 0;
+				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 				MotionDetectionPage_Entry();
 				DrawSelectMark(itemY);
 			}
@@ -2132,6 +2131,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 				}
 				else
 				{
+					InitializeMotionDetect();
 					pos_x = 0;
 					itemY = MOTION_ITEM_Y_CH1;
 					MainMenu_Entry(currentPage);

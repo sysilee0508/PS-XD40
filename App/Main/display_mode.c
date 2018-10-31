@@ -2,6 +2,7 @@
 //  Header Declaration
 //=============================================================================
 #include <stdio.h>
+#include "NVP6158.h"
 #include "common.h"
 #include "display_mode.h"
 

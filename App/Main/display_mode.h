@@ -19,6 +19,7 @@ typedef enum
 	VIDEO_RESOLUTION_MAX
 } eVideoResolution_t;
 
+#if 0
 typedef enum NC_VIVO_CH_FORMATDEF
 {
 	NC_VIVO_CH_FORMATDEF_UNKNOWN = 0,
@@ -110,6 +111,7 @@ typedef enum NC_VIVO_CH_FORMATDEF
 	NC_VIVO_CH_FORMATDEF_MAX,
 
 } NC_VIVO_CH_FORMATDEF;
+#endif
 
 //=============================================================================
 //  struct
