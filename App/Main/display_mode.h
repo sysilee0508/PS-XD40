@@ -19,6 +19,7 @@ typedef enum
 	VIDEO_RESOLUTION_MAX
 } eVideoResolution_t;
 
+#if 0
 typedef enum NC_VIVO_CH_FORMATDEF
 {
 	NC_VIVO_CH_FORMATDEF_UNKNOWN = 0,
@@ -110,6 +111,7 @@ typedef enum NC_VIVO_CH_FORMATDEF
 	NC_VIVO_CH_FORMATDEF_MAX,
 
 } NC_VIVO_CH_FORMATDEF;
+#endif
 
 //=============================================================================
 //  struct
@@ -126,12 +128,10 @@ typedef enum NC_VIVO_CH_FORMATDEF
 //=============================================================================
 //  Function Prototype
 //=============================================================================
+extern void Set_DisplayoutputMode_table(void);
 extern BYTE Get_CurrentDisplayMode(void);
 extern BYTE Get_CurrentDisplayChannel(void);
 extern void Set_DisplayMode_FullScreen(eChannel_t ch);
 extern void Set_DisplayMode_Quad(void);
-extern void Display_FullScreen(eChannel_t ch);
-extern void Display_QuadScreen(void);
-extern void Set_DisplayoutputMode_table(void);
 
 #endif

@@ -13,8 +13,8 @@ const u8 menuStr_SecDay[] = "SEC/DAY";
 const u8 menuStr_SecMonth[] = "SEC/MONTH";
 
 const u8 menuStr_ArrowL[]= {0x80,0x00};
-const u8 menuStr_SelectedMark[] = "V";
-const u8 menuStr_UnselectedMart[] = "-";
+const u8 menuStr_SelectedMark[] = "O";
+const u8 menuStr_UnselectedMart[] = "X";
 
 const u8 menuStr_None[] = "--";
 const u8 menuStr_Space1[] = " ";
@@ -61,6 +61,8 @@ const u8 menuStr_Digit[] = "DIGIT";
 const u8 menuStr_Baudrate1200[] = "1200";
 const u8 menuStr_Baudrate2400[] = "2400";
 const u8 menuStr_Baudrate9600[] = "9600";
+
+const u8 menuStr_SelectArea[] = "SELECT AREA";
 
 // Main Menu
 const u8 menuStr_MainMenu_Title[] =           "-- MAIN MENU --";
@@ -120,10 +122,10 @@ const u8 menuStr_Alarm_BaudRate[] =            "10. SERIAL BAUDRATE(bps) : ";
 
 // Motion Detection
 const u8 menuStr_Motion_Title[] =       "-- MOTION DETECTION OPTION --";
-const u8 menuStr_Motion_Channel1[] =    "1. CH 1:     / AREA";
-const u8 menuStr_Motion_Channel2[] =    "2. CH 2:     / AREA";
-const u8 menuStr_Motion_Channel3[] =    "3. CH 3:     / AREA";
-const u8 menuStr_Motion_Channel4[] =    "4. CH 4:     / AREA";
+const u8 menuStr_Motion_Channel1[] =    "1. CH 1:     / ";
+const u8 menuStr_Motion_Channel2[] =    "2. CH 2:     / ";
+const u8 menuStr_Motion_Channel3[] =    "3. CH 3:     / ";
+const u8 menuStr_Motion_Channel4[] =    "4. CH 4:     / ";
 const u8 menuStr_Motion_Sensitivity[] = "5. MOTION SENSITIVITY (1~99) : ";
 const u8 menuStr_Motion_CallMode[] =    "6. MOTION MODE : ";
 

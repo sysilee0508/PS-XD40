@@ -909,6 +909,7 @@ void video_input_no_video_set(video_input_novid_set *auto_novid);
 void motion_detection_get(motion_mode *motion_set);
 void motion_onoff_set(motion_mode *motion_set);
 void motion_pixel_all_onoff_set(motion_mode *motion_set);
+void motion_pixel_onoff_set(motion_mode *motion_set);
 void motion_tsen_set(motion_mode *motion_set);
 
 int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInformation );

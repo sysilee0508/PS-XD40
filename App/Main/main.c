@@ -187,6 +187,7 @@ void main(void)
 	//NVP6158 device initialization
 	NVP6158_init();
 	InitVideoLossCheck();
+	InitializeMotionDetect();
 
 	InputSelect = VIDEO_DIGITAL_SDI;
 //	InputSelect = VIDEO_SDI_2HD_POP;
@@ -212,7 +213,6 @@ void main(void)
 		CheckAlarmClearCondition();
 		PlayBuzzer();
 		
-		Read_MotionDetect_OnOff();
 		MotionDetectCheck();
 
 		UpdateAutoSeqCount();

@@ -1,29 +1,30 @@
 //=============================================================================
 //  Header Declaration
 //=============================================================================
-#include <stdio.h>
 #include "common.h"
+#include "NVP6158.h"
 
 //=============================================================================
 //  Define & MACRO
 //=============================================================================
 typedef struct
 {
-	BOOL motiondetect_enabled;
-	WORD activated_block[12];
-	BYTE temporal_sensitivity;
+	WORD previousActivatedBlock[ROWS_OF_BLOCKS];
 	BOOL motion_detected;
 } sMotionDetectInfo_t;
+
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
 static sMotionDetectInfo_t motiondetectionInfo[NUM_OF_CHANNEL] = 
 {
-	{FALSE, {0, }, 0x60, FALSE },
-	{FALSE, {0, }, 0x60, FALSE },
-	{FALSE, {0, }, 0x60, FALSE },
-	{FALSE, {0, }, 0x60, FALSE }
+	{{0, }, FALSE },
+	{{0, }, FALSE },
+	{{0, }, FALSE },
+	{{0, }, FALSE }
 };
+
+static BYTE motionDetectionSensitivity = 0x60;
 //=============================================================================
 //  Array Declaration (data table)
 //=============================================================================
@@ -31,51 +32,87 @@ static sMotionDetectInfo_t motiondetectionInfo[NUM_OF_CHANNEL] =
 //=============================================================================
 //  Function Definition
 //=============================================================================
-void Read_MotionDetect_OnOff(void)
+
+BOOL Get_MotionDetect_OnOff(eChannel_t channel)
 {
-	unsigned char channel_num;
-	
-	for(channel_num = 0; channel_num < 4; channel_num++)
+	BOOL motionOn;
+	Read_NvItem_MotionDetectOnOff(&motionOn, channel);
+	return motionOn;
+}
+
+void Set_MotionDetect_OnOff(eChannel_t channel, BOOL enabled)
+{
+	motion_mode motion;
+	BOOL motionOn;
+
+	Read_NvItem_MotionDetectOnOff(&motionOn, channel);
+	motion.ch = channel;
+	motion.fmtdef = NVP6158_Current_Video_Format_Check(channel);
+	motion.set_val = motionOn;
+
+	motion_onoff_set(&motion);
+}
+
+static BYTE ConvertSensitivity(BYTE nvData)
+{
+	BYTE result = 0;
+
+	if(nvData > 0)
 	{
-		Read_NvItem_MotionDetectOnOff(&motiondetectionInfo[channel_num].motiondetect_enabled, channel_num);
+		result = (nvData * 25) / 10;
+	}
+
+	return result;
+}
+
+BYTE Get_MotionDetect_Sensitivity(void)
+{
+	return motionDetectionSensitivity;
+}
+
+void Set_MotionDetect_Sensitivity(BYTE value)
+{
+	eChannel_t channel;
+	motion_mode motion;
+
+	motionDetectionSensitivity = ConvertSensitivity(value);
+	motion.set_val = motionDetectionSensitivity;
+	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+	{
+		motion.ch = channel;
+		motion.fmtdef = NVP6158_Current_Video_Format_Check(channel);
+		motion_tsen_set(&motion);
 	}
 }
 
-void Write_MotionDetect_OnOff(BYTE ch, BOOL enabled)
+void Set_MotionDetect_ActivatedArea(eChannel_t channel)
 {
-	motiondetectionInfo[ch].motiondetect_enabled = enabled;
-	Write_NvItem_MotionDetectOnOff(motiondetectionInfo[ch].motiondetect_enabled, ch);
-}
+	WORD activeBlocks[ROWS_OF_BLOCKS];
+	WORD changedBlocks;
+	BYTE index, bitIndex;
+	motion_mode motion;
 
-BOOL Get_MotionDetect_OnOff(BYTE ch)
-{
-	return motiondetectionInfo[ch].motiondetect_enabled;
-}
+	motion.ch = channel;
+	motion.fmtdef = NVP6158_Current_Video_Format_Check(channel);
 
-void Set_MotionDetect_OnOff(BYTE ch, BOOL enabled)
-{
-	motiondetectionInfo[ch].motiondetect_enabled = enabled;
-}
-
-void Read_MotionDetect_Sensitivity(BYTE ch)
-{
-	Read_NvItem_MotionDetectOnOff(&motiondetectionInfo[ch].temporal_sensitivity);
-}
-
-void Write_MotionDetect_Sensitivity(BYTE ch, BYTE value)
-{
-	motiondetectionInfo[ch].temporal_sensitivity = value;
-	Write_NvItem_MotionDetectOnOff(motiondetectionInfo[ch].temporal_sensitivity);
-}
-
-BYTE Get_MotionDetect_Sensitivity(BYTE ch)
-{
-	return motiondetectionInfo[ch].temporal_sensitivity;
-}
-
-void Set_MotionDetect_Sensitivity(BYTE ch, BYTE value)
-{
+	Read_NvItem_MotionBlock(activeBlocks, channel);
 	
+	for(index = 0; index < ROWS_OF_BLOCKS; index++)
+	{
+		if(memcmp(&activeBlocks[index], &motiondetectionInfo.previousActivatedBlock[index], sizeof(WORD)) != 0)
+		{
+			changedBlocks = activeBlocks[index] ^ motiondetectionInfo.previousActivatedBlock[index];
+			for(bitIndex = 0; bitIndex < sizeof(WORD); bitIndex++)
+			{
+				if(0x0001 & (changedBlocks >> bitIndex))
+				{
+					motion.set_val = index * sizeof(WORD) + bitIndex;//pixel(block) number
+					motion_pixel_onoff_set(&motion);
+				}
+			}
+			motiondetectionInfo.previousActivatedBlock[index] = activeBlocks[index];
+		}
+	}
 }
 
 void MotionDetectCheck(void)
@@ -84,27 +121,17 @@ void MotionDetectCheck(void)
 	unsigned char channel_num;
 	vMotion = NVP6158_MotionDetect_Check();
 
-	for(channel_num = 0; channel_num < 4; channel_num++)
+	for(channel_num = 0; channel_num < NUM_OF_CHANNEL; channel_num++)
 	{
 		motiondetectionInfo[channel_num].motion_detected = vMotion >> channel_num;
 	}
-	if (motiondetectionInfo[0].motion_detected)
+	if (motiondetectionInfo[CHANNEL1].motion_detected)
 	{
 		BUZZER_HIGH;
 		Delay_ms(100);
 		BUZZER_LOW;
 	}
-	if (motiondetectionInfo[1].motion_detected)
-	{
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-		Delay_ms(100);
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-	}
-	if (motiondetectionInfo[2].motion_detected)
+	if (motiondetectionInfo[CHANNEL2].motion_detected)
 	{
 		BUZZER_HIGH;
 		Delay_ms(100);
@@ -113,12 +140,8 @@ void MotionDetectCheck(void)
 		BUZZER_HIGH;
 		Delay_ms(100);
 		BUZZER_LOW;
-		Delay_ms(100);
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
 	}
-	if (motiondetectionInfo[3].motion_detected)
+	if (motiondetectionInfo[CHANNEL3].motion_detected)
 	{
 		BUZZER_HIGH;
 		Delay_ms(100);
@@ -131,7 +154,35 @@ void MotionDetectCheck(void)
 		BUZZER_HIGH;
 		Delay_ms(100);
 		BUZZER_LOW;
+	}
+	if (motiondetectionInfo[CHANNEL4].motion_detected)
+	{
+		BUZZER_HIGH;
+		Delay_ms(100);
+		BUZZER_LOW;
+		Delay_ms(100);
+		BUZZER_HIGH;
+		Delay_ms(100);
+		BUZZER_LOW;
+		Delay_ms(100);
+		BUZZER_HIGH;
+		Delay_ms(100);
+		BUZZER_LOW;
 		Delay_ms(100);
 		BUZZER_LOW;
 	}
+}
+
+void InitializeMotionDetect(void)
+{
+	eChannel_t channel;
+	BYTE sensitivity;
+
+	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+	{
+		Set_MotionDetect_OnOff(channel);
+		Set_MotionDetect_ActivatedArea(channel);
+	}
+	Read_NvItem_MotionSensitivity(&sensitivity);
+	Set_MotionDetect_Sensitivity(sensitivity);
 }
