@@ -51,7 +51,7 @@ const u8 menuStr_Resolution1920X1080_60P[] = "1920 X 1080 60P";
 const u8 menuStr_Resolution1920X1080_50P[] = "1920 X 1080 50P";
 
 const u8 menuStr_Alarm[] =   "ALARM";
-const u8 menuStr_Remocon[] = "SERIAL";
+const u8 menuStr_Remocon[] = "REMOTE";
 
 const u8 menuStr_NO[] = "N.O";
 const u8 menuStr_NC[] = "N.C";
@@ -70,7 +70,7 @@ const u8 menuStr_MainMenu_TimeDate[] =        "1. TIME / DATE";
 const u8 menuStr_MainMenu_CameraTitle[] =     "2. CAMERA TITLE";
 const u8 menuStr_MainMenu_AutoSeq[] =         "3. AUTO SEQUENCE OPTION";
 const u8 menuStr_MainMenu_Display[] =         "4. DISPALY OPTION";
-const u8 menuStr_MainMenu_Alarm[] =           "5. ALARM / SERIAL OPTION";
+const u8 menuStr_MainMenu_Alarm[] =           "5. ALARM / REMOTE OPTION";
 const u8 menuStr_MainMenu_MotionDetection[] = "6. MOTION DETECTION OPTION";
 const u8 menuStr_MainMenu_DeviceInfo[] =      "7. DEVICE INFO";
 
@@ -108,8 +108,8 @@ const u8 menuStr_Display_OsdDisplay[] = "2. OSD DISPLAY : ";
 const u8 menuStr_Display_BorderLine[] = "3. BORDER LINE DISPLAY : ";
 
 // Alarm
-const u8 menuStr_Alarm_Title[] =               "-- ALARM / SERIAL OPTION --";
-const u8 menuStr_Alarm_AlarmRemocon[] =        "1. ALARM/SERIAL SELECT : "; //ALARM(default) / REMOCON
+const u8 menuStr_Alarm_Title[] =               "-- ALARM / REMOTE OPTION --";
+const u8 menuStr_Alarm_AlarmRemocon[] =        "1. ALARM/REMOTE SELECT : "; //ALARM(default) / REMOCON
 const u8 menuStr_Alarm_Channel1[] =            "2. CH1 ALARM :     / VIDEO LOSS : ";
 const u8 menuStr_Alarm_Channel2[] =            "3. CH2 ALARM :     / VIDEO LOSS : ";
 const u8 menuStr_Alarm_Channel3[] =            "4. CH3 ALARM :     / VIDEO LOSS : ";

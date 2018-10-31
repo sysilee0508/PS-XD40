@@ -7,10 +7,12 @@
 //=============================================================================
 //  Define & MACRO
 //=============================================================================
-#define ALARM_DEBOUNCE_COUNT_MAX		5
+#define ALARM_DEBOUNCE_COUNT_MAX		4
 //#define ALL_ALARM_STATE
 #define ALARM_START						1
 #define ALARM_STOP						0
+
+#define PARALLELKEY_DEBOUNCE_COUNT_MAX	2
 
 #define UART_SOH						1
 #define UART_STX						2
@@ -22,6 +24,8 @@
 static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_QUAD;
+
+static u8 parallelKeyDebounceCount = 0;
 
 static u8 uartProc_State = UART_STATE_SOH;
 
@@ -38,7 +42,7 @@ static sAlarmInfo_t alarmInfo[NUM_OF_CHANNEL] =
 };
 static u8 spiDataMask[NUM_OF_CHANNEL] = { 0x01, 0x02, 0x04, 0x08 };
 
-static sVirtualKeys_t virtual_key_tabla[] =
+static sVirtualKeys_t virtual_key_table[] =
 {
 	{KEY_NONE,			VIRTUAL_KEY_NONE},
 	{KEY_FULL_CH1,		VIRTUAL_KEY_CH1},
@@ -49,6 +53,18 @@ static sVirtualKeys_t virtual_key_tabla[] =
 	{KEY_FREEZE,		VIRTUAL_KEY_FREEZE},
 	{KEY_AUTO_SEQ,		VIRTUAL_KEY_AUTO_SEQ},
 	{KEY_MENU,			VIRTUAL_KEY_MENU}
+};
+
+static sVirtualKeys_t parallel_key_table[] =
+{
+	{KEY_NONE,			0xFF},
+	{KEY_FULL_CH1,		KEYCODE_CH1},
+	{KEY_FULL_CH2,		KEYCODE_CH2},
+	{KEY_FULL_CH3,		KEYCODE_CH3},
+	{KEY_FULL_CH4,		KEYCODE_CH4},
+	{KEY_4SPLIT,		KEYCODE_SPLIT},
+	{KEY_FREEZE,		KEYCODE_FREEZE},
+	{KEY_AUTO_SEQ,		KEYCODE_SEQUENCE}
 };
 
 //=============================================================================
@@ -153,6 +169,7 @@ static void ClearAllAlarm(void)
 	for(channel = CHANNEL1; channel<NUM_OF_CHANNEL; channel++)
 	{
 		alarmInfo[channel].alarm_status = ALARM_CLEAR;
+		alarmInfo[channel].check_count = 0;
 	}
 	lastAlarmChannel = CHANNEL_QUAD;
 
@@ -190,11 +207,7 @@ u8 GetAlarmBuzzerCount(void)
 {
 	return alarmBuzzerCountIn500ms;
 }
-//
-//void ClearAlarmBuzzerCount(void)
-//{
-//	alarmBuzzerCountIn500ms = 0;
-//}
+
 //------------------------------------------------------------------------------
 void DecreaseAlarmBuzzerCount(void)
 {
@@ -229,16 +242,71 @@ BOOL GetAlarmStatus(eChannel_t channel)
 }
 
 //------------------------------------------------------------------------------
-// Remote controller (UART function)
+// Parallel Keys (SPI)
 //------------------------------------------------------------------------------
-static u8 GetRemotconId(void)
+static void CheckParallelKeys(void)
 {
-	u8 id;
+	u8 spiData = ReadSpiDataByte();
+	u8 index;
+	static u8 previousData = 0;
 
-	Read_NvItem_RemoconId(&id);
-	return id;
+	if((spiData != 0x00) && (spiData == previousData))
+	{
+		parallelKeyDebounceCount++;
+	}
+	else
+	{
+		parallelKeyDebounceCount = 0;
+	}
+	previousData = spiData;
+	if(parallelKeyDebounceCount > PARALLELKEY_DEBOUNCE_COUNT_MAX)
+	{
+		for(index = 0; index < sizeof(parallel_key_table)/sizeof(sVirtualKeys_t); index++)
+		{
+			if(parallel_key_table[index].virtual_key == spiData)
+			{
+				UpdateKeyData(parallel_key_table[index].keydata);
+				SetKeyReady();
+				break;
+			}
+		}
+	}
 }
 
+//------------------------------------------------------------------------------
+void ChangeAlarmRemoteKeyMode(BYTE mode)
+{
+	if(mode == REMOTEKEY_MODE)
+	{
+		ClearAllAlarm();
+	}
+	else
+	{
+		parallelKeyDebounceCount = 0;
+	}
+}
+
+//------------------------------------------------------------------------------
+void AlarmRemoteKey_Proc(void)
+{
+	BOOL alarmSelect;
+
+	Read_NvItem_AlarmRemoconSelect(&alarmSelect);
+
+	if(alarmSelect == ALARM_MODE)
+	{
+		CheckAlarm();
+	}
+	else
+	{
+		CheckParallelKeys();
+	}
+}
+
+
+//------------------------------------------------------------------------------
+// RS232 Communication
+//------------------------------------------------------------------------------
 static u32 Get_BaudRate(void)
 {
 	eBaudRate_t rate;
@@ -257,7 +325,6 @@ static u32 Get_BaudRate(void)
 			baudrate = 9600;
 			break;
 	}
-
 	return baudrate;
 }
 
@@ -272,152 +339,122 @@ void USART3_Init(void)
 	USART_Init(USART3, &USART_InitStructure);
 	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 
-	//Disable the USART3 at start
-	if(GetAlarmRemoteKeyMode() == REMOTEKEY_MODE)
-	{
-		USART_Cmd(USART3, ENABLE);
-	}
-	else
-	{
-		USART_Cmd(USART3, DISABLE);
-	}
+	USART_Cmd(USART3, ENABLE);
 }
 
 void USART3_IRQHandler(void)
 {
 	static u8 errorCode = ERROR_NONE;
-	u8 receivedData;
+	u16 receivedData;
 	u8 i;
-	u8 remoconId = GetRemotconId();
+	u8 remoconId;
 
-	receivedData = USART_ReceiveData(USART3);
-	// Clear the USART3 RX interrupt
-	USART_ClearITPendingBit(USART3,USART_IT_RXNE);
+	Read_NvItem_RemoconId(&remoconId);
 
-	switch(uartProc_State)
+	if((remoconId == 0) && (uartProc_State == UART_STATE_SOH))
 	{
-		case UART_STATE_SOH:
-			if(receivedData == UART_SOH)
-			{
-				// valid data is received. move to next step
-				uartProc_State = UART_STATE_HEADER;
-			}
-			else
-			{
-				// invalid data. do nothing
-				errorCode = ERROR_INVALID_CONTROL;
-			}
-			break;
+		uartProc_State = UART_STATE_STX;
+	}
+	else if(remoconId != 0)
+	{
+		remoconId += 0x9F;
+	}
 
-		case UART_STATE_HEADER:
-			if(receivedData > REMOCON_ID_MAX)
-			{
-				errorCode = ERROR_INVALID_REMOCONID;
-				uartProc_State = UART_STATE_SOH;
-			}
-			else if(receivedData != remoconId)
-			{
-				errorCode = ERROR_REMOCONID_MISMATCH;
-				uartProc_State = UART_STATE_SOH;
-			}
-			else
-			{
-				// move to next step
-				uartProc_State = UART_STATE_STX;
-			}
-			break;
+	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
+	{
+		receivedData = USART_ReceiveData(USART3);
+		// Clear the USART3 RX interrupt
+		//USART_ClearITPendingBit(USART3,USART_IT_RXNE);
 
-		case UART_STATE_STX:
-			if(receivedData == UART_STX)
-			{
-				uartProc_State = UART_STATE_CODE;
-			}
-			else
-			{
-				errorCode = ERROR_INVALID_CONTROL;
-				uartProc_State = UART_STATE_SOH;
-			}
-			break;
-
-		case UART_STATE_CODE:
-			uartProc_State = UART_STATE_ETX;
-
-			if((receivedData >= 0x90) && (receivedData != VIRTUAL_KEY_FREEZE) && (receivedData != VIRTUAL_KEY_AUTO_SEQ))
-			{
-				receivedData -= 0x10;
-			}
-
-			if(GetSystemMode() == SYSTEM_SETUP_MODE)
-			{
-				if(receivedData == VIRTUAL_KEY_MENU)
+		switch(uartProc_State)
+		{
+			case UART_STATE_SOH:
+				if(receivedData == UART_SOH)
 				{
-					receivedData = VIRTUAL_KEY_FREEZE; //KEY_MENU -> KEY_FREEZE
+					// valid data is received. move to next step
+					uartProc_State = UART_STATE_HEADER;
 				}
-			}
-
-			for(i = 0; i < sizeof(virtual_key_tabla)/sizeof(sVirtualKeys_t); i++)
-			{
-				if(virtual_key_tabla[i].virtual_key == receivedData)
+				else
 				{
-					UpdateKeyData(virtual_key_tabla[i].keydata);
-					break;
+					// invalid data. do nothing
+					errorCode = ERROR_INVALID_CONTROL;
 				}
-			}
-			break;
+				break;
 
-		case UART_STATE_ETX:
-			if(receivedData == UART_ETX)
-			{
-				SetKeyReady();
-			}
-			else
-			{
-				errorCode = ERROR_INVALID_CONTROL;
-				ClearKeyReady();
-			}
-			uartProc_State = UART_STATE_SOH;
-			break;
+			case UART_STATE_HEADER:
+				if(receivedData != remoconId)
+				{
+					errorCode = ERROR_REMOCONID_MISMATCH;
+					uartProc_State = UART_STATE_SOH;
+				}
+				else
+				{
+					// move to next step
+					uartProc_State = UART_STATE_STX;
+				}
+				break;
+
+			case UART_STATE_STX:
+				if(receivedData == UART_STX)
+				{
+					uartProc_State = UART_STATE_CODE;
+				}
+				else
+				{
+					errorCode = ERROR_INVALID_CONTROL;
+					uartProc_State = UART_STATE_SOH;
+				}
+				break;
+
+			case UART_STATE_CODE:
+				uartProc_State = UART_STATE_ETX;
+
+				if((receivedData >= 0x90) && (receivedData != VIRTUAL_KEY_FREEZE) && (receivedData != VIRTUAL_KEY_AUTO_SEQ))
+				{
+					receivedData -= 0x10;
+				}
+
+				if(GetSystemMode() == SYSTEM_SETUP_MODE)
+				{
+					if(receivedData == VIRTUAL_KEY_MENU)
+					{
+						receivedData = VIRTUAL_KEY_FREEZE; //KEY_MENU -> KEY_FREEZE
+					}
+				}
+
+				for(i = 0; i < sizeof(virtual_key_table)/sizeof(sVirtualKeys_t); i++)
+				{
+					if(virtual_key_table[i].virtual_key == receivedData)
+					{
+						UpdateKeyData(virtual_key_table[i].keydata);
+						break;
+					}
+				}
+				break;
+
+			case UART_STATE_ETX:
+				if(receivedData == UART_ETX)
+				{
+					SetKeyReady();
+				}
+				else
+				{
+					errorCode = ERROR_INVALID_CONTROL;
+					ClearKeyReady();
+				}
+				uartProc_State = UART_STATE_SOH;
+				break;
+		}
 	}
 }
 
-//------------------------------------------------------------------------------
-void ChangeAlarmRemoteKeyMode(BYTE mode)
-{
-	if(mode == REMOTEKEY_MODE)
-	{
-		//enable uart
-		USART_Cmd(USART3, ENABLE);
-	}
-	else
-	{
-		USART_Cmd(USART3, DISABLE);
-	}
-}
-
-void ChangeBaudrate(eBaudRate_t baudrate)
+void ChangeBaudrate(void)
 {
 	USART_InitTypeDef USART_InitStructure;
 
-	USART_StructInit(&USART_InitStructure);
-	USART_InitStructure.USART_BaudRate = Get_BaudRate();
-	USART_InitStructure.USART_Mode = USART_Mode_Rx;
+	USART_Cmd(USART3, DISABLE);
+	USART_DeInit(USART3);
 
-	USART_Init(USART3, &USART_InitStructure);
+	USART3_Init();
 }
 
-BYTE GetAlarmRemoteKeyMode(void)
-{
-	BYTE select;
-
-	Read_NvItem_AlarmRemoconSelect(&select);
-
-	return select;
-}
-//------------------------------------------------------------------------------
-void AlarmRemoteKey_Proc(void)
-{
-	if(GetAlarmRemoteKeyMode() == ALARM_MODE)
-	{
-		CheckAlarm();
-	}
-}

@@ -59,9 +59,9 @@ void TIM3_IRQHandler(void)
 	Key_Check();
 
 	// Check alarm every 20ms if alarm is enabled
-	if((count%2==0) && (GetAlarmRemoteKeyMode() == ALARM_MODE))
+	if(count%2==0)
 	{
-		CheckAlarm();
+		AlarmRemoteKey_Proc();
 	}
 	count = (++count)%2;
 }
