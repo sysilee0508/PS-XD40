@@ -1,16 +1,16 @@
 //=============================================================================
 //  Header Declaration
 //=============================================================================
-#include "common.h"
 #include "NVP6158.h"
+#include "common.h"
 
 //=============================================================================
 //  Define & MACRO
 //=============================================================================
 typedef struct
 {
-	WORD previousActivatedBlock[ROWS_OF_BLOCKS];
 	BOOL motion_detected;
+	WORD previousActivatedBlock[ROWS_OF_BLOCKS];
 } sMotionDetectInfo_t;
 
 //=============================================================================
@@ -18,10 +18,10 @@ typedef struct
 //=============================================================================
 static sMotionDetectInfo_t motiondetectionInfo[NUM_OF_CHANNEL] = 
 {
-	{{0, }, FALSE },
-	{{0, }, FALSE },
-	{{0, }, FALSE },
-	{{0, }, FALSE }
+	{FALSE, {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}},
+	{FALSE, {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}},
+	{FALSE, {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}},
+	{FALSE, {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}}
 };
 
 static BYTE motionDetectionSensitivity = 0x60;
@@ -40,7 +40,7 @@ BOOL Get_MotionDetect_OnOff(eChannel_t channel)
 	return motionOn;
 }
 
-void Set_MotionDetect_OnOff(eChannel_t channel, BOOL enabled)
+void Set_MotionDetect_OnOff(eChannel_t channel)
 {
 	motion_mode motion;
 	BOOL motionOn;
@@ -99,18 +99,18 @@ void Set_MotionDetect_ActivatedArea(eChannel_t channel)
 	
 	for(index = 0; index < ROWS_OF_BLOCKS; index++)
 	{
-		if(memcmp(&activeBlocks[index], &motiondetectionInfo.previousActivatedBlock[index], sizeof(WORD)) != 0)
+		if(memcmp(&activeBlocks[index], &motiondetectionInfo[channel].previousActivatedBlock[index], sizeof(WORD)) != 0)
 		{
-			changedBlocks = activeBlocks[index] ^ motiondetectionInfo.previousActivatedBlock[index];
-			for(bitIndex = 0; bitIndex < sizeof(WORD); bitIndex++)
+			changedBlocks = activeBlocks[index] ^ motiondetectionInfo[channel].previousActivatedBlock[index];
+			for(bitIndex = 0; bitIndex < COLUMMS_OF_BLOCKS; bitIndex++)
 			{
 				if(0x0001 & (changedBlocks >> bitIndex))
 				{
-					motion.set_val = index * sizeof(WORD) + bitIndex;//pixel(block) number
+					motion.set_val = index * COLUMMS_OF_BLOCKS + bitIndex;//pixel(block) number
 					motion_pixel_onoff_set(&motion);
 				}
 			}
-			motiondetectionInfo.previousActivatedBlock[index] = activeBlocks[index];
+			motiondetectionInfo[channel].previousActivatedBlock[index] = activeBlocks[index];
 		}
 	}
 }
