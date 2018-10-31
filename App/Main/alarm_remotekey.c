@@ -57,14 +57,14 @@ static sVirtualKeys_t virtual_key_table[] =
 
 static sVirtualKeys_t parallel_key_table[] =
 {
-	{KEY_NONE,			0x00},
-	{KEY_FULL_CH1,		0x01},
-	{KEY_FULL_CH2,		0x02},
-	{KEY_FULL_CH3,		0x04},
-	{KEY_FULL_CH4,		0x08},
-	{KEY_4SPLIT,		0x20},
-	{KEY_FREEZE,		0x40},
-	{KEY_AUTO_SEQ,		0x80}
+	{KEY_NONE,			0xFF},
+	{KEY_FULL_CH1,		KEYCODE_CH1},
+	{KEY_FULL_CH2,		KEYCODE_CH2},
+	{KEY_FULL_CH3,		KEYCODE_CH3},
+	{KEY_FULL_CH4,		KEYCODE_CH4},
+	{KEY_4SPLIT,		KEYCODE_SPLIT},
+	{KEY_FREEZE,		KEYCODE_FREEZE},
+	{KEY_AUTO_SEQ,		KEYCODE_SEQUENCE}
 };
 
 //=============================================================================
