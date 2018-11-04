@@ -133,7 +133,7 @@ void MotionDetectCheck(void)
 	if(currentMotion > 0)
 	{
 		motionCleared = FALSE;
-		ALARMOUT_LOW;
+		TurnOnAlarmOut(ALARMOUT_REQUESTER_MOTION);
 	}
 	else if((motionCleared == FALSE) &&  (currentMotion == 0))
 	{
@@ -148,7 +148,7 @@ void MotionDetectCheck(void)
 		}
 		else if(alarmOutTimeCountInSec == 0)
 		{
-			ALARMOUT_HIGH;
+			TurnOffAlarmOut(ALARMOUT_REQUESTER_MOTION);
 		}
 		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
 	}
@@ -162,74 +162,6 @@ void MotionDetectCheck(void)
 	}
 
 	previousMotion = currentMotion;
-
-//	if(previousMotion != currentMotion)
-//	{
-//		//Find which channel is changed
-//		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-//		{
-//			channel_mask = 0x01 << channel;
-//			if((previousMotion & channel_mask) != (currentMotion & channel_mask))
-//			{
-//
-//			}
-//		}
-//	}
-//
-//
-//
-//	for(channel = 0; channel < NUM_OF_CHANNEL; channel++)
-//	{
-//		motiondetectionInfo[channel].motion_detected = (vMotion >> channel);
-//	}
-
-
-//	if (motiondetectionInfo[CHANNEL1].motion_detected)
-//	{
-//		BUZZER_HIGH;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//	}
-//	if (motiondetectionInfo[CHANNEL2].motion_detected)
-//	{
-//		BUZZER_HIGH;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//		Delay_ms(100);
-//		BUZZER_HIGH;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//	}
-//	if (motiondetectionInfo[CHANNEL3].motion_detected)
-//	{
-//		BUZZER_HIGH;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//		Delay_ms(100);
-//		BUZZER_HIGH;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//		Delay_ms(100);
-//		BUZZER_HIGH;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//	}
-//	if (motiondetectionInfo[CHANNEL4].motion_detected)
-//	{
-//		BUZZER_HIGH;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//		Delay_ms(100);
-//		BUZZER_HIGH;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//		Delay_ms(100);
-//		BUZZER_HIGH;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//		Delay_ms(100);
-//		BUZZER_LOW;
-//	}
 }
 
 BYTE GetMotionBuzzerCount(void)

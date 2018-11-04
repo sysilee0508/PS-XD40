@@ -167,11 +167,6 @@ void Key_Scan_ParallelKey(void)
 	{
 		backKeyCode = KEYCODE_NONE;
 	}
-//	if(frontKeyCode == KEYCODE_NONE)
-//	{
-//		backKeyCode = (keycode_t)ReadSpiDataByte();
-//		current_keycode = backKeyCode;
-//	}
 }
 
 void Key_Scan(void)

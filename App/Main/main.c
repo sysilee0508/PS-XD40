@@ -10,13 +10,29 @@
 // Static Global Data section variables
 // ----------------------------------------------------------------------
 volatile BOOL fZOOMMove, fCROPMove;
-s8 Video1_In_Res_Val = 0x00;
-s8 Video2_In_Res_Val = 0x00;
 s8 Video_Out_Res_Val = VIDOUT_1920x1080p60;
 
 u8 PIP_mode = 5;
 u8 Pre_PIP_mode = 0xff;
 BYTE sysenv_split_mode = 0;
+
+static u8 alarmOutRequester = ALARMOUT_REQUESTER_NONE;
+
+void TurnOnAlarmOut(u8 requester)
+{
+	alarmOutRequester |=  requester;
+	ALARMOUT_LOW;
+}
+
+void TurnOffAlarmOut(u8 requester)
+{
+	alarmOutRequester &= (~requester);
+
+	if(alarmOutRequester == ALARMOUT_REQUESTER_NONE)
+	{
+		ALARMOUT_HIGH;
+	}
+}
 
 static void PlayBuzzer(void)
 {

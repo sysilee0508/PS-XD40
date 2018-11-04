@@ -55,18 +55,6 @@ static sVirtualKeys_t virtual_key_table[] =
 	{KEY_MENU,			VIRTUAL_KEY_MENU}
 };
 
-//static sVirtualKeys_t parallel_key_table[] =
-//{
-//	{KEY_NONE,			0xFF},
-//	{KEY_FULL_CH1,		KEYCODE_CH1},
-//	{KEY_FULL_CH2,		KEYCODE_CH2},
-//	{KEY_FULL_CH3,		KEYCODE_CH3},
-//	{KEY_FULL_CH4,		KEYCODE_CH4},
-//	{KEY_4SPLIT,		KEYCODE_SPLIT},
-//	{KEY_FREEZE,		KEYCODE_FREEZE},
-//	{KEY_AUTO_SEQ,		KEYCODE_SEQUENCE}
-//};
-
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -196,13 +184,13 @@ static void StartStopAlarm(BOOL start_stop)
 	{
 		alarmBuzzerCountIn500ms = alarmBuzzerTime * 2;
 		alarmOutTimeCountInSec = alarmOutTime;
-		ALARMOUT_LOW;
+		TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
 	}
 	else
 	{
 		alarmOutTimeCountInSec = 0;
 		ClearAllAlarm();
-		ALARMOUT_HIGH;
+		TurnOffAlarmOut(ALARMOUT_REQUESTER_ALARM);
 	}
 }
 
@@ -246,67 +234,13 @@ BOOL GetAlarmStatus(eChannel_t channel)
 }
 
 //------------------------------------------------------------------------------
-// Parallel Keys (SPI)
-//------------------------------------------------------------------------------
-//static void CheckParallelKeys(void)
-//{
-//	u8 spiData = ReadSpiDataByte();
-//	u8 index;
-//	static u8 previousData = 0;
-//
-//	if((spiData != 0x00) && (spiData == previousData))
-//	{
-//		parallelKeyDebounceCount++;
-//	}
-//	else
-//	{
-//		parallelKeyDebounceCount = 0;
-//	}
-//	previousData = spiData;
-//	if(parallelKeyDebounceCount > PARALLELKEY_DEBOUNCE_COUNT_MAX)
-//	{
-//		for(index = 0; index < sizeof(parallel_key_table)/sizeof(sVirtualKeys_t); index++)
-//		{
-//			if(parallel_key_table[index].virtual_key == spiData)
-//			{
-//				UpdateKeyData(parallel_key_table[index].keydata);
-//				SetKeyReady();
-//				break;
-//			}
-//		}
-//	}
-//}
-
-//------------------------------------------------------------------------------
 void ChangeAlarmRemoteKeyMode(BYTE mode)
 {
 	if(mode == REMOTEKEY_MODE)
 	{
 		ClearAllAlarm();
 	}
-//	else
-//	{
-//		parallelKeyDebounceCount = 0;
-//	}
 }
-
-//------------------------------------------------------------------------------
-//void AlarmRemoteKey_Proc(void)
-//{
-//	BOOL alarmSelect;
-//
-//	Read_NvItem_AlarmRemoconSelect(&alarmSelect);
-//
-//	if(alarmSelect == ALARM_MODE)
-//	{
-//		CheckAlarm();
-//	}
-//	else
-//	{
-//		CheckParallelKeys();
-//	}
-//}
-
 
 //------------------------------------------------------------------------------
 // RS232 Communication
@@ -368,8 +302,6 @@ void USART3_IRQHandler(void)
 	{
 		receivedData = USART_ReceiveData(USART3);
 		// Clear the USART3 RX interrupt
-		//USART_ClearITPendingBit(USART3,USART_IT_RXNE);
-
 		switch(uartProc_State)
 		{
 			case UART_STATE_SOH:

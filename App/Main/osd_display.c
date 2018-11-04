@@ -203,8 +203,6 @@ static u8 CreateDateString(u8 *pDateStr)
 		dateLength = DATE_LENGTH_4DIGIT;
 	}
 	strncpy(month, pStrMonthName[rtcDate.month - 1], sizeof(month));
-//	month[0] = (rtcDate.month / 10) + ASCII_ZERO;
-//	month[1] = (rtcDate.month % 10) + ASCII_ZERO;
 	day[0] = (rtcDate.day / 10) + ASCII_ZERO;
 	day[1] = (rtcDate.day % 10) + ASCII_ZERO;
 
@@ -333,7 +331,6 @@ static void OSD_EraseChannelName(void)
 
 	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 	{
-		//channel = (eChannel_t)sys_status.current_split_mode;
 		Read_NvItem_DisplayChannel(&channel);
 		Read_NvItem_ChannelName(channel_name, channel);
 		position =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
@@ -354,7 +351,6 @@ static void OSD_EraseTimeDate(void)
 {
 	sPosition_t position;
 	eDisplayMode_t displayMode;
-//	eTimePosition_t timePosition;
 	u8 strSpaces[DATE_TIME_LENGTH];
 
 	Read_NvItem_DisplayMode(&displayMode);
@@ -367,9 +363,6 @@ static void OSD_EraseTimeDate(void)
 	{
 		position.pos_y = MARGIN_Y;
 	}
-//
-//	Read_NvItem_TimePosition(&timePosition);
-//	position.pos_x = tblTimeDisplayLoc_X[timePosition];
 
 	memset(strSpaces, ASCII_SPACE, sizeof(strSpaces));
 	OSD_PrintString(position, strSpaces, displayingDateTimeLength);
@@ -431,7 +424,7 @@ static void OSD_DisplayFreezeAuto(void)
 	static BOOL previousAutoSeqOn = CLEAR;
 	u8* pStr;
 
-	autoOn = (GetCurrentAutoSeq() == AUTO_SEQ_NORMAL)?SET:CLEAR;//GetAutoSeqOn();;
+	autoOn = (GetCurrentAutoSeq() == AUTO_SEQ_NORMAL)?SET:CLEAR;
 
 	if((previousFreeze != freezeOn) || (previousAutoSeqOn !=  autoOn) || (requestRefreshScreen == SET))
 	{
@@ -479,7 +472,6 @@ static void OSD_DisplayNoVideo(void)
 	{
 		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
-			//channel = (eChannel_t)sys_status.current_split_mode;
 			Read_NvItem_DisplayChannel(&channel);
 		}
 
@@ -606,7 +598,6 @@ void OSD_DisplayChannelName(void)
 	{
 		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
-//			channel = (eChannel_t)sys_status.current_split_mode;
 			Read_NvItem_DisplayChannel(&channel);
 			Read_NvItem_ChannelName(channel_name, channel);
 			positionValue =  OSD_TitleStringPosition(channel, titlePosition, displayMode, strlen(channel_name));
@@ -682,7 +673,6 @@ void OSD_Display(void)
 		OSD_DisplayDateTime();
 		OSD_DisplayChannelName();
 		OSD_DisplayNoVideo();
-		//OSD_DisplayAUTO();
 		OSD_DisplayFreezeAuto();
 	}
 	else if(GetSystemMode() == SYSTEM_SETUP_MODE)

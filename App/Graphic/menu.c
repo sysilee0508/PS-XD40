@@ -532,7 +532,6 @@ static void Print_StringTimeCorrect(u16 itemX,u8 attribute)
 
 static void Print_StringTime(u16 itemX, u8 attribute, sTimeDate_t time)
 {
-//	sTimeDate_t currentTime;
 	u8 hourStr[2], minStr[2], secStr[2];
 	u8 timeStr[TIME_STRING_LENGTH] = {0,};
 	u8 selectedMark[3];
@@ -542,7 +541,6 @@ static void Print_StringTime(u16 itemX, u8 attribute, sTimeDate_t time)
 	selectedMark[1] = (itemX & 0x02)?attribute:NULL;
 	selectedMark[2] = (itemX & 0x04)?attribute:NULL;
 
-//	RTC_GetTime(&currentTime);
 	Int2Str(time.hour, hourStr);
 	Int2Str(time.min, minStr);
 	Int2Str(time.sec, secStr);
@@ -668,29 +666,6 @@ static void Print_StringYearFormat(u8 attribute)
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen(menuStr_TimeDate_YearFormat) + 2,
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_y, menuStr_Digit, NULL, strlen(menuStr_Digit));
 }
-//
-//static void Print_StringTimeDatePosition(u8 attribute)
-//{
-//	eTimePosition_t position;
-//	BYTE* pStr;
-//
-//	Read_NvItem_TimePosition(&position);
-//	Print_StringWithSelectedMarkSize(44, 15, menuStr_Space6, NULL, 0);
-//
-//	switch(position)
-//	{
-//		case TIME_POSITION_LEFT:
-//			pStr = menuStr_Left;
-//			break;
-//		case TIME_POSITION_CENTER:
-//			pStr = menuStr_Center;
-//			break;
-//		case TIME_POSITION_RIGHT:
-//			pStr = menuStr_Right;
-//			break;
-//	}
-//	Print_StringWithSelectedMark(44, 15, pStr, attribute, strlen(pStr));
-//}
 
 static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY, sTimeDate_t time)
 {
@@ -1806,6 +1781,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 //   Motion Detection Page Function
 //------------------------------------------------------------------
+static BOOL areaSelecting = FALSE;
 const sLocationNString_t motionDetectionMenu[MOTION_ITEM_Y_MAX] =
 {
 	{24, LINE0_OFFSET_Y, menuStr_Motion_Title},
@@ -1827,9 +1803,6 @@ static void Print_StringSelectArea(u16 offset_x, u16 offset_y,BOOL active)
 	}
 	Print_StringWithSelectedMark(offset_x, offset_y, menuStr_SelectArea, attribute, strlen(menuStr_SelectArea));
 }
-
-//static SBOX_CTL_INFO motionSBox;
-static BOOL areaSelecting = FALSE;
 
 static void MotionDetectionPage_DrawCursor(u8 offset_x, u8 offset_y, BOOL active)
 {
@@ -1892,23 +1865,6 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 	Erase_AllMenuScreen();
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 	Set_DisplayMode_FullScreen(channel);
-
-//	areaSelecting = TRUE;
-	// Step 1. Draw lines
-//	for(index = 0; index < ROWS_OF_BLOCKS/2; index++)
-//	{
-//		// draw h-line
-//		MDINOSD_SetBGBoxArea(BGBOX_INDEX0+index, 0, index * block_height * 2, DISPLAY_WIDTH, block_height);
-//		MDINOSD_EnableBGBox(BGBOX_INDEX0+index, ON);
-//	}
-//	for(index = 0; index < COLUMMS_OF_BLOCKS/2; index++)
-//	{
-//		//draw v-line
-//		motionSBox.index = index;
-//		MDINOSD_SetSBoxBorderColor(&motionSBox, RGB(255,255,255));
-//		MDINOSD_SetSBoxArea(&motionSBox, index * block_width, 0, (index+1)*block_width - 1, DISPLAY_HEIGHT);
-//		MDINOSD_EnableSBoxBorder(&motionSBox, ON);
-//	}
 
 	MotionDetectionPage_DrawCursor(0, 0, TRUE);
 	Read_NvItem_MotionBlock(blocks, channel);
@@ -2169,7 +2125,6 @@ static void DeviceInfoPage_Entry(void)
 	}
 
 	// There is no selectable item
-//	DrawSelectMark(0);
 	for(index = 0; index < DEVICEINFO_ITEM_Y_MAX; index++)
 	{
 		Print_StringWithSelectedMarkSize(
@@ -2289,7 +2244,6 @@ void DisplayTimeInMenu(void)
 	if((currentPage == MENU_PAGE_TIME_DATE) && (RTC_GetDisplayTimeStatus() == SET))
 	{
 		RTC_ChangeDisplayTimeStatus(CLEAR);
-//		Print_StringTime(0x00, NULL);
 	}
 }
 
