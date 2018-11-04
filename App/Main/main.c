@@ -9,75 +9,27 @@
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-//sys_stat_t sys_status;
-//sys_env_t sys_env;
-
 volatile BOOL fZOOMMove, fCROPMove;
 s8 Video1_In_Res_Val = 0x00;
 s8 Video2_In_Res_Val = 0x00;
 s8 Video_Out_Res_Val = VIDOUT_1920x1080p60;
 
-//u8 SDI_IN_Display_Flag = 0;
-
 u8 PIP_mode = 5;
 u8 Pre_PIP_mode = 0xff;
-
 BYTE sysenv_split_mode = 0;
 
-//u8 aux_display_flag = 0;
-
-// ----------------------------------------------------------------------
-// External Variable 
-// ----------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-//	USART3 Rx Interrupt
-//-----------------------------------------------------------------------------
-
-//u8 rs232_key_table[] =
-//{
-//	0x00,	//0x00
-//	0x80,	//0x01
-//	0x81,	//0x02
-//	0x82,	//0x03
-//	0x83,	//0x04
-//	0x00,	//0x05
-//	0x00,	//0x06
-//	0x00,	//0x07
-//	0x00,	//0x08
-//	0x00,	//0x09
-//	0x00,	//0x0a
-//	0x00,	//0x0b
-//	0x00,	//0x0c
-//	0x00,	//0x0d
-//	0x00,	//0x0e
-//	0x00,	//0x0f
-//	0x00,	//0x10
-//	0x00,	//0x11
-//	0x00,	//0x12
-//	0x00,	//0x13
-//	0x00,	//0x14
-//	0x84,	//0x15
-//	0x00,	//0x16
-//	0x00,	//0x17
-//	0x00,	//0x18
-//	0x9a,	//0x19
-//	0x9b,	//0x1a
-//	0x00,	//0x1b
-//	0x8a,	//0x99
-//};
 static void PlayBuzzer(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn100ms = 0;
-	u8 lossCount;	
-    u8 alarmCount;
+	u8 lossCount = GetVideoLossBuzzerCount();
+    u8 alarmCount = GetAlarmBuzzerCount();
+    u8 motionCount = GetMotionBuzzerCount();
 	u8 buzzerCount;
+
 	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
 	{
-		lossCount = GetVideoLossBuzzerCount();
-		alarmCount = GetAlarmBuzzerCount();
-		buzzerCount = MAX(lossCount, alarmCount);
+		buzzerCount = MAX(MAX(lossCount, alarmCount), motionCount);
 
 		if(buzzerCount > 0)
 		{
@@ -88,11 +40,15 @@ static void PlayBuzzer(void)
 
 			if(lossCount > 0)
 			{
-				DecreaseVideoLossBuzzerCount();//videoLossBuzzerCount--;
+				DecreaseVideoLossBuzzerCount();
 			}
 			if(alarmCount > 0)
 			{
 				DecreaseAlarmBuzzerCount();
+			}
+			if(motionCount > 0)
+			{
+				DecreaseMotionBuzzerCount();
 			}
 		}
 		else
@@ -211,9 +167,8 @@ void main(void)
 		
 		ScanVideoLossChannels();
 		CheckAlarmClearCondition();
-		PlayBuzzer();
-		
 		MotionDetectCheck();
+		PlayBuzzer();
 
 		UpdateAutoSeqCount();
 		DisplayAutoSeqChannel();

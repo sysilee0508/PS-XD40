@@ -45,13 +45,6 @@ int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInfor
 	sMotion.ch = ch%4;
 	sMotion.devnum = ch/4;
 	sMotion.fmtdef = pInformation->curvideofmt[ch];
-	//sMotion.set_val = Get_MotionDetect_OnOff(sMotion.ch);
-	
-	//motion_onoff_set(&sMotion);
-
-	//motion_pixel_all_onoff_set(&sMotion);
-	//sMotion.set_val = Get_MotionDetect_Sensitivity();
-	//motion_tsen_set(&sMotion);
 
 	/* check novideo option */
 	if( !sNoVideo.novid )

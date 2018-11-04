@@ -200,7 +200,6 @@ static void StartStopAlarm(BOOL start_stop)
 	}
 	else
 	{
-		//alarmBuzzerCountIn500ms = 0;
 		alarmOutTimeCountInSec = 0;
 		ClearAllAlarm();
 		ALARMOUT_HIGH;

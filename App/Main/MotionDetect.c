@@ -24,7 +24,9 @@ static sMotionDetectInfo_t motiondetectionInfo[NUM_OF_CHANNEL] =
 	{FALSE, {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}}
 };
 
-static BYTE motionDetectionSensitivity = 0x60;
+static BYTE motionDetectionSensitivity = 49;
+static BYTE motionBuzzerCountIn500ms = 0;
+
 //=============================================================================
 //  Array Declaration (data table)
 //=============================================================================
@@ -117,60 +119,127 @@ void Set_MotionDetect_ActivatedArea(eChannel_t channel)
 
 void MotionDetectCheck(void)
 {
-	unsigned char vMotion;
-	unsigned char channel_num;
-	vMotion = NVP6158_MotionDetect_Check();
+	eChannel_t channel;
+	BYTE channel_mask;
+	BYTE currentMotion = NVP6158_MotionDetect_Check();
+	BYTE alarmBuzzerTime;
+	static BYTE alarmOutTimeCountInSec;
+	static BYTE previousMotion = 0x00;
+	static BOOL motionCleared = FALSE;
+	sSystemTick_t* currentSystemTime = GetSystemTime();
+	static u32 previousSystemTimeIn1s = 0;
 
-	for(channel_num = 0; channel_num < NUM_OF_CHANNEL; channel_num++)
+	// photo coupler
+	if(currentMotion > 0)
 	{
-		motiondetectionInfo[channel_num].motion_detected = vMotion >> channel_num;
+		motionCleared = FALSE;
+		ALARMOUT_LOW;
 	}
-	if (motiondetectionInfo[CHANNEL1].motion_detected)
+	else if((motionCleared == FALSE) &&  (currentMotion == 0))
 	{
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
+		motionCleared = TRUE;
+		Read_NvItem_AlarmOutTime(&alarmOutTimeCountInSec);
 	}
-	if (motiondetectionInfo[CHANNEL2].motion_detected)
+	else
 	{
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-		Delay_ms(100);
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
+		if((TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1)) && (alarmOutTimeCountInSec !=0))
+		{
+			alarmOutTimeCountInSec--;
+		}
+		else if(alarmOutTimeCountInSec == 0)
+		{
+			ALARMOUT_HIGH;
+		}
+		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
 	}
-	if (motiondetectionInfo[CHANNEL3].motion_detected)
+
+	// buzzer
+	if((previousMotion != currentMotion) && (motionCleared == FALSE))
 	{
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-		Delay_ms(100);
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-		Delay_ms(100);
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
+		// it means there is new motion detected channel
+		Read_NvItem_AlarmBuzzerTime(&alarmBuzzerTime);
+		motionBuzzerCountIn500ms =  alarmBuzzerTime * 2;
 	}
-	if (motiondetectionInfo[CHANNEL4].motion_detected)
-	{
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-		Delay_ms(100);
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-		Delay_ms(100);
-		BUZZER_HIGH;
-		Delay_ms(100);
-		BUZZER_LOW;
-		Delay_ms(100);
-		BUZZER_LOW;
-	}
+
+	previousMotion = currentMotion;
+
+//	if(previousMotion != currentMotion)
+//	{
+//		//Find which channel is changed
+//		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//		{
+//			channel_mask = 0x01 << channel;
+//			if((previousMotion & channel_mask) != (currentMotion & channel_mask))
+//			{
+//
+//			}
+//		}
+//	}
+//
+//
+//
+//	for(channel = 0; channel < NUM_OF_CHANNEL; channel++)
+//	{
+//		motiondetectionInfo[channel].motion_detected = (vMotion >> channel);
+//	}
+
+
+//	if (motiondetectionInfo[CHANNEL1].motion_detected)
+//	{
+//		BUZZER_HIGH;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//	}
+//	if (motiondetectionInfo[CHANNEL2].motion_detected)
+//	{
+//		BUZZER_HIGH;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//		Delay_ms(100);
+//		BUZZER_HIGH;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//	}
+//	if (motiondetectionInfo[CHANNEL3].motion_detected)
+//	{
+//		BUZZER_HIGH;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//		Delay_ms(100);
+//		BUZZER_HIGH;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//		Delay_ms(100);
+//		BUZZER_HIGH;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//	}
+//	if (motiondetectionInfo[CHANNEL4].motion_detected)
+//	{
+//		BUZZER_HIGH;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//		Delay_ms(100);
+//		BUZZER_HIGH;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//		Delay_ms(100);
+//		BUZZER_HIGH;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//		Delay_ms(100);
+//		BUZZER_LOW;
+//	}
+}
+
+BYTE GetMotionBuzzerCount(void)
+{
+	return motionBuzzerCountIn500ms;
+}
+
+void DecreaseMotionBuzzerCount(void)
+{
+	motionBuzzerCountIn500ms--;
 }
 
 void InitializeMotionDetect(void)
