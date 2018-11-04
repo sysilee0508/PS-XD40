@@ -138,7 +138,7 @@ static void LoadDefaultNvData(void)
 	{
 		nv_data.data.alarmOption[index] = ALARM_OPTION_NO;
 	}
-	nv_data.data.alarmOutTime = 3;
+	nv_data.data.alarmOutTime = 5;
 	nv_data.data.alarmBuzzerTime = 3;
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
@@ -155,7 +155,7 @@ static void LoadDefaultNvData(void)
 	{	
 		nv_data.data.motionDetect_On[index] = OFF;
 	}
-	nv_data.data.motionSensitivity = 0x60;
+	nv_data.data.motionSensitivity = 49;
 	memset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
 
 	nv_data.data.displayMode = DISPLAY_MODE_QUAD;

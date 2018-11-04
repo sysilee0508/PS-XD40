@@ -11,6 +11,9 @@
 #define ROWS_OF_BLOCKS						12
 #define COLUMMS_OF_BLOCKS					16
 
+#define BLOCK_WIDTH							DISPLAY_WIDTH / COLUMMS_OF_BLOCKS //120
+#define BLOCK_HEIGHT						DISPLAY_HEIGHT / ROWS_OF_BLOCKS	//90
+
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
@@ -22,14 +25,11 @@
 //=============================================================================
 //  Function Definition
 //=============================================================================
-void Read_MotionDetect_OnOff(void);
-void Write_MotionDetect_OnOff(BYTE ch, BOOL enabled);
-BOOL Get_MotionDetect_OnOff(BYTE ch);
-void Set_MotionDetect_OnOff(BYTE ch, BOOL enabled);
-void Read_MotionDetect_Sensitivity(BYTE ch);
-void Write_MotionDetect_Sensitivity(BYTE ch, BYTE value);
-BYTE Get_MotionDetect_Sensitivity(BYTE ch);
-void Set_MotionDetect_Sensitivity(BYTE ch, BYTE value);
-void MotionDetectCheck(void);
-
+extern BOOL Get_MotionDetect_OnOff(eChannel_t ch);
+extern BYTE Get_MotionDetect_Sensitivity(void);
+extern void Set_MotionDetect_Sensitivity(BYTE value);
+extern void Set_MotionDetect_ActivatedArea(eChannel_t channel);
+extern void MotionDetectCheck(void);
+extern BYTE GetMotionBuzzerCount(void);
+extern void DecreaseMotionBuzzerCount(void);
 #endif

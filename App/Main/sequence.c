@@ -73,9 +73,6 @@ static void InitializeAutoSeq_Normal(void)
 	//ChangeAutoSeqOn(SET);
 	OSD_DrawBorderLine();
 	OSD_Display();
-
-	// TO DO : Update displaying Channel here in full screen mode
-	Display_FullScreen(displayChannel);
 }
 
 static void InitializeAutoSeq_Alarm(void)

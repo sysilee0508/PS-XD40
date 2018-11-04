@@ -54,12 +54,13 @@ void TIM3_IRQHandler(void)
 
 	TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
+	Key_Scan_ParallelKey();
 	Key_Scan();
 	Key_Led_Ctrl();
 	Key_Check();
 
 	// Check alarm every 20ms if alarm is enabled
-	if((count%2==0) && (GetAlarmRemoteKeyMode() == ALARM_MODE))
+	if(count%2==0)
 	{
 		CheckAlarm();
 	}

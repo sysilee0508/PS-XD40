@@ -532,7 +532,6 @@ static void Print_StringTimeCorrect(u16 itemX,u8 attribute)
 
 static void Print_StringTime(u16 itemX, u8 attribute, sTimeDate_t time)
 {
-//	sTimeDate_t currentTime;
 	u8 hourStr[2], minStr[2], secStr[2];
 	u8 timeStr[TIME_STRING_LENGTH] = {0,};
 	u8 selectedMark[3];
@@ -542,7 +541,6 @@ static void Print_StringTime(u16 itemX, u8 attribute, sTimeDate_t time)
 	selectedMark[1] = (itemX & 0x02)?attribute:NULL;
 	selectedMark[2] = (itemX & 0x04)?attribute:NULL;
 
-//	RTC_GetTime(&currentTime);
 	Int2Str(time.hour, hourStr);
 	Int2Str(time.min, minStr);
 	Int2Str(time.sec, secStr);
@@ -668,29 +666,6 @@ static void Print_StringYearFormat(u8 attribute)
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen(menuStr_TimeDate_YearFormat) + 2,
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_y, menuStr_Digit, NULL, strlen(menuStr_Digit));
 }
-//
-//static void Print_StringTimeDatePosition(u8 attribute)
-//{
-//	eTimePosition_t position;
-//	BYTE* pStr;
-//
-//	Read_NvItem_TimePosition(&position);
-//	Print_StringWithSelectedMarkSize(44, 15, menuStr_Space6, NULL, 0);
-//
-//	switch(position)
-//	{
-//		case TIME_POSITION_LEFT:
-//			pStr = menuStr_Left;
-//			break;
-//		case TIME_POSITION_CENTER:
-//			pStr = menuStr_Center;
-//			break;
-//		case TIME_POSITION_RIGHT:
-//			pStr = menuStr_Right;
-//			break;
-//	}
-//	Print_StringWithSelectedMark(44, 15, pStr, attribute, strlen(pStr));
-//}
 
 static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY, sTimeDate_t time)
 {
@@ -1795,6 +1770,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
+				ChangeBaudrate();
 				itemY = ALARM_ITEM_Y_ALARM_REMOCON;
 				MainMenu_Entry(currentPage);
 			}
@@ -1805,6 +1781,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 //   Motion Detection Page Function
 //------------------------------------------------------------------
+static BOOL areaSelecting = FALSE;
 const sLocationNString_t motionDetectionMenu[MOTION_ITEM_Y_MAX] =
 {
 	{24, LINE0_OFFSET_Y, menuStr_Motion_Title},
@@ -1816,55 +1793,88 @@ const sLocationNString_t motionDetectionMenu[MOTION_ITEM_Y_MAX] =
 	{20, LINE6_OFFSET_Y, menuStr_Motion_CallMode}
 };
 
-static SBOX_CTL_INFO motionSBox;
-static BOOL areaSelecting = FALSE;
+static void Print_StringSelectArea(u16 offset_x, u16 offset_y,BOOL active)
+{
+	u8 attribute = NULL;
+
+	if(active)
+	{
+		attribute = UNDER_BAR;
+	}
+	Print_StringWithSelectedMark(offset_x, offset_y, menuStr_SelectArea, attribute, strlen(menuStr_SelectArea));
+}
+
+static void MotionDetectionPage_DrawCursor(u8 offset_x, u8 offset_y, BOOL active)
+{
+	sPosition_t position;
+	const u8 cursorData = SELECTED_MARK;
+	const u8 nullData = ASCII_SPACE;
+
+	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+	position.pos_y = (offset_y * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1) + CHAR_HEIGHT;
+	if(active == TRUE)
+	{
+		OSD_PrintString(position, &cursorData, sizeof(cursorData));
+	}
+	else
+	{
+		OSD_PrintString(position, &nullData, sizeof(nullData));
+	}
+}
+
+static void MotionDetectionPage_DrawBlockMark(u8 offset_x, u8 offset_y, BOOL active)
+{
+	sPosition_t position;
+
+	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+	position.pos_y = (offset_y * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1);
+	if(active == TRUE)
+	{
+		OSD_PrintString(position, menuStr_SelectedMark, strlen(menuStr_SelectedMark));
+	}
+	else
+	{
+		OSD_PrintString(position, menuStr_UnselectedMart, strlen(menuStr_UnselectedMart));
+	}
+}
+
+static void MotionDetectionPage_EraseAllBlockMark(void)
+{
+	sPosition_t position;
+	u8 blockX, blockY;
+
+	for(blockY = 0; blockY < ROWS_OF_BLOCKS; blockY++)
+	{
+		for(blockX = 0; blockX < COLUMMS_OF_BLOCKS; blockX++)
+		{
+			position.pos_x = (blockX * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+			position.pos_y = (blockY * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1);
+			OSD_PrintString(position, menuStr_Space1, strlen(menuStr_Space1));
+		}
+	}
+}
+
 static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 {
-	u8 block_width = DISPLAY_WIDTH / COLUMMS_OF_BLOCKS; //120
-	u8 block_height = DISPLAY_HEIGHT / ROWS_OF_BLOCKS;	//90
-	u8 index;
+	u8 blockX, blockY;
 	sPosition_t mark;
 	u16 blocks[ROWS_OF_BLOCKS];
 	u16 block_mask;
 
-	areaSelecting = TRUE;
-	// Step 1. Draw lines
-	for(index = 0; index < ROWS_OF_BLOCKS/2; index++)
-	{
-		// draw h-line
-		MDINOSD_SetBGBoxArea(BGBOX_INDEX0+index, 0, index * block_height * 2, DISPLAY_WIDTH, block_height);
-		MDINOSD_EnableBGBox(BGBOX_INDEX0+index, ON);
-	}
-	for(index = 0; index < COLUMMS_OF_BLOCKS/2; index++)
-	{
-		//draw v-line
-		motionSBox.index = index;
-		MDINOSD_SetSBoxBorderColor(&motionSBox, RGB(255,255,255));
-		MDINOSD_SetSBoxArea(&motionSBox, index * block_width, 0, (index+1)*block_width - 1, DISPLAY_HEIGHT);
-		MDINOSD_EnableSBoxBorder(&motionSBox, ON);
-	}
+	// Clear screen
+	Erase_AllMenuScreen();
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+	Set_DisplayMode_FullScreen(channel);
 
-	// Step 2. Draw "V" mark on activated block
+	MotionDetectionPage_DrawCursor(0, 0, TRUE);
 	Read_NvItem_MotionBlock(blocks, channel);
-	for(index = 0; index < ROWS_OF_BLOCKS; index++)
+	for(blockY = 0; blockY < ROWS_OF_BLOCKS; blockY++)
 	{
-		mark.pos_x = (index * block_width) + (block_width - CHAR_WIDTH_S)/2 - 1;
-		mark.pos_y = (block_height - CHAR_HEIGHT)/2 - 1;
-		block_mask = 0x0001 << index;
-		if(blocks[index] & block_mask)
+		for(blockX = 0; blockX < COLUMMS_OF_BLOCKS; blockX++)
 		{
-			// activated... Print selected mark
-			OSD_PrintString(mark, menuStr_SelectedMark, strlen(menuStr_SelectedMark));
-		}
-		else
-		{
-			OSD_PrintString(mark, menuStr_UnselectedMart, strlen(menuStr_UnselectedMart));
+			MotionDetectionPage_DrawBlockMark(blockX, blockY, (blocks[blockY]>>blockX)&0x0001);
 		}
 	}
-
-	// Step 3. Draw cursor
-	// ToDo... should discuss about how to make it
-	// refer mdincur.c
 }
 
 static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
@@ -1874,24 +1884,34 @@ static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
 	u8 attribute = (requestEnterKeyProc==SET)?UNDER_BAR:NULL;
 	BOOL motionOn;
 
-	//To Do
 	switch(itemY)
 	{
 		case MOTION_ITEM_Y_CH1:
 		case MOTION_ITEM_Y_CH2:
 		case MOTION_ITEM_Y_CH3:
 		case MOTION_ITEM_Y_CH4:
+			Read_NvItem_MotionDetectOnOff(&motionOn, itemY - 1);
 			if(itemX == 0)
 			{
-				Read_NvItem_MotionDetectOnOff(&motionOn, itemY - 1);
 				Print_StringOnOff(
 						motionDetectionMenu[itemY].offset_x + 9,
 						motionDetectionMenu[itemY].offset_y,
 						attribute, motionOn);
+				Print_StringSelectArea(
+						motionDetectionMenu[itemY].offset_x + strlen(motionDetectionMenu[itemY].str),
+						motionDetectionMenu[itemY].offset_y,
+						FALSE);
 			}
 			else
 			{
-				MotionDetectionPage_DrawSelectedArea((eChannel_t)(itemY - 1));
+				Print_StringOnOff(
+						motionDetectionMenu[itemY].offset_x + 9,
+						motionDetectionMenu[itemY].offset_y,
+						NULL, motionOn);
+				Print_StringSelectArea(
+						motionDetectionMenu[itemY].offset_x + strlen(motionDetectionMenu[itemY].str),
+						motionDetectionMenu[itemY].offset_y,
+						attribute);
 			}
 			break;
 
@@ -1935,81 +1955,144 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = MOTION_ITEM_Y_CH1;
 	static u8 pos_x = 0;
+	static u8 cursorX = 0;
+	static u8 cursorY = 0;
 	u8 inc_dec = DECREASE;
 	u8 sensitivity;
 	BOOL motionOn;
+	u16 activeBlocks[ROWS_OF_BLOCKS];
+	BOOL active;
 
 	switch(key)
 	{
 		case KEY_UP :
 			inc_dec = INCREASE;
 		case KEY_DOWN :
-			if(requestEnterKeyProc)
+			if(!areaSelecting)
 			{
-				//To Do
-				switch(itemY)
+				if(requestEnterKeyProc)
 				{
-					case MOTION_ITEM_Y_CH1:
-					case MOTION_ITEM_Y_CH2:
-					case MOTION_ITEM_Y_CH3:
-					case MOTION_ITEM_Y_CH4:
-						Read_NvItem_MotionDetectOnOff(&motionOn, itemY - 1);
-						Toggle(&motionOn);
-						Write_NvItem_MotionDetectOnOff(motionOn, itemY-1);
-						break;
+					switch(itemY)
+					{
+						case MOTION_ITEM_Y_CH1:
+						case MOTION_ITEM_Y_CH2:
+						case MOTION_ITEM_Y_CH3:
+						case MOTION_ITEM_Y_CH4:
+							Read_NvItem_MotionDetectOnOff(&motionOn, (eChannel_t)(itemY - 1));
+							Toggle(&motionOn);
+							Write_NvItem_MotionDetectOnOff(motionOn, (eChannel_t)(itemY - 1));
+							break;
 
-					case MOTION_ITEM_Y_SENSITIVITY:
-						Read_NvItem_MotionSensitivity(&sensitivity);
-						IncreaseDecreaseCount(99,0,inc_dec,&sensitivity);
-						Write_NvItem_MotionSensitivity(sensitivity);
-						break;
+						case MOTION_ITEM_Y_SENSITIVITY:
+							Read_NvItem_MotionSensitivity(&sensitivity);
+							IncreaseDecreaseCount(99,1,inc_dec,&sensitivity);
+							Write_NvItem_MotionSensitivity(sensitivity);
+							//Set_MotionDetect_Sensitivity(sensitivity);
+							break;
 
-					case MOTION_ITEM_Y_MOTION_MODE:
-						break;
+						case MOTION_ITEM_Y_MOTION_MODE:
+							break;
+					}
+					MotionDetectionPage_UpdatePage(itemY, pos_x);
 				}
-				MotionDetectionPage_UpdatePage(itemY, pos_x);
+				else
+				{
+					IncreaseDecreaseCount(6, 1, inc_dec, &itemY);
+					DrawSelectMark(itemY);
+				}
 			}
 			else
 			{
-				IncreaseDecreaseCount(6, 1, inc_dec, &itemY);
-				DrawSelectMark(itemY);
+				//selecting area
+				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
+				IncreaseDecreaseCount(ROWS_OF_BLOCKS-1, 0, inc_dec, &cursorY);
+				MotionDetectionPage_DrawCursor(cursorX, cursorY, TRUE);
 			}
 			break;
 
     	case KEY_RIGHT:
     		inc_dec = INCREASE;
     	case KEY_LEFT:
-	    	if(requestEnterKeyProc)
-			{
-				if((itemY >= MOTION_ITEM_Y_CH1) && (itemY <= MOTION_ITEM_Y_CH4))
+    		if(!areaSelecting)
+    		{
+				if(requestEnterKeyProc)
 				{
-					requestEnterKeyProc = CLEAR;
-	  				IncreaseDecreaseCount(1, 0, inc_dec,&pos_x);
-	  				MotionDetectionPage_UpdatePage(itemY, pos_x);
+					if((itemY >= MOTION_ITEM_Y_CH1) && (itemY <= MOTION_ITEM_Y_CH4))
+					{
+						requestEnterKeyProc = CLEAR;
+						MotionDetectionPage_UpdatePage(itemY, pos_x);
+						IncreaseDecreaseCount(1, 0, inc_dec,&pos_x);
+						requestEnterKeyProc = SET;
+						MotionDetectionPage_UpdatePage(itemY, pos_x);
+					}
 				}
-			}
-			else
-			{
-				DrawSelectMark(itemY);
-			}
+				else
+				{
+					DrawSelectMark(itemY);
+				}
+    		}
+    		else
+    		{
+				//selecting area
+				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
+				IncreaseDecreaseCount(COLUMMS_OF_BLOCKS-1, 0, inc_dec, &cursorX);
+				MotionDetectionPage_DrawCursor(cursorX, cursorY, TRUE);
+    		}
     		break;
 
     	case KEY_ENTER:
-			Toggle(&requestEnterKeyProc);
-			MotionDetectionPage_UpdatePage(itemY, pos_x);
+    		if(!areaSelecting)
+    		{
+    			if(pos_x == 0)
+    			{
+					Toggle(&requestEnterKeyProc);
+					MotionDetectionPage_UpdatePage(itemY, pos_x);
+    			}
+				else
+				{
+					areaSelecting = TRUE;
+					MotionDetectionPage_DrawSelectedArea((eChannel_t)(itemY-1));
+				}
+    		}
+    		else
+    		{
+    			// toggle active/deactive block
+    			Read_NvItem_MotionBlock(activeBlocks, (eChannel_t)(itemY-1));
+    			activeBlocks[cursorY] ^= (0x0001 << cursorX);
+    			active = (activeBlocks[cursorY]>>cursorX) & 0x0001;
+    			MotionDetectionPage_DrawBlockMark(cursorX, cursorY, active);
+    			Write_NvItem_MotionBlock(activeBlocks, (eChannel_t)(itemY-1));
+    		}
 			break;
 
-		case KEY_EXIT :
-			if(requestEnterKeyProc)
+		case KEY_EXIT:
+			if(areaSelecting)
 			{
-				Toggle(&requestEnterKeyProc);
-				MotionDetectionPage_UpdatePage(itemY, pos_x);
+				//Set_MotionDetect_ActivatedArea((eChannel_t)(itemY-1));
+				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
+				MotionDetectionPage_EraseAllBlockMark();
+				Toggle(&areaSelecting);
+				cursorX = 0;
+				cursorY = 0;
+				pos_x = 0;
+				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+				MotionDetectionPage_Entry();
+				DrawSelectMark(itemY);
 			}
 			else
 			{
-				pos_x = 0;
-				itemY = MOTION_ITEM_Y_CH1;
-				MainMenu_Entry(currentPage);
+				if(requestEnterKeyProc)
+				{
+					Toggle(&requestEnterKeyProc);
+					MotionDetectionPage_UpdatePage(itemY, pos_x);
+				}
+				else
+				{
+					InitializeMotionDetect();
+					pos_x = 0;
+					itemY = MOTION_ITEM_Y_CH1;
+					MainMenu_Entry(currentPage);
+				}
 			}
 			break;
 	}
@@ -2042,7 +2125,6 @@ static void DeviceInfoPage_Entry(void)
 	}
 
 	// There is no selectable item
-//	DrawSelectMark(0);
 	for(index = 0; index < DEVICEINFO_ITEM_Y_MAX; index++)
 	{
 		Print_StringWithSelectedMarkSize(
@@ -2162,7 +2244,6 @@ void DisplayTimeInMenu(void)
 	if((currentPage == MENU_PAGE_TIME_DATE) && (RTC_GetDisplayTimeStatus() == SET))
 	{
 		RTC_ChangeDisplayTimeStatus(CLEAR);
-//		Print_StringTime(0x00, NULL);
 	}
 }
 
