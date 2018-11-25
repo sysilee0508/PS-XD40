@@ -416,7 +416,7 @@ void Key_Proc(void)
 			key |= KEY_SPECIAL;
 		}
 
-		Read_NvItem_DisplayMode(&displayMode);
+		displayMode = Get_SystemDisplayMode();
 		switch(key)
 		{
 			case KEY_FULL_CH1 : 
@@ -429,7 +429,7 @@ void Key_Proc(void)
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 					OSD_RefreshScreen();
-					Set_DisplayMode_FullScreen((eChannel_t)(key - 1));
+					DisplayMode_FullScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -440,7 +440,7 @@ void Key_Proc(void)
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
 					OSD_RefreshScreen();
-					Set_DisplayMode_Quad();
+					DisplayMode_Split();
 					OSD_DrawBorderLine();
 				}
 				break;

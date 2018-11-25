@@ -23,7 +23,7 @@
 //=============================================================================
 static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
-static eChannel_t lastAlarmChannel = CHANNEL_QUAD;
+static eChannel_t lastAlarmChannel = CHANNEL_SPLIT;
 
 static u8 parallelKeyDebounceCount = 0;
 
@@ -164,7 +164,7 @@ static void ClearAllAlarm(void)
 		alarmInfo[channel].alarm_status = ALARM_CLEAR;
 		alarmInfo[channel].check_count = 0;
 	}
-	lastAlarmChannel = CHANNEL_QUAD;
+	lastAlarmChannel = CHANNEL_SPLIT;
 
 	if(GetCurrentAutoSeq() == AUTO_SEQ_ALARM)
 	{

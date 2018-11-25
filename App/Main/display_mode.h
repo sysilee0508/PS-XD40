@@ -8,110 +8,35 @@
 //=============================================================================
 //  define
 //=============================================================================
+#define
 
 //=============================================================================
 //  enum
 //=============================================================================
 typedef enum
 {
-	VIDEO_RESOLUTION_1080P,	// 1080P
-	VIDEO_RESOLUTION_720P,		// 720P
+	VIDEO_RESOLUTION_1080P,
+	VIDEO_RESOLUTION_720P,
 	VIDEO_RESOLUTION_MAX
 } eVideoResolution_t;
 
-#if 0
-typedef enum NC_VIVO_CH_FORMATDEF
+typedef enum
 {
-	NC_VIVO_CH_FORMATDEF_UNKNOWN = 0,
-	NC_VIVO_CH_FORMATDEF_AUTO,
-
-	AHD20_SD_H960_NT,
-	AHD20_SD_H960_PAL,
-	AHD20_SD_SH720_NT,
-	AHD20_SD_SH720_PAL,
-	AHD20_SD_H1280_NT,
-	AHD20_SD_H1280_PAL,
-	AHD20_SD_H1440_NT,
-	AHD20_SD_H1440_PAL,
-	AHD20_SD_H960_EX_NT,
-	AHD20_SD_H960_EX_PAL,
-	AHD20_SD_H960_2EX_NT,
-	AHD20_SD_H960_2EX_PAL,
-	AHD20_SD_H960_2EX_Btype_NT,
-	AHD20_SD_H960_2EX_Btype_PAL,
-
-	AHD20_1080P_60P, // For Test
-	AHD20_1080P_50P, // For Test
-
-	AHD20_1080P_30P,
-	AHD20_1080P_25P,
-
-	AHD20_720P_60P,
-	AHD20_720P_50P,
-	AHD20_720P_30P,
-	AHD20_720P_25P,
-	AHD20_720P_30P_EX,
-	AHD20_720P_25P_EX,
-	AHD20_720P_30P_EX_Btype,
-	AHD20_720P_25P_EX_Btype,
-
-	AHD30_4M_30P,
-	AHD30_4M_25P,
-	AHD30_4M_15P,
-	AHD30_3M_30P,
-	AHD30_3M_25P,
-	AHD30_3M_18P,
-	AHD30_5M_12_5P,
-	AHD30_5M_20P,
+	DISPLAY_MODE_FULL_SCREEN,	// full screen mode for any channel
+	DISPLAY_MODE_QUAD_A,		// 4 split screen
+	DISPLAY_MODE_QUAD_B,
+	DISPLAY_MODE_QUAD_C,
+	DISPLAY_MODE_QUAD_D,
+	DISPLAY_MODE_QUAD_E,
+	DISPLAY_MODE_3SPLIT_A,		// 3 split
+	DISPLAY_MODE_3SPLIT_B,
+	DISPLAY_MODE_3SPLIT_C,
+	DISPLAY_MODE_3SPLIT_D,
+	DISPLAY_MODE_SPLIT,			// 2 split
+	DISPLAY_MODE_MAX
+} eDisplayMode_t;
 
 
-	AHD30_5_3M_20P,
-	AHD30_6M_18P,
-	AHD30_6M_20P,
-	AHD30_8M_X_30P,
-	AHD30_8M_X_25P,
-	AHD30_8M_7_5P,
-	AHD30_8M_12_5P,
-	AHD30_8M_15P,
-
-	TVI_FHD_30P,
-	TVI_FHD_25P,
-	TVI_HD_60P,
-	TVI_HD_50P,
-	TVI_HD_30P,
-	TVI_HD_25P,
-	TVI_HD_30P_EX,
-	TVI_HD_25P_EX,
-	TVI_HD_B_30P,
-	TVI_HD_B_25P,
-	TVI_HD_B_30P_EX,
-	TVI_HD_B_25P_EX,
-	TVI_3M_18P,
-	TVI_5M_12_5P,
-
-	TVI_5M_20P, /*By Edward for testing when 170912 */
-
-	TVI_4M_30P,
-	TVI_4M_25P,
-	TVI_4M_15P,  /*By Edward for testing when 170912 */
-
-	CVI_FHD_30P,
-	CVI_FHD_25P,
-	CVI_HD_60P,
-	CVI_HD_50P,
-	CVI_HD_30P,
-	CVI_HD_25P,
-	CVI_HD_30P_EX,
-	CVI_HD_25P_EX,
-	CVI_4M_30P,
-	CVI_4M_25P,
-	CVI_8M_15P,
-	CVI_8M_12_5P,
-
-	NC_VIVO_CH_FORMATDEF_MAX,
-
-} NC_VIVO_CH_FORMATDEF;
-#endif
 
 //=============================================================================
 //  struct
@@ -129,9 +54,10 @@ typedef enum NC_VIVO_CH_FORMATDEF
 //  Function Prototype
 //=============================================================================
 extern void Set_DisplayoutputMode_table(void);
-extern BYTE Get_CurrentDisplayMode(void);
-extern BYTE Get_CurrentDisplayChannel(void);
-extern void Set_DisplayMode_FullScreen(eChannel_t ch);
-extern void Set_DisplayMode_Quad(void);
-
+extern void DisplayMode_FullScreen(eChannel_t ch);
+extern void DisplayMode_Split(eDisplayMode_t splitMode);
+extern void Set_SystemDisplayMode(eDisplayMode_t mode);
+extern eDisplayMode_t Get_SystemDisplayMode(void);
+extern void Set_SystemDisplayChannel(eChannel_t channel);
+extern eChannel_t Get_SystemDisplayChannel(void);
 #endif

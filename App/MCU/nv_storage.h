@@ -80,25 +80,17 @@ typedef struct
 	uint8_t minor;
 } sVersion_t;
 
-typedef enum
-{
-	TITLE_POSITION_TOP_LEFT,
-	TITLE_POSITION_TOP_CENTER,
-	TITLE_POSITION_TOP_RIGHT,
-	TITLE_POSITION_BOTTOM_LEFT,
-	TITLE_POSITION_BOTTOM_CENTER,
-	TITLE_POSITION_BOTTOM_RIGHT,
-	TITLE_POSITION_4SPILIT_CENTER,//CH1&CH2 --> center_bottom  / CH3&CH4 --> center_top
-	TITLE_POSITION_MAX
-} eTitlePosition_t;
-
 //typedef enum
 //{
-//	TIME_POSITION_LEFT,
-//	TIME_POSITION_CENTER,
-//	TIME_POSITION_RIGHT,
-//	TIME_POSITION_MAX
-//} eTimePosition_t;
+//	TITLE_POSITION_TOP_LEFT,
+//	TITLE_POSITION_TOP_CENTER,
+//	TITLE_POSITION_TOP_RIGHT,
+//	TITLE_POSITION_BOTTOM_LEFT,
+//	TITLE_POSITION_BOTTOM_CENTER,
+//	TITLE_POSITION_BOTTOM_RIGHT,
+//	TITLE_POSITION_4SPILIT_CENTER,//CH1&CH2 --> center_bottom  / CH3&CH4 --> center_top
+//	TITLE_POSITION_MAX
+//} eTitlePosition_t;
 
 typedef enum
 {
@@ -127,13 +119,6 @@ typedef enum
 	TIME_UNIT_YEAR,
 	TIME_UNIT_MAX
 } eTimeUnit_t;
-
-typedef enum
-{
-	DISPLAY_MODE_FULL_SCREEN,	// full screen mode for any channel
-	DISPLAY_MODE_QUAD,		// 4 split screen
-	DISPLAY_MODE_MAX
-} eDisplayMode_t;
 
 typedef enum
 {
@@ -233,10 +218,10 @@ extern BOOL	ReadNvItem(eNvItems_t item, void * pData, size_t size);
 extern BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size);
 
 extern void Read_NvItem_FwVersion(sVersion_t* pData);
-extern void Read_NvItem_DisplayMode(eDisplayMode_t* pData);
-extern void Write_NvItem_DisplayMode(eDisplayMode_t data);
-extern void Read_NvItem_DisplayChannel(eChannel_t* pData);
-extern void Write_NvItem_DisplayChannel(eChannel_t data);
+//extern void Read_NvItem_DisplayMode(eDisplayMode_t* pData);
+//extern void Write_NvItem_DisplayMode(eDisplayMode_t data);
+//extern void Read_NvItem_DisplayChannel(eChannel_t* pData);
+//extern void Write_NvItem_DisplayChannel(eChannel_t data);
 extern void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData);
 extern void Write_NvItem_TimeCorrect(sTimeCorrect_t data);
 extern void Read_NvItem_VideoLossBuzzerTime(uint8_t *pData);

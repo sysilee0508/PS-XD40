@@ -1864,7 +1864,7 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 	// Clear screen
 	Erase_AllMenuScreen();
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-	Set_DisplayMode_FullScreen(channel);
+	DisplayMode_FullScreen(channel);
 
 	MotionDetectionPage_DrawCursor(0, 0, TRUE);
 	Read_NvItem_MotionBlock(blocks, channel);

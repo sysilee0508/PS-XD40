@@ -163,7 +163,7 @@ void main(void)
 
 	InputSelect = VIDEO_DIGITAL_SDI;
 //	InputSelect = VIDEO_SDI_2HD_POP;
-	Set_DisplayMode_Quad();
+	DisplayMode_Split();
 
 	UpdateKeyData(KEY_4SPLIT);
 	SetKeyReady();

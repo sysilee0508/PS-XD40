@@ -123,11 +123,19 @@ void MotionDetectCheck(void)
 	BYTE channel_mask;
 	BYTE currentMotion = NVP6158_MotionDetect_Check();
 	BYTE alarmBuzzerTime;
-	static BYTE alarmOutTimeCountInSec;
+	static BYTE alarmOutTimeCountInSec = 0;
 	static BYTE previousMotion = 0x00;
-	static BOOL motionCleared = FALSE;
+	static BOOL motionCleared = TRUE;
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn1s = 0;
+
+	// buzzer
+	if((previousMotion == 0) && (currentMotion > 0) && (alarmOutTimeCountInSec == 0))
+	{
+		// it means there is new motion detected channel
+		Read_NvItem_AlarmBuzzerTime(&alarmBuzzerTime);
+		motionBuzzerCountIn500ms =  alarmBuzzerTime * 2;
+	}
 
 	// photo coupler
 	if(currentMotion > 0)
@@ -152,15 +160,6 @@ void MotionDetectCheck(void)
 		}
 		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
 	}
-
-	// buzzer
-	if((previousMotion != currentMotion) && (motionCleared == FALSE))
-	{
-		// it means there is new motion detected channel
-		Read_NvItem_AlarmBuzzerTime(&alarmBuzzerTime);
-		motionBuzzerCountIn500ms =  alarmBuzzerTime * 2;
-	}
-
 	previousMotion = currentMotion;
 }
 

@@ -15,6 +15,8 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
+static eDisplayMode_t systemDisplayMode = DISPLAY_MODE_QUAD_A;
+static eChannel_t systemDisplayChannel = CHANNEL_SPLIT;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -200,7 +202,7 @@ static void Display_QuadScreen(void)
 
 static BYTE Check_VideoFormat_Change(void)
 {
-	BYTE channel;
+	eChannel_t channel;
 	BYTE oCurVideofmt;
 	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0,};
 	BYTE videoFormatChanged;
@@ -220,23 +222,23 @@ static BYTE Check_VideoFormat_Change(void)
 
 void Set_DisplayoutputMode_table(void)
 {
-	BYTE displayMode;
-	BYTE displayChannel;
+	eDisplayMode_t displayMode;
+	eChannel_t displayChannel;
 
 	if(Check_VideoFormat_Change() == TRUE)
 	{
-		displayMode = Get_CurrentDisplayMode();
+		displayMode = Get_SystemDisplayMode();
 		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
 		{
-			displayChannel = Get_CurrentDisplayChannel();
+			displayChannel = Get_SystemDisplayChannel();
 			{
-				Display_FullScreen((eChannel_t)displayChannel);
+				Display_FullScreen(displayChannel);
 			}
 		}
-		else if(displayMode == DISPLAY_MODE_QUAD)
-		{
-			Display_QuadScreen();
-		}
+//		else if(displayMode == DISPLAY_MODE_QUAD)
+//		{
+//			Display_QuadScreen();
+//		}
 		else
 		{
 			Display_QuadScreen();
@@ -245,33 +247,36 @@ void Set_DisplayoutputMode_table(void)
 	}
 }
 
-BYTE Get_CurrentDisplayMode(void)
+void Set_SystemDisplayMode(eDisplayMode_t mode)
 {
-	eDisplayMode_t displayMode;
-
-	Read_NvItem_DisplayMode(&displayMode);
-	return displayMode;
+	systemDisplayMode = mode;
 }
 
-BYTE Get_CurrentDisplayChannel(void)
+eDisplayMode_t Get_SystemDisplayMode(void)
 {
-	eChannel_t channel;
-
-	Read_NvItem_DisplayChannel(&channel);
-	return (BYTE)channel;
+	return systemDisplayMode;
 }
 
-void Set_DisplayMode_FullScreen(eChannel_t ch)
+void Set_SystemDisplayChannel(eChannel_t channel)
 {
-	Write_NvItem_DisplayChannel(ch);
-	Write_NvItem_DisplayMode(DISPLAY_MODE_FULL_SCREEN);
-	// TO DO : Update displaying Channel here in full screen mode
+	systemDisplayChannel = channel;
+}
+
+eChannel_t Get_SystemDisplayChannel(void)
+{
+	return systemDisplayChannel;
+}
+
+void DisplayMode_FullScreen(eChannel_t ch)
+{
+	Set_SystemDisplayChannel(ch);
+	Set_SystemDisplayMode(DISPLAY_MODE_FULL_SCREEN);
 	Display_FullScreen(ch);
 }
 
-void Set_DisplayMode_Quad(void)
+void DisplayMode_Split(eDisplayMode_t splitMode)
 {
-	Write_NvItem_DisplayMode(DISPLAY_MODE_QUAD);
-	Write_NvItem_DisplayChannel(CHANNEL_QUAD);
+	Set_SystemDisplayMode(splitMode);
+	Set_SystemDisplayChannel(CHANNEL_SPLIT);
 	Display_QuadScreen();
 }
