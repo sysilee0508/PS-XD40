@@ -408,7 +408,8 @@ void NVP6158_VideoDetectionProc(void)
 					sDevChInfo.fmt_def = oFmtB5Def;
 
 					/* hide decoder */
-					video_input_contrast_off(&sDevChInfo);
+					/* Commented out by Louis to fix color changing problem during reconnection. */
+					//video_input_contrast_off(&sDevChInfo);
 
 					DataOutMode.ch = oLogicalChannel;
 					DataOutMode.set_val = 0xF;

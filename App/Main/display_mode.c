@@ -139,6 +139,86 @@ static void Display_FullScreen(eChannel_t ch)
 	}
 }
 
+static void Display_DualScreen(void)
+{
+	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
+
+	oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	switch(oCurVideoRes)
+	{
+		case VIDEO_RESOLUTION_1080P:
+			VS4210_Input1080P_Output1080P_Mode12_w0();
+			break;
+		case VIDEO_RESOLUTION_720P:
+			VS4210_Input720P_Output1080P_Mode12_w0();
+			break;	
+		default : 
+			VS4210_Input1080P_Output1080P_Mode12_w0();
+			break;				
+	}
+
+	oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL2);
+	switch(oCurVideoRes)
+	{
+		case VIDEO_RESOLUTION_1080P:
+			VS4210_Input1080P_Output1080P_Mode12_w1();
+			break;
+		case VIDEO_RESOLUTION_720P:
+			VS4210_Input720P_Output1080P_Mode12_w1();
+			break;	
+		default : 
+			VS4210_Input1080P_Output1080P_Mode12_w1();
+			break;	
+	}
+}
+
+static void Display_TripleScreen(void)
+{
+	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
+
+	oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	switch(oCurVideoRes)
+	{
+		case VIDEO_RESOLUTION_1080P:
+			VS4210_Input1080P_Output1080P_Mode9_w0();
+			break;
+		case VIDEO_RESOLUTION_720P:
+			VS4210_Input720P_Output1080P_Mode9_w0();
+			break;	
+		default : 
+			VS4210_Input1080P_Output1080P_Mode9_w0();
+			break;				
+	}
+
+	oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL2);
+	switch(oCurVideoRes)
+	{
+		case VIDEO_RESOLUTION_1080P:
+			VS4210_Input1080P_Output1080P_Mode9_w1();
+			break;
+		case VIDEO_RESOLUTION_720P:
+			VS4210_Input720P_Output1080P_Mode9_w1();
+			break;	
+		default : 
+			VS4210_Input1080P_Output1080P_Mode9_w1();
+			break;	
+	}
+
+	oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL3);
+	switch(oCurVideoRes)
+	{
+		case VIDEO_RESOLUTION_1080P:
+			VS4210_Input1080P_Output1080P_Mode9_w2();
+			break;
+		case VIDEO_RESOLUTION_720P:
+			VS4210_Input720P_Output1080P_Mode9_w2();
+			break;	
+		default : 
+			VS4210_Input1080P_Output1080P_Mode9_w2();
+			break;		
+	}		
+}
+
 static void Display_QuadScreen(void)
 {
 	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
@@ -235,13 +315,15 @@ void Set_DisplayoutputMode_table(void)
 				Display_FullScreen(displayChannel);
 			}
 		}
-//		else if(displayMode == DISPLAY_MODE_QUAD)
-//		{
-//			Display_QuadScreen();
-//		}
+		else if(displayMode == DISPLAY_MODE_QUAD)
+		{
+			Display_QuadScreen();
+			//Display_DualScreen();
+		}
 		else
 		{
 			Display_QuadScreen();
+			//Display_DualScreen();
 		}
 		Delay_ms(500);
 	}
@@ -279,4 +361,5 @@ void DisplayMode_Split(eDisplayMode_t splitMode)
 	Set_SystemDisplayMode(splitMode);
 	Set_SystemDisplayChannel(CHANNEL_SPLIT);
 	Display_QuadScreen();
+	//Display_DualScreen();
 }
