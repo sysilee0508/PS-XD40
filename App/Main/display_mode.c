@@ -139,7 +139,7 @@ static void Display_FullMode(eChannel_t ch)
 	}
 }
 
-static void Display_SplitMode(void)
+static void Display_2SplitMode(void)
 {
 	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
 
@@ -376,7 +376,7 @@ static void Display_SplitMode(eSplitMode_t splitMode)
 			break;
 
 		case DISPLAY_MODE_2SPLIT:
-			Display_SplitMode();
+			Display_2SplitMode();
 			break;
 
 		default:
@@ -393,7 +393,7 @@ void Set_DisplayoutputMode_table(void)
 	{
 		if(displayMode == DISPLAY_MODE_FULL)
 		{
-			Display_FullMode(Set_SystemDisplayChannel());
+			Display_FullMode(Get_SystemDisplayChannel());
 		}
 		else
 		{

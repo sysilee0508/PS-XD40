@@ -100,7 +100,7 @@ enum
 	CAMERATITLE_ITEM_Y_CH3,
 	CAMERATITLE_ITEM_Y_CH4,
 	CAMERATITLE_ITEM_Y_DISPLAY_ON,
-	CAMERATITLE_ITEM_Y_POSITION,
+//	CAMERATITLE_ITEM_Y_POSITION,
 	CAMERATITLE_ITEM_Y_MAX
 };
 
@@ -907,6 +907,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 //	Camera Title Menu
 //------------------------------------------------------------------
+/*
 static const u8* pTitlePosition_Str[TITLE_POSITION_MAX] =
 {
 		menuStr_TopLeft,
@@ -917,6 +918,8 @@ static const u8* pTitlePosition_Str[TITLE_POSITION_MAX] =
 		menuStr_BottomRight,
 		menuStr_Center
 };
+*/
+
 const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 {
 		{25, LINE0_OFFSET_Y, menuStr_CamaraTitle_Title},
@@ -924,15 +927,15 @@ const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 		{20, LINE2_OFFSET_Y, menuStr_CameraTitle_Ch2},
 		{20, LINE3_OFFSET_Y, menuStr_CameraTitle_Ch3},
 		{20, LINE4_OFFSET_Y, menuStr_CameraTitle_Ch4},
-		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay},
-		{20, LINE6_OFFSET_Y, menuStr_CameraTitle_Position}
+		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay}
+//		{20, LINE6_OFFSET_Y, menuStr_CameraTitle_Position}
 };
 
 static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 {
 	BOOL titleOn;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];// = {0,};
-	eTitlePosition_t titlePosition;
+	//eTitlePosition_t titlePosition;
 	u8* pChar;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
@@ -966,7 +969,7 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 					cameraTitle[itemY].offset_y,
 					attribute, titleOn);
 			break;
-
+/*
 		case CAMERATITLE_ITEM_Y_POSITION:
 			Read_NvItem_TitlePosition(&titlePosition);
 			Print_StringWithSelectedMarkSize(
@@ -981,6 +984,7 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 					attribute,
 					strlen(pTitlePosition_Str[titlePosition]));
 			break;
+*/
 	}
 
 }
@@ -1008,7 +1012,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	BOOL inc_dec = DECREASE;
 	BOOL titleOn;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
-	eTitlePosition_t titlePosition;
+//	eTitlePosition_t titlePosition;
 	u8* pChar;
 
 	switch(key)
@@ -1035,12 +1039,12 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 						Toggle(&titleOn);
 						Write_NvItem_TitleDispalyOn(titleOn);
 						break;
-
+/*
 					case CAMERATITLE_ITEM_Y_POSITION:
 						Read_NvItem_TitlePosition(&titlePosition);
 						IncreaseDecreaseCount(TITLE_POSITION_MAX, 0, inc_dec, &titlePosition);
 						Write_NvItem_TitlePosition(titlePosition);
-						break;
+						break;*/
 				}
 				CameraTitlePage_UpdatePage(itemY, pos_x);
 			}
@@ -1286,34 +1290,34 @@ static u8* Get_String_SplitMode(splitMode)
 	switch(splitMode)
 	{
 		case DISPLAY_MODE_QUAD_A:
-			pStr = menuStr_SplitMode_QuadA;
+			pStr = (u8*)menuStr_SplitMode_QuadA;
 			break;
 		case DISPLAY_MODE_QUAD_B:
-			pStr = menuStr_SplitMode_QuadB;
+			pStr = (u8*)menuStr_SplitMode_QuadB;
 			break;
 		case DISPLAY_MODE_QUAD_C:
-			pStr = menuStr_SplitMode_QuadC;
+			pStr = (u8*)menuStr_SplitMode_QuadC;
 			break;
 		case DISPLAY_MODE_QUAD_D:
-			pStr = menuStr_SplitMode_QuadD;
+			pStr = (u8*)menuStr_SplitMode_QuadD;
 			break;
 		case DISPLAY_MODE_QUAD_E:
-			pStr = menuStr_SplitMode_QuadE;
+			pStr = (u8*)menuStr_SplitMode_QuadE;
 			break;
 		case DISPLAY_MODE_3SPLIT_A:
-			pStr = menuStr_SplitMode_3SplitA;
+			pStr = (u8*)menuStr_SplitMode_3SplitA;
 			break;
 		case DISPLAY_MODE_3SPLIT_B:
-			pStr = menuStr_SplitMode_3SplitB;
+			pStr = (u8*)menuStr_SplitMode_3SplitB;
 			break;
 		case DISPLAY_MODE_3SPLIT_C:
-			pStr = menuStr_SplitMode_3SplitC;
+			pStr = (u8*)menuStr_SplitMode_3SplitC;
 			break;
 		case DISPLAY_MODE_3SPLIT_D:
-			pStr = menuStr_SplitMode_3SplitD;
+			pStr = (u8*)menuStr_SplitMode_3SplitD;
 			break;
 		case DISPLAY_MODE_2SPLIT:
-			pStr = menuStr_SplitMode_2Split;
+			pStr = (u8*)menuStr_SplitMode_2Split;
 			break;
 	}
 
@@ -1372,6 +1376,12 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 
 		case DISPLAY_ITEM_Y_SPLIT_MODE:
 			pStr_SplitMode = Get_String_SplitMode(Get_SystemSplitMode());
+ 			Print_StringWithSelectedMark(
+					displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+					displayMenu[itemY].offset_y,
+					menuStr_Space8,
+					NULL,
+					strlen(menuStr_Space8));                       
 			Print_StringWithSelectedMark(
 					displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 					displayMenu[itemY].offset_y,
@@ -1446,7 +1456,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
-				IncreaseDecreaseCount(3, 1, inc_dec, &itemY);
+				IncreaseDecreaseCount(DISPLAY_ITEM_Y_MAX - 1, 1, inc_dec, &itemY);
 				DrawSelectMark(itemY);
 			}
 			break;

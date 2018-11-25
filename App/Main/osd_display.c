@@ -19,7 +19,7 @@ static const sPosition_t tbl_OSD_SPLIT4_POSITION[NUM_OF_CHANNEL] = //[DISPLAY_MO
 	{DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT},
 	{DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}
 };
-
+/*
 static const sPosition_t titlePositionTable[DISPLAY_MODE_MAX][NUM_OF_CHANNEL] =
 {
 	//full screen
@@ -44,7 +44,7 @@ static const sPosition_t titlePositionTable[DISPLAY_MODE_MAX][NUM_OF_CHANNEL] =
 	{},
 	//split
 	{}
-};
+};*/
 static BOOL requestRefreshScreen = CLEAR;
 
 //-----------------------------------------------------------------------------
@@ -73,20 +73,20 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t di
 
 //	Read_NvItem_ChannelName(channel_name, channel);
 
-	position.pos_x = titlePositionTable[DISPLAY_MODE_FULL][channel].pos_x - (length * CHAR_WIDTH_S)/2;
-	position.pos_y = titlePositionTable[DISPLAY_MODE_FULL][channel].pos_y;
-//	switch(displayMode)
-//	{
-//		case DISPLAY_MODE_FULL_SCREEN:
-//			position.pos_x = (DISPLAY_WIDTH - (strlen(channel_name) * CHAR_WIDTH_L)) / 2;
-//			position.pos_y = 0;
-//			break;
-//
-//		case DISPLAY_MODE_QUAD_A:
-//			position.pos_x = tbl_OSD_SPLIT4_POSITION[channel].pos_x - (length * CHAR_WIDTH_S)/2;
-//			position.pos_y = tbl_OSD_SPLIT4_POSITION[channel].pos_y;
-//			break;
-//	}
+//	position.pos_x = titlePositionTable[DISPLAY_MODE_FULL][channel].pos_x - (length * CHAR_WIDTH_S)/2;
+//	position.pos_y = titlePositionTable[DISPLAY_MODE_FULL][channel].pos_y;
+	switch(displayMode)
+	{
+		case DISPLAY_MODE_FULL:
+			position.pos_x = (DISPLAY_WIDTH - length * CHAR_WIDTH_L) / 2;
+			position.pos_y = 0;
+			break;
+
+                case DISPLAY_MODE_SPLIT:
+			position.pos_x = tbl_OSD_SPLIT4_POSITION[channel].pos_x - ((length * CHAR_WIDTH_S)/2);
+			position.pos_y = tbl_OSD_SPLIT4_POSITION[channel].pos_y;
+			break;
+	}
 
 	return position;
 }
@@ -228,7 +228,7 @@ static sPosition_t OSD_GetAutoPosition(u8 strLength)
 static u8* OSD_GetInfoStr(eChannel_t channel) //freeze, alarm, motion, loss
 {
 	BOOL videoLossDiplayOn;
-	u8* pInfoStr = osdStr_Space10;
+	u8* pInfoStr = (u8*)osdStr_Space10;
 
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
 
@@ -238,7 +238,7 @@ static u8* OSD_GetInfoStr(eChannel_t channel) //freeze, alarm, motion, loss
 		SetVideoLossEvent(CLEAR);
 		if(IsVideoLossChannel(channel) == TRUE)
 		{
-			pInfoStr = osdStr_NoVideo;
+			pInfoStr = (u8*)osdStr_NoVideo;
 		}
 	}
 
@@ -405,7 +405,7 @@ static void OSD_DisplayNoVideo(void)
 
 			if(IsVideoLossChannel(channel) == TRUE)
 			{
-				OSD_PrintString(position[channel], osdStr_NoVideo, strlen(pInfoStr));
+				OSD_PrintString(position[channel], osdStr_NoVideo, strlen((const u8*)pInfoStr));
 			}
 			else
 			{
@@ -417,12 +417,12 @@ static void OSD_DisplayNoVideo(void)
 			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 			{
 				position[channel].pos_x =
-						tbl_OSD_SPLIT4_POSITION[channel].pos_x - (strlen(pInfoStr)*CHAR_WIDTH_S)/2;
+						tbl_OSD_SPLIT4_POSITION[channel].pos_x - (strlen((const u8*)pInfoStr)*CHAR_WIDTH_S)/2;
 				position[channel].pos_y =
 						tbl_OSD_SPLIT4_POSITION[channel].pos_y + ((DISPLAY_HEIGHT/2) - CHAR_HEIGHT)/2;
 				if(IsVideoLossChannel(channel) == TRUE)
 				{
-					OSD_PrintString(position[channel], osdStr_NoVideo, strlen(pInfoStr));
+					OSD_PrintString(position[channel], osdStr_NoVideo, strlen((const u8*)pInfoStr));
 				}
 				else
 				{
@@ -587,8 +587,8 @@ void OSD_Display(void)
 		OSD_DisplayChannelName();
 		OSD_DisplayNoVideo();
 		OSD_DisplayAuto();
-		OSD_DisplayAlarm();
-		OSD_DisplayMotion();
+		//OSD_DisplayAlarm();
+		//OSD_DisplayMotion();
 	}
 	else if(GetSystemMode() == SYSTEM_SETUP_MODE)
 	{
@@ -690,7 +690,7 @@ void OSD_DrawBorderLine(void)
 				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
 				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
 				break;
-			case DISPLAY_MODE_SPLIT:
+			case DISPLAY_MODE_2SPLIT:
 				MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
 				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
