@@ -42,7 +42,7 @@ static void InitializeAutoSeq_Normal(void)
 	}
 
 	// Set auto sequence start channel
-	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+	if(displayMode == DISPLAY_MODE_FULL)
 	{
 		if(autoSeqOn == SET)
 		{

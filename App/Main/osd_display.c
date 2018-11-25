@@ -73,8 +73,8 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t di
 
 //	Read_NvItem_ChannelName(channel_name, channel);
 
-	position.pos_x = titlePositionTable[DISPLAY_MODE_FULL_SCREEN][channel].pos_x - (length * CHAR_WIDTH_S)/2;
-	position.pos_y = titlePositionTable[DISPLAY_MODE_FULL_SCREEN][channel].pos_y;
+	position.pos_x = titlePositionTable[DISPLAY_MODE_FULL][channel].pos_x - (length * CHAR_WIDTH_S)/2;
+	position.pos_y = titlePositionTable[DISPLAY_MODE_FULL][channel].pos_y;
 //	switch(displayMode)
 //	{
 //		case DISPLAY_MODE_FULL_SCREEN:
@@ -261,7 +261,7 @@ static void OSD_EraseChannelName(void)
 //	Read_NvItem_DisplayMode(&displayMode);
 	displayMode = Get_SystemDisplayMode();
 
-	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+	if(displayMode == DISPLAY_MODE_FULL)
 	{
 		channel = Get_SystemDisplayChannel();
 		Read_NvItem_ChannelName(channel_name, channel);
@@ -299,7 +299,7 @@ static void OSD_EraseNoVideo(void)
 	sPosition_t position;
 	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 
-	if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+	if(displayMode == DISPLAY_MODE_FULL)
 	{
 		position.pos_x = (DISPLAY_WIDTH - (strlen(osdStr_Space10)*CHAR_WIDTH_S))/2;
 		position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
@@ -391,14 +391,14 @@ static void OSD_DisplayNoVideo(void)
 
 	if((videoLossDiplayOn == ON) & ((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET)))
 	{
-		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+		if(displayMode == DISPLAY_MODE_FULL)
 		{
 			channel = Get_SystemDisplayChannel();
 		}
 
 		SetVideoLossEvent(CLEAR);
 	
-		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+		if(displayMode == DISPLAY_MODE_FULL)
 		{
 			position[channel].pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideo)*CHAR_WIDTH_S))/2;
 			position[channel].pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
@@ -509,7 +509,7 @@ void OSD_DisplayChannelName(void)
 
 	if(titleDisplayOn == ON)
 	{
-		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+		if(displayMode == DISPLAY_MODE_FULL)
 		{
 			channel = Get_SystemDisplayChannel();
 			Read_NvItem_ChannelName(channel_name, channel);

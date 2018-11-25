@@ -22,7 +22,7 @@ typedef enum
 
 typedef enum
 {
-	DISPLAY_MODE_FULL_SCREEN,	// full screen mode for any channel
+//	DISPLAY_MODE_FULL,			// full screen mode for any channel
 	DISPLAY_MODE_QUAD_A,		// 4 split screen
 	DISPLAY_MODE_QUAD_B,
 	DISPLAY_MODE_QUAD_C,
@@ -32,10 +32,15 @@ typedef enum
 	DISPLAY_MODE_3SPLIT_B,
 	DISPLAY_MODE_3SPLIT_C,
 	DISPLAY_MODE_3SPLIT_D,
-	DISPLAY_MODE_SPLIT,			// 2 split
+	DISPLAY_MODE_2SPLIT,			// 2 split
 	DISPLAY_MODE_MAX
-} eDisplayMode_t;
+} eSplitMode_t;
 
+typedef enum
+{
+	DISPLAY_MODE_FULL,
+	DISPLAY_MODE_SPLIT
+} eDisplayMode_t;
 
 
 //=============================================================================
@@ -55,9 +60,11 @@ typedef enum
 //=============================================================================
 extern void Set_DisplayoutputMode_table(void);
 extern void DisplayMode_FullScreen(eChannel_t ch);
-extern void DisplayMode_Split(eDisplayMode_t splitMode);
+extern void DisplayMode_SplitScreen(eSplitMode_t splitMode);
 extern void Set_SystemDisplayMode(eDisplayMode_t mode);
 extern eDisplayMode_t Get_SystemDisplayMode(void);
+extern void Set_SystemSplitMode(eSplitMode_t mode);
+extern eSplitMode_t Get_SystemSplitMode(void);
 extern void Set_SystemDisplayChannel(eChannel_t channel);
 extern eChannel_t Get_SystemDisplayChannel(void);
 #endif

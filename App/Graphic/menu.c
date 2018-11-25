@@ -121,6 +121,7 @@ enum
 	DISPLAY_ITEM_Y_RESOLUTION,
 	DISPLAY_ITEM_Y_OSD_DISPLAY,
 	DISPLAY_ITEM_Y_BORDER_LINE_DISPLAY,
+	DISPLAY_ITEM_Y_SPLIT_MODE,
 	DISPLAY_ITEM_Y_MAX
 };
 
@@ -1274,14 +1275,58 @@ const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 	{24, LINE0_OFFSET_Y, menuStr_Display_Title},
 	{20, LINE1_OFFSET_Y, menuStr_Display_Resolution},
 	{20, LINE2_OFFSET_Y, menuStr_Display_OsdDisplay},
-	{20, LINE3_OFFSET_Y, menuStr_Display_BorderLine}
+	{20, LINE3_OFFSET_Y, menuStr_Display_BorderLine},
+	{20, LINE4_OFFSET_Y, menuStr_Display_SplitMode}
 };
+
+static u8* Get_String_SplitMode(splitMode)
+{
+	u8* pStr;
+
+	switch(splitMode)
+	{
+		case DISPLAY_MODE_QUAD_A:
+			pStr = menuStr_SplitMode_QuadA;
+			break;
+		case DISPLAY_MODE_QUAD_B:
+			pStr = menuStr_SplitMode_QuadB;
+			break;
+		case DISPLAY_MODE_QUAD_C:
+			pStr = menuStr_SplitMode_QuadC;
+			break;
+		case DISPLAY_MODE_QUAD_D:
+			pStr = menuStr_SplitMode_QuadD;
+			break;
+		case DISPLAY_MODE_QUAD_E:
+			pStr = menuStr_SplitMode_QuadE;
+			break;
+		case DISPLAY_MODE_3SPLIT_A:
+			pStr = menuStr_SplitMode_3SplitA;
+			break;
+		case DISPLAY_MODE_3SPLIT_B:
+			pStr = menuStr_SplitMode_3SplitB;
+			break;
+		case DISPLAY_MODE_3SPLIT_C:
+			pStr = menuStr_SplitMode_3SplitC;
+			break;
+		case DISPLAY_MODE_3SPLIT_D:
+			pStr = menuStr_SplitMode_3SplitD;
+			break;
+		case DISPLAY_MODE_2SPLIT:
+			pStr = menuStr_SplitMode_2Split;
+			break;
+	}
+
+	return pStr;
+}
 
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
 	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
+	eSplitMode_t splitMode;
+	u8* pStr_SplitMode;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
 	switch(itemY)
@@ -1324,6 +1369,16 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 					displayMenu[itemY].offset_y,
 					attribute, borderLineOn);
 			break;
+
+		case DISPLAY_ITEM_Y_SPLIT_MODE:
+			pStr_SplitMode = Get_String_SplitMode(Get_SystemSplitMode());
+			Print_StringWithSelectedMark(
+					displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+					displayMenu[itemY].offset_y,
+					(const u8*)pStr_SplitMode,
+					attribute,
+					strlen(pStr_SplitMode));
+			break;
 	}
 }
 
@@ -1354,6 +1409,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
+	eSplitMode_t splitMode;
 
 	switch(key)
 	{
@@ -1378,6 +1434,12 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						Read_NvItem_BorderLineDisplay(&borderLineOn);
 						Toggle(&borderLineOn);
 						Write_NvItem_BorderLineDisplay(borderLineOn);
+						break;
+					case DISPLAY_ITEM_Y_SPLIT_MODE:
+						splitMode = Get_SystemSplitMode();
+						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, 0, inc_dec, &splitMode);
+						DisplayMode_SplitScreen(splitMode);
+						Set_SystemSplitMode(splitMode);
 						break;
 				}
 				DisplayPage_UpdatePageOption(itemY);

@@ -162,10 +162,9 @@ void main(void)
 	InitializeMotionDetect();
 
 	InputSelect = VIDEO_DIGITAL_SDI;
-//	InputSelect = VIDEO_SDI_2HD_POP;
-	DisplayMode_Split();
+	DisplayMode_SplitScreen(Get_SystemDisplayMode());
 
-	UpdateKeyData(KEY_4SPLIT);
+	UpdateKeyData(KEY_SPLIT);
 	SetKeyReady();
 	sysenv_split_mode = 5; //OMG! what is 5?!
 

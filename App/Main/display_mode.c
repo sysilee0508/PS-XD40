@@ -15,7 +15,7 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
-static eDisplayMode_t systemDisplayMode = DISPLAY_MODE_QUAD_A;
+static eDisplayMode_t systemDisplayMode = DISPLAY_MODE_SPLIT;
 static eChannel_t systemDisplayChannel = CHANNEL_SPLIT;
 
 //=============================================================================
@@ -67,7 +67,7 @@ static eVideoResolution_t Get_Current_Video_Resolution_Each_Channel(eChannel_t c
 	return oCurVideoRes;	
 }
 
-static void Display_FullScreen(eChannel_t ch)
+static void Display_FullMode(eChannel_t ch)
 {
 	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
 
@@ -139,7 +139,7 @@ static void Display_FullScreen(eChannel_t ch)
 	}
 }
 
-static void Display_DualScreen(void)
+static void Display_SplitMode(void)
 {
 	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
 
@@ -172,7 +172,7 @@ static void Display_DualScreen(void)
 	}
 }
 
-static void Display_TripleScreen(void)
+static void Display_3SplitAMode(void)
 {
 	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
 
@@ -219,7 +219,22 @@ static void Display_TripleScreen(void)
 	}		
 }
 
-static void Display_QuadScreen(void)
+static void Display_3SplitBMode(void)
+{
+
+}
+
+static void Display_3SplitCMode(void)
+{
+
+}
+
+static void Display_3SplitDMode(void)
+{
+
+}
+
+static void Display_QuadAMode(void)
 {
 	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
 
@@ -280,6 +295,26 @@ static void Display_QuadScreen(void)
 	}		
 }
 
+static void Display_QuadBMode(void)
+{
+
+}
+
+static void Display_QuadCMode(void)
+{
+
+}
+
+static void Display_QuadDMode(void)
+{
+
+}
+
+static void Display_QuadEMode(void)
+{
+
+}
+
 static BYTE Check_VideoFormat_Change(void)
 {
 	eChannel_t channel;
@@ -300,33 +335,85 @@ static BYTE Check_VideoFormat_Change(void)
 	return videoFormatChanged;	
 }
 
+static void Display_SplitMode(eSplitMode_t splitMode)
+{
+	switch(splitMode)
+	{
+		case DISPLAY_MODE_QUAD_A:
+			Display_QuadAMode();
+			break;
+
+		case DISPLAY_MODE_QUAD_B:
+			Display_QuadBMode();
+			break;
+
+		case DISPLAY_MODE_QUAD_C:
+			Display_QuadCMode();
+			break;
+
+		case DISPLAY_MODE_QUAD_D:
+			Display_QuadDMode();
+			break;
+
+		case DISPLAY_MODE_QUAD_E:
+			Display_QuadEMode();
+			break;
+
+		case DISPLAY_MODE_3SPLIT_A:
+			Display_3SplitAMode();
+			break;
+
+		case DISPLAY_MODE_3SPLIT_B:
+			Display_3SplitBMode();
+			break;
+
+		case DISPLAY_MODE_3SPLIT_C:
+			Display_3SplitCMode();
+			break;
+
+		case DISPLAY_MODE_3SPLIT_D:
+			Display_3SplitDMode();
+			break;
+
+		case DISPLAY_MODE_2SPLIT:
+			Display_SplitMode();
+			break;
+
+		default:
+			Display_QuadAMode();
+			break;
+	}
+}
+
 void Set_DisplayoutputMode_table(void)
 {
-	eDisplayMode_t displayMode;
-	eChannel_t displayChannel;
+	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 
 	if(Check_VideoFormat_Change() == TRUE)
 	{
-		displayMode = Get_SystemDisplayMode();
-		if(displayMode == DISPLAY_MODE_FULL_SCREEN)
+		if(displayMode == DISPLAY_MODE_FULL)
 		{
-			displayChannel = Get_SystemDisplayChannel();
-			{
-				Display_FullScreen(displayChannel);
-			}
-		}
-		else if(displayMode == DISPLAY_MODE_QUAD)
-		{
-			Display_QuadScreen();
-			//Display_DualScreen();
+			Display_FullMode(Set_SystemDisplayChannel());
 		}
 		else
 		{
-			Display_QuadScreen();
-			//Display_DualScreen();
+			Display_SplitMode(displayMode);
 		}
 		Delay_ms(500);
 	}
+}
+
+void Set_SystemSplitMode(eSplitMode_t mode)
+{
+	Write_NvItem_SplitMode(mode);
+}
+
+eSplitMode_t Get_SystemSplitMode(void)
+{
+	eSplitMode_t splitMode;
+	Read_NvItem_SplitMode(&splitMode);
+
+	return splitMode;
 }
 
 void Set_SystemDisplayMode(eDisplayMode_t mode)
@@ -352,14 +439,13 @@ eChannel_t Get_SystemDisplayChannel(void)
 void DisplayMode_FullScreen(eChannel_t ch)
 {
 	Set_SystemDisplayChannel(ch);
-	Set_SystemDisplayMode(DISPLAY_MODE_FULL_SCREEN);
-	Display_FullScreen(ch);
+	Set_SystemDisplayMode(DISPLAY_MODE_FULL);
+	Display_FullMode(ch);
 }
 
-void DisplayMode_Split(eDisplayMode_t splitMode)
+void DisplayMode_SplitScreen(eSplitMode_t splitMode)
 {
 	Set_SystemDisplayMode(splitMode);
 	Set_SystemDisplayChannel(CHANNEL_SPLIT);
-	Display_QuadScreen();
-	//Display_DualScreen();
+	Display_SplitMode(splitMode);
 }
