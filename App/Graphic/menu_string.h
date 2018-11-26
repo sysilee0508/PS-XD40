@@ -139,7 +139,7 @@ const u8 menuStr_Motion_Channel2[] =    "2. CH 2:     / ";
 const u8 menuStr_Motion_Channel3[] =    "3. CH 3:     / ";
 const u8 menuStr_Motion_Channel4[] =    "4. CH 4:     / ";
 const u8 menuStr_Motion_Sensitivity[] = "5. MOTION SENSITIVITY (1~99) : ";
-const u8 menuStr_Motion_CallMode[] =    "6. MOTION MODE : ";
+const u8 menuStr_Motion_Indication[] =  "6. MOTION INDICATION : ";
 
 // Device Info
 const u8 menuStr_DeviceInfo_Title[] =   "-- DEVICE INFO --";

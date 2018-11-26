@@ -61,6 +61,7 @@ typedef enum
 	NV_ITEM_MOTION_DETECT_ON,
 	NV_ITEM_MOTION_SENSITIVITY,
 	NV_ITEM_MOTION_DETECT_BLOCK,
+	NV_ITME_MOTION_INDICATION,
 	NV_ITEM_SERIAL_BAUDRATE,
 //-- system data ---------------------------------------------------------------
 //	If you want to store any system data (item) in NV memory, it comes here
@@ -77,18 +78,6 @@ typedef struct
 	uint8_t major;
 	uint8_t minor;
 } sVersion_t;
-
-//typedef enum
-//{
-//	TITLE_POSITION_TOP_LEFT,
-//	TITLE_POSITION_TOP_CENTER,
-//	TITLE_POSITION_TOP_RIGHT,
-//	TITLE_POSITION_BOTTOM_LEFT,
-//	TITLE_POSITION_BOTTOM_CENTER,
-//	TITLE_POSITION_BOTTOM_RIGHT,
-//	TITLE_POSITION_4SPILIT_CENTER,//CH1&CH2 --> center_bottom  / CH3&CH4 --> center_top
-//	TITLE_POSITION_MAX
-//} eTitlePosition_t;
 
 typedef enum
 {
@@ -184,6 +173,7 @@ typedef struct
 	BOOL					motionDetect_On[NUM_OF_CHANNEL];
 	uint8_t					motionSensitivity;
 	uint16_t				motionBlocks[NUM_OF_CHANNEL][ROWS_OF_BLOCKS];
+	BOOL					motionIndication;
 	eBaudRate_t 			baudrate;
 
 	eSplitMode_t			splitMode;
@@ -230,14 +220,10 @@ extern void Read_NvItem_OsdOn(BOOL* pData);
 extern void Write_NvItem_OsdOn(BOOL data);
 extern void Read_NvItem_TitleDispalyOn(BOOL *pData);
 extern void Write_NvItem_TitleDispalyOn(BOOL data);
-//extern void Read_NvItem_TitlePosition(eTitlePosition_t *pData);
-//extern void Write_NvItem_TitlePosition(eTitlePosition_t data);
 extern void Read_NvItem_TimeDisplayOn(BOOL* pData);
 extern void Write_NvItem_TimeDisplayOn(BOOL data);
 extern void Read_NvItem_DateDisplayOn(BOOL* pData);
 extern void Write_NvItem_DateDisplayOn(BOOL data);
-//extern void Read_NvItem_TimePosition(eTimePosition_t *pData);
-//extern void Write_NvItem_TimePosition(eTimePosition_t data);
 extern void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel);
 extern void Write_NvItem_ChannelName(uint8_t* pData, eChannel_t channel);
 extern void Read_NvItem_DateFormat(eDateFormat_t* pData);
@@ -262,6 +248,8 @@ extern void Read_NvItem_RemoconId(uint8_t *pData);
 extern void Write_NvItem_RemoconId(uint8_t data);
 extern void Read_NvItem_MotionSensitivity(uint8_t *pData);
 extern void Write_NvItem_MotionSensitivity(uint8_t data);
+extern void Read_NvItem_MotionIndication(BOOL *pData);
+extern void Write_NvItem_MotionIndication(BOOL data);
 extern void Read_NvItem_SerialBaudrate(eBaudRate_t *pData);
 extern void Write_NvItem_SerialBaudrate(eBaudRate_t data);
 #endif

@@ -155,6 +155,7 @@ static void LoadDefaultNvData(void)
 	}
 	nv_data.data.motionSensitivity = 49;
 	memset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
+	nv_data.data.motionIndication = ON;
 
 	nv_data.data.splitMode = DISPLAY_MODE_QUAD_A;
 	nv_data.data.currentChannel = (eChannel_t)CHANNEL_SPLIT;
@@ -359,19 +360,6 @@ void Write_NvItem_OsdOn(BOOL data)
 	nvInfo[NV_ITEM_OSD_DISPLAY].dirty = SET;
 }
 
-//void Read_NvItem_TitlePosition(eTitlePosition_t *pData)
-//{
-//	*pData = nv_data.data.titlePosition;
-//}
-//void Write_NvItem_TitlePosition(eTitlePosition_t data)
-//{
-//	if(data < TITLE_POSITION_MAX)
-//	{
-//		nv_data.data.titlePosition = data;
-//		nvInfo[NV_ITEM_TITLE_POSITION].dirty = SET;
-//	}
-//}
-
 void Read_NvItem_TimeDisplayOn(BOOL* pData)
 {
 	*pData = nv_data.data.timeDisplayOn;
@@ -562,6 +550,16 @@ void Write_NvItem_MotionBlock(uint16_t *pData, eChannel_t channel)
 {
 	memcpy(&nv_data.data.motionBlocks[channel][0], pData, sizeof(uint16_t)*ROWS_OF_BLOCKS);
 	nvInfo[NV_ITEM_MOTION_DETECT_BLOCK].dirty = SET;
+}
+
+void Read_NvItem_MotionIndication(BOOL *pData)
+{
+	*pData = nv_data.data.motionIndication;
+}
+void Write_NvItem_MotionIndication(BOOL data)
+{
+	nv_data.data.motionIndication = data;
+	nvInfo[NV_ITME_MOTION_INDICATION].dirty = SET;
 }
 
 //--------------------------------------------------------------------------------

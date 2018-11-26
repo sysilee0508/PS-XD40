@@ -149,7 +149,7 @@ enum
 	MOTION_ITEM_Y_CH3,
 	MOTION_ITEM_Y_CH4,
 	MOTION_ITEM_Y_SENSITIVITY,
-	MOTION_ITEM_Y_MOTION_MODE,
+	MOTION_ITEM_Y_INDICATION,
 	MOTION_ITEM_Y_MAX
 };
 
@@ -2032,6 +2032,7 @@ static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
 	u8 str[2];
 	u8 attribute = (requestEnterKeyProc==SET)?UNDER_BAR:NULL;
 	BOOL motionOn;
+	BOOL indication;
 
 	switch(itemY)
 	{
@@ -2074,7 +2075,12 @@ static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
 					attribute, sizeof(str));
 			break;
 
-		case MOTION_ITEM_Y_MOTION_MODE:
+		case MOTION_ITEM_Y_INDICATION:
+			Read_NvItem_MotionIndication(&indication);
+			Print_StringOnOff(
+					motionDetectionMenu[itemY].offset_x + strlen(motionDetectionMenu[itemY].str),
+					motionDetectionMenu[itemY].offset_y,
+					attribute, indication);
 			break;
 	}
 }
@@ -2108,7 +2114,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 	static u8 cursorY = 0;
 	u8 inc_dec = DECREASE;
 	u8 sensitivity;
-	BOOL motionOn;
+	BOOL motionOn, indication;
 	u16 activeBlocks[ROWS_OF_BLOCKS];
 	BOOL active;
 
@@ -2139,7 +2145,10 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 							//Set_MotionDetect_Sensitivity(sensitivity);
 							break;
 
-						case MOTION_ITEM_Y_MOTION_MODE:
+						case MOTION_ITEM_Y_INDICATION:
+							Read_NvItem_MotionIndication(&indication);
+							Toggle(&indication);
+							Write_NvItem_MotionIndication(indication);
 							break;
 					}
 					MotionDetectionPage_UpdatePage(itemY, pos_x);

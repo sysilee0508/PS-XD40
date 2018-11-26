@@ -117,6 +117,15 @@ void Set_MotionDetect_ActivatedArea(eChannel_t channel)
 	}
 }
 
+void Set_MotionDetect_Indicator(eChannel_t channel)
+{
+	BOOL indication;
+
+	Read_NvItem_MotionIndication(&indication);
+
+	//write register here
+
+}
 void MotionDetectCheck(void)
 {
 	eChannel_t channel;
@@ -189,6 +198,7 @@ void InitializeMotionDetect(void)
 	{
 		Set_MotionDetect_OnOff(channel);
 		Set_MotionDetect_ActivatedArea(channel);
+		Set_MotionDetect_Indicator(channel);
 	}
 	Read_NvItem_MotionSensitivity(&sensitivity);
 	Set_MotionDetect_Sensitivity(sensitivity);
