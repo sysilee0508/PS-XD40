@@ -1447,7 +1447,7 @@ static void DisplayPage_RedrawPage(u8 itemY)
 
 	splitModeSelecting = FALSE;
 
-	position.pos_x = (DISPLAY_WIDTH - strlen(menuStr_Space8))/2;
+	position.pos_x = (DISPLAY_WIDTH -( strlen(menuStr_Space8)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
 	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
 
