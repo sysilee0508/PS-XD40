@@ -961,6 +961,7 @@ void motion_detection_get(motion_mode *motion_set)
 	motion_set->set_val = ret;
 }
 
+extern unsigned char Get_MotionIndication(void);
 void motion_onoff_set(motion_mode *motion_set)
 {
 	//BANK2_MOTION
@@ -1009,7 +1010,11 @@ void motion_onoff_set(motion_mode *motion_set)
 		case FUNC_OFF : NVP6158_I2C_WRITE(NVP6158_ADDR, (0x00 + (0x07 * motion_set->ch)), 0x0D);
 						NVP6158_I2C_WRITE(NVP6158_ADDR, 0x28 + (0x06 * motion_set->ch), 0x00);
 			break;
-		case FUNC_ON : NVP6158_I2C_WRITE(NVP6158_ADDR, (0x00 + (0x07 * motion_set->ch)), 0x0C);
+		case FUNC_ON : 
+			if(Get_MotionIndication() == FUNC_ON)
+				NVP6158_I2C_WRITE(NVP6158_ADDR, (0x00 + (0x07 * motion_set->ch)), 0x0C);
+			else
+				NVP6158_I2C_WRITE(NVP6158_ADDR, (0x00 + (0x07 * motion_set->ch)), 0x00);
 			break;
 	}
 

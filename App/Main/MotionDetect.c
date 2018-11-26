@@ -42,16 +42,17 @@ BOOL Get_MotionDetect_OnOff(eChannel_t channel)
 	return motionOn;
 }
 
-void Set_MotionDetect_OnOff(eChannel_t channel)
+void Set_MotionDetect_Configue(eChannel_t channel)
 {
 	motion_mode motion;
 	BOOL motionOn;
+//	BOOL indication;
 
 	Read_NvItem_MotionDetectOnOff(&motionOn, channel);
+//	Read_NvItem_MotionIndication(&indication);
 	motion.ch = channel;
 	motion.fmtdef = NVP6158_Current_Video_Format_Check(channel);
-	motion.set_val = motionOn;
-
+        motion.set_val = motionOn;
 	motion_onoff_set(&motion);
 }
 
@@ -117,21 +118,12 @@ void Set_MotionDetect_ActivatedArea(eChannel_t channel)
 	}
 }
 
-void Set_MotionDetect_Indicator(void)
+BOOL Set_MotionDetect_Indicator(void)
 {
 	BOOL indication;
 
 	Read_NvItem_MotionIndication(&indication);
-
-	//write register here
-	if(indication == ON)
-	{
-		// enable indicator - current
-	}
-	else
-	{
-		// disable
-	}
+	return indication;
 }
 void MotionDetectCheck(void)
 {
@@ -196,6 +188,14 @@ void DecreaseMotionBuzzerCount(void)
 	motionBuzzerCountIn500ms--;
 }
 
+BOOL Get_MotionIndication(void)
+{
+	BOOL indication;
+
+	Read_NvItem_MotionIndication(&indication);
+	return indication;
+}
+
 void InitializeMotionDetect(void)
 {
 	eChannel_t channel;
@@ -203,10 +203,10 @@ void InitializeMotionDetect(void)
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
-		Set_MotionDetect_OnOff(channel);
+		Set_MotionDetect_Configue(channel);
 		Set_MotionDetect_ActivatedArea(channel);
 	}
-	Set_MotionDetect_Indicator();
+	//Set_MotionDetect_Indicator();
 	Read_NvItem_MotionSensitivity(&sensitivity);
 	Set_MotionDetect_Sensitivity(sensitivity);
 }

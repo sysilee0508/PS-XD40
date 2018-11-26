@@ -1939,7 +1939,7 @@ const sLocationNString_t motionDetectionMenu[MOTION_ITEM_Y_MAX] =
 	{20, LINE3_OFFSET_Y, menuStr_Motion_Channel3},
 	{20, LINE4_OFFSET_Y, menuStr_Motion_Channel4},
 	{20, LINE5_OFFSET_Y, menuStr_Motion_Sensitivity},
-	{20, LINE6_OFFSET_Y, menuStr_Motion_CallMode}
+	{20, LINE6_OFFSET_Y, menuStr_Motion_Indication}
 };
 
 static void Print_StringSelectArea(u16 offset_x, u16 offset_y,BOOL active)
