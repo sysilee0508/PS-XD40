@@ -1335,11 +1335,13 @@ static void DisplayPage_DisplaySplitMode(const u8* pStr)
 	splitModeSelecting = TRUE;
 
 	DisplayMode_SplitScreen(splitMode);
-        OSD_DrawBorderLine();
+       OSD_DrawBorderLine();
 
-	position.pos_x = (DISPLAY_WIDTH - strlen(pStr))/2;
+	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space8)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
 	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
+	position.pos_x = (DISPLAY_WIDTH - (strlen(pStr)*CHAR_WIDTH))/2;
+	position.pos_y = 100;
 	OSD_PrintString(position, pStr, strlen(pStr));
 }
 

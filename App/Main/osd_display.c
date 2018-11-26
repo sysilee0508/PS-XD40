@@ -77,12 +77,12 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t di
 	{
 		case DISPLAY_MODE_FULL:
 			position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH)) / 2;
-			position.pos_y = 0;
+			position.pos_y = MARGIN_Y;
 			break;
 
 		case DISPLAY_MODE_SPLIT:
 			position.pos_x = titlePositionTable_Split[splitMode][channel].pos_x - ((length * CHAR_WIDTH)/2);
-			position.pos_y = titlePositionTable_Split[splitMode][channel].pos_y;
+			position.pos_y = titlePositionTable_Split[splitMode][channel].pos_y + MARGIN_Y;
 			break;
 	}
 
@@ -98,12 +98,12 @@ static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_
 	{
 		case DISPLAY_MODE_FULL:
 			position.pos_x = DISPLAY_WIDTH - (length * CHAR_WIDTH) - MARGIN_X;
-			position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT - MARGIN_Y;
+			position.pos_y = MARGIN_Y;
 			break;
 
 		case DISPLAY_MODE_SPLIT:
 			position.pos_x = indicatorPositionTable_Split[splitMode][channel].pos_x - (length * CHAR_WIDTH) - MARGIN_X;
-			position.pos_y = indicatorPositionTable_Split[splitMode][channel].pos_y - CHAR_HEIGHT -MARGIN_Y;
+			position.pos_y = indicatorPositionTable_Split[splitMode][channel].pos_y + MARGIN_Y;
 			break;
 	}
 	return position;
