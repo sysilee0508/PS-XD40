@@ -141,7 +141,7 @@ void CheckAlarm(void)
 				if(alarmInfo[channel].alarm_status == ALARM_CLEAR)
 				{
 					alarmInfo[channel].alarm_status = ALARM_SET;
-					alarmInfo[channel].check_count = 0;
+					//alarmInfo[channel].check_count = 0;
 					//buzzer & alarm output
 					StartStopAlarm(ALARM_START);
 					lastAlarmChannel = (eChannel_t)channel;

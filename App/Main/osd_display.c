@@ -672,7 +672,7 @@ void OSD_EraseAllText(void)
 		}
 //		OSD_EraseNoVideo();
 		OSD_EraseAuto();
-		OSD_EraseIndicator();
+		//OSD_EraseIndicator();
 	}
 }
 
