@@ -462,24 +462,31 @@ static void OSD_DisplayIndicator(void)
 	//Split
 	else
 	{
-//		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-//		{
-//			//freeze
-//
-//			//motion
-//
-//			//alarm
-//
-//			//loss
-//			if(IsVideoLossChannel(channel) == TRUE)
-//			{
-//				pIndicator[channel] = osdStr_NoVideo;
-//			}
-//			else
-//			{
-//				pIndicator[channel] = osdStr_Space1;
-//			}
-//		}
+		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+		{
+			if((IsVideoLossChannel(channel) == TRUE) && (videoLossDiplayOn == ON))
+			{
+				pIndicator = (u8*)osdStr_NoVideo;
+			}
+			else if(GetAlarmStatus(channel) == ALARM_SET)
+			{
+				pIndicator = (u8*)osdStr_Alarm;
+			}
+			else if(Get_MotionDetectedStatus(channel))//motion
+			{
+				pIndicator = (u8*)osdStr_Motion;
+			}
+			else if(IsScreenFreeze())//freeze
+			{
+				pIndicator = (u8*)osdStr_Freeze;
+			}
+			else
+			{
+				pIndicator = (u8*)osdStr_Space1;
+			}
+			position = OSD_IndicatorStringPosition(channel, DISPLAY_MODE_SPLIT, strlen((const u8*)pIndicator));
+			OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+		}
 	}
 
 //	if((videoLossDiplayOn == ON) & ((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET)))
