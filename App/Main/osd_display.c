@@ -318,8 +318,6 @@ static void OSD_EraseChannelName(void)
 			Read_NvItem_ChannelName(channel_name, channel);
 			position =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 			OSD_PrintString(position, osdStr_Space12, strlen(channel_name));
-
-			position = OSD_IndicatorStringPosition(channel, displayMode, strlen(osdStr_Alarm));
 		}
 	}
 }
@@ -415,67 +413,117 @@ static void OSD_DisplayAuto(void)
 }
 
 //-----------------------------------------------------------------------------
-// Video Loss
+// Indicator - Loss, Freeze, Alarm, Motion
 //-----------------------------------------------------------------------------
-static void OSD_DisplayNoVideo(void)
+static void OSD_DisplayIndicator(void)
 {
-	sPosition_t position[NUM_OF_CHANNEL];
+	sPosition_t position;
 	eChannel_t channel;
-	eChannel_t startChannel;
+//	eChannel_t startChannel;
 	eDisplayMode_t displayMode = Get_SystemDisplayMode();
+	eSplitMode_t splitMode = Get_SystemSplitMode();
 	BOOL videoLossDiplayOn;
-	u8* pInfoStr[NUM_OF_CHANNEL];
+	u8* pIndicator;
 
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
-//	Read_NvItem_DisplayMode(&displayMode);
-	
-	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//
+//	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//	{
+//		pInfoStr[channel] = OSD_GetInfoStr(channel);
+//	}
+
+	//Full
+	if(displayMode == DISPLAY_MODE_FULL)
 	{
-		pInfoStr[channel] = OSD_GetInfoStr(channel);
+		channel = Get_SystemDisplayChannel();
+		if((IsVideoLossChannel(channel) == TRUE) && (videoLossDiplayOn == ON))
+		{
+			pIndicator = (u8*)osdStr_NoVideoFull;
+		}
+		else if(GetAlarmStatus(channel) == ALARM_SET)
+		{
+			pIndicator = (u8*)osdStr_AlarmFull;
+		}
+		else if(Get_MotionDetectedStatus(channel))//motion
+		{
+			pIndicator = (u8*)osdStr_MotionFull;
+		}
+		else if(IsScreenFreeze())//freeze
+		{
+			pIndicator = (u8*)osdStr_FreezeFull;
+		}
+		else
+		{
+			pIndicator = (u8*)osdStr_Space10;
+		}
+		position = OSD_IndicatorStringPosition(channel, DISPLAY_MODE_FULL, strlen((const u8*)pIndicator));
+		OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+	}
+	//Split
+	else
+	{
+//		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//		{
+//			//freeze
+//
+//			//motion
+//
+//			//alarm
+//
+//			//loss
+//			if(IsVideoLossChannel(channel) == TRUE)
+//			{
+//				pIndicator[channel] = osdStr_NoVideo;
+//			}
+//			else
+//			{
+//				pIndicator[channel] = osdStr_Space1;
+//			}
+//		}
 	}
 
-	if((videoLossDiplayOn == ON) & ((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET)))
-	{
-		if(displayMode == DISPLAY_MODE_FULL)
-		{
-			channel = Get_SystemDisplayChannel();
-		}
-
-		SetVideoLossEvent(CLEAR);
-	
-		if(displayMode == DISPLAY_MODE_FULL)
-		{
-			position[channel].pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideo)*CHAR_WIDTH))/2;
-			position[channel].pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
-
-			if(IsVideoLossChannel(channel) == TRUE)
-			{
-				OSD_PrintString(position[channel], osdStr_NoVideo, strlen((const u8*)pInfoStr));
-			}
-			else
-			{
-				OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
-			}
-		}
-		else if(displayMode == DISPLAY_MODE_QUAD_A)
-		{
-			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-			{
-				position[channel].pos_x =
-						tbl_OSD_SPLIT4_POSITION[channel].pos_x - (strlen((const u8*)pInfoStr)*CHAR_WIDTH)/2;
-				position[channel].pos_y =
-						tbl_OSD_SPLIT4_POSITION[channel].pos_y + ((DISPLAY_HEIGHT/2) - CHAR_HEIGHT)/2;
-				if(IsVideoLossChannel(channel) == TRUE)
-				{
-					OSD_PrintString(position[channel], osdStr_NoVideo, strlen((const u8*)pInfoStr));
-				}
-				else
-				{
-					OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
-				}
-			}
-		}
-	}
+//	if((videoLossDiplayOn == ON) & ((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET)))
+//	{
+//		if(displayMode == DISPLAY_MODE_FULL)
+//		{
+//			channel = Get_SystemDisplayChannel();
+//		}
+//
+//		SetVideoLossEvent(CLEAR);
+//
+//		if(displayMode == DISPLAY_MODE_FULL)
+//		{
+//			position[channel].pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideo)*CHAR_WIDTH))/2;
+//			position[channel].pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
+//
+//			if(IsVideoLossChannel(channel) == TRUE)
+//			{
+//				OSD_PrintString(position[channel], osdStr_NoVideo, strlen((const u8*)pInfoStr));
+//			}
+//			else
+//			{
+//				OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
+//			}
+//		}
+//		else if(displayMode == DISPLAY_MODE_QUAD_A)
+//		{
+//			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//			{
+//				position[channel].pos_x =
+//						tbl_OSD_SPLIT4_POSITION[channel].pos_x - (strlen((const u8*)pInfoStr)*CHAR_WIDTH)/2;
+//				position[channel].pos_y =
+//						tbl_OSD_SPLIT4_POSITION[channel].pos_y + ((DISPLAY_HEIGHT/2) - CHAR_HEIGHT)/2;
+//				if(IsVideoLossChannel(channel) == TRUE)
+//				{
+//					OSD_PrintString(position[channel], osdStr_NoVideo, strlen((const u8*)pInfoStr));
+//				}
+//				else
+//				{
+//					OSD_PrintString(position[channel], osdStr_Space10, strlen(osdStr_Space10));
+//				}
+//			}
+//		}
+//	}
 }
 
 //-----------------------------------------------------------------------------
@@ -569,9 +617,6 @@ void OSD_DisplayChannelName(void)
 				Read_NvItem_ChannelName(channel_name, channel);
 				positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 				OSD_PrintString(positionValue, channel_name, strlen(channel_name));
-
-				positionValue = OSD_IndicatorStringPosition(channel, displayMode, strlen(osdStr_Alarm));
-				OSD_PrintString(positionValue, osdStr_Alarm, strlen(osdStr_Alarm));
 			}
 		}
 	}
@@ -618,8 +663,9 @@ void OSD_EraseAllText(void)
 			// erase time and/or date
 			OSD_EraseTimeDate();
 		}
-		OSD_EraseNoVideo();
+//		OSD_EraseNoVideo();
 		OSD_EraseAuto();
+		OSD_EraseIndicator();
 	}
 }
 
@@ -634,8 +680,9 @@ void OSD_Display(void)
 	{
 		OSD_DisplayDateTime();
 		OSD_DisplayChannelName();
-		OSD_DisplayNoVideo();
+//		OSD_DisplayNoVideo();
 		OSD_DisplayAuto();
+		OSD_DisplayIndicator();
 		//OSD_DisplayAlarm();
 		//OSD_DisplayMotion();
 	}

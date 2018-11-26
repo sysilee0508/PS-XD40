@@ -163,6 +163,13 @@ void MotionDetectCheck(void)
 	previousMotion = currentMotion;
 }
 
+BOOL Get_MotionDetectedStatus(eChannel_t channel)
+{
+	BYTE motion = NVP6158_MotionDetect_Check();
+
+	return ((motion & (0x01 << channel)) == 0)?FALSE:TRUE;
+}
+
 BYTE GetMotionBuzzerCount(void)
 {
 	return motionBuzzerCountIn500ms;
