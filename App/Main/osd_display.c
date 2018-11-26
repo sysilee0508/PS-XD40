@@ -604,8 +604,9 @@ void OSD_DrawBorderLine(void)
 	eSplitMode_t splitMode = Get_SystemSplitMode();
 
 	Read_NvItem_BorderLineDisplay(&border_line);
-	if(border_line == ON)
+	if((border_line == ON) && (Get_SystemDisplayMode() == DISPLAY_MODE_SPLIT))
 	{
+		MDINOSD_SetBGBoxColor(RGB(255,255,255));
 		switch(splitMode)
 		{
 			case DISPLAY_MODE_QUAD_A:
@@ -702,15 +703,15 @@ void OSD_DrawBorderLine(void)
 				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
 				break;
                                 
-                default :
-                  MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-		MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+			default :
+				MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
                 break;
 		}
 	}
