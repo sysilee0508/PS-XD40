@@ -1324,6 +1324,21 @@ static u8* Get_String_SplitMode(splitMode)
 	return pStr;
 }
 
+static void DisplayPage_DisplaySplitMode(const u8* pStr)
+{
+	eSplitMode_t splitMode = Get_SystemSplitMode();
+	sPosition_t position;
+
+	Erase_AllMenuScreen();
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+
+	DisplayMode_SplitScreen(splitMode);
+
+	position.pos_x = DISPLAY_HALF_WIDTH - strlen(pStr)/2;
+	position.pos_y = 100;
+	OSD_PrintString(position, pStr, strlen(pStr));
+}
+
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
 	eResolution_t resolution;
@@ -1376,18 +1391,25 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 
 		case DISPLAY_ITEM_Y_SPLIT_MODE:
 			pStr_SplitMode = Get_String_SplitMode(Get_SystemSplitMode());
- 			Print_StringWithSelectedMark(
-					displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
-					displayMenu[itemY].offset_y,
-					menuStr_Space8,
-					NULL,
-					strlen(menuStr_Space8));                       
-			Print_StringWithSelectedMark(
-					displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
-					displayMenu[itemY].offset_y,
-					(const u8*)pStr_SplitMode,
-					attribute,
-					strlen(pStr_SplitMode));
+			if(requestEnterKeyProc == CLEAR)
+			{
+				Print_StringWithSelectedMark(
+						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+						displayMenu[itemY].offset_y,
+						menuStr_Space8,
+						NULL,
+						strlen(menuStr_Space8));
+				Print_StringWithSelectedMark(
+						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+						displayMenu[itemY].offset_y,
+						(const u8*)pStr_SplitMode,
+						attribute,
+						strlen(pStr_SplitMode));
+			}
+			else
+			{
+				DisplayPage_DisplaySplitMode((const u8*)pStr_SplitMode);
+			}
 			break;
 	}
 }
@@ -1448,7 +1470,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 					case DISPLAY_ITEM_Y_SPLIT_MODE:
 						splitMode = Get_SystemSplitMode();
 						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, 0, inc_dec, &splitMode);
-						DisplayMode_SplitScreen(splitMode);
+						//DisplayMode_SplitScreen(splitMode);
 						Set_SystemSplitMode(splitMode);
 						break;
 				}
