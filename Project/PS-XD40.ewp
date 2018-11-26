@@ -2118,12 +2118,6 @@
                 <name>$PROJ_DIR$\..\App\Drivers\mdincoef.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\App\Drivers\mdincur.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Drivers\mdincur.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\App\Drivers\mdindly.c</name>
             </file>
             <file>

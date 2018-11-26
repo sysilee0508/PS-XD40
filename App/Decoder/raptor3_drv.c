@@ -574,21 +574,6 @@ void video_input_onvideo_check_data(video_input_vfc *vin_vfc)
 	vin_vfc->vfc = val_5678xF0;
 }
 
-void video_input_auto_ch_sw_rst(decoder_dev_ch_info_s *decoder_info)
-{
-	unsigned char val_1x97;
-	 //Software Reset
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF,0x01);
-	val_1x97 = NVP6158_I2C_READ(NVP6158_ADDR, 0x97);
-	val_1x97 &= ~(1 << decoder_info->ch);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x97, val_1x97);
-	Delay_ms(10);
-	val_1x97 = NVP6158_I2C_READ(NVP6158_ADDR, 0x97);
-	val_1x97 |= (1 << decoder_info->ch);
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x97, val_1x97);
-
-}
-
 void video_input_no_video_set(video_input_novid_set *auto_novid)
 {
 	unsigned char val_13x30;
