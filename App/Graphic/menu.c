@@ -25,7 +25,7 @@
 #define	INCREASE					1
 #define	DECREASE					0
 
-#define CHARACTERS_IN_MENU_LINE		MENU_WIDTH / CHAR_WIDTH_S
+#define CHARACTERS_IN_MENU_LINE		MENU_WIDTH / CHAR_WIDTH
 #define LINES_IN_MENU				MENU_HEIGHT / CHAR_HEIGHT
 
 #define ASCII_SPACE					0x20
@@ -328,7 +328,7 @@ static void Print_StringWithSelectedMarkSize(u16 offset_x, u16 offset_y, const u
 	u16 i;
 	sPosition_t position;
 
-	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_S);
+	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 	
 	OSD_PrintString(position, data, strlen(data));
@@ -347,7 +347,7 @@ static void Print_StringWithSelectedMark(u16 offset_x, u16 offset_y, const u8 *d
 	u16 i;
 	sPosition_t position;
 
-	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_S);
+	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 
 	OSD_PrintString(position, data, size);
@@ -406,11 +406,11 @@ static void DrawSelectMark(u8 verticalItem)
 	offset_y = LINE1_OFFSET_Y + (2 * (verticalItem-1));
 
 	// erase previous mark
-	position.pos_x = MENU_START_POSITION_X + (previousLocationX * CHAR_WIDTH_S);
+	position.pos_x = MENU_START_POSITION_X + (previousLocationX * CHAR_WIDTH);
 	position.pos_y = MENU_START_POSITION_Y + (previousLocationY * CHAR_HEIGHT);
 	OSD_PrintString(position,menuStr_Space1, strlen(menuStr_Space1));
 	// draw new mark
-	position.pos_x = MENU_START_POSITION_X + (offset_x[currentPage] * CHAR_WIDTH_S);
+	position.pos_x = MENU_START_POSITION_X + (offset_x[currentPage] * CHAR_WIDTH);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 	OSD_PrintString(position, menuStr_ArrowL, strlen(menuStr_ArrowL));
 
@@ -1441,15 +1441,15 @@ static void DisplayPage_Entry(void)
 static void DisplayPage_RedrawPage(u8 itemY)
 {
 	u8 index;
-        sPosition_t position;
-        
-        position.pos_x = (DISPLAY_WIDTH - strlen(menuStr_Space8))/2;
-        position.pos_y = 100;
-        
-        OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
+	sPosition_t position;
 
-        MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
+	splitModeSelecting = FALSE;
 
+	position.pos_x = (DISPLAY_WIDTH - strlen(menuStr_Space8))/2;
+	position.pos_y = 100;
+	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
+
+	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
 	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
@@ -1460,8 +1460,6 @@ static void DisplayPage_RedrawPage(u8 itemY)
 	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
 	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
 
-	//MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-	splitModeSelecting = FALSE;
 	for(index = 0; index < DISPLAY_ITEM_Y_MAX; index++)
 	{
 		Print_StringWithSelectedMarkSize(
@@ -1959,7 +1957,7 @@ static void MotionDetectionPage_DrawCursor(u8 offset_x, u8 offset_y, BOOL active
 	const u8 cursorData = SELECTED_MARK;
 	const u8 nullData = ASCII_SPACE;
 
-	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH)/2 - 1;
 	position.pos_y = (offset_y * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1) + CHAR_HEIGHT;
 	if(active == TRUE)
 	{
@@ -1975,7 +1973,7 @@ static void MotionDetectionPage_DrawBlockMark(u8 offset_x, u8 offset_y, BOOL act
 {
 	sPosition_t position;
 
-	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH)/2 - 1;
 	position.pos_y = (offset_y * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1);
 	if(active == TRUE)
 	{
@@ -1996,7 +1994,7 @@ static void MotionDetectionPage_EraseAllBlockMark(void)
 	{
 		for(blockX = 0; blockX < COLUMMS_OF_BLOCKS; blockX++)
 		{
-			position.pos_x = (blockX * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+			position.pos_x = (blockX * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH)/2 - 1;
 			position.pos_y = (blockY * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1);
 			OSD_PrintString(position, menuStr_Space1, strlen(menuStr_Space1));
 		}

@@ -19,9 +19,8 @@
 #define DISPLAY_QUAD_HEIGHT					(DISPLAY_HEIGHT/4)	//270
 
 
-#define CHAR_WIDTH_S					12
-#define CHAR_WIDTH_L					24
-#define CHAR_HEIGHT						24
+#define CHAR_WIDTH							12
+#define CHAR_HEIGHT							24
 
 //-----------------------------------------------------------------
 // type definitions - struct/enum/etc

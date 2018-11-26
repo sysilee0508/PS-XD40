@@ -797,6 +797,6 @@ void DisplayMode_SplitScreen(eSplitMode_t splitMode)
 {
 	Set_SystemDisplayMode(DISPLAY_MODE_SPLIT);
 	Set_SystemDisplayChannel(CHANNEL_SPLIT);
-        Set_SystemSplitMode(splitMode);
+	Set_SystemSplitMode(splitMode);
 	Display_SplitMode(splitMode);
 }
