@@ -1282,6 +1282,7 @@ const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 	{20, LINE3_OFFSET_Y, menuStr_Display_BorderLine},
 	{20, LINE4_OFFSET_Y, menuStr_Display_SplitMode}
 };
+static BOOL splitModeSelecting = FALSE;
 
 static u8* Get_String_SplitMode(splitMode)
 {
@@ -1331,11 +1332,13 @@ static void DisplayPage_DisplaySplitMode(const u8* pStr)
 
 	Erase_AllMenuScreen();
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+	splitModeSelecting = TRUE;
 
 	DisplayMode_SplitScreen(splitMode);
 
-	position.pos_x = DISPLAY_HALF_WIDTH - strlen(pStr)/2;
+	position.pos_x = (DISPLAY_WIDTH - strlen(pStr))/2;
 	position.pos_y = 100;
+	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
 	OSD_PrintString(position, pStr, strlen(pStr));
 }
 
@@ -1434,6 +1437,24 @@ static void DisplayPage_Entry(void)
 	}
 }
 
+static void DisplayPage_RedrawPage(u8 itemY)
+{
+	u8 index;
+
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+	splitModeSelecting = FALSE;
+	for(index = 0; index < DISPLAY_ITEM_Y_MAX; index++)
+	{
+		Print_StringWithSelectedMarkSize(
+				displayMenu[index].offset_x,
+				displayMenu[index].offset_y,
+				displayMenu[index].str,
+				NULL, 0);
+		DisplayPage_UpdatePageOption(index);
+	}
+	DrawSelectMark(itemY);
+}
+
 static void DisplayPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = DISPLAY_ITEM_Y_RESOLUTION;
@@ -1470,7 +1491,6 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 					case DISPLAY_ITEM_Y_SPLIT_MODE:
 						splitMode = Get_SystemSplitMode();
 						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, 0, inc_dec, &splitMode);
-						//DisplayMode_SplitScreen(splitMode);
 						Set_SystemSplitMode(splitMode);
 						break;
 				}
@@ -1492,11 +1512,19 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
-				DisplayPage_UpdatePageOption(itemY);
+				if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
+				{
+					DisplayPage_RedrawPage(itemY);
+				}
+				else
+				{
+					DisplayPage_UpdatePageOption(itemY);
+				}
 			}
 			else
 			{
 				itemY = DISPLAY_ITEM_Y_RESOLUTION;
+				splitModeSelecting = FALSE;
 				MainMenu_Entry(currentPage);
 			}
 			break;
