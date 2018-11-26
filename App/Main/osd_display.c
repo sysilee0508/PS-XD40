@@ -1,9 +1,8 @@
 #include "common.h"
 #include "osd_string.h"
 
-#define NUM_OF_POSITION					6
-#define MARGIN_X						2
-#define MARGIN_Y						4
+#define MARGIN_X						5
+#define MARGIN_Y						5
 
 #define DATE_TIME_LENGTH				21 // "yyyy-mmm-dd hh:mm:ss "
 #define DATE_LENGTH_4DIGIT				11 // "yyyy-mmm-dd"
@@ -99,12 +98,12 @@ static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_
 	{
 		case DISPLAY_MODE_FULL:
 			position.pos_x = DISPLAY_WIDTH - (length * CHAR_WIDTH) - MARGIN_X;
-			position.pos_y = DISPLAY_HEIGHT - MARGIN_Y;
+			position.pos_y = DISPLAY_HEIGHT - CHAR_HEIGHT - MARGIN_Y;
 			break;
 
 		case DISPLAY_MODE_SPLIT:
 			position.pos_x = indicatorPositionTable_Split[splitMode][channel].pos_x - (length * CHAR_WIDTH) - MARGIN_X;
-			position.pos_y = indicatorPositionTable_Split[splitMode][channel].pos_y - MARGIN_Y;
+			position.pos_y = indicatorPositionTable_Split[splitMode][channel].pos_y - CHAR_HEIGHT -MARGIN_Y;
 			break;
 	}
 	return position;
@@ -570,6 +569,9 @@ void OSD_DisplayChannelName(void)
 				Read_NvItem_ChannelName(channel_name, channel);
 				positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 				OSD_PrintString(positionValue, channel_name, strlen(channel_name));
+
+				positionValue = OSD_IndicatorStringPosition(channel, displayMode, strlen(osdStr_Alarm));
+				OSD_PrintString(positionValue, osdStr_Alarm, strlen(osdStr_Alarm));
 			}
 		}
 	}
