@@ -43,28 +43,28 @@ static const sPosition_t titlePositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_CHANN
 	{{DISPLAY_QUAD_WIDTH,0}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, 0}, {0, 0}, {0, 0}}
 };
 
-static const sPosition_t indicatorPositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_CHANNEL] =
+static const sPosition_t indicatorPositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_CHANNEL] = //right-top
 {
 	//QUAD_A
-	{{DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HEIGHT}},
+	{{DISPLAY_HALF_WIDTH, 0}, {DISPLAY_WIDTH, 0}, {DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}},
 	//Quad_B
-	{{(DISPLAY_WIDTH/3)*2, DISPLAY_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HEIGHT/3}, {DISPLAY_WIDTH, (DISPLAY_HEIGHT/3)*2}, {DISPLAY_WIDTH, DISPLAY_HEIGHT}},
+	{{(DISPLAY_WIDTH/3)*2, 0}, {DISPLAY_WIDTH, 0}, {DISPLAY_WIDTH, (DISPLAY_HEIGHT/3)}, {DISPLAY_WIDTH, (DISPLAY_HEIGHT/3)*2}},
 	//quad_c
-	{{DISPLAY_WIDTH, DISPLAY_HEIGHT}, {DISPLAY_WIDTH/3, DISPLAY_HEIGHT/3}, {DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)*2}, {DISPLAY_WIDTH/3, DISPLAY_HEIGHT}},
+	{{DISPLAY_WIDTH, 0}, {DISPLAY_WIDTH/3, 0}, {DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)}, {DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)*2}},
 	//quad_d
-	{{DISPLAY_WIDTH, (DISPLAY_HEIGHT/3)*2}, {DISPLAY_WIDTH/3, DISPLAY_HEIGHT}, {DISPLAY_WIDTH/3*2, DISPLAY_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HEIGHT}},
+	{{DISPLAY_WIDTH, 0}, {DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)*2}, {DISPLAY_WIDTH/3*2, (DISPLAY_HEIGHT/3)*2}, {DISPLAY_WIDTH, (DISPLAY_HEIGHT/3)*2}},
 	//quad_e
-	{{DISPLAY_WIDTH, DISPLAY_HEIGHT}, {DISPLAY_WIDTH/3, DISPLAY_HEIGHT/3}, {DISPLAY_WIDTH/3*2, DISPLAY_HEIGHT/3}, {DISPLAY_WIDTH, DISPLAY_HEIGHT/3}},
+	{{DISPLAY_WIDTH, DISPLAY_HEIGHT/3}, {DISPLAY_WIDTH/3, 0}, {DISPLAY_WIDTH/3*2, 0}, {DISPLAY_WIDTH, 0}},
 	//3split_a
-	{{DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HEIGHT}, {0, 0}},
+	{{DISPLAY_HALF_WIDTH, 0}, {DISPLAY_WIDTH, 0}, {DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}, {0, 0}},
 	//3split_b
 	{{DISPLAY_WIDTH, DISPLAY_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT}, {0, 0}},
 	//3split_c
-	{{DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HEIGHT}, {0, 0}},
+	{{DISPLAY_WIDTH, 0}, {DISPLAY_HALF_WIDTH, 0}, {DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}, {0, 0}},
 	//3split_d
-	{{DISPLAY_WIDTH, DISPLAY_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH,DISPLAY_HALF_HEIGHT}, {0, 0}},
+	{{DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_HALF_WIDTH, 0}, {DISPLAY_WIDTH,0}, {0, 0}},
 	//split
-	{{DISPLAY_HALF_WIDTH,DISPLAY_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HEIGHT}, {0, 0}, {0, 0}}
+	{{DISPLAY_HALF_WIDTH,0}, {DISPLAY_WIDTH, 0}, {0, 0}, {0, 0}}
 };
 static BOOL requestRefreshScreen = CLEAR;
 
@@ -336,7 +336,7 @@ static void OSD_EraseTimeDate(void)
 	displayingDateTimeLength = 0;
 }
 
-static void OSD_EraseNoVideo(void)
+static void OSD_EraseIndicator(void)
 {
 	eChannel_t channel;
 	sPosition_t position;
@@ -344,19 +344,15 @@ static void OSD_EraseNoVideo(void)
 
 	if(displayMode == DISPLAY_MODE_FULL)
 	{
-		position.pos_x = (DISPLAY_WIDTH - (strlen(osdStr_Space10)*CHAR_WIDTH))/2;
-		position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
+		position = OSD_IndicatorStringPosition(Get_SystemDisplayChannel(), displayMode, strlen(osdStr_Space10));
 		OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
 	}
-	else //if(displayMode == DISPLAY_MODE_QUAD)
+	else
 	{
-		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+		for(channel = CHANNEL1; channel < Get_NumOfDisplayChannels(); channel++)
 		{
-			position.pos_x =
-					tbl_OSD_SPLIT4_POSITION[channel].pos_x - (strlen(osdStr_Space10)*CHAR_WIDTH)/2;
-			position.pos_y =
-					tbl_OSD_SPLIT4_POSITION[channel].pos_y + ((DISPLAY_HEIGHT/2) - CHAR_HEIGHT)/2;
-			OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
+			position = OSD_IndicatorStringPosition(channel, displayMode, strlen(osdStr_Space1));
+			OSD_PrintString(position, osdStr_Space1, strlen(osdStr_Space1));
 		}
 	}
 }
@@ -419,18 +415,12 @@ static void OSD_DisplayIndicator(void)
 {
 	sPosition_t position;
 	eChannel_t channel;
-//	eChannel_t startChannel;
 	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 	eSplitMode_t splitMode = Get_SystemSplitMode();
 	BOOL videoLossDiplayOn;
 	u8* pIndicator;
 
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
-//
-//	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-//	{
-//		pInfoStr[channel] = OSD_GetInfoStr(channel);
-//	}
 
 	//Full
 	if(displayMode == DISPLAY_MODE_FULL)
@@ -462,7 +452,8 @@ static void OSD_DisplayIndicator(void)
 	//Split
 	else
 	{
-		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+//		max_channel = Get_NumOfDisplayChannels();
+		for(channel = CHANNEL1; channel < Get_NumOfDisplayChannels(); channel++)
 		{
 			if((IsVideoLossChannel(channel) == TRUE) && (videoLossDiplayOn == ON))
 			{
@@ -472,11 +463,11 @@ static void OSD_DisplayIndicator(void)
 			{
 				pIndicator = (u8*)osdStr_Alarm;
 			}
-			else if(Get_MotionDetectedStatus(channel))//motion
+			else if(Get_MotionDetectedStatus(channel))
 			{
 				pIndicator = (u8*)osdStr_Motion;
 			}
-			else if(IsScreenFreeze())//freeze
+			else if(IsScreenFreeze())
 			{
 				pIndicator = (u8*)osdStr_Freeze;
 			}
@@ -672,7 +663,7 @@ void OSD_EraseAllText(void)
 		}
 //		OSD_EraseNoVideo();
 		OSD_EraseAuto();
-		//OSD_EraseIndicator();
+		OSD_EraseIndicator();
 	}
 }
 
