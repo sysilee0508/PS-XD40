@@ -1441,8 +1441,26 @@ static void DisplayPage_Entry(void)
 static void DisplayPage_RedrawPage(u8 itemY)
 {
 	u8 index;
+        sPosition_t position;
+        
+        position.pos_x = (DISPLAY_WIDTH - strlen(menuStr_Space8))/2;
+        position.pos_y = 100;
+        
+        OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
 
+        MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
+
+	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+
+	//MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 	splitModeSelecting = FALSE;
 	for(index = 0; index < DISPLAY_ITEM_Y_MAX; index++)
 	{
@@ -1506,7 +1524,15 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 
 		case KEY_ENTER:
 			Toggle(&requestEnterKeyProc);
-			DisplayPage_UpdatePageOption(itemY);
+                        if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
+				{
+					DisplayPage_RedrawPage(itemY);
+				}
+				else
+				{
+					DisplayPage_UpdatePageOption(itemY);
+				}
+			//DisplayPage_UpdatePageOption(itemY);
 			break;
 
 		case KEY_EXIT:
