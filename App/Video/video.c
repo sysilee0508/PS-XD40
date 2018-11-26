@@ -122,17 +122,17 @@ static void MDIN3xx_SetRegInitial(void)
 	MDIN3xx_SetMFCVCFilterCoef(&stVideo, NULL);
 
 	// set aux display ON
-	stVideo.dspFLAG = MDIN_AUX_DISPLAY_ON;
+	stVideo.dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
 
 	// set video path
-	stVideo.srcPATH = PATH_MAIN_A_AUX_A;	// set main is A, aux is A
+	stVideo.srcPATH = PATH_MAIN_A_AUX_M;		// set main is A, aux is main out
 	stVideo.dacPATH = DAC_PATH_MAIN_OUT;	// set main only
 	stVideo.encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
 	// define video format of PORTA-INPUT
-	stVideo.stSRC_a.frmt =  VIDSRC_1920x1080p60;//VIDSRC_1280x720p60; VIDSRC_1280x1024p60
-	stVideo.stSRC_a.mode = MDIN_SRC_RGB444_8;
-	stVideo.stSRC_a.fine = MDIN_FIELDID_INPUT | MDIN_LOW_IS_TOPFLD;
+	stVideo.stSRC_a.frmt =  VIDSRC_1920x1080p60;
+	stVideo.stSRC_a.mode = MDIN_SRC_EMB422_8;
+	stVideo.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
 	stVideo.stSRC_a.offH = 0;	//API v0.31(2012.05.02)
 	stVideo.stSRC_a.offV = 0;	//API v0.31(2012.05.02)
 
@@ -164,6 +164,27 @@ static void MDIN3xx_SetRegInitial(void)
 
 	// define map of frame buffer
 	stVideo.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+	// define video format of AUX-INPUT
+	stVideo.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
+
+	// define video format of AUX-OUTPUT
+	stVideo.stOUT_x.frmt = VIDOUT_720x480i60;
+	stVideo.stOUT_x.mode = MDIN_OUT_MUX656_8;
+	stVideo.stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
+
+	stVideo.stOUT_x.brightness = 128;			// set aux picture factor
+	stVideo.stOUT_x.contrast = 128;
+	stVideo.stOUT_x.saturation = 128;
+	stVideo.stOUT_x.hue = 128;
+
+#if RGB_GAIN_OFFSET_TUNE == 1
+	stVideo.stOUT_x.r_gain = 128;				// set aux gain/offset
+	stVideo.stOUT_x.g_gain = 128;
+	stVideo.stOUT_x.b_gain = 128;
+	stVideo.stOUT_x.r_offset = 128;
+	stVideo.stOUT_x.g_offset = 128;
+	stVideo.stOUT_x.b_offset = 128;
+#endif
 
 	// define video format of video encoder
 	stVideo.encFRMT = VID_VENC_NTSC_M;
@@ -202,6 +223,8 @@ static void MDIN3xx_SetRegInitial(void)
 	PrevOutMainMode = 0xff;	OutMainMode = stVideo.stOUT_m.mode;
 	TempOutMainMode = OutMainMode;	// 28Dec2011
 
+	PrevOutAuxFrmt = 0xff; OutAuxFrmt = stVideo.stOUT_x.frmt;
+	PrevOutAuxMode = 0xff;	OutAuxMode = stVideo.stOUT_x.mode;
 	PrevEncFrmt = 0xff;	EncVideoFrmt = stVideo.encFRMT;
 }
 
@@ -232,7 +255,7 @@ static void SetInVideoPath(BYTE src)
 			stVideo.srcPATH = PATH_MAIN_A_AUX_B;	stVideo.dacPATH = DAC_PATH_MAIN_PIP;  break;
 
 		case VIDEO_DIGITAL_SDI: 
-			stVideo.srcPATH = PATH_MAIN_A_AUX_A;	stVideo.dacPATH = DAC_PATH_MAIN_OUT; break;
+			stVideo.srcPATH = PATH_MAIN_A_AUX_M;	stVideo.dacPATH = DAC_PATH_MAIN_OUT; break;
 		case VIDEO_DIGITAL_SDI2: 
 			stVideo.srcPATH = PATH_MAIN_B_AUX_B;	stVideo.dacPATH = DAC_PATH_MAIN_OUT; break;
 	}
@@ -244,7 +267,7 @@ static BYTE GetSrcMainMode(BYTE src)
 	switch (src) 
 	{
 		case VIDEO_SDI_2HD_POP:		return MDIN_SRC_EMB422_8;	
-		case VIDEO_DIGITAL_SDI:		return MDIN_SRC_RGB444_8;	//by hungry 2012.02.15
+		case VIDEO_DIGITAL_SDI:		return MDIN_SRC_EMB422_8;	//by hungry 2012.02.15
 		case VIDEO_DIGITAL_SDI2:	return MDIN_SRC_RGB444_8;	//by flcl 2013.04.23
 
 		default:					return MDIN_SRC_SEP422_8;
@@ -279,15 +302,9 @@ static BYTE GetSrcAuxFrmt(BYTE src)
 {
 	BYTE frmt = 0xff;
 
-#if 0 //Louis
-	switch (src) 
-	{
-		case VIDEO_SDI_2HD_POP:		frmt = SDIRX_GetVideoSystem(); break;
-	}
-#endif
 	if (frmt == 0xff) frmt = 0x0;	// 02Jan2012
 	
-	return VIDSRC_1920x1080p60;//frmt; Louis temp
+	return VIDSRC_720x480i60; //frmt; 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,12 +518,12 @@ void SetOSDMenuRefresh(void)
 	OSD_ModifyPalette_M((OutMainMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
 	//OSD_ModifyPalette_X((OutAuxMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
 
-	h_rpt = (OutAuxMode==MDIN_OUT_MUX656_8||OutAuxMode==MDIN_OUT_MUX656_10)? ON : OFF;
-	MDINOSD_EnableLayerRepeat(&stLayer[LAYER_INDEX0], h_rpt, OFF);
+	//h_rpt = (OutAuxMode==MDIN_OUT_MUX656_8||OutAuxMode==MDIN_OUT_MUX656_10)? ON : OFF;
+	MDINOSD_EnableLayerRepeat(&stLayer[LAYER_INDEX0], OFF, OFF);
 
 	//if (OnOff==ON) SetSBoxAreaRefresh();				// refresh OSD-Sbox
 	//MDINOSD_EnableSBoxBorder(&stSBOX[0], OnOff);
-	//MDIN3xx_EnableAuxWithMainOSD(&stVideo, OnOff);
+	MDIN3xx_EnableAuxWithMainOSD(&stVideo, ON);
 
 	//DEMO_EnableRectBGBOX((stVideo.dacPATH==DAC_PATH_MAIN_PIP)? ON : OFF);
 
@@ -585,14 +602,7 @@ static void VideoFrameProcess(BYTE src)
 		//DEMO_SetOverScanning(GetMenuStatus(4,5));	// update overscanning
 		//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
 
-		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-
-	#if 0 //Louis
-		if(SDIRX_change_flag)
-		{
-			SDIRX_change_flag = 0;
-		}
-	#endif
+		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
 
 		MDIN3xx_EnableMainDisplay(ON);
 		//if(sys_status.current_split_mode != FULL_9) MDIN3xx_EnableMainDisplay(ON);
@@ -610,14 +620,6 @@ static void VideoFrameProcess(BYTE src)
 		// Do not use aux display.. by kukuri
 		PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
 		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
-
-		//test_stVideo_print();
-	#if 0 //Louis
-		if(SDIRX_change_flag)
-		{
-			SDIRX_change_flag = 0;
-		}
-	#endif
 	}
 }
 

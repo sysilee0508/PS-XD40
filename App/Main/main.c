@@ -162,7 +162,6 @@ void main(void)
 	InitializeMotionDetect();
 
 	InputSelect = VIDEO_DIGITAL_SDI;
-//	InputSelect = VIDEO_SDI_2HD_POP;
 	Set_DisplayMode_Quad();
 
 	UpdateKeyData(KEY_4SPLIT);
@@ -198,21 +197,12 @@ void main(void)
 		// delay for HDMI-Tx register !!
 		MDINDLY_mSec(1);
 
-		if((InputSelect == VIDEO_DIGITAL_SDI) && (sysenv_split_mode != Pre_PIP_mode))
-		{
-			Pre_PIP_mode = sysenv_split_mode;
-			DEMO_SetPIPDisplay(sysenv_split_mode);
-		}
-
-		//vs4210_display_proc();
-
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.
 		VideoHTXCtrlHandler();
 
 		OSD_Display();
 
 		StoreNvDataToStorage();
-//		printf("While end \n");
     }
 }
 
