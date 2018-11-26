@@ -20,9 +20,15 @@ const u8 osdStr_Space9[] = "         ";
 const u8 osdStr_Space10[] = "          ";
 const u8 osdStr_Space12[] = "            ";
 //-----------------------------------------------------------------------------
-const u8 osdStr_Freeze[] = "FREEZE";
 const u8 osdStr_AUTO[] = "AUTO";
-const u8 osdStr_NoVideo[]= "VIDEO LOSS";
+const u8 osdStr_NoVideoFull[]= "VIDEO LOSS";
+const u8 osdStr_NoVideo[] = "L";
+const u8 osdStr_AlarmFull[] = "ALARM";
+const u8 osdStr_Alarm[] = "A";
+const u8 osdStr_MotionFull[] = "MOTION";
+const u8 osdStr_Motion[] = "M";
+const u8 osdStr_FreezeFull[] = "FREEZE";
+const u8 osdStr_Freeze[] = "F";
 //-----------------------------------------------------------------------------
 const u8 osdStr_JAN[] = "JAN";
 const u8 osdStr_FEB[] = "FEB";

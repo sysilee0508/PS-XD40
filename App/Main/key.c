@@ -47,7 +47,7 @@ const static eKeyData_t key_table[] =
 	KEY_FULL_CH3,
 	KEY_FULL_CH4,
 //-------------------------
-	KEY_4SPLIT,
+	KEY_SPLIT,
 	KEY_FREEZE,
 	KEY_AUTO_SEQ,
 };
@@ -405,7 +405,6 @@ void Key_Proc(void)
 	static eKeyData_t previous_keydata = KEY_NONE;
 	eKeyData_t key = GetCurrentKey();
 	BOOL autoSeq_skipNoVideoChannel;
-	eDisplayMode_t displayMode;
 
 	if(IsKeyReady()==TRUE)
 	{
@@ -416,7 +415,6 @@ void Key_Proc(void)
 			key |= KEY_SPECIAL;
 		}
 
-		Read_NvItem_DisplayMode(&displayMode);
 		switch(key)
 		{
 			case KEY_FULL_CH1 : 
@@ -427,25 +425,26 @@ void Key_Proc(void)
 				if((previous_keydata != key) && (screenFreezeOn == CLEAR))
 				{
 					OSD_EraseAllText();
-					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
+					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
-					Set_DisplayMode_FullScreen((eChannel_t)(key - 1));
+					DisplayMode_FullScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
 				}
 				break;
 				
-			case KEY_4SPLIT : 
+			case KEY_SPLIT : 
 				if((previous_keydata != key) && (screenFreezeOn == CLEAR))
 				{
 					OSD_EraseAllText();
-					InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
+					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
-					Set_DisplayMode_Quad();
+					DisplayMode_SplitScreen(Get_SystemSplitMode());
 					OSD_DrawBorderLine();
 				}
 				break;
+
 			case KEY_FREEZE :
-				InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
+				InitializeAutoSeq(AUTO_SEQ_NONE);
 				if(screenFreezeOn == CLEAR)
 				{
 					screenFreezeOn = SET;
@@ -471,7 +470,7 @@ void Key_Proc(void)
 				break;
 
 			case KEY_MENU :
-				InitializeAutoSeq(AUTO_SEQ_NONE);//ChangeAutoSeqOn(CLEAR);
+				InitializeAutoSeq(AUTO_SEQ_NONE);
 				screenFreezeOn = CLEAR;
 				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				Enter_MainMenu();

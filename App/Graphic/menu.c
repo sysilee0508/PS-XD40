@@ -25,7 +25,7 @@
 #define	INCREASE					1
 #define	DECREASE					0
 
-#define CHARACTERS_IN_MENU_LINE		MENU_WIDTH / CHAR_WIDTH_S
+#define CHARACTERS_IN_MENU_LINE		MENU_WIDTH / CHAR_WIDTH
 #define LINES_IN_MENU				MENU_HEIGHT / CHAR_HEIGHT
 
 #define ASCII_SPACE					0x20
@@ -100,7 +100,7 @@ enum
 	CAMERATITLE_ITEM_Y_CH3,
 	CAMERATITLE_ITEM_Y_CH4,
 	CAMERATITLE_ITEM_Y_DISPLAY_ON,
-	CAMERATITLE_ITEM_Y_POSITION,
+//	CAMERATITLE_ITEM_Y_POSITION,
 	CAMERATITLE_ITEM_Y_MAX
 };
 
@@ -121,6 +121,7 @@ enum
 	DISPLAY_ITEM_Y_RESOLUTION,
 	DISPLAY_ITEM_Y_OSD_DISPLAY,
 	DISPLAY_ITEM_Y_BORDER_LINE_DISPLAY,
+	DISPLAY_ITEM_Y_SPLIT_MODE,
 	DISPLAY_ITEM_Y_MAX
 };
 
@@ -327,7 +328,7 @@ static void Print_StringWithSelectedMarkSize(u16 offset_x, u16 offset_y, const u
 	u16 i;
 	sPosition_t position;
 
-	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_S);
+	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 	
 	OSD_PrintString(position, data, strlen(data));
@@ -346,7 +347,7 @@ static void Print_StringWithSelectedMark(u16 offset_x, u16 offset_y, const u8 *d
 	u16 i;
 	sPosition_t position;
 
-	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH_S);
+	position.pos_x = MENU_START_POSITION_X + (offset_x * CHAR_WIDTH);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 
 	OSD_PrintString(position, data, size);
@@ -405,11 +406,11 @@ static void DrawSelectMark(u8 verticalItem)
 	offset_y = LINE1_OFFSET_Y + (2 * (verticalItem-1));
 
 	// erase previous mark
-	position.pos_x = MENU_START_POSITION_X + (previousLocationX * CHAR_WIDTH_S);
+	position.pos_x = MENU_START_POSITION_X + (previousLocationX * CHAR_WIDTH);
 	position.pos_y = MENU_START_POSITION_Y + (previousLocationY * CHAR_HEIGHT);
 	OSD_PrintString(position,menuStr_Space1, strlen(menuStr_Space1));
 	// draw new mark
-	position.pos_x = MENU_START_POSITION_X + (offset_x[currentPage] * CHAR_WIDTH_S);
+	position.pos_x = MENU_START_POSITION_X + (offset_x[currentPage] * CHAR_WIDTH);
 	position.pos_y = MENU_START_POSITION_Y + (offset_y * CHAR_HEIGHT);
 	OSD_PrintString(position, menuStr_ArrowL, strlen(menuStr_ArrowL));
 
@@ -906,6 +907,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 //	Camera Title Menu
 //------------------------------------------------------------------
+/*
 static const u8* pTitlePosition_Str[TITLE_POSITION_MAX] =
 {
 		menuStr_TopLeft,
@@ -916,6 +918,8 @@ static const u8* pTitlePosition_Str[TITLE_POSITION_MAX] =
 		menuStr_BottomRight,
 		menuStr_Center
 };
+*/
+
 const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 {
 		{25, LINE0_OFFSET_Y, menuStr_CamaraTitle_Title},
@@ -923,15 +927,15 @@ const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 		{20, LINE2_OFFSET_Y, menuStr_CameraTitle_Ch2},
 		{20, LINE3_OFFSET_Y, menuStr_CameraTitle_Ch3},
 		{20, LINE4_OFFSET_Y, menuStr_CameraTitle_Ch4},
-		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay},
-		{20, LINE6_OFFSET_Y, menuStr_CameraTitle_Position}
+		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay}
+//		{20, LINE6_OFFSET_Y, menuStr_CameraTitle_Position}
 };
 
 static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 {
 	BOOL titleOn;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];// = {0,};
-	eTitlePosition_t titlePosition;
+	//eTitlePosition_t titlePosition;
 	u8* pChar;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
@@ -965,7 +969,7 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 					cameraTitle[itemY].offset_y,
 					attribute, titleOn);
 			break;
-
+/*
 		case CAMERATITLE_ITEM_Y_POSITION:
 			Read_NvItem_TitlePosition(&titlePosition);
 			Print_StringWithSelectedMarkSize(
@@ -980,6 +984,7 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 					attribute,
 					strlen(pTitlePosition_Str[titlePosition]));
 			break;
+*/
 	}
 
 }
@@ -1007,7 +1012,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	BOOL inc_dec = DECREASE;
 	BOOL titleOn;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
-	eTitlePosition_t titlePosition;
+//	eTitlePosition_t titlePosition;
 	u8* pChar;
 
 	switch(key)
@@ -1034,12 +1039,12 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 						Toggle(&titleOn);
 						Write_NvItem_TitleDispalyOn(titleOn);
 						break;
-
+/*
 					case CAMERATITLE_ITEM_Y_POSITION:
 						Read_NvItem_TitlePosition(&titlePosition);
 						IncreaseDecreaseCount(TITLE_POSITION_MAX, 0, inc_dec, &titlePosition);
 						Write_NvItem_TitlePosition(titlePosition);
-						break;
+						break;*/
 				}
 				CameraTitlePage_UpdatePage(itemY, pos_x);
 			}
@@ -1274,14 +1279,79 @@ const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 	{24, LINE0_OFFSET_Y, menuStr_Display_Title},
 	{20, LINE1_OFFSET_Y, menuStr_Display_Resolution},
 	{20, LINE2_OFFSET_Y, menuStr_Display_OsdDisplay},
-	{20, LINE3_OFFSET_Y, menuStr_Display_BorderLine}
+	{20, LINE3_OFFSET_Y, menuStr_Display_BorderLine},
+	{20, LINE4_OFFSET_Y, menuStr_Display_SplitMode}
 };
+static BOOL splitModeSelecting = FALSE;
+
+static u8* Get_String_SplitMode(splitMode)
+{
+	u8* pStr;
+
+	switch(splitMode)
+	{
+		case DISPLAY_MODE_QUAD_A:
+			pStr = (u8*)menuStr_SplitMode_QuadA;
+			break;
+		case DISPLAY_MODE_QUAD_B:
+			pStr = (u8*)menuStr_SplitMode_QuadB;
+			break;
+		case DISPLAY_MODE_QUAD_C:
+			pStr = (u8*)menuStr_SplitMode_QuadC;
+			break;
+		case DISPLAY_MODE_QUAD_D:
+			pStr = (u8*)menuStr_SplitMode_QuadD;
+			break;
+		case DISPLAY_MODE_QUAD_E:
+			pStr = (u8*)menuStr_SplitMode_QuadE;
+			break;
+		case DISPLAY_MODE_3SPLIT_A:
+			pStr = (u8*)menuStr_SplitMode_3SplitA;
+			break;
+		case DISPLAY_MODE_3SPLIT_B:
+			pStr = (u8*)menuStr_SplitMode_3SplitB;
+			break;
+		case DISPLAY_MODE_3SPLIT_C:
+			pStr = (u8*)menuStr_SplitMode_3SplitC;
+			break;
+		case DISPLAY_MODE_3SPLIT_D:
+			pStr = (u8*)menuStr_SplitMode_3SplitD;
+			break;
+		case DISPLAY_MODE_2SPLIT:
+			pStr = (u8*)menuStr_SplitMode_2Split;
+			break;
+	}
+
+	return pStr;
+}
+
+static void DisplayPage_DisplaySplitMode(const u8* pStr)
+{
+	eSplitMode_t splitMode = Get_SystemSplitMode();
+	sPosition_t position;
+
+	Erase_AllMenuScreen();
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+	splitModeSelecting = TRUE;
+
+	DisplayMode_SplitScreen(splitMode);
+       OSD_DrawBorderLine();
+
+	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space8)*CHAR_WIDTH))/2;
+	position.pos_y = 100;
+	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
+	position.pos_x = (DISPLAY_WIDTH - (strlen(pStr)*CHAR_WIDTH))/2;
+	position.pos_y = 100;
+	OSD_PrintString(position, pStr, strlen(pStr));
+}
 
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
 	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
+	eSplitMode_t splitMode;
+	u8* pStr_SplitMode;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
 	switch(itemY)
@@ -1324,6 +1394,29 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 					displayMenu[itemY].offset_y,
 					attribute, borderLineOn);
 			break;
+
+		case DISPLAY_ITEM_Y_SPLIT_MODE:
+			pStr_SplitMode = Get_String_SplitMode(Get_SystemSplitMode());
+			if(requestEnterKeyProc == CLEAR)
+			{
+				Print_StringWithSelectedMark(
+						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+						displayMenu[itemY].offset_y,
+						menuStr_Space8,
+						NULL,
+						strlen(menuStr_Space8));
+				Print_StringWithSelectedMark(
+						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+						displayMenu[itemY].offset_y,
+						(const u8*)pStr_SplitMode,
+						attribute,
+						strlen(pStr_SplitMode));
+			}
+			else
+			{
+				DisplayPage_DisplaySplitMode((const u8*)pStr_SplitMode);
+			}
+			break;
 	}
 }
 
@@ -1347,6 +1440,40 @@ static void DisplayPage_Entry(void)
 	}
 }
 
+static void DisplayPage_RedrawPage(u8 itemY)
+{
+	u8 index;
+	sPosition_t position;
+
+	splitModeSelecting = FALSE;
+
+	position.pos_x = (DISPLAY_WIDTH - strlen(menuStr_Space8))/2;
+	position.pos_y = 100;
+	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
+
+	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
+	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+
+	for(index = 0; index < DISPLAY_ITEM_Y_MAX; index++)
+	{
+		Print_StringWithSelectedMarkSize(
+				displayMenu[index].offset_x,
+				displayMenu[index].offset_y,
+				displayMenu[index].str,
+				NULL, 0);
+		DisplayPage_UpdatePageOption(index);
+	}
+	DrawSelectMark(itemY);
+}
+
 static void DisplayPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = DISPLAY_ITEM_Y_RESOLUTION;
@@ -1354,6 +1481,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
+	eSplitMode_t splitMode;
 
 	switch(key)
 	{
@@ -1379,30 +1507,51 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						Toggle(&borderLineOn);
 						Write_NvItem_BorderLineDisplay(borderLineOn);
 						break;
+					case DISPLAY_ITEM_Y_SPLIT_MODE:
+						splitMode = Get_SystemSplitMode();
+						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, 0, inc_dec, &splitMode);
+						Set_SystemSplitMode(splitMode);
+						break;
 				}
 				DisplayPage_UpdatePageOption(itemY);
 			}
 			else
 			{
-				IncreaseDecreaseCount(3, 1, inc_dec, &itemY);
+				IncreaseDecreaseCount(DISPLAY_ITEM_Y_MAX - 1, 1, inc_dec, &itemY);
 				DrawSelectMark(itemY);
 			}
 			break;
 
 		case KEY_ENTER:
 			Toggle(&requestEnterKeyProc);
-			DisplayPage_UpdatePageOption(itemY);
+                        if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
+				{
+					DisplayPage_RedrawPage(itemY);
+				}
+				else
+				{
+					DisplayPage_UpdatePageOption(itemY);
+				}
+			//DisplayPage_UpdatePageOption(itemY);
 			break;
 
 		case KEY_EXIT:
 			if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
-				DisplayPage_UpdatePageOption(itemY);
+				if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
+				{
+					DisplayPage_RedrawPage(itemY);
+				}
+				else
+				{
+					DisplayPage_UpdatePageOption(itemY);
+				}
 			}
 			else
 			{
 				itemY = DISPLAY_ITEM_Y_RESOLUTION;
+				splitModeSelecting = FALSE;
 				MainMenu_Entry(currentPage);
 			}
 			break;
@@ -1810,7 +1959,7 @@ static void MotionDetectionPage_DrawCursor(u8 offset_x, u8 offset_y, BOOL active
 	const u8 cursorData = SELECTED_MARK;
 	const u8 nullData = ASCII_SPACE;
 
-	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH)/2 - 1;
 	position.pos_y = (offset_y * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1) + CHAR_HEIGHT;
 	if(active == TRUE)
 	{
@@ -1826,7 +1975,7 @@ static void MotionDetectionPage_DrawBlockMark(u8 offset_x, u8 offset_y, BOOL act
 {
 	sPosition_t position;
 
-	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+	position.pos_x = (offset_x * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH)/2 - 1;
 	position.pos_y = (offset_y * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1);
 	if(active == TRUE)
 	{
@@ -1847,7 +1996,7 @@ static void MotionDetectionPage_EraseAllBlockMark(void)
 	{
 		for(blockX = 0; blockX < COLUMMS_OF_BLOCKS; blockX++)
 		{
-			position.pos_x = (blockX * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH_S)/2 - 1;
+			position.pos_x = (blockX * BLOCK_WIDTH) + (BLOCK_WIDTH - CHAR_WIDTH)/2 - 1;
 			position.pos_y = (blockY * BLOCK_HEIGHT) + ((BLOCK_HEIGHT - CHAR_HEIGHT)/2 - 1);
 			OSD_PrintString(position, menuStr_Space1, strlen(menuStr_Space1));
 		}
@@ -1864,7 +2013,7 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 	// Clear screen
 	Erase_AllMenuScreen();
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-	Set_DisplayMode_FullScreen(channel);
+	DisplayMode_FullScreen(channel);
 
 	MotionDetectionPage_DrawCursor(0, 0, TRUE);
 	Read_NvItem_MotionBlock(blocks, channel);

@@ -50,6 +50,17 @@ const u8 menuStr_Show[] = "SHOW(OFF)";
 const u8 menuStr_Resolution1920X1080_60P[] = "1920 X 1080 60P";
 const u8 menuStr_Resolution1920X1080_50P[] = "1920 X 1080 50P";
 
+const u8 menuStr_SplitMode_QuadA[] = "QUAD-A";
+const u8 menuStr_SplitMode_QuadB[] = "QUAD-B";
+const u8 menuStr_SplitMode_QuadC[] = "QUAD-C";
+const u8 menuStr_SplitMode_QuadD[] = "QUAD-D";
+const u8 menuStr_SplitMode_QuadE[] = "QUAD-E";
+const u8 menuStr_SplitMode_3SplitA[] = "3SPLIT-A";
+const u8 menuStr_SplitMode_3SplitB[] = "3SPLIT-B";
+const u8 menuStr_SplitMode_3SplitC[] = "3SPLIT-C";
+const u8 menuStr_SplitMode_3SplitD[] = "3SPLIT-D";
+const u8 menuStr_SplitMode_2Split[] = "2SPLIT";
+
 const u8 menuStr_Alarm[] =   "ALARM";
 const u8 menuStr_Remocon[] = "REMOTE";
 
@@ -106,6 +117,7 @@ const u8 menuStr_Display_Title[] =      "-- DISPLAY OPTION --";
 const u8 menuStr_Display_Resolution[] = "1. RESOLUTION : ";
 const u8 menuStr_Display_OsdDisplay[] = "2. OSD DISPLAY : ";
 const u8 menuStr_Display_BorderLine[] = "3. BORDER LINE DISPLAY : ";
+const u8 menuStr_Display_SplitMode[] = "4. SPLIT MODE : ";
 
 // Alarm
 const u8 menuStr_Alarm_Title[] =               "-- ALARM / REMOTE OPTION --";

@@ -21,10 +21,8 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_YEAR_FORMAT, 				sizeof(uint8_t),							CLEAR},
 		{NV_ITEM_TIME_ON,					sizeof(BOOL),								CLEAR},
 		{NV_ITEM_DATE_ON,					sizeof(BOOL),								CLEAR},
-//		{NV_ITEM_TIME_POSITION,				sizeof(eTitlePosition_t),					CLEAR},
 		{NV_ITEM_CHANNEL_NAME,				(NUM_OF_CHANNEL * CHANNEL_NEME_LENGTH_MAX),	CLEAR},
 		{NV_ITEM_TITLE_DISPLAY_ON,			sizeof(BOOL),								CLEAR},
-		{NV_ITEM_TITLE_POSITION,			sizeof(eTitlePosition_t),					CLEAR},
 		{NV_ITEM_AUTO_SEQ_TIME,				NUM_OF_CHANNEL,								CLEAR},
 		{NV_ITEM_AUTO_SEQ_LOSS_SKIP,		sizeof(BOOL),								CLEAR},
 		{NV_ITEM_OUTPUT_RESOLUTION,			sizeof(eResolution_t),						CLEAR},
@@ -40,8 +38,9 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_ALARM_REMOCON_SELECT,		sizeof(BOOL),								CLEAR},
 		{NV_ITEM_MOTION_DETECT_ON,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_MOTION_SENSITIVITY,		sizeof(uint8_t),							CLEAR},
+		{NV_ITEM_MOTION_DETECT_BLOCK,       sizeof(uint16_t)*NUM_OF_CHANNEL*ROWS_OF_BLOCKS, CLEAR},
 		{NV_ITEM_SERIAL_BAUDRATE,			sizeof(eBaudRate_t),						CLEAR},
-		{NV_ITEM_DISPLAY_MODE,				sizeof(eDisplayMode_t),						CLEAR},
+		{NV_ITEM_SPLIT_MODE,				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_DISPLAY_CHANNEL,			sizeof(eChannel_t),							CLEAR},
 		{NV_ITEM_END_CHECK,					sizeof(uint32_t),							CLEAR}
 };
@@ -122,7 +121,6 @@ static void LoadDefaultNvData(void)
 	nv_data.data.yearFormat = 1; //4 // 4 digit
 	nv_data.data.timeDisplayOn = ON;
 	nv_data.data.dateDisplayOn = ON;       
-//	nv_data.data.timeDisplayPosition = DISPLAY_POSITION_MIDDLE_BOTTOM;
 	CreateDefaultChannelTitle();
 	nv_data.data.titleDisplayOn = ON;
 	for(index = CHANNEL1; index < NUM_OF_CHANNEL; index++)
@@ -132,7 +130,7 @@ static void LoadDefaultNvData(void)
 	nv_data.data.autoSeqLossSkip = ON;
 	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
 	nv_data.data.osdOn = ON;
-	nv_data.data.titlePosition = TITLE_POSITION_4SPILIT_CENTER;
+//	nv_data.data.titlePosition = TITLE_POSITION_4SPILIT_CENTER;
 	nv_data.data.borderLineOn = ON;
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
@@ -158,8 +156,8 @@ static void LoadDefaultNvData(void)
 	nv_data.data.motionSensitivity = 49;
 	memset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
 
-	nv_data.data.displayMode = DISPLAY_MODE_QUAD;
-	nv_data.data.currentChannel = (eChannel_t)CHANNEL_QUAD;
+	nv_data.data.splitMode = DISPLAY_MODE_QUAD_A;
+	nv_data.data.currentChannel = (eChannel_t)CHANNEL_SPLIT;
 
 	// set anyone of nv items dirty in order to write nv data to flash
 	nvInfo[NV_ITEM_END_CHECK].dirty = SET;
@@ -278,14 +276,14 @@ void Read_NvItem_FwVersion(sVersion_t* pData)
        pData->minor = nv_data.data.fwVersion.minor;
 }
 
-void Read_NvItem_DisplayMode(eDisplayMode_t* pData)
+void Read_NvItem_SplitMode(eSplitMode_t* pData)
 {
-	*pData = nv_data.data.displayMode;
+	*pData = nv_data.data.splitMode;
 }
-void Write_NvItem_DisplayMode(eDisplayMode_t data)
+void Write_NvItem_SplitMode(eSplitMode_t data)
 {
-	nv_data.data.displayMode = data;
-	nvInfo[NV_ITEM_DISPLAY_MODE].dirty = SET;
+	nv_data.data.splitMode = data;
+	nvInfo[NV_ITEM_SPLIT_MODE].dirty = SET;
 }
 
 void Read_NvItem_DisplayChannel(eChannel_t* pData)
@@ -361,18 +359,18 @@ void Write_NvItem_OsdOn(BOOL data)
 	nvInfo[NV_ITEM_OSD_DISPLAY].dirty = SET;
 }
 
-void Read_NvItem_TitlePosition(eTitlePosition_t *pData)
-{
-	*pData = nv_data.data.titlePosition;
-}
-void Write_NvItem_TitlePosition(eTitlePosition_t data)
-{
-	if(data < TITLE_POSITION_MAX)
-	{
-		nv_data.data.titlePosition = data;
-		nvInfo[NV_ITEM_TITLE_POSITION].dirty = SET;
-	}
-}
+//void Read_NvItem_TitlePosition(eTitlePosition_t *pData)
+//{
+//	*pData = nv_data.data.titlePosition;
+//}
+//void Write_NvItem_TitlePosition(eTitlePosition_t data)
+//{
+//	if(data < TITLE_POSITION_MAX)
+//	{
+//		nv_data.data.titlePosition = data;
+//		nvInfo[NV_ITEM_TITLE_POSITION].dirty = SET;
+//	}
+//}
 
 void Read_NvItem_TimeDisplayOn(BOOL* pData)
 {
@@ -393,19 +391,6 @@ void Write_NvItem_DateDisplayOn(BOOL data)
 	nv_data.data.dateDisplayOn = data;
 	nvInfo[NV_ITEM_DATE_ON].dirty = SET;
 }
-
-//void Read_NvItem_TimePosition(eTimePosition_t *pData)
-//{
-//	*pData = nv_data.data.timeDisplayPosition;
-//}
-//void Write_NvItem_TimePosition(eTimePosition_t data)
-//{
-//	if(data < TIME_POSITION_MAX)
-//	{
-//		nv_data.data.timeDisplayPosition = data;
-//		nvInfo[NV_ITEM_TIME_POSITION].dirty = SET;
-//	}
-//}
 
 void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
 {

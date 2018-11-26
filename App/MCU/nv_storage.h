@@ -12,7 +12,7 @@
 #define FLASH_END_ADDR					0x080FFFFF
 
 #define FLASH_ADDRESS_PAGE(x)			x * FLASH_PAGE_SIZE + FLASH_START_ADDR
-#define	NV_STORAGE_START_ADDR			FLASH_ADDRESS_PAGE(128)//0x080400000
+#define	NV_STORAGE_START_ADDR			FLASH_ADDRESS_PAGE(150)//0x08080000
 
 #define NVSTORAGE_START_CHECK			0xA5A5A5A5
 #define NVSTORAGE_END_CHECK				0x5A5A5A5A
@@ -43,10 +43,8 @@ typedef enum
 	NV_ITEM_YEAR_FORMAT,
 	NV_ITEM_TIME_ON,
 	NV_ITEM_DATE_ON,
-//	NV_ITEM_TIME_POSITION,
 	NV_ITEM_CHANNEL_NAME,
 	NV_ITEM_TITLE_DISPLAY_ON,
-	NV_ITEM_TITLE_POSITION,
 	NV_ITEM_AUTO_SEQ_TIME,
 	NV_ITEM_AUTO_SEQ_LOSS_SKIP,
 	NV_ITEM_OUTPUT_RESOLUTION,
@@ -66,7 +64,7 @@ typedef enum
 	NV_ITEM_SERIAL_BAUDRATE,
 //-- system data ---------------------------------------------------------------
 //	If you want to store any system data (item) in NV memory, it comes here
-	NV_ITEM_DISPLAY_MODE,
+	NV_ITEM_SPLIT_MODE,
 	NV_ITEM_DISPLAY_CHANNEL,
 //	NV_ITEM_INPUT_VIDEO_FORMAT,
 //------------------------------------------------------------------------------
@@ -80,25 +78,17 @@ typedef struct
 	uint8_t minor;
 } sVersion_t;
 
-typedef enum
-{
-	TITLE_POSITION_TOP_LEFT,
-	TITLE_POSITION_TOP_CENTER,
-	TITLE_POSITION_TOP_RIGHT,
-	TITLE_POSITION_BOTTOM_LEFT,
-	TITLE_POSITION_BOTTOM_CENTER,
-	TITLE_POSITION_BOTTOM_RIGHT,
-	TITLE_POSITION_4SPILIT_CENTER,//CH1&CH2 --> center_bottom  / CH3&CH4 --> center_top
-	TITLE_POSITION_MAX
-} eTitlePosition_t;
-
 //typedef enum
 //{
-//	TIME_POSITION_LEFT,
-//	TIME_POSITION_CENTER,
-//	TIME_POSITION_RIGHT,
-//	TIME_POSITION_MAX
-//} eTimePosition_t;
+//	TITLE_POSITION_TOP_LEFT,
+//	TITLE_POSITION_TOP_CENTER,
+//	TITLE_POSITION_TOP_RIGHT,
+//	TITLE_POSITION_BOTTOM_LEFT,
+//	TITLE_POSITION_BOTTOM_CENTER,
+//	TITLE_POSITION_BOTTOM_RIGHT,
+//	TITLE_POSITION_4SPILIT_CENTER,//CH1&CH2 --> center_bottom  / CH3&CH4 --> center_top
+//	TITLE_POSITION_MAX
+//} eTitlePosition_t;
 
 typedef enum
 {
@@ -127,13 +117,6 @@ typedef enum
 	TIME_UNIT_YEAR,
 	TIME_UNIT_MAX
 } eTimeUnit_t;
-
-typedef enum
-{
-	DISPLAY_MODE_FULL_SCREEN,	// full screen mode for any channel
-	DISPLAY_MODE_QUAD,		// 4 split screen
-	DISPLAY_MODE_MAX
-} eDisplayMode_t;
 
 typedef enum
 {
@@ -183,10 +166,8 @@ typedef struct
 	uint8_t					yearFormat;
 	BOOL			 		timeDisplayOn;
 	BOOL					dateDisplayOn;
-//	eTimePosition_t			timeDisplayPosition;
 	uint8_t 				channelName[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX];
 	BOOL 					titleDisplayOn;
-	eTitlePosition_t 		titlePosition;
 	uint8_t					autoSeqTime[NUM_OF_CHANNEL];
 	BOOL					autoSeqLossSkip;
 	eResolution_t 			outputResolution;
@@ -205,7 +186,7 @@ typedef struct
 	uint16_t				motionBlocks[NUM_OF_CHANNEL][ROWS_OF_BLOCKS];
 	eBaudRate_t 			baudrate;
 
-	eDisplayMode_t			displayMode;
+	eSplitMode_t			splitMode;
 	eChannel_t				currentChannel;
 
 	uint32_t				storageEndCheck;
@@ -233,8 +214,8 @@ extern BOOL	ReadNvItem(eNvItems_t item, void * pData, size_t size);
 extern BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size);
 
 extern void Read_NvItem_FwVersion(sVersion_t* pData);
-extern void Read_NvItem_DisplayMode(eDisplayMode_t* pData);
-extern void Write_NvItem_DisplayMode(eDisplayMode_t data);
+extern void Read_NvItem_SplitMode(eSplitMode_t* pData);
+extern void Write_NvItem_SplitMode(eSplitMode_t data);
 extern void Read_NvItem_DisplayChannel(eChannel_t* pData);
 extern void Write_NvItem_DisplayChannel(eChannel_t data);
 extern void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData);
@@ -249,8 +230,8 @@ extern void Read_NvItem_OsdOn(BOOL* pData);
 extern void Write_NvItem_OsdOn(BOOL data);
 extern void Read_NvItem_TitleDispalyOn(BOOL *pData);
 extern void Write_NvItem_TitleDispalyOn(BOOL data);
-extern void Read_NvItem_TitlePosition(eTitlePosition_t *pData);
-extern void Write_NvItem_TitlePosition(eTitlePosition_t data);
+//extern void Read_NvItem_TitlePosition(eTitlePosition_t *pData);
+//extern void Write_NvItem_TitlePosition(eTitlePosition_t data);
 extern void Read_NvItem_TimeDisplayOn(BOOL* pData);
 extern void Write_NvItem_TimeDisplayOn(BOOL data);
 extern void Read_NvItem_DateDisplayOn(BOOL* pData);

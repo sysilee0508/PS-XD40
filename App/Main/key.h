@@ -45,7 +45,7 @@ typedef enum
 	KEY_FULL_CH2,
 	KEY_FULL_CH3,
 	KEY_FULL_CH4,
-	KEY_4SPLIT			= 0x15,
+	KEY_SPLIT			= 0x15,
 	KEY_FREEZE			= 0x19,
 	KEY_AUTO_SEQ		= 0x1A,
 //----Function (Virtual) Keys-----------------------
@@ -55,7 +55,7 @@ typedef enum
 	KEY_UP				= KEY_FULL_CH2 | KEY_SPECIAL,
 	KEY_DOWN			= KEY_FULL_CH3 | KEY_SPECIAL,
 	KEY_RIGHT			= KEY_FULL_CH4 | KEY_SPECIAL,
-	KEY_ENTER			= KEY_4SPLIT | KEY_SPECIAL,
+	KEY_ENTER			= KEY_SPLIT | KEY_SPECIAL,
 	KEY_EXIT			= KEY_FREEZE | KEY_SPECIAL,
 //----Long Keys--------------------------------------
 	KEY_FREEZE_LONG		= KEY_FREEZE | KEY_LONG,	//0x99

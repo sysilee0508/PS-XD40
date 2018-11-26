@@ -23,7 +23,7 @@
 //=============================================================================
 static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
-static eChannel_t lastAlarmChannel = CHANNEL_QUAD;
+static eChannel_t lastAlarmChannel = CHANNEL_SPLIT;
 
 static u8 parallelKeyDebounceCount = 0;
 
@@ -49,7 +49,7 @@ static sVirtualKeys_t virtual_key_table[] =
 	{KEY_FULL_CH2,		VIRTUAL_KEY_CH2},
 	{KEY_FULL_CH3,		VIRTUAL_KEY_CH3},
 	{KEY_FULL_CH4,		VIRTUAL_KEY_CH4},
-	{KEY_4SPLIT,		VIRTUAL_KEY_4SPLIT},
+	{KEY_SPLIT,			VIRTUAL_KEY_SPLIT},
 	{KEY_FREEZE,		VIRTUAL_KEY_FREEZE},
 	{KEY_AUTO_SEQ,		VIRTUAL_KEY_AUTO_SEQ},
 	{KEY_MENU,			VIRTUAL_KEY_MENU}
@@ -141,7 +141,7 @@ void CheckAlarm(void)
 				if(alarmInfo[channel].alarm_status == ALARM_CLEAR)
 				{
 					alarmInfo[channel].alarm_status = ALARM_SET;
-					alarmInfo[channel].check_count = 0;
+					//alarmInfo[channel].check_count = 0;
 					//buzzer & alarm output
 					StartStopAlarm(ALARM_START);
 					lastAlarmChannel = (eChannel_t)channel;
@@ -164,7 +164,7 @@ static void ClearAllAlarm(void)
 		alarmInfo[channel].alarm_status = ALARM_CLEAR;
 		alarmInfo[channel].check_count = 0;
 	}
-	lastAlarmChannel = CHANNEL_QUAD;
+	lastAlarmChannel = CHANNEL_SPLIT;
 
 	if(GetCurrentAutoSeq() == AUTO_SEQ_ALARM)
 	{

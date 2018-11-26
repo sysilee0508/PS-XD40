@@ -30,6 +30,7 @@ extern BYTE Get_MotionDetect_Sensitivity(void);
 extern void Set_MotionDetect_Sensitivity(BYTE value);
 extern void Set_MotionDetect_ActivatedArea(eChannel_t channel);
 extern void MotionDetectCheck(void);
+extern BOOL Get_MotionDetectedStatus(eChannel_t channel);
 extern BYTE GetMotionBuzzerCount(void);
 extern void DecreaseMotionBuzzerCount(void);
 #endif
