@@ -43,28 +43,37 @@ static const sPosition_t titlePositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_CHANN
 	{{DISPLAY_QUAD_WIDTH,0}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, 0}, {0, 0}, {0, 0}}
 };
 
-static const sPosition_t indicatorPositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_CHANNEL] = //right-top
+static const sPosition_t indicatorPositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_CHANNEL] =
 {
 	//QUAD_A
-	{{DISPLAY_HALF_WIDTH, 0}, {DISPLAY_WIDTH, 0}, {DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}},
+	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X , DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}, {DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT+MARGIN_Y}, {DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT+MARGIN_Y}},
 	//Quad_B
-	{{(DISPLAY_WIDTH/3)*2, 0}, {DISPLAY_WIDTH, 0}, {DISPLAY_WIDTH, (DISPLAY_HEIGHT/3)}, {DISPLAY_WIDTH, (DISPLAY_HEIGHT/3)*2}},
+	{{(DISPLAY_WIDTH/3)*2-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {(DISPLAY_WIDTH/3)*2+MARGIN_X, (DISPLAY_HEIGHT/3)-CHAR_HEIGHT-MARGIN_Y},
+			{(DISPLAY_WIDTH/3)*2+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {(DISPLAY_WIDTH/3)*2+MARGIN_X, (DISPLAY_HEIGHT/3)*2+MARGIN_Y}},
 	//quad_c
-	{{DISPLAY_WIDTH, 0}, {DISPLAY_WIDTH/3, 0}, {DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)}, {DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)*2}},
+	{{(DISPLAY_WIDTH/3)+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {DISPLAY_WIDTH/3-CHAR_WIDTH-MARGIN_X, (DISPLAY_HEIGHT/3)-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_WIDTH/3-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {DISPLAY_WIDTH/3-CHAR_WIDTH-MARGIN_X, (DISPLAY_HEIGHT/3)*2+MARGIN_Y}},
 	//quad_d
-	{{DISPLAY_WIDTH, 0}, {DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)*2}, {DISPLAY_WIDTH/3*2, (DISPLAY_HEIGHT/3)*2}, {DISPLAY_WIDTH, (DISPLAY_HEIGHT/3)*2}},
+	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH/2, (DISPLAY_HEIGHT/3)*2-CHAR_HEIGHT-MARGIN_Y}, {DISPLAY_WIDTH/3-CHAR_WIDTH-MARGIN_X, (DISPLAY_HEIGHT/3)*2+MARGIN_Y},
+			{DISPLAY_HALF_WIDTH-CHAR_WIDTH/2, (DISPLAY_HEIGHT/3)*2+MARGIN_Y}, {(DISPLAY_WIDTH/3)*2+MARGIN_X, (DISPLAY_HEIGHT/3)*2+MARGIN_Y}},
 	//quad_e
-	{{DISPLAY_WIDTH, DISPLAY_HEIGHT/3}, {DISPLAY_WIDTH/3, 0}, {DISPLAY_WIDTH/3*2, 0}, {DISPLAY_WIDTH, 0}},
+	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH/2, DISPLAY_HEIGHT/3+MARGIN_Y}, {DISPLAY_WIDTH/3-CHAR_WIDTH-MARGIN_X, (DISPLAY_HEIGHT/3)-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_HALF_WIDTH-CHAR_WIDTH/2, (DISPLAY_HEIGHT/3)-CHAR_HEIGHT-MARGIN_Y}, {(DISPLAY_WIDTH/3)*2+MARGIN_X, (DISPLAY_HEIGHT/3)-CHAR_HEIGHT-MARGIN_Y}},
 	//3split_a
-	{{DISPLAY_HALF_WIDTH, 0}, {DISPLAY_WIDTH, 0}, {DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}, {0, 0}},
+	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT+MARGIN_Y}, {0, 0}},
 	//3split_b
-	{{DISPLAY_WIDTH, DISPLAY_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT}, {0, 0}},
+	{{DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT+MARGIN_Y}, {0, 0}},
 	//3split_c
-	{{DISPLAY_WIDTH, 0}, {DISPLAY_HALF_WIDTH, 0}, {DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}, {0, 0}},
+	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH/2, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}, {DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT+MARGIN_Y}, {0, 0}},
 	//3split_d
-	{{DISPLAY_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_HALF_WIDTH, 0}, {DISPLAY_WIDTH,0}, {0, 0}},
+	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH/2, DISPLAY_HALF_HEIGHT+MARGIN_Y}, {DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}, {0, 0}},
 	//split
-	{{DISPLAY_HALF_WIDTH,0}, {DISPLAY_WIDTH, 0}, {0, 0}, {0, 0}}
+	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {0, 0}, {0, 0}}
 };
 static BOOL requestRefreshScreen = CLEAR;
 
@@ -102,8 +111,8 @@ static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_
 			break;
 
 		case DISPLAY_MODE_SPLIT:
-			position.pos_x = indicatorPositionTable_Split[splitMode][channel].pos_x - (length * CHAR_WIDTH) - MARGIN_X;
-			position.pos_y = indicatorPositionTable_Split[splitMode][channel].pos_y + MARGIN_Y;
+			position.pos_x = indicatorPositionTable_Split[splitMode][channel].pos_x;// - (length * CHAR_WIDTH) - MARGIN_X;
+			position.pos_y = indicatorPositionTable_Split[splitMode][channel].pos_y;// + MARGIN_Y;
 			break;
 	}
 	return position;
@@ -269,27 +278,6 @@ static sPosition_t OSD_GetAutoPosition(u8 strLength)
 	return position;
 }
 
-static u8* OSD_GetInfoStr(eChannel_t channel) //freeze, alarm, motion, loss
-{
-	BOOL videoLossDiplayOn;
-	u8* pInfoStr = (u8*)osdStr_Space10;
-
-	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
-
-	// check video loss only if video loss display is on
-	if((videoLossDiplayOn == ON) & ((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET)))
-	{
-		SetVideoLossEvent(CLEAR);
-		if(IsVideoLossChannel(channel) == TRUE)
-		{
-			pInfoStr = (u8*)osdStr_NoVideo;
-		}
-	}
-
-	//if()
-
-	return pInfoStr;
-}
 //-----------------------------------------------------------------------------
 // Erase
 //-----------------------------------------------------------------------------
@@ -422,8 +410,7 @@ static void OSD_DisplayIndicator(void)
 
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
 
-	//Full
-	if(displayMode == DISPLAY_MODE_FULL)
+	if(displayMode == DISPLAY_MODE_FULL)//Full
 	{
 		channel = Get_SystemDisplayChannel();
 		if((IsVideoLossChannel(channel) == TRUE) && (videoLossDiplayOn == ON))
@@ -449,10 +436,8 @@ static void OSD_DisplayIndicator(void)
 		position = OSD_IndicatorStringPosition(channel, DISPLAY_MODE_FULL, strlen((const u8*)pIndicator));
 		OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
 	}
-	//Split
-	else
+	else//Split
 	{
-//		max_channel = Get_NumOfDisplayChannels();
 		for(channel = CHANNEL1; channel < Get_NumOfDisplayChannels(); channel++)
 		{
 			if((IsVideoLossChannel(channel) == TRUE) && (videoLossDiplayOn == ON))

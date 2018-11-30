@@ -424,6 +424,8 @@ void Key_Proc(void)
 				// If key is changed...
 				if((previous_keydata != key) && (screenFreezeOn == CLEAR))
 				{
+					screenFreezeOn = CLEAR;
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
@@ -435,6 +437,8 @@ void Key_Proc(void)
 			case KEY_SPLIT : 
 				if((previous_keydata != key) && (screenFreezeOn == CLEAR))
 				{
+					screenFreezeOn = CLEAR;
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
