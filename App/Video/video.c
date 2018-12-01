@@ -11,13 +11,6 @@
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-
-// default value for 4CH-SBOX area
-static ROMDATA WORD def4CHSBoxWND[][4]		= {
-	{   0,    0,  719,  479},	// NTSC
-	{   0,    0,  719,  575},	// PAL
-};
-
 // default value for AUX filter
 static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
   {	{0x00aa, 0x0047, 0x03e4, 0x0000, 0x0000},	// HY - 1920x1080 to 1280x1024
@@ -379,27 +372,16 @@ static void InputSyncHandler_A(BYTE src)
 
 	  //by hungry 2012.03.07
 //--------------------------------------------------------------------------------------------------
+/*
 static void InputSyncHandler_B(BYTE src)
 {
 	BYTE frmt = 0xff;
 
-#if 0 //Louis
-	switch (src) {
-		case VIDEO_SDI_2HD_POP:		frmt = SDIRX_GetVideoSystem(); break;
-	}
-#endif
-	
 	if (frmt!=0xff&&frmt!=0xfe)
 	{
 		fSyncParsed = TRUE;
 		SrcAuxFrmt = frmt;
 	}
-	/*else							  
-	{
-		SrcAuxFrmt = frmt;
-	}*/
-
-
 	switch (stVideo.dacPATH) 
 	{
 		case DAC_PATH_MAIN_PIP:	
@@ -409,6 +391,7 @@ static void InputSyncHandler_B(BYTE src)
 		break;
 	}
 }
+*/
 	//by hungry 2012.03.07
 //--------------------------------------------------------------------------------------------------
 static void SetOffChipFrmtInA(BYTE src)
@@ -509,7 +492,7 @@ static void SetAUXVideoFilter(void)
 //static void SetOSDMenuRefresh(void)
 void SetOSDMenuRefresh(void)
 {
-	BOOL h_rpt;//, OnOff = (stVideo.dacPATH==DAC_PATH_AUX_4CH)? ON : OFF;
+	//BOOL h_rpt, OnOff = (stVideo.dacPATH==DAC_PATH_AUX_4CH)? ON : OFF;
 
 	//OSD_SetFontMAP();	
 
@@ -598,8 +581,6 @@ static void VideoFrameProcess(BYTE src)
 
 		SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO)); //by kukuri
 		DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
-		//DEMO_SetAspectRatio(GetMenuStatus(4,6));	// update aspect ratio
-		//DEMO_SetOverScanning(GetMenuStatus(4,5));	// update overscanning
 		//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
 
 		MDIN3xx_EnableAuxDisplay(&stVideo, ON);

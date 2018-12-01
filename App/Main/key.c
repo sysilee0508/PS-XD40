@@ -357,7 +357,7 @@ void Key_Check(void)
 					{
 						bRepeatKey = SET;
 
-						UpdateKeyData(processing_key_data | KEY_LONG);
+						UpdateKeyData((eKeyData_t)(processing_key_data | KEY_LONG));
 						SetKeyReady();
 					}
 					else
@@ -422,10 +422,13 @@ void Key_Proc(void)
 			case KEY_FULL_CH3 : 
 			case KEY_FULL_CH4 : 
 				// If key is changed...
-				if((previous_keydata != key) && (screenFreezeOn == CLEAR))
+				if(previous_keydata != key)
 				{
-					screenFreezeOn = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					if(screenFreezeOn == SET)
+					{
+						screenFreezeOn = CLEAR;
+						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					}
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
@@ -435,10 +438,13 @@ void Key_Proc(void)
 				break;
 				
 			case KEY_SPLIT : 
-				if((previous_keydata != key) && (screenFreezeOn == CLEAR))
+				if(previous_keydata != key)
 				{
-					screenFreezeOn = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					if(screenFreezeOn == SET)
+					{
+						screenFreezeOn = CLEAR;
+						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					}
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
@@ -465,25 +471,33 @@ void Key_Proc(void)
 				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
 				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
 				{
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					screenFreezeOn = CLEAR;
+					if(screenFreezeOn == SET)
+					{
+						screenFreezeOn = CLEAR;
+						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					}
 					OSD_RefreshScreen();
-
 					InitializeAutoSeq(AUTO_SEQ_NORMAL);
 				}
 				break;
 
 			case KEY_MENU :
 				InitializeAutoSeq(AUTO_SEQ_NONE);
-				screenFreezeOn = CLEAR;
-				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+				if(screenFreezeOn == SET)
+				{
+					screenFreezeOn = CLEAR;
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+				}
 				Enter_MainMenu();
 				break;
 
 			case KEY_ALARM :
 				// Sound out beep for configured time(in sec)
-				screenFreezeOn = CLEAR;
-				MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+				if(screenFreezeOn == SET)
+				{
+					screenFreezeOn = CLEAR;
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+				}
 				OSD_EraseAllText();
 				OSD_RefreshScreen();
 				InitializeAutoSeq(AUTO_SEQ_ALARM);
@@ -499,7 +513,7 @@ void Key_Proc(void)
 				Menu_KeyProc(key);
 				break;
 		}
-		previous_keydata = key & 0x1F; // clear long or special key mark
+		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark
 	}
 }
 

@@ -26,10 +26,10 @@
 // -----------------------------------------------------------------------------
 // Exported function Prototype
 // -----------------------------------------------------------------------------
-//extern WORD GetMenuStatus(BYTE nID, BYTE sID);
-//extern void SetMenuStatus(BYTE nID, BYTE sID, BYTE val);
+extern WORD GetMenuStatus(BYTE nID, BYTE sID);
+extern void SetMenuStatus(BYTE nID, BYTE sID, BYTE val);
 //extern WORD GetOSDMenuID(void);
-//extern void SetOSDMenuID(WORD nID);
+extern void SetOSDMenuID(WORD nID);
 //extern void SetOSDCombID(WORD nID);
 //extern void SetMenuDefaultStatus(void);
 

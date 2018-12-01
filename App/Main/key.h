@@ -92,6 +92,7 @@ extern u8 pre_special_mode;
 //  Function Prototype
 //=============================================================================
 extern void Key_Scan(void);
+extern void Key_Scan_ParallelKey(void);
 extern void Key_Check(void);
 extern void Key_Proc(void);
 extern void Key_Led_Ctrl(void);

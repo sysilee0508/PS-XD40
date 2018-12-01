@@ -171,12 +171,8 @@ void main(void)
 	OSD_DrawBorderLine();
 	OSD_RefreshScreen();
 
-#if 0 //for verify video input source test
-	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
-#endif
-
 	while(TRUE)
-    { 
+	{ 
 		NVP6158_VideoDetectionProc();
 		Set_DisplayoutputMode_table();
 		

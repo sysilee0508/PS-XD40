@@ -167,7 +167,6 @@ void DEMO_SetOutputMode(WORD nID);
 void DEMO_SetPIPDisplay(WORD nID);
 void DEMO_SetEncoderPath(WORD nID);
 //void DEMO_SetDualDisplay(WORD nID);
-void DEMO_SetAspectRatio(WORD nID);
 void DEMO_SetOverScanning(WORD nID);
 void DEMO_SetInputPattern(WORD nID);
 void DEMO_SetOutputPattern(WORD nID);
@@ -231,7 +230,6 @@ void DEMO_SetWindowPIPPOP(WORD nID);	// PIP/POP util
 //void DEMO_SetPIPPosition(WORD nID);
 //void DEMO_SetPIPSizeWIND(WORD nID);
 
-void DEMO_SetRectBGBOX(MDIN_VIDEO_WINDOW stRECT, BYTE thk);
 //void DEMO_EnableRectBGBOX(BOOL OnOff);
 
 

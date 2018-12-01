@@ -34,4 +34,5 @@ extern BOOL Get_MotionDetectedStatus(eChannel_t channel);
 extern BYTE GetMotionBuzzerCount(void);
 extern void DecreaseMotionBuzzerCount(void);
 extern BOOL Get_MotionIndication(void);
+extern void InitializeMotionDetect(void);
 #endif

@@ -14,6 +14,8 @@ typedef struct
 } sSystemTick_t;
 
 // Function Declaration -------------------------------------
+extern void TIM2_Init(void);
+extern void TIM3_Init(void);
 extern sSystemTick_t* GetSystemTime(void);
 
 #endif

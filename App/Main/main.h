@@ -29,7 +29,9 @@ extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);
 
 extern void vs4210_system_init(void);
-extern void vs4210_display_proc(void);
+
+extern void TurnOnAlarmOut(u8 requester);
+extern void TurnOffAlarmOut(u8 requester);
 
 #endif
 

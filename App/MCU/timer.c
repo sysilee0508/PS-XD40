@@ -17,8 +17,6 @@ void TIM2_Init(void)
 
 void TIM2_IRQHandler(void)
 {
-	static unsigned int cnt;
-
 	TIM2->SR = TIM2->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	systemTick.tickCount_1ms++;

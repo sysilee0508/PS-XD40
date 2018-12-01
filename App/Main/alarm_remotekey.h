@@ -90,4 +90,6 @@ extern eChannel_t GetLastAlarmChannel(void);
 extern BOOL GetAlarmStatus(eChannel_t channel);
 extern void CheckAlarm(void);
 extern void ChangeBaudrate(void);
+extern u8 GetAlarmBuzzerCount(void);
+extern void DecreaseAlarmBuzzerCount(void);
 #endif

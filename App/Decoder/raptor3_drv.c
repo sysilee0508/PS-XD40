@@ -1024,7 +1024,6 @@ void motion_onoff_set(motion_mode *motion_set)
 void motion_pixel_all_onoff_set(motion_mode *motion_set)
 {
 	int ii=0;
-	unsigned char addr = 0;
 
 	//BANK2_MOTION
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x02);
@@ -1064,7 +1063,6 @@ void motion_pixel_all_onoff_set(motion_mode *motion_set)
 	for(ii=0; ii<24; ii++)
 	{
 		NVP6158_I2C_WRITE(NVP6158_ADDR, (0x40 +(0x18 *motion_set->ch)) + ii, motion_set->set_val);
-		addr = (0x40 +(0x18 *motion_set->ch)) + ii;
 	}
 }
 

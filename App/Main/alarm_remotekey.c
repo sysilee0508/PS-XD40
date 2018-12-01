@@ -25,8 +25,6 @@ static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_SPLIT;
 
-static u8 parallelKeyDebounceCount = 0;
-
 static u8 uartProc_State = UART_STATE_SOH;
 
 //=============================================================================
@@ -282,7 +280,6 @@ void USART3_Init(void)
 
 void USART3_IRQHandler(void)
 {
-	static u8 errorCode = ERROR_NONE;
 	u16 receivedData;
 	u8 i;
 	u8 remoconId;
@@ -313,14 +310,12 @@ void USART3_IRQHandler(void)
 				else
 				{
 					// invalid data. do nothing
-					errorCode = ERROR_INVALID_CONTROL;
 				}
 				break;
 
 			case UART_STATE_HEADER:
 				if(receivedData != remoconId)
 				{
-					errorCode = ERROR_REMOCONID_MISMATCH;
 					uartProc_State = UART_STATE_SOH;
 				}
 				else
@@ -337,7 +332,6 @@ void USART3_IRQHandler(void)
 				}
 				else
 				{
-					errorCode = ERROR_INVALID_CONTROL;
 					uartProc_State = UART_STATE_SOH;
 				}
 				break;
@@ -375,7 +369,6 @@ void USART3_IRQHandler(void)
 				}
 				else
 				{
-					errorCode = ERROR_INVALID_CONTROL;
 					ClearKeyReady();
 				}
 				uartProc_State = UART_STATE_SOH;
@@ -386,8 +379,6 @@ void USART3_IRQHandler(void)
 
 void ChangeBaudrate(void)
 {
-	USART_InitTypeDef USART_InitStructure;
-
 	USART_Cmd(USART3, DISABLE);
 	USART_DeInit(USART3);
 

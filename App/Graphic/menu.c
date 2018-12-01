@@ -170,8 +170,7 @@ typedef struct
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-static WORD OSDMenuID, OSDCombID;
-static BYTE fMenuUpdate;//, fMenuGraphic;
+static WORD OSDMenuID;
 
 //-----------------------------------------------------------------
 // declare static variables
@@ -211,22 +210,9 @@ static BYTE demoAudio[sizeof(defAudioSize)];	   //by hungry 2012.03.14
 // ----------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
-void SetOSDMenuID(WORD nID)
-{
-	OSDMenuID = nID;
-	fMenuUpdate = ON;
-}
-
-//--------------------------------------------------------------------------------------------------
 WORD GetOSDMenuID(void)
 {
 	return OSDMenuID;
-}
-
-//--------------------------------------------------------------------------------------------------
-void SetOSDCombID(WORD nID)
-{
-	OSDCombID = nID;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,7 +256,6 @@ void SetMenuDefaultStatus(void)
 	memcpy(demoFilter, defFilter, sizeof(defFilter));
 //	memcpy(demoEVideo, defEVideo, sizeof(defEVideo));		//by hungry 2012.03.14
 	memcpy(demoAudio, defAudio, sizeof(defAudio));		//by hungry 2012.03.14
-//	OSDMenuID = OSDCombID = 0;
 }
 
 #endif
@@ -534,9 +519,7 @@ static void Print_StringTimeCorrect(u16 itemX,u8 attribute)
 static void Print_StringTime(u16 itemX, u8 attribute, sTimeDate_t time)
 {
 	u8 hourStr[2], minStr[2], secStr[2];
-	u8 timeStr[TIME_STRING_LENGTH] = {0,};
 	u8 selectedMark[3];
-	char* pStr;
 
 	selectedMark[0] = (itemX & 0x01)?attribute:NULL;
 	selectedMark[1] = (itemX & 0x02)?attribute:NULL;
@@ -576,8 +559,6 @@ static void Print_StringDate(u16 itemX,u8 attribute,sTimeDate_t date)
 {
 //	sTimeDate_t date;
 	u8 yearStr[4] = {'2','0',}, monthStr[2], dayStr[2];
-	u8 dateStr[DATE_STRING_LENGTH] = {'2','0',};
-	char* pStr;
 	u8 selectedMark[3];
 
 	selectedMark[0] = (itemX & 0x0001)?attribute:NULL;
@@ -737,7 +718,6 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 {
 	static u8 pos_x = 0;
 	static u8 itemY = TIMEDATE_ITEM_Y_TIME;
-	u16 itemX;
 	BOOL inc_dec = DECREASE;
 	static sTimeDate_t rtcTime;
 	BOOL displayOn;
@@ -1350,7 +1330,6 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
-	eSplitMode_t splitMode;
 	u8* pStr_SplitMode;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
@@ -1647,7 +1626,7 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
  	  		Print_StringAlarmOption(
  	  				alarmRemoconMenu[itemY].offset_x + 15,//strlen(alarmRemoconMenu[itemY].str),
 					alarmRemoconMenu[itemY].offset_y,
-					attribute, itemY - 2);
+					attribute, (eChannel_t)(itemY - 2));
  	  		break;
 
  	  	case ALARM_ITEM_Y_ALARMOUT_TIME:
@@ -1828,7 +1807,6 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = ALARM_ITEM_Y_ALARM_REMOCON;
 	//static u8 pos_x = 0;
-	u8 itemX;
 	u8 inc_dec = DECREASE;
 	BOOL alarmRemoconSel;
 	eAlarmOption_t alarmOption;
@@ -1855,9 +1833,9 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
     				case ALARM_ITEM_Y_CH2:
     				case ALARM_ITEM_Y_CH3:
     				case ALARM_ITEM_Y_CH4:
-    					Read_NvItem_AlarmOption(&alarmOption, itemY - 2);
+    					Read_NvItem_AlarmOption(&alarmOption, (eChannel_t)(itemY - 2));
     					IncreaseDecreaseCount(2, 0, inc_dec, (u8 *)&alarmOption);
-    					Write_NvItem_AlarmOption(alarmOption, itemY - 2);
+    					Write_NvItem_AlarmOption(alarmOption, (eChannel_t)(itemY - 2));
     					break;
 
     				case ALARM_ITEM_Y_ALARMOUT_TIME:
@@ -2006,9 +1984,7 @@ static void MotionDetectionPage_EraseAllBlockMark(void)
 static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 {
 	u8 blockX, blockY;
-	sPosition_t mark;
 	u16 blocks[ROWS_OF_BLOCKS];
-	u16 block_mask;
 
 	// Clear screen
 	Erase_AllMenuScreen();
@@ -2040,7 +2016,7 @@ static void MotionDetectionPage_UpdatePage(u8 itemY, u8 itemX)
 		case MOTION_ITEM_Y_CH2:
 		case MOTION_ITEM_Y_CH3:
 		case MOTION_ITEM_Y_CH4:
-			Read_NvItem_MotionDetectOnOff(&motionOn, itemY - 1);
+			Read_NvItem_MotionDetectOnOff(&motionOn, (eChannel_t)(itemY - 1));
 			if(itemX == 0)
 			{
 				Print_StringOnOff(
