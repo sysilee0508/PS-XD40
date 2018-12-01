@@ -747,7 +747,7 @@ void Set_DisplayoutputMode_table(void)
 		}
 		else
 		{
-			Display_SplitMode(displayMode);
+			Display_SplitMode(Get_SystemSplitMode());
 		}
 		Delay_ms(500);
 	}
@@ -797,5 +797,5 @@ void DisplayMode_SplitScreen(eSplitMode_t splitMode)
 {
 	Set_SystemDisplayMode(DISPLAY_MODE_SPLIT);
 	Set_SystemDisplayChannel(CHANNEL_SPLIT);
-	Display_SplitMode(splitMode);
+	Display_SplitMode(Get_SystemSplitMode());
 }
