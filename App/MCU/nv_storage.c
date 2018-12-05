@@ -155,7 +155,7 @@ static void LoadDefaultNvData(void)
 	}
 	nv_data.data.motionSensitivity = 49;
 	memset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
-	nv_data.data.motionIndication = ON;
+	nv_data.data.motionIndication = OFF;
 
 	nv_data.data.splitMode = DISPLAY_MODE_QUAD_A;
 	nv_data.data.currentChannel = (eChannel_t)CHANNEL_SPLIT;
