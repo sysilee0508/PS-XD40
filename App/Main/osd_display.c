@@ -419,7 +419,7 @@ static void OSD_DisplayNoVideo(void)
 
 		if(displayMode == DISPLAY_MODE_FULL)
 		{
-			position.pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideo)*CHAR_WIDTH))/2;
+			position.pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideoFull)*CHAR_WIDTH))/2;
 			position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
 
 			if(IsVideoLossChannel(Get_SystemDisplayChannel()) == TRUE)

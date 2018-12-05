@@ -918,9 +918,9 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 					(const u8*)channel_name,
 					NULL, 0);
 			// get selected character
-			if(channel_name[pos_x]==NULL)
+			if(channel_name[pos_x]<=ASCII_SPACE)
 			{
-				pChar = menuStr_Space1;
+				pChar = (u8 *)menuStr_Space1;
 			}
 			else
 			{
@@ -969,14 +969,15 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	BOOL titleOn;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
 //	eTitlePosition_t titlePosition;
+	u8 specialChar = ASCII_SPACE;
 	u8* pChar;
 
 	switch(key)
 	{
 	  	case KEY_UP  :
 	  		inc_dec = INCREASE;
-	    case KEY_DOWN  :
-	    	if(requestEnterKeyProc)
+		case KEY_DOWN  :
+	    		if(requestEnterKeyProc)
 			{  
 				switch(itemY)
 				{
@@ -985,6 +986,11 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					case CAMERATITLE_ITEM_Y_CH3:
 					case CAMERATITLE_ITEM_Y_CH4:
 						Read_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
+						if(channel_name[pos_x] <= ASCII_SPACE)
+						{
+							//pChar = &specialChar;
+							channel_name[pos_x] = ASCII_SPACE;
+						}
 						pChar = &channel_name[pos_x];
 						IncreaseDecreaseCount(ASCII_TILDE, ASCII_SPACE+1, inc_dec, pChar);
 						Write_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
@@ -1014,7 +1020,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 		case KEY_RIGHT :
 			inc_dec = INCREASE;
 		case KEY_LEFT  :
-	    	if(requestEnterKeyProc)
+	    		if(requestEnterKeyProc)
 			{
 				if((itemY >= CAMERATITLE_ITEM_Y_CH1) && (itemY <= CAMERATITLE_ITEM_Y_CH4))
 				{
@@ -1041,7 +1047,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			break; 	
 
 		case KEY_EXIT :
-	    	if(requestEnterKeyProc)
+	    		if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
 				CameraTitlePage_UpdatePage(itemY, 0);
