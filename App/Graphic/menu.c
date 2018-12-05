@@ -887,19 +887,6 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 //	Camera Title Menu
 //------------------------------------------------------------------
-/*
-static const u8* pTitlePosition_Str[TITLE_POSITION_MAX] =
-{
-		menuStr_TopLeft,
-		menuStr_TopCenter,
-		menuStr_TopRight,
-		menuStr_BottomLeft,
-		menuStr_BottomCenter,
-		menuStr_BottomRight,
-		menuStr_Center
-};
-*/
-
 const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 {
 		{25, LINE0_OFFSET_Y, menuStr_CamaraTitle_Title},
@@ -908,14 +895,12 @@ const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 		{20, LINE3_OFFSET_Y, menuStr_CameraTitle_Ch3},
 		{20, LINE4_OFFSET_Y, menuStr_CameraTitle_Ch4},
 		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay}
-//		{20, LINE6_OFFSET_Y, menuStr_CameraTitle_Position}
 };
 
 static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 {
 	BOOL titleOn;
-	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];// = {0,};
-	//eTitlePosition_t titlePosition;
+	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
 	u8* pChar;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
@@ -933,7 +918,14 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 					(const u8*)channel_name,
 					NULL, 0);
 			// get selected character
-			pChar = &channel_name[pos_x];
+			if(channel_name[pos_x]==NULL)
+			{
+				pChar = menuStr_Space1;
+			}
+			else
+			{
+				pChar = &channel_name[pos_x];
+			}
 			// and print
 			Print_StringWithSelectedMark(
 					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str) + pos_x,
@@ -949,22 +941,6 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 					cameraTitle[itemY].offset_y,
 					attribute, titleOn);
 			break;
-/*
-		case CAMERATITLE_ITEM_Y_POSITION:
-			Read_NvItem_TitlePosition(&titlePosition);
-			Print_StringWithSelectedMarkSize(
-					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
-					cameraTitle[itemY].offset_y,
-					menuStr_Space13,
-					NULL, strlen(menuStr_Space13));
-			Print_StringWithSelectedMark(
-					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
-					cameraTitle[itemY].offset_y,
-					pTitlePosition_Str[titlePosition],
-					attribute,
-					strlen(pTitlePosition_Str[titlePosition]));
-			break;
-*/
 	}
 
 }
@@ -1010,7 +986,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					case CAMERATITLE_ITEM_Y_CH4:
 						Read_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
 						pChar = &channel_name[pos_x];
-						IncreaseDecreaseCount(ASCII_TILDE, ASCII_SPACE, inc_dec, pChar);
+						IncreaseDecreaseCount(ASCII_TILDE, ASCII_SPACE+1, inc_dec, pChar);
 						Write_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
 						break;
 
