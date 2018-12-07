@@ -44,7 +44,7 @@ static void InitializeAutoSeq_Normal(void)
 	// Set auto sequence start channel
 	if(displayMode == DISPLAY_MODE_FULL)
 	{
-		if(autoSeqOn == SET)
+		if(GetAutoSeqOn() == SET)
 		{
 			// move to next channel
 			displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
@@ -70,7 +70,7 @@ static void InitializeAutoSeq_Normal(void)
 	// update display mode as full screen
 	DisplayMode_FullScreen(displayChannel);
 	// set autoSeqOn
-	//ChangeAutoSeqOn(SET);
+	ChangeAutoSeqOn(SET);
 	OSD_DrawBorderLine();
 	OSD_Display();
 }
@@ -91,10 +91,10 @@ static void InitializeAutoSeq_Alarm(void)
 	}
 }
 
-static void InitializeAutoSeq_Motion(void)
-{
-	autoSeqStatus = AUTO_SEQ_MOTION;
-}
+//static void InitializeAutoSeq_Motion(void)
+//{
+//	autoSeqStatus = AUTO_SEQ_MOTION;
+//}
 
 //-----------------------------------------------------------------------------
 void InitializeAutoSeq(eAutoSeqType_t type)
@@ -106,14 +106,12 @@ void InitializeAutoSeq(eAutoSeqType_t type)
 			break;
 
 		case AUTO_SEQ_ALARM:
+			ChangeAutoSeqOn(CLEAR);
 			InitializeAutoSeq_Alarm();
 			break;
 
-		case AUTO_SEQ_MOTION:
-			InitializeAutoSeq_Motion();
-			break;
-
 		case AUTO_SEQ_NONE:
+			ChangeAutoSeqOn(CLEAR);
 			autoSeqStatus = AUTO_SEQ_NONE;
 			memset(displayTime, 0x00, sizeof(displayTime));
 			break;
@@ -195,10 +193,6 @@ void UpdateAutoSeqCount(void)
 					} while(GetAlarmStatus(displayChannel) == CLEAR);
 					displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
 				}
-				else if(autoSeqStatus == AUTO_SEQ_MOTION)
-				{
-					// to do
-				}
 			}
 		}
 		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
@@ -212,30 +206,30 @@ void DisplayAutoSeqChannel(void)
 	if((currentChannel != displayChannel) &&
 			((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)))
 	{
+		OSD_EraseAllText();
 		// update current channel
 		DisplayMode_FullScreen(displayChannel);
 		// Update OSD
 		OSD_RefreshScreen();
-		OSD_EraseAllText();
 		OSD_Display();
 	}
 }
-//
-//BOOL GetAutoSeqOn(void)
-//{
-//	return autoSeqOn;
-//}
-//
-//void ChangeAutoSeqOn(BOOL set)
-//{
-//	autoSeqOn = set;
-//	if(set == CLEAR)
-//	{
-//		oldSkipChannels = NO_SKIP_CHANNEL;
-//		autoSeqStatus = AUTO_SEQ_NONE;
-//	}
-//}
-//
+
+BOOL GetAutoSeqOn(void)
+{
+	return autoSeqOn;
+}
+
+void ChangeAutoSeqOn(BOOL set)
+{
+	autoSeqOn = set;
+	if(set == CLEAR)
+	{
+		oldSkipChannels = NO_SKIP_CHANNEL;
+		autoSeqStatus = AUTO_SEQ_NONE;
+	}
+}
+
 eAutoSeqType_t GetCurrentAutoSeq(void)
 {
 	return autoSeqStatus;
