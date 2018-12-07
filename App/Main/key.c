@@ -16,7 +16,7 @@ u8 pre_special_mode = LEFT_TOP;
 static keycode_t current_keycode = KEYCODE_NONE;
 static keycode_t frontKeyCode = KEYCODE_NONE;
 static keycode_t backKeyCode = KEYCODE_NONE;
-static keycode_t led_keycode = KEYCODE_NONE;
+static keycode_t led_keycode = KEYCODE_SPLIT;
 static eKeyMode_t key_mode = KEY_MODE_LONG;
 static eKeyMode_t saved_key_mode = KEY_MODE_LONG;
 static eKeyStatus_t key_status = KEY_STATUS_RELEASED;
@@ -172,6 +172,7 @@ void Key_Scan_ParallelKey(void)
 void Key_Scan(void)
 {
 	keycode_t key_code = KEYCODE_NONE;
+	keycode_t tempKey = KEYCODE_NONE;
 
 	if(backKeyCode == KEYCODE_NONE)
 	{
@@ -215,61 +216,54 @@ void Key_Scan(void)
 			key_code = KEYCODE_SEQUENCE;
 
 		KEY_ROW1_HIGH;
-	
-		frontKeyCode = key_code;
-		// Update current_keycode
-		current_keycode = key_code;
-		if(key_code != KEYCODE_NONE)
+
+		if((key_code != KEYCODE_NONE) && (frontKeyCode != key_code))
 		{
-			led_keycode = key_code;
+			if(key_code == KEYCODE_FREEZE)
+			{
+				tempKey = ~(led_keycode ^ key_code);
+				led_keycode = tempKey;
+			}
+			else
+			{
+				led_keycode = key_code;
+			}
 			UpdateKeyStatus(KEY_STATUS_PRESSED);
 		}
-		else
+		else if(key_code == KEYCODE_NONE)
 		{
 			UpdateKeyStatus(KEY_STATUS_RELEASED);
 		}
+		
+		frontKeyCode = key_code;
+		// Update current_keycode
+		current_keycode = key_code;
 	}
 }
 
 void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
-	keycode_t leds;
-	eKeyData_t key;
 
-	if(GetKeyStatus() == KEY_STATUS_RELEASED)
-	{
-		key = GetCurrentKey();
-		if(VALID_MENU_KEY(key) == TRUE)
-		{
-			key &= (~KEY_SPECIAL);
-		}
-		leds = GetKeyCode(key);
-	}
-	else
-	{
-		leds = led_keycode;
-	}
-
-	if(leds != KEYCODE_NONE)
+	if(led_keycode != KEYCODE_NONE)
 	{
 		KEY_DATA_OUTPUT_MODE;
 
 		if(stage == KEYLED_STAGE_LEFT)
 		{
 			KEY_LED0_LOW;
-			if((leds & 0x0F) != 0x0F)
+			if((led_keycode & 0x0F) != 0x0F)
 			{
-				KEY_LED_ON(leds);
+				KEY_LED_ON(led_keycode);
 			}
 			KEY_LED1_HIGH;
 		}
 		else if(stage == KEYLED_STAGE_RIGHT)
 		{
 			KEY_LED1_LOW;
-			if((leds & 0xF0) != 0xF0)
+			if((led_keycode & 0xF0) != 0xF0)
 			{
-				KEY_LED_ON((u32)((leds>>4)|0xFFFFFFF0));
+				KEY_LED_ON((u32)((led_keycode>>4)|0xFFFFFFF0));
 			}
 			KEY_LED0_HIGH;
 		}
