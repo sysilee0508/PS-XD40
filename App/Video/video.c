@@ -52,6 +52,9 @@ BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 BYTE TempOutMainMode;		// 28Dec2011
 BOOL fSyncParsed;
 
+s8 Video_Out_Res_Val = VIDOUT_1920x1080p60;
+BOOL fUpdatedOutResolution = FALSE;
+
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
@@ -69,9 +72,59 @@ BOOL fSyncParsed;
 // ----------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------------------------------
+void UpdateVideoResolution(eResolution_t resolution)
+{
+	static MDIN_OUTVIDEO_FORMAT_t prevResolution;
+
+	switch(resolution)
+	{
+		case RESOLUTION_1920_1080_60P:
+			Video_Out_Res_Val = VIDOUT_1920x1080p60;
+			break;
+
+		case RESOLUTION_1920_1080_50P:
+			Video_Out_Res_Val = VIDOUT_1920x1080p50;
+			break;
+
+		default:
+			Video_Out_Res_Val = VIDOUT_1920x1080p60;
+			break;
+	}
+
+	if(prevResolution != Video_Out_Res_Val)
+	{
+		prevResolution = Video_Out_Res_Val;
+		fUpdatedOutResolution = TRUE;
+	}
+}
+
+static MDIN_OUTVIDEO_FORMAT_t GetResolution(void)
+{
+	eResolution_t eResolution;
+	MDIN_OUTVIDEO_FORMAT_t outResolution;
+
+	Read_NvItem_Resolution(&eResolution);
+
+	switch(eResolution)
+	{
+		case RESOLUTION_1920_1080_60P:
+			outResolution = VIDOUT_1920x1080p60;
+			break;
+
+		case RESOLUTION_1920_1080_50P:
+			outResolution = VIDOUT_1920x1080p50;
+			break;
+
+		default:
+			outResolution = VIDOUT_1920x1080p60;
+			break;
+	}
+}
+
 static void MDIN3xx_SetRegInitial(void)
 {
 	WORD nID = 0;
+	
 
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
@@ -131,7 +184,7 @@ static void MDIN3xx_SetRegInitial(void)
 
 	// define video format of MAIN-OUTPUT
 
-	stVideo.stOUT_m.frmt = VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
+	stVideo.stOUT_m.frmt = GetResolution();//VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
 	stVideo.stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
 	stVideo.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
@@ -161,7 +214,14 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
 
 	// define video format of AUX-OUTPUT
-	stVideo.stOUT_x.frmt = VIDOUT_720x480i60;
+	if(GetResolution() == VIDOUT_1920x1080p60)
+	{
+		stVideo.stOUT_x.frmt = VIDOUT_720x480i60;
+	}
+	else
+	{
+		stVideo.stOUT_x.frmt = VIDOUT_720x576i50;
+	}
 	stVideo.stOUT_x.mode = MDIN_OUT_MUX656_8;
 	stVideo.stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
 
@@ -180,7 +240,15 @@ static void MDIN3xx_SetRegInitial(void)
 #endif
 
 	// define video format of video encoder
-	stVideo.encFRMT = VID_VENC_NTSC_M;
+	if(GetResolution() == VIDOUT_1920x1080p60)
+	{
+		stVideo.encFRMT = VID_VENC_NTSC_M;
+	}
+	else
+	{
+		stVideo.encFRMT = VID_VENC_PAL_B;
+	}
+
 
 	// define video format of HDMI-OUTPUT
 	stVideo.stVID_h.mode  = HDMI_OUT_RGB444_8;
@@ -303,6 +371,28 @@ static BYTE GetSrcAuxFrmt(BYTE src)
 //--------------------------------------------------------------------------------------------------
 static void InputSourceHandler(BYTE src)
 {
+	if(fUpdatedOutResolution== TRUE)
+	{
+		fUpdatedOutResolution = FALSE;
+		
+		OutMainFrmt = Video_Out_Res_Val;		// get out-format
+		OutAuxMode = MDIN_OUT_MUX656_8;		// set aux-mode
+		
+		if(GetResolution() == VIDOUT_1920x1080p60)
+		{
+			OutAuxFrmt= VIDOUT_720x480i60;// set aux-format
+			EncVideoFrmt = VID_VENC_NTSC_M;
+		}
+		else
+		{
+			OutAuxFrmt = VIDOUT_720x576i50;// set aux-format
+			EncVideoFrmt = VID_VENC_PAL_B;
+		}
+	}
+
+	//OutAuxFrmt = VIDOUT_720x480i60;			// set aux-format
+
+	
 	if (src==InputSelOld) return;
 
 //	MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
@@ -322,9 +412,6 @@ static void InputSourceHandler(BYTE src)
 	memset(&stVideo.stVIEW_x, 0, 8);		// clear stVIEW_x
 
 	//OutMainFrmt = GetMenuStatus(6,2);		// get out-format
-	OutMainFrmt = Video_Out_Res_Val;		// get out-format
-	OutAuxMode = MDIN_OUT_MUX656_8;		// set aux-mode
-	OutAuxFrmt = VIDOUT_720x480i60;			// set aux-format
 
 	fSyncParsed = FALSE;	InputSelOld = src;
 	PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;

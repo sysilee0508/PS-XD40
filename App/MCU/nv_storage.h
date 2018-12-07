@@ -109,13 +109,6 @@ typedef enum
 
 typedef enum
 {
-	RESOLUTION_1920_1080_60P,
-	RESOLUTION_1920_1080_50P,
-	RESOLUTION_MAX
-} eResolution_t;
-
-typedef enum
-{
 	ALARM_OPTION_OFF,
 	ALARM_OPTION_NO,
 	ALARM_OPTION_NC,

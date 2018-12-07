@@ -117,6 +117,14 @@ typedef enum {
 
 }	DEMO_DISPLAY_PIP_t;
 
+typedef enum
+{
+	RESOLUTION_1920_1080_60P,
+	RESOLUTION_1920_1080_50P,
+	RESOLUTION_MAX
+} eResolution_t;
+
+
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
@@ -308,6 +316,7 @@ extern u8 SDIRX_change_flag;
 void SDITX_CtrlHandler(PMDIN_VIDEO_INFO pINFO);
 void SDITX_ShowStatus(void);
 
+extern void UpdateVideoResolution(eResolution_t resolution);
 
 
 #endif	/* __VIDEO_H__ */

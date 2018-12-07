@@ -10,7 +10,6 @@
 // Static Global Data section variables
 // ----------------------------------------------------------------------
 volatile BOOL fZOOMMove, fCROPMove;
-s8 Video_Out_Res_Val = VIDOUT_1920x1080p60;
 
 u8 PIP_mode = 5;
 u8 Pre_PIP_mode = 0xff;
@@ -134,19 +133,7 @@ void main(void)
 	// I think we don't need this flag because we don't have aux display
 	//aux_display_flag = SET;
 	ReadNvItem(NV_ITEM_OUTPUT_RESOLUTION, &videoOutResolution, sizeof(videoOutResolution));
-
-	if(videoOutResolution == RESOLUTION_1920_1080_60P)
-	{
-		Video_Out_Res_Val = VIDOUT_1920x1080p60;
-	}
-	else if(videoOutResolution == RESOLUTION_1920_1080_50P)
-	{
-		Video_Out_Res_Val = VIDOUT_1920x1080p50;
-	}
-	else
-	{
-		// Are there only 2 resolution options?
-	}
+	UpdateVideoResolution(videoOutResolution);
 
 	CreateVideoInstance();
 	CreateOSDInstance();

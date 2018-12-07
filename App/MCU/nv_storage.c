@@ -437,6 +437,8 @@ void Write_NvItem_Resolution(eResolution_t data)
 	{
 		nv_data.data.outputResolution = data;
 		nvInfo[NV_ITEM_OUTPUT_RESOLUTION].dirty = SET;
+
+		UpdateVideoResolution(data);
 	}
 }
 
