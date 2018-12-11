@@ -180,6 +180,9 @@ static u8 lineBuffer[CHARACTERS_IN_MENU_LINE];
 static BOOL requestEnterKeyProc = CLEAR;
 static u8 systemMode = SYSTEM_NORMAL_MODE;
 
+const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+- ";
+#define NUM_OF_VALUABLE_CHARS 	strlen(valuableCharacters)	//75
+
 //-----------------------------------------------------------------
 // declare global variables
 //---------------------------------------------------------------
@@ -265,18 +268,42 @@ static void Toggle(BOOL* pObject)
 	*pObject = (*pObject == FALSE)?TRUE:FALSE;
 }
 
-//static void Int2Bcd(u8 in_data, u8* out_data)
-//{
-//	*out_data = ((in_data / 10) << 4) | ((in_data % 10) & 0x0F);
-//}
-
 static void Int2Str(u8 in_data, u8* out_data)
 {
 	*out_data = ((in_data / 10) + ASCII_ZERO);
   	*(out_data+1) = ((in_data % 10) + ASCII_ZERO);
 }
 
-static void IncreaseDecreaseCount(u8 max,u8 min,BOOL inc_dec,u8 *pCount)
+static u8 ConvertIndex2Char(u8 index)
+{
+	u8 character;
+
+	if(index < NUM_OF_VALUABLE_CHARS)
+	{
+		character = valuableCharacters[index];
+	}
+	else
+		character = ASCII_SPACE;
+
+	return character;
+}
+
+static u8 ConvertChar2Index(u8 character)
+{
+	u8 index;
+
+	for(index = 0; index < NUM_OF_VALUABLE_CHARS ; index++)
+	{
+		if(valuableCharacters[index] == character)
+		{
+			break;
+		}
+	}
+
+	return index;
+}
+
+static void IncreaseDecreaseCount(u8 max,u8 min,BOOL inc_dec,u8 *pCount, BOOL round)
 {
 	switch(inc_dec)
 	{
@@ -287,7 +314,14 @@ static void IncreaseDecreaseCount(u8 max,u8 min,BOOL inc_dec,u8 *pCount)
 			}
 			else
 			{
-				*pCount = min;
+				if(round == TRUE)
+				{
+					*pCount = min;
+				}
+				else
+				{
+					*pCount = max;
+				}
 			}
 			break;
 
@@ -298,7 +332,14 @@ static void IncreaseDecreaseCount(u8 max,u8 min,BOOL inc_dec,u8 *pCount)
 			}
 			else
 			{
-				*pCount = max;
+				if(round == TRUE)
+				{
+					*pCount = max;
+				}
+				else
+				{
+					*pCount = min;
+				}
 			}
 			break;
 
@@ -444,7 +485,6 @@ static void MainMenu_Entry(u8 itemY)
 				NULL, 0);
 	}
 }
-
 
 //------------------------------------------------------------------
 //   Time/Date Page Function
@@ -752,13 +792,13 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						switch(pos_x)
 						{
 							case 0://hour
-								IncreaseDecreaseCount(23, 0, inc_dec, &settingTime.hour);
+								IncreaseDecreaseCount(23, 0, inc_dec, &settingTime.hour, TRUE);
 								break;
 							case 1://min
-								IncreaseDecreaseCount(59, 0, inc_dec, &settingTime.min);
+								IncreaseDecreaseCount(59, 0, inc_dec, &settingTime.min, TRUE);
 								break;
 							case 2://sec
-								IncreaseDecreaseCount(59, 0, inc_dec, &settingTime.sec);
+								IncreaseDecreaseCount(59, 0, inc_dec, &settingTime.sec, TRUE);
 								break;
 						}
 						break;
@@ -767,13 +807,13 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						switch(pos_x)
 						{
 							case 0://year
-								IncreaseDecreaseCount(81, 0, inc_dec, &settingTime.year); //2018~2099
+								IncreaseDecreaseCount(81, 0, inc_dec, &settingTime.year, TRUE); //2018~2099
 								break;
 							case 1://month
-								IncreaseDecreaseCount(12, 1, inc_dec, &settingTime.month);
+								IncreaseDecreaseCount(12, 1, inc_dec, &settingTime.month, TRUE);
 								break;
 							case 2://day
-								IncreaseDecreaseCount(GetDaysInMonth(settingTime.month, settingTime.year), 1, inc_dec, &settingTime.day);
+								IncreaseDecreaseCount(GetDaysInMonth(settingTime.month, settingTime.year), 1, inc_dec, &settingTime.day, TRUE);
 								break;
 						}
 						break;
@@ -792,7 +832,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 
 					case TIMEDATE_ITEM_Y_DATE_FORMAT:
 						Read_NvItem_DateFormat(&dateFormat);
-						IncreaseDecreaseCount(2, 0, inc_dec, &dateFormat);
+						IncreaseDecreaseCount(2, 0, inc_dec, &dateFormat, TRUE);
 						Write_NvItem_DateFormat(dateFormat);
 						break;
 
@@ -817,7 +857,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 								}
 								break;
 							case 1: //offset
-								IncreaseDecreaseCount(59,0,inc_dec,&timeCorrect.timeCorrectOffset);
+								IncreaseDecreaseCount(59,0,inc_dec,&timeCorrect.timeCorrectOffset, TRUE);
 								break;
 							case 2: //unit
 								if(timeCorrect.timeCorrectUint == TIME_UNIT_DAY)
@@ -837,7 +877,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
-				IncreaseDecreaseCount(7, 1, inc_dec, &itemY);
+				IncreaseDecreaseCount(7, 1, inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);
 				pos_x = 0;
 			}
@@ -854,7 +894,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						(itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION))
 				{
 					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, settingTime);
-					IncreaseDecreaseCount(2, 0,inc_dec, &pos_x);
+					IncreaseDecreaseCount(2, 0,inc_dec, &pos_x, TRUE);
 					requestEnterKeyProc = SET;
 					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, settingTime);
 				}
@@ -922,12 +962,13 @@ const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 		{20, LINE4_OFFSET_Y, menuStr_CameraTitle_Ch4},
 		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay}
 };
+static u8 channel_name[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX];
 
 static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 {
 	BOOL titleOn;
-	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
-	u8* pChar;
+
+//	u8* pChar;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
 	switch(itemY)
@@ -936,27 +977,27 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 		case CAMERATITLE_ITEM_Y_CH2:
 		case CAMERATITLE_ITEM_Y_CH3:
 		case CAMERATITLE_ITEM_Y_CH4:
-			Read_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
+			//Read_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
 			// print full name
 			Print_StringWithSelectedMarkSize(
 					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
 					cameraTitle[itemY].offset_y,
-					(const u8*)channel_name,
+					(const u8*)&channel_name[itemY-1][0],
 					NULL, 0);
 			// get selected character
-			if(channel_name[pos_x]<=ASCII_SPACE)
-			{
-				pChar = (u8 *)menuStr_Space1;
-			}
-			else
-			{
-				pChar = &channel_name[pos_x];
-			}
+//			if(channel_name[pos_x]<=ASCII_SPACE)
+//			{
+//				pChar = (u8 *)menuStr_Space1;
+//			}
+//			else
+//			{
+//				pChar = &channel_name[pos_x];
+//			}
 			// and print
 			Print_StringWithSelectedMark(
 					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str) + pos_x,
 					cameraTitle[itemY].offset_y,
-					(const u8*)pChar,
+					(const u8*)&channel_name[itemY-1][pos_x],
 					attribute, 1);
 			break;
 
@@ -979,6 +1020,11 @@ static void CameraTitlePage_Entry(void)
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
 
+	for(index = CHANNEL1; index < NUM_OF_CHANNEL; index++)
+	{
+		Read_NvItem_ChannelName(&channel_name[index], (eChannel_t)index);
+	}
+
 	DrawSelectMark(CAMERATITLE_ITEM_Y_CH1);
 	for(index = 0; index < CAMERATITLE_ITEM_Y_MAX; index++)
 	{
@@ -993,17 +1039,17 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	static u8 itemY = CAMERATITLE_ITEM_Y_CH1;
 	BOOL inc_dec = DECREASE;
 	BOOL titleOn;
-	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
-//	eTitlePosition_t titlePosition;
-	u8 specialChar = ASCII_SPACE;
-	u8* pChar;
+//	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
+	u8 charIndex;
+//	u8* pChar;
+	eChannel_t channel;
 
 	switch(key)
 	{
 	  	case KEY_UP  :
 	  		inc_dec = INCREASE;
 		case KEY_DOWN  :
-	    		if(requestEnterKeyProc)
+	    	if(requestEnterKeyProc)
 			{  
 				switch(itemY)
 				{
@@ -1011,15 +1057,17 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					case CAMERATITLE_ITEM_Y_CH2:
 					case CAMERATITLE_ITEM_Y_CH3:
 					case CAMERATITLE_ITEM_Y_CH4:
-						Read_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
-						if(channel_name[pos_x] <= ASCII_SPACE)
+						channel = itemY-1;
+//						Read_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
+						if(channel_name[channel][pos_x] <= ASCII_SPACE)
 						{
-							//pChar = &specialChar;
-							channel_name[pos_x] = ASCII_SPACE;
+							channel_name[channel][pos_x] = ASCII_SPACE;
 						}
-						pChar = &channel_name[pos_x];
-						IncreaseDecreaseCount(ASCII_TILDE, ASCII_SPACE+1, inc_dec, pChar);
-						Write_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
+						//pChar = &channel_name[pos_x];
+						charIndex = ConvertChar2Index(channel_name[channel][pos_x]);
+						IncreaseDecreaseCount(ASCII_TILDE, ASCII_SPACE+1, inc_dec, &charIndex, TRUE);
+						channel_name[channel][pos_x] = ConvertIndex2Char(charIndex);
+//						Write_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
 						break;
 
 					case CAMERATITLE_ITEM_Y_DISPLAY_ON:
@@ -1027,18 +1075,12 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 						Toggle(&titleOn);
 						Write_NvItem_TitleDispalyOn(titleOn);
 						break;
-/*
-					case CAMERATITLE_ITEM_Y_POSITION:
-						Read_NvItem_TitlePosition(&titlePosition);
-						IncreaseDecreaseCount(TITLE_POSITION_MAX, 0, inc_dec, &titlePosition);
-						Write_NvItem_TitlePosition(titlePosition);
-						break;*/
 				}
 				CameraTitlePage_UpdatePage(itemY, pos_x);
 			}
 			else
 			{
-				IncreaseDecreaseCount(CAMERATITLE_ITEM_Y_MAX - 1, 1,inc_dec, &itemY);
+				IncreaseDecreaseCount(CAMERATITLE_ITEM_Y_MAX - 1, 1,inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);
 			}
 	  		break;
@@ -1052,7 +1094,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 				{
 					requestEnterKeyProc = CLEAR;
 					CameraTitlePage_UpdatePage(itemY, pos_x);
-	  				IncreaseDecreaseCount(CHANNEL_NEME_LENGTH_MAX - 1, 0, inc_dec,&pos_x);
+	  				IncreaseDecreaseCount(CHANNEL_NEME_LENGTH_MAX - 1, 0, inc_dec,&pos_x, FALSE);
 	  				requestEnterKeyProc = SET;
 	  				CameraTitlePage_UpdatePage(itemY, pos_x);
 				}
@@ -1065,15 +1107,15 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	  
 		case KEY_ENTER:
 			Toggle(&requestEnterKeyProc);
-//			if(requestEnterKeyProc == SET)
-//			{
-//				pos_x = 0;
-//			}
+			if(requestEnterKeyProc == SET)
+			{
+				pos_x = 0;
+			}
 			CameraTitlePage_UpdatePage(itemY, pos_x);
 			break; 	
 
 		case KEY_EXIT :
-	    		if(requestEnterKeyProc)
+	    	if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
 				CameraTitlePage_UpdatePage(itemY, 0);
@@ -1081,6 +1123,10 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
+				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+				{
+					Write_NvItem_ChannelName(&channel_name[channel], channel);
+				}
 				itemY = CAMERATITLE_ITEM_Y_CH1;
 				pos_x = 0;
 				MainMenu_Entry(currentPage);
@@ -1220,7 +1266,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 					case AUTOSEQ_ITEM_Y_CH3_DISPLAY_TIME:
 					case AUTOSEQ_ITEM_Y_CH4_DISPLAY_TIME:
 						Read_NvItem_AutoSeqTime(autoSeqTime);
-						IncreaseDecreaseCount(60,0,inc_dec, &autoSeqTime[itemY-1]);
+						IncreaseDecreaseCount(60,0,inc_dec, &autoSeqTime[itemY-1], TRUE);
 						Write_NvItem_AutoSeqTime(autoSeqTime);
 						break;
 					case AUTOSEQ_ITEM_Y_LOSS_SKIP:
@@ -1233,7 +1279,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
-				IncreaseDecreaseCount(5, 1, inc_dec, &itemY);
+				IncreaseDecreaseCount(5, 1, inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);
 			}
 			break;
@@ -1481,7 +1527,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 				{
 					case DISPLAY_ITEM_Y_RESOLUTION:
 						Read_NvItem_Resolution(&resolution);
-						IncreaseDecreaseCount(RESOLUTION_MAX - 1, 0, inc_dec, &resolution);
+						IncreaseDecreaseCount(RESOLUTION_MAX - 1, 0, inc_dec, &resolution, TRUE);
 						Write_NvItem_Resolution(resolution);
 						break;
 					case DISPLAY_ITEM_Y_OSD_DISPLAY:
@@ -1496,7 +1542,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						break;
 					case DISPLAY_ITEM_Y_SPLIT_MODE:
 						splitMode = Get_SystemSplitMode();
-						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, 0, inc_dec, &splitMode);
+						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, 0, inc_dec, &splitMode, TRUE);
 						Set_SystemSplitMode(splitMode);
 						break;
 				}
@@ -1504,7 +1550,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
-				IncreaseDecreaseCount(DISPLAY_ITEM_Y_MAX - 1, 1, inc_dec, &itemY);
+				IncreaseDecreaseCount(DISPLAY_ITEM_Y_MAX - 1, 1, inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);
 			}
 			break;
@@ -1842,37 +1888,37 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
     				case ALARM_ITEM_Y_CH3:
     				case ALARM_ITEM_Y_CH4:
     					Read_NvItem_AlarmOption(&alarmOption, (eChannel_t)(itemY - 2));
-    					IncreaseDecreaseCount(2, 0, inc_dec, (u8 *)&alarmOption);
+    					IncreaseDecreaseCount(2, 0, inc_dec, (u8 *)&alarmOption, TRUE);
     					Write_NvItem_AlarmOption(alarmOption, (eChannel_t)(itemY - 2));
     					break;
 
     				case ALARM_ITEM_Y_ALARMOUT_TIME:
     					Read_NvItem_AlarmOutTime(&intData);
-    					IncreaseDecreaseCount(99, 0, inc_dec, &intData);
+    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
     					Write_NvItem_AlarmOutTime(intData);
     					break;
 
     				case ALARM_ITEM_Y_ALARM_BUZZER_TIME:
     					Read_NvItem_AlarmBuzzerTime(&intData);
-    					IncreaseDecreaseCount(99, 0, inc_dec, &intData);
+    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
     					Write_NvItem_AlarmBuzzerTime(intData);
     					break;
 
     				case ALARM_ITEM_Y_LOSS_BUZZER_TIME:
     					Read_NvItem_VideoLossBuzzerTime(&intData);
-    					IncreaseDecreaseCount(99, 0, inc_dec, &intData);
+    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
     					Write_NvItem_VideoLossBuzzerTime(intData);
     					break;
 
     				case ALARM_ITEM_Y_REMOCONID:
     					Read_NvItem_RemoconId(&intData);
-    					IncreaseDecreaseCount(REMOCON_ID_MAX, REMOCON_ID_NONE, inc_dec, &intData);
+    					IncreaseDecreaseCount(REMOCON_ID_MAX, REMOCON_ID_NONE, inc_dec, &intData, TRUE);
     					Write_NvItem_RemoconId(intData);
     					break;
 
     				case ALARM_ITEM_Y_BAUDRATE:
     					Read_NvItem_SerialBaudrate(&baudrate);
-    					IncreaseDecreaseCount(2, 0, inc_dec, &baudrate);
+    					IncreaseDecreaseCount(2, 0, inc_dec, &baudrate, TRUE);
     					Write_NvItem_SerialBaudrate(baudrate);
     					break;
 
@@ -1881,7 +1927,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
-				IncreaseDecreaseCount(ALARM_ITEM_Y_MAX-1, 1, inc_dec, &itemY);
+				IncreaseDecreaseCount(ALARM_ITEM_Y_MAX-1, 1, inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);//,0);
 			}
   			break;	
@@ -2124,7 +2170,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 
 						case MOTION_ITEM_Y_SENSITIVITY:
 							Read_NvItem_MotionSensitivity(&sensitivity);
-							IncreaseDecreaseCount(99,1,inc_dec,&sensitivity);
+							IncreaseDecreaseCount(99,1,inc_dec,&sensitivity, TRUE);
 							Write_NvItem_MotionSensitivity(sensitivity);
 							//Set_MotionDetect_Sensitivity(sensitivity);
 							break;
@@ -2139,7 +2185,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 				}
 				else
 				{
-					IncreaseDecreaseCount(6, 1, inc_dec, &itemY);
+					IncreaseDecreaseCount(6, 1, inc_dec, &itemY, TRUE);
 					DrawSelectMark(itemY);
 				}
 			}
@@ -2147,7 +2193,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 			{
 				//selecting area
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
-				IncreaseDecreaseCount(ROWS_OF_BLOCKS-1, 0, inc_dec, &cursorY);
+				IncreaseDecreaseCount(ROWS_OF_BLOCKS-1, 0, inc_dec, &cursorY, TRUE);
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, TRUE);
 			}
 			break;
@@ -2163,7 +2209,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 					{
 						requestEnterKeyProc = CLEAR;
 						MotionDetectionPage_UpdatePage(itemY, pos_x);
-						IncreaseDecreaseCount(1, 0, inc_dec,&pos_x);
+						IncreaseDecreaseCount(1, 0, inc_dec,&pos_x, TRUE);
 						requestEnterKeyProc = SET;
 						MotionDetectionPage_UpdatePage(itemY, pos_x);
 					}
@@ -2177,7 +2223,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
     		{
 				//selecting area
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
-				IncreaseDecreaseCount(COLUMMS_OF_BLOCKS-1, 0, inc_dec, &cursorX);
+				IncreaseDecreaseCount(COLUMMS_OF_BLOCKS-1, 0, inc_dec, &cursorX, TRUE);
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, TRUE);
     		}
     		break;
@@ -2334,7 +2380,7 @@ static void MainPage_KeyHandler(eKeyData_t key)
 		case KEY_UP :
 			inc_dec = INCREASE;
 		case KEY_DOWN :
-			IncreaseDecreaseCount(MAINMENU_ITEM_Y_MAX - 1, 1, inc_dec, &itemY);
+			IncreaseDecreaseCount(MAINMENU_ITEM_Y_MAX - 1, 1, inc_dec, &itemY, TRUE);
 			DrawSelectMark(itemY);
 			break;
 
