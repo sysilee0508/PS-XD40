@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------
 void I2C_Delay(unsigned int num)
 {
-    unsigned int i;
+	 unsigned int i;
 	for(i=0;i<num;i++);
 }
 
@@ -18,10 +18,10 @@ void I2C_Start(void)
 {
 	I2C_SDA_HIGH;
 	I2C_SCL_HIGH;       // Serial Clock & Serial Data is High
-    I2C_Delay(I2C_DELAY);
-    I2C_SDA_LOW;
-    I2C_Delay(I2C_DELAY);
-    I2C_SCL_LOW;
+	I2C_Delay(I2C_DELAY);
+	I2C_SDA_LOW;
+	I2C_Delay(I2C_DELAY);
+	I2C_SCL_LOW;
 	I2C_Delay(I2C_DELAY);
 }
 
@@ -32,10 +32,10 @@ void I2C_Start(void)
 void I2C_Stop(void)
 {
 	I2C_SDA_LOW; 
-    I2C_Delay(I2C_DELAY);
-    I2C_SCL_HIGH;
-    I2C_Delay(I2C_DELAY);
-    I2C_SDA_HIGH;
+	I2C_Delay(I2C_DELAY);
+	I2C_SCL_HIGH;
+	I2C_Delay(I2C_DELAY);
+	I2C_SDA_HIGH;
 }    
 
 

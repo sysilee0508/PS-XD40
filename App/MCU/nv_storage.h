@@ -18,7 +18,7 @@
 #define NVSTORAGE_END_CHECK				0x5A5A5A5A
 
 #define NV_VERSION_MAJOR				(uint8_t)1
-#define NV_VERSION_MINOR				(uint8_t)2
+#define NV_VERSION_MINOR				(uint8_t)3
 
 #define FW_VERSION_MAJOR				(uint8_t)90	//engineer version starts 90 
 #define FW_VERSION_MINOR				(uint8_t)3
@@ -148,7 +148,7 @@ typedef struct
 	uint8_t					yearFormat;
 	BOOL			 		timeDisplayOn;
 	BOOL					dateDisplayOn;
-	uint8_t 				channelName[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX];
+	uint8_t 				channelName[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX+1];
 	BOOL 					titleDisplayOn;
 	uint8_t					autoSeqTime[NUM_OF_CHANNEL];
 	BOOL					autoSeqLossSkip;

@@ -21,7 +21,7 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_YEAR_FORMAT, 				sizeof(uint8_t),							CLEAR},
 		{NV_ITEM_TIME_ON,					sizeof(BOOL),								CLEAR},
 		{NV_ITEM_DATE_ON,					sizeof(BOOL),								CLEAR},
-		{NV_ITEM_CHANNEL_NAME,				(NUM_OF_CHANNEL * CHANNEL_NEME_LENGTH_MAX),	CLEAR},
+		{NV_ITEM_CHANNEL_NAME,				(NUM_OF_CHANNEL * (CHANNEL_NEME_LENGTH_MAX+1)),	CLEAR},
 		{NV_ITEM_TITLE_DISPLAY_ON,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_AUTO_SEQ_TIME,				NUM_OF_CHANNEL,								CLEAR},
 		{NV_ITEM_AUTO_SEQ_LOSS_SKIP,		sizeof(BOOL),								CLEAR},
@@ -130,7 +130,6 @@ static void LoadDefaultNvData(void)
 	nv_data.data.autoSeqLossSkip = ON;
 	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
 	nv_data.data.osdOn = ON;
-//	nv_data.data.titlePosition = TITLE_POSITION_4SPILIT_CENTER;
 	nv_data.data.borderLineOn = ON;
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
@@ -232,7 +231,6 @@ BOOL ReadNvItem(eNvItems_t item, void * pData, size_t size)
 		if(index < NV_ITEM_MAX )
 		{
 			memcpy(pData, &nv_data.buffer[offset], size);
-//			*(uint8_t *)pData = nv_data.buffer[offset];
 			result = NV_SUCCESS;
 		}
 	}

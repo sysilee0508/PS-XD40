@@ -30,7 +30,6 @@
 
 #define ASCII_SPACE					0x20
 #define ASCII_ZERO					0x30
-#define ASCII_TILDE					0x7E
 
 #define SELECTED_MARK				0x7F
 
@@ -100,7 +99,6 @@ enum
 	CAMERATITLE_ITEM_Y_CH3,
 	CAMERATITLE_ITEM_Y_CH4,
 	CAMERATITLE_ITEM_Y_DISPLAY_ON,
-//	CAMERATITLE_ITEM_Y_POSITION,
 	CAMERATITLE_ITEM_Y_MAX
 };
 
@@ -180,7 +178,7 @@ static u8 lineBuffer[CHARACTERS_IN_MENU_LINE];
 static BOOL requestEnterKeyProc = CLEAR;
 static u8 systemMode = SYSTEM_NORMAL_MODE;
 
-const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+- ";
+const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+-";
 #define NUM_OF_VALUABLE_CHARS 	strlen(valuableCharacters)	//75
 
 //-----------------------------------------------------------------
@@ -599,7 +597,6 @@ static void Print_StringTime(u16 itemX, u8 attribute, sTimeDate_t time)
 
 static void Print_StringDate(u16 itemX,u8 attribute,sTimeDate_t date)
 {
-//	sTimeDate_t date;
 	u8 yearStr[4] = {'2','0',}, monthStr[2], dayStr[2];
 	u8 selectedMark[3];
 
@@ -749,13 +746,11 @@ static void TimeDatePage_Entry(void)
 {   
 	u8 index = 0;
 	BOOL timeDisplayOn, dateDisplayOn;
-	//sTimeDate_t time = {0,};
 
 	currentPage = MENU_PAGE_TIME_DATE;
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
 	settingTimeInProgress = FALSE;
-	//RTC_GetTime(&time);
 
 	DrawSelectMark(TIMEDATE_ITEM_Y_TIME);
 	Read_NvItem_TimeDisplayOn(&timeDisplayOn);
@@ -962,13 +957,11 @@ const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 		{20, LINE4_OFFSET_Y, menuStr_CameraTitle_Ch4},
 		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay}
 };
-static u8 channel_name[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX];
+static u8 channel_name[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX+1] = {0,};
 
 static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 {
 	BOOL titleOn;
-
-//	u8* pChar;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
 	switch(itemY)
@@ -977,23 +970,11 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 		case CAMERATITLE_ITEM_Y_CH2:
 		case CAMERATITLE_ITEM_Y_CH3:
 		case CAMERATITLE_ITEM_Y_CH4:
-			//Read_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
-			// print full name
 			Print_StringWithSelectedMarkSize(
 					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
 					cameraTitle[itemY].offset_y,
 					(const u8*)&channel_name[itemY-1][0],
 					NULL, 0);
-			// get selected character
-//			if(channel_name[pos_x]<=ASCII_SPACE)
-//			{
-//				pChar = (u8 *)menuStr_Space1;
-//			}
-//			else
-//			{
-//				pChar = &channel_name[pos_x];
-//			}
-			// and print
 			Print_StringWithSelectedMark(
 					cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str) + pos_x,
 					cameraTitle[itemY].offset_y,
@@ -1022,7 +1003,7 @@ static void CameraTitlePage_Entry(void)
 
 	for(index = CHANNEL1; index < NUM_OF_CHANNEL; index++)
 	{
-		Read_NvItem_ChannelName(&channel_name[index], (eChannel_t)index);
+		Read_NvItem_ChannelName(channel_name[index], (eChannel_t)index);
 	}
 
 	DrawSelectMark(CAMERATITLE_ITEM_Y_CH1);
@@ -1039,9 +1020,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	static u8 itemY = CAMERATITLE_ITEM_Y_CH1;
 	BOOL inc_dec = DECREASE;
 	BOOL titleOn;
-//	u8 channel_name[CHANNEL_NEME_LENGTH_MAX];
 	u8 charIndex;
-//	u8* pChar;
 	eChannel_t channel;
 
 	switch(key)
@@ -1058,16 +1037,13 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					case CAMERATITLE_ITEM_Y_CH3:
 					case CAMERATITLE_ITEM_Y_CH4:
 						channel = itemY-1;
-//						Read_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
-						if(channel_name[channel][pos_x] <= ASCII_SPACE)
+						if(channel_name[channel][pos_x] == NULL)
 						{
 							channel_name[channel][pos_x] = ASCII_SPACE;
 						}
-						//pChar = &channel_name[pos_x];
 						charIndex = ConvertChar2Index(channel_name[channel][pos_x]);
-						IncreaseDecreaseCount(ASCII_TILDE, ASCII_SPACE+1, inc_dec, &charIndex, TRUE);
+						IncreaseDecreaseCount(NUM_OF_VALUABLE_CHARS - 1, 0, inc_dec, &charIndex, TRUE);
 						channel_name[channel][pos_x] = ConvertIndex2Char(charIndex);
-//						Write_NvItem_ChannelName(channel_name, (eChannel_t)(itemY - 1));
 						break;
 
 					case CAMERATITLE_ITEM_Y_DISPLAY_ON:
@@ -1095,6 +1071,10 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					requestEnterKeyProc = CLEAR;
 					CameraTitlePage_UpdatePage(itemY, pos_x);
 	  				IncreaseDecreaseCount(CHANNEL_NEME_LENGTH_MAX - 1, 0, inc_dec,&pos_x, FALSE);
+					if(channel_name[itemY-1][pos_x] == NULL)
+					{
+						channel_name[itemY-1][pos_x] = ASCII_SPACE;
+					}
 	  				requestEnterKeyProc = SET;
 	  				CameraTitlePage_UpdatePage(itemY, pos_x);
 				}
@@ -1123,9 +1103,17 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
+				
 				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 				{
-					Write_NvItem_ChannelName(&channel_name[channel], channel);
+					for(pos_x = 0; pos_x < CHANNEL_NEME_LENGTH_MAX; pos_x++)
+					{
+						if(channel_name[channel][pos_x] == ASCII_SPACE)
+						{
+							channel_name[channel][pos_x] = NULL;
+						}
+					}
+					Write_NvItem_ChannelName(channel_name[channel], channel);
 				}
 				itemY = CAMERATITLE_ITEM_Y_CH1;
 				pos_x = 0;
