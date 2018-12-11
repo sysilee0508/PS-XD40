@@ -490,7 +490,7 @@ static void Display_QuadCMode(void)
 	switch(oCurVideoRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode6_w0();
+			VS4210_Input1080P_Output1080P_Mode7_w0();//VS4210_Input1080P_Output1080P_Mode6_w0();
 			break;
 		case VIDEO_RESOLUTION_720P:
 			VS4210_Input720P_Output1080P_Mode7_w0();

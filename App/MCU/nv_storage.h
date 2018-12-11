@@ -18,10 +18,10 @@
 #define NVSTORAGE_END_CHECK				0x5A5A5A5A
 
 #define NV_VERSION_MAJOR				(uint8_t)1
-#define NV_VERSION_MINOR				(uint8_t)1
+#define NV_VERSION_MINOR				(uint8_t)2
 
 #define FW_VERSION_MAJOR				(uint8_t)90	//engineer version starts 90 
-#define FW_VERSION_MINOR				(uint8_t)2
+#define FW_VERSION_MINOR				(uint8_t)3
 
 #define NV_SUCCESS						TRUE
 #define NV_FAIL							FALSE
