@@ -119,6 +119,8 @@ static MDIN_OUTVIDEO_FORMAT_t GetResolution(void)
 			outResolution = VIDOUT_1920x1080p60;
 			break;
 	}
+
+	return outResolution;
 }
 
 static void MDIN3xx_SetRegInitial(void)
