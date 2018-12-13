@@ -178,7 +178,7 @@ static u8 lineBuffer[CHARACTERS_IN_MENU_LINE];
 static BOOL requestEnterKeyProc = CLEAR;
 static u8 systemMode = SYSTEM_NORMAL_MODE;
 
-const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+-";
+const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz_0123456789!@#$%^&*()+-_";
 #define NUM_OF_VALUABLE_CHARS 	strlen(valuableCharacters)	//75
 
 //-----------------------------------------------------------------
@@ -498,7 +498,7 @@ const sLocationNString_t timeDateMenu[TIMEDATE_ITEM_Y_MAX] =
 		{17, LINE6_OFFSET_Y, menuStr_TimeDate_YearFormat},
 		{17, LINE7_OFFSET_Y, menuStr_TimeDate_TimeCorrection}
 };
-static BOOL settingTimeInProgress = FALSE;
+//static BOOL settingTimeInProgress = FALSE;
 static sTimeDate_t currentTime;
 
 static void Print_StringTimeCorrect(u16 itemX,u8 attribute)
@@ -686,18 +686,18 @@ static void Print_StringYearFormat(u8 attribute)
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen(menuStr_TimeDate_YearFormat) + 2,
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_y, menuStr_Digit, NULL, strlen(menuStr_Digit));
 }
-
-static BOOL TimeDateIsUpdated(sTimeDate_t* oldTime, sTimeDate_t* newTime)
-{
-	BOOL updated = FALSE;
-
-	if(memcmp(newTime, oldTime, sizeof(sTimeDate_t)) != 0)
-	{
-		updated = TRUE;
-	}
-
-	return updated;
-}
+//
+//static BOOL TimeDateIsUpdated(sTimeDate_t* oldTime, sTimeDate_t* newTime)
+//{
+//	BOOL updated = FALSE;
+//
+//	if(memcmp(newTime, oldTime, sizeof(sTimeDate_t)) != 0)
+//	{
+//		updated = TRUE;
+//	}
+//
+//	return updated;
+//}
 
 static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY, sTimeDate_t time)
 {
@@ -750,7 +750,7 @@ static void TimeDatePage_Entry(void)
 	currentPage = MENU_PAGE_TIME_DATE;
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
-	settingTimeInProgress = FALSE;
+//	settingTimeInProgress = FALSE;
 
 	DrawSelectMark(TIMEDATE_ITEM_Y_TIME);
 	Read_NvItem_TimeDisplayOn(&timeDisplayOn);
@@ -768,7 +768,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 	static u8 pos_x = 0;
 	static u8 itemY = TIMEDATE_ITEM_Y_TIME;
 	BOOL inc_dec = DECREASE;
-	static sTimeDate_t settingTime, previousTime;
+	static sTimeDate_t currentTime;//, previousTime;
 	BOOL displayOn;
 	eDateFormat_t dateFormat;
 	BOOL yearFormat;
@@ -787,28 +787,29 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						switch(pos_x)
 						{
 							case 0://hour
-								IncreaseDecreaseCount(23, 0, inc_dec, &settingTime.hour, TRUE);
+								IncreaseDecreaseCount(23, 0, inc_dec, &currentTime.hour, TRUE);
 								break;
 							case 1://min
-								IncreaseDecreaseCount(59, 0, inc_dec, &settingTime.min, TRUE);
+								IncreaseDecreaseCount(59, 0, inc_dec, &currentTime.min, TRUE);
 								break;
 							case 2://sec
-								IncreaseDecreaseCount(59, 0, inc_dec, &settingTime.sec, TRUE);
+								IncreaseDecreaseCount(59, 0, inc_dec, &currentTime.sec, TRUE);
 								break;
 						}
+						RTC_SetTime(&currentTime);
 						break;
 
 					case TIMEDATE_ITEM_Y_DATE:
 						switch(pos_x)
 						{
 							case 0://year
-								IncreaseDecreaseCount(81, 0, inc_dec, &settingTime.year, TRUE); //2018~2099
+								IncreaseDecreaseCount(81, 0, inc_dec, &currentTime.year, TRUE); //2018~2099
 								break;
 							case 1://month
-								IncreaseDecreaseCount(12, 1, inc_dec, &settingTime.month, TRUE);
+								IncreaseDecreaseCount(12, 1, inc_dec, &currentTime.month, TRUE);
 								break;
 							case 2://day
-								IncreaseDecreaseCount(GetDaysInMonth(settingTime.month, settingTime.year), 1, inc_dec, &settingTime.day, TRUE);
+								IncreaseDecreaseCount(GetDaysInMonth(currentTime.month, currentTime.year), 1, inc_dec, &currentTime.day, TRUE);
 								break;
 						}
 						break;
@@ -868,7 +869,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						Write_NvItem_TimeCorrect(timeCorrect);
 						break;
 				}
-				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, settingTime);
+				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
 			}
 			else
 			{
@@ -888,10 +889,10 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						(itemY == TIMEDATE_ITEM_Y_DATE) ||
 						(itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION))
 				{
-					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, settingTime);
+					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
 					IncreaseDecreaseCount(2, 0,inc_dec, &pos_x, TRUE);
 					requestEnterKeyProc = SET;
-					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, settingTime);
+					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
 				}
 			}
 			break;
@@ -902,22 +903,14 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			{
 				if(requestEnterKeyProc == SET)
 				{
-					RTC_GetTime(&settingTime);
-					memcpy(&previousTime, &settingTime, sizeof(settingTime));
+					RTC_GetTime(&currentTime);
 				}
 				else
 				{
-					if(TimeDateIsUpdated(&previousTime, &settingTime))
-					{
-						RTC_SetTime(&settingTime);
-					}
-				}
-				if(itemY == TIMEDATE_ITEM_Y_TIME)
-				{
-					Toggle(&settingTimeInProgress);
+					RTC_SetTime(&currentTime);
 				}
 			}
-			TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, settingTime);
+			TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
 			break; 	
 
 		case KEY_EXIT :
@@ -926,12 +919,9 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 				Toggle(&requestEnterKeyProc);
 				if((itemY == TIMEDATE_ITEM_Y_TIME) || (itemY == TIMEDATE_ITEM_Y_DATE))
 				{
-					if(TimeDateIsUpdated(&previousTime, &settingTime))
-					{
-						RTC_SetTime(&settingTime);
-					}
+					RTC_SetTime(&currentTime);
 				}
-				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, settingTime);
+				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
 			}
 			else
 			{
@@ -939,7 +929,6 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 				pos_x = 0;
 				MainMenu_Entry(currentPage);
 			}
-			settingTimeInProgress = FALSE;
 			break;
 	}
 }
@@ -2418,7 +2407,7 @@ void Enter_MainMenu(void)
 void DisplayTimeInMenu(void)
 {
 	RTC_GetTime(&currentTime);
-	if((currentPage == MENU_PAGE_TIME_DATE) && (settingTimeInProgress == FALSE) && (RTC_GetDisplayTimeStatus() == SET))
+	if((currentPage == MENU_PAGE_TIME_DATE) && (RTC_GetDisplayTimeStatus() == SET))
 	{
 		//RTC_ChangeDisplayTimeStatus(CLEAR);
 		TimeDatePage_UpdatePage(0, TIMEDATE_ITEM_Y_TIME, currentTime);

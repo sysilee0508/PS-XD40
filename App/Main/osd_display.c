@@ -69,6 +69,19 @@ static const sPosition_t indicatorPositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_C
 
 static BOOL requestRefreshScreen = CLEAR;
 
+static void OSD_MakeTitleString(u8* title, u8 length)
+{
+	u8 index;
+
+	for(index = 0; index < length; index++)
+	{
+		if(*(title+index) == ASCII_UNDERBAR)
+		{
+			*(title+index) = ASCII_SPACE;
+		}
+	}
+}
+
 static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
 {
 	sPosition_t position;
@@ -602,6 +615,7 @@ void OSD_DisplayChannelName(void)
 		{
 			channel = Get_SystemDisplayChannel();
 			Read_NvItem_ChannelName(channel_name, channel);
+			OSD_MakeTitleString(channel_name, strlen(channel_name));
 			positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 			OSD_PrintString(positionValue, channel_name, strlen(channel_name));
 		}
@@ -611,6 +625,7 @@ void OSD_DisplayChannelName(void)
 			for(channel = CHANNEL1; channel < max_channel; channel++)
 			{
 				Read_NvItem_ChannelName(channel_name, channel);
+				OSD_MakeTitleString(channel_name, strlen(channel_name));
 				positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 				OSD_PrintString(positionValue, channel_name, strlen(channel_name));
 			}
