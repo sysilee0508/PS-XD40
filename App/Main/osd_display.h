@@ -24,7 +24,6 @@
 
 #define ASCII_SPACE					0x20
 #define ASCII_ZERO					0x30
-#define ASCII_UNDERBAR				0x5F
 
 //-----------------------------------------------------------------
 // type definitions - struct/enum/etc
@@ -45,12 +44,10 @@ typedef struct
 //-----------------------------------------------------------------
 extern void Osd_ClearScreen(void);
 extern void OSD_EraseAllText(void);
-//extern void OSD_EraseAll(void);
 extern void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size);
 extern void OSD_Display(void);
 extern void OSD_Display_Time(void);
 extern void OSD_Display_Time_NOW(void);
-extern void OSD_MakeTitleString(u8* title, u8 length);
 extern void OSD_DisplayChannelName(void);
 extern void OSD_Display_State(void);
 

@@ -585,7 +585,7 @@ void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pData, size, 0);
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
-
+/*
 void OSD_MakeTitleString(u8* title, u8 length)
 {
 	u8 index;
@@ -598,7 +598,7 @@ void OSD_MakeTitleString(u8* title, u8 length)
 		}
 	}
 }
-
+*/
 void OSD_DisplayChannelName(void)
 {
 	eChannel_t channel, max_channel = NUM_OF_CHANNEL;
@@ -615,7 +615,7 @@ void OSD_DisplayChannelName(void)
 		{
 			channel = Get_SystemDisplayChannel();
 			Read_NvItem_ChannelName(channel_name, channel);
-			OSD_MakeTitleString(channel_name, strlen(channel_name));
+			//OSD_MakeTitleString(channel_name, strlen(channel_name));
 			positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 			OSD_PrintString(positionValue, channel_name, strlen(channel_name));
 		}
@@ -625,7 +625,7 @@ void OSD_DisplayChannelName(void)
 			for(channel = CHANNEL1; channel < max_channel; channel++)
 			{
 				Read_NvItem_ChannelName(channel_name, channel);
-				OSD_MakeTitleString(channel_name, strlen(channel_name));
+				//OSD_MakeTitleString(channel_name, strlen(channel_name));
 				positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 				OSD_PrintString(positionValue, channel_name, strlen(channel_name));
 			}

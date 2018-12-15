@@ -984,7 +984,6 @@ static void CameraTitlePage_Entry(void)
 	for(index = CHANNEL1; index < NUM_OF_CHANNEL; index++)
 	{
 		Read_NvItem_ChannelName(channel_name[index], (eChannel_t)index);
-		OSD_MakeTitleString(channel_name[index], strlen(channel_name[index]));
 	}
 
 	DrawSelectMark(CAMERATITLE_ITEM_Y_CH1);
@@ -1017,11 +1016,6 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					case CAMERATITLE_ITEM_Y_CH2:
 					case CAMERATITLE_ITEM_Y_CH3:
 					case CAMERATITLE_ITEM_Y_CH4:
-						//if(channel_name[channel][pos_x] == NULL)
-						//{
-						//	channel_name[channel][pos_x] = ASCII_SPACE;
-						//}
-						//charIndex = ConvertChar2Index(channel_name[channel][pos_x]);
 						IncreaseDecreaseCount(NUM_OF_VALUABLE_CHARS - 1, 0, inc_dec, &charIndex, TRUE);
 						channel_name[channel][pos_x] = ConvertIndex2Char(charIndex);
 						break;
@@ -1052,10 +1046,9 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					CameraTitlePage_UpdatePage(itemY, pos_x);
 	  				IncreaseDecreaseCount(CHANNEL_NEME_LENGTH_MAX - 1, 0, inc_dec,&pos_x, FALSE);
 					charIndex = ConvertChar2Index(channel_name[channel][pos_x]);
-					if(channel_name[channel][pos_x] == NULL)
+					if(charIndex == NUM_OF_VALUABLE_CHARS)
 					{
 						channel_name[channel][pos_x] = ASCII_SPACE;
-						charIndex = NUM_OF_VALUABLE_CHARS - 1;
 					}
 	  				requestEnterKeyProc = SET;
 	  				CameraTitlePage_UpdatePage(itemY, pos_x);
@@ -1075,10 +1068,9 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 				if((itemY >= CAMERATITLE_ITEM_Y_CH1) && (itemY <= CAMERATITLE_ITEM_Y_CH4))
 				{
 					charIndex = ConvertChar2Index(channel_name[channel][pos_x]);
-					if(channel_name[channel][pos_x] == NULL)
+					if(charIndex == NUM_OF_VALUABLE_CHARS)
 					{
 						channel_name[channel][pos_x] = ASCII_SPACE;
-						charIndex = NUM_OF_VALUABLE_CHARS - 1;
 					}
 				}
 			}
@@ -1094,15 +1086,11 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
-				
 				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 				{
-					for(pos_x = 0; pos_x < CHANNEL_NEME_LENGTH_MAX; pos_x++)
+					if(charIndex == NUM_OF_VALUABLE_CHARS)
 					{
-						if(channel_name[channel][pos_x] == ASCII_SPACE)
-						{
-							channel_name[channel][pos_x] = ASCII_UNDERBAR;
-						}
+						channel_name[channel][pos_x] = NULL;
 					}
 					Write_NvItem_ChannelName(channel_name[channel], channel);
 				}
