@@ -4,10 +4,6 @@
 #ifndef __OSD_STRING_H__
 #define __OSD_STRING_H__
 
-#define ASCII_SPACE					0x20
-#define ASCII_ZERO					0x30
-#define ASCII_UNDERBAR				0x5F
-
 const u8 osdStr_Space1[] = " ";
 const u8 osdStr_Space2[] = "  ";
 const u8 osdStr_Space3[] = "   ";

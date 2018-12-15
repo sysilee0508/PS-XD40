@@ -28,9 +28,6 @@
 #define CHARACTERS_IN_MENU_LINE		MENU_WIDTH / CHAR_WIDTH
 #define LINES_IN_MENU				MENU_HEIGHT / CHAR_HEIGHT
 
-#define ASCII_SPACE					0x20
-#define ASCII_ZERO					0x30
-
 #define SELECTED_MARK				0x7F
 
 #define UNDER_BAR					0x01
@@ -178,8 +175,8 @@ static u8 lineBuffer[CHARACTERS_IN_MENU_LINE];
 static BOOL requestEnterKeyProc = CLEAR;
 static u8 systemMode = SYSTEM_NORMAL_MODE;
 
-const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz_0123456789!@#$%^&*()+-_";
-#define NUM_OF_VALUABLE_CHARS 	strlen(valuableCharacters)	//75
+const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789!@#$%^&*()+- ";
+#define NUM_OF_VALUABLE_CHARS 	strlen(valuableCharacters)	//77
 
 //-----------------------------------------------------------------
 // declare global variables
@@ -281,7 +278,7 @@ static u8 ConvertIndex2Char(u8 index)
 		character = valuableCharacters[index];
 	}
 	else
-		character = ASCII_SPACE;
+		character = NULL;
 
 	return character;
 }
@@ -498,8 +495,9 @@ const sLocationNString_t timeDateMenu[TIMEDATE_ITEM_Y_MAX] =
 		{17, LINE6_OFFSET_Y, menuStr_TimeDate_YearFormat},
 		{17, LINE7_OFFSET_Y, menuStr_TimeDate_TimeCorrection}
 };
-//static BOOL settingTimeInProgress = FALSE;
+static u8 timeSetup_posX;
 static sTimeDate_t currentTime;
+static BOOL setupSecs = FALSE;
 
 static void Print_StringTimeCorrect(u16 itemX,u8 attribute)
 {
@@ -686,18 +684,6 @@ static void Print_StringYearFormat(u8 attribute)
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_x + strlen(menuStr_TimeDate_YearFormat) + 2,
 			timeDateMenu[TIMEDATE_ITEM_Y_YEAR_FORMAT].offset_y, menuStr_Digit, NULL, strlen(menuStr_Digit));
 }
-//
-//static BOOL TimeDateIsUpdated(sTimeDate_t* oldTime, sTimeDate_t* newTime)
-//{
-//	BOOL updated = FALSE;
-//
-//	if(memcmp(newTime, oldTime, sizeof(sTimeDate_t)) != 0)
-//	{
-//		updated = TRUE;
-//	}
-//
-//	return updated;
-//}
 
 static void TimeDatePage_UpdatePage(u16 itemX, u8 itemY, sTimeDate_t time)
 {
@@ -750,11 +736,12 @@ static void TimeDatePage_Entry(void)
 	currentPage = MENU_PAGE_TIME_DATE;
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
-//	settingTimeInProgress = FALSE;
+	timeSetup_posX = 0;
 
 	DrawSelectMark(TIMEDATE_ITEM_Y_TIME);
 	Read_NvItem_TimeDisplayOn(&timeDisplayOn);
 	Read_NvItem_DateDisplayOn(&dateDisplayOn);
+	RTC_GetTime(&currentTime);
 	// display items of this page
 	for(index = 0; index < TIMEDATE_ITEM_Y_MAX; index++)
 	{
@@ -763,12 +750,10 @@ static void TimeDatePage_Entry(void)
 	}
 }
 
+static u8 timeSetup_itemY = TIMEDATE_ITEM_Y_TIME;
 static void TimeDatePage_KeyHandler(eKeyData_t key)
 {
-	static u8 pos_x = 0;
-	static u8 itemY = TIMEDATE_ITEM_Y_TIME;
 	BOOL inc_dec = DECREASE;
-	static sTimeDate_t currentTime;//, previousTime;
 	BOOL displayOn;
 	eDateFormat_t dateFormat;
 	BOOL yearFormat;
@@ -781,10 +766,10 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 		case KEY_DOWN :
 			if(requestEnterKeyProc == SET)
 			{
-				switch(itemY)
+				switch(timeSetup_itemY)
 				{
 					case TIMEDATE_ITEM_Y_TIME:
-						switch(pos_x)
+						switch(timeSetup_posX)
 						{
 							case 0://hour
 								IncreaseDecreaseCount(23, 0, inc_dec, &currentTime.hour, TRUE);
@@ -793,6 +778,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 								IncreaseDecreaseCount(59, 0, inc_dec, &currentTime.min, TRUE);
 								break;
 							case 2://sec
+								setupSecs = TRUE;
 								IncreaseDecreaseCount(59, 0, inc_dec, &currentTime.sec, TRUE);
 								break;
 						}
@@ -800,7 +786,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						break;
 
 					case TIMEDATE_ITEM_Y_DATE:
-						switch(pos_x)
+						switch(timeSetup_posX)
 						{
 							case 0://year
 								IncreaseDecreaseCount(81, 0, inc_dec, &currentTime.year, TRUE); //2018~2099
@@ -812,6 +798,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 								IncreaseDecreaseCount(GetDaysInMonth(currentTime.month, currentTime.year), 1, inc_dec, &currentTime.day, TRUE);
 								break;
 						}
+						RTC_SetTime(&currentTime);
 						break;
 
 					case TIMEDATE_ITEM_Y_TIME_DISPLAY:
@@ -840,7 +827,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 
 					case TIMEDATE_ITEM_Y_TIME_CORRECTION:
 						Read_NvItem_TimeCorrect(&timeCorrect);
-						switch(pos_x)
+						switch(timeSetup_posX)
 						{
 							case 0: //direction
 								if(timeCorrect.timeCorrectDirection == DIRECTION_UP)
@@ -869,37 +856,40 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 						Write_NvItem_TimeCorrect(timeCorrect);
 						break;
 				}
-				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
+				TimeDatePage_UpdatePage(ITEM_X(timeSetup_posX), timeSetup_itemY, currentTime);
 			}
 			else
 			{
-				IncreaseDecreaseCount(7, 1, inc_dec, &itemY, TRUE);
-				DrawSelectMark(itemY);
-				pos_x = 0;
+				IncreaseDecreaseCount(7, 1, inc_dec, &timeSetup_itemY, TRUE);
+				DrawSelectMark(timeSetup_itemY);
+				timeSetup_posX = 0;
+				setupSecs = FALSE;
 			}
 			break;
 
 		case KEY_RIGHT :
 			inc_dec = INCREASE;
 		case KEY_LEFT  :
+			setupSecs = FALSE;
 			if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
-				if((itemY == TIMEDATE_ITEM_Y_TIME) ||
-						(itemY == TIMEDATE_ITEM_Y_DATE) ||
-						(itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION))
+				if((timeSetup_itemY == TIMEDATE_ITEM_Y_TIME) ||
+						(timeSetup_itemY == TIMEDATE_ITEM_Y_DATE) ||
+						(timeSetup_itemY == TIMEDATE_ITEM_Y_TIME_CORRECTION))
 				{
-					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
-					IncreaseDecreaseCount(2, 0,inc_dec, &pos_x, TRUE);
+					TimeDatePage_UpdatePage(ITEM_X(timeSetup_posX), timeSetup_itemY, currentTime);
+					IncreaseDecreaseCount(2, 0,inc_dec, &timeSetup_posX, TRUE);
 					requestEnterKeyProc = SET;
-					TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
+					TimeDatePage_UpdatePage(ITEM_X(timeSetup_posX), timeSetup_itemY, currentTime);
 				}
 			}
 			break;
 
 		case KEY_ENTER :
+			setupSecs = FALSE;
 			Toggle(&requestEnterKeyProc);
-			if((itemY == TIMEDATE_ITEM_Y_TIME) || (itemY == TIMEDATE_ITEM_Y_DATE))
+			if((timeSetup_itemY == TIMEDATE_ITEM_Y_TIME) || (timeSetup_itemY == TIMEDATE_ITEM_Y_DATE))
 			{
 				if(requestEnterKeyProc == SET)
 				{
@@ -907,26 +897,27 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 				}
 				else
 				{
-					RTC_SetTime(&currentTime);
+					//RTC_SetTime(&currentTime);
 				}
 			}
-			TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
+			TimeDatePage_UpdatePage(ITEM_X(timeSetup_posX), timeSetup_itemY, currentTime);
 			break; 	
 
 		case KEY_EXIT :
+			setupSecs = FALSE;
 			if(requestEnterKeyProc == SET)
 			{
 				Toggle(&requestEnterKeyProc);
-				if((itemY == TIMEDATE_ITEM_Y_TIME) || (itemY == TIMEDATE_ITEM_Y_DATE))
+				if((timeSetup_itemY == TIMEDATE_ITEM_Y_TIME) || (timeSetup_itemY == TIMEDATE_ITEM_Y_DATE))
 				{
-					RTC_SetTime(&currentTime);
+					//RTC_SetTime(&currentTime);
 				}
-				TimeDatePage_UpdatePage(ITEM_X(pos_x), itemY, currentTime);
+				TimeDatePage_UpdatePage(ITEM_X(timeSetup_posX), timeSetup_itemY, currentTime);
 			}
 			else
 			{
-				itemY = TIMEDATE_ITEM_Y_TIME;
-				pos_x = 0;
+				timeSetup_itemY = TIMEDATE_ITEM_Y_TIME;
+				timeSetup_posX = 0;
 				MainMenu_Entry(currentPage);
 			}
 			break;
@@ -993,6 +984,7 @@ static void CameraTitlePage_Entry(void)
 	for(index = CHANNEL1; index < NUM_OF_CHANNEL; index++)
 	{
 		Read_NvItem_ChannelName(channel_name[index], (eChannel_t)index);
+		OSD_MakeTitleString(channel_name[index], strlen(channel_name[index]));
 	}
 
 	DrawSelectMark(CAMERATITLE_ITEM_Y_CH1);
@@ -1007,10 +999,10 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 {
 	static u8 pos_x = 0;
 	static u8 itemY = CAMERATITLE_ITEM_Y_CH1;
+	static u8 charIndex;
 	BOOL inc_dec = DECREASE;
 	BOOL titleOn;
-	u8 charIndex;
-	eChannel_t channel;
+	eChannel_t channel = itemY-1;
 
 	switch(key)
 	{
@@ -1025,12 +1017,11 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					case CAMERATITLE_ITEM_Y_CH2:
 					case CAMERATITLE_ITEM_Y_CH3:
 					case CAMERATITLE_ITEM_Y_CH4:
-						channel = itemY-1;
-						if(channel_name[channel][pos_x] == NULL)
-						{
-							channel_name[channel][pos_x] = ASCII_SPACE;
-						}
-						charIndex = ConvertChar2Index(channel_name[channel][pos_x]);
+						//if(channel_name[channel][pos_x] == NULL)
+						//{
+						//	channel_name[channel][pos_x] = ASCII_SPACE;
+						//}
+						//charIndex = ConvertChar2Index(channel_name[channel][pos_x]);
 						IncreaseDecreaseCount(NUM_OF_VALUABLE_CHARS - 1, 0, inc_dec, &charIndex, TRUE);
 						channel_name[channel][pos_x] = ConvertIndex2Char(charIndex);
 						break;
@@ -1060,9 +1051,11 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					requestEnterKeyProc = CLEAR;
 					CameraTitlePage_UpdatePage(itemY, pos_x);
 	  				IncreaseDecreaseCount(CHANNEL_NEME_LENGTH_MAX - 1, 0, inc_dec,&pos_x, FALSE);
-					if(channel_name[itemY-1][pos_x] == NULL)
+					charIndex = ConvertChar2Index(channel_name[channel][pos_x]);
+					if(channel_name[channel][pos_x] == NULL)
 					{
-						channel_name[itemY-1][pos_x] = ASCII_SPACE;
+						channel_name[channel][pos_x] = ASCII_SPACE;
+						charIndex = NUM_OF_VALUABLE_CHARS - 1;
 					}
 	  				requestEnterKeyProc = SET;
 	  				CameraTitlePage_UpdatePage(itemY, pos_x);
@@ -1079,6 +1072,15 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			if(requestEnterKeyProc == SET)
 			{
 				pos_x = 0;
+				if((itemY >= CAMERATITLE_ITEM_Y_CH1) && (itemY <= CAMERATITLE_ITEM_Y_CH4))
+				{
+					charIndex = ConvertChar2Index(channel_name[channel][pos_x]);
+					if(channel_name[channel][pos_x] == NULL)
+					{
+						channel_name[channel][pos_x] = ASCII_SPACE;
+						charIndex = NUM_OF_VALUABLE_CHARS - 1;
+					}
+				}
 			}
 			CameraTitlePage_UpdatePage(itemY, pos_x);
 			break; 	
@@ -1087,7 +1089,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	    	if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
-				CameraTitlePage_UpdatePage(itemY, 0);
+				CameraTitlePage_UpdatePage(itemY, pos_x);
 				DrawSelectMark(itemY);
 			}
 			else 
@@ -1099,7 +1101,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					{
 						if(channel_name[channel][pos_x] == ASCII_SPACE)
 						{
-							channel_name[channel][pos_x] = NULL;
+							channel_name[channel][pos_x] = ASCII_UNDERBAR;
 						}
 					}
 					Write_NvItem_ChannelName(channel_name[channel], channel);
@@ -2406,11 +2408,14 @@ void Enter_MainMenu(void)
 //-----------------------------------------------------------------
 void DisplayTimeInMenu(void)
 {
-	RTC_GetTime(&currentTime);
 	if((currentPage == MENU_PAGE_TIME_DATE) && (RTC_GetDisplayTimeStatus() == SET))
 	{
-		//RTC_ChangeDisplayTimeStatus(CLEAR);
-		TimeDatePage_UpdatePage(0, TIMEDATE_ITEM_Y_TIME, currentTime);
+		RTC_ChangeDisplayTimeStatus(CLEAR);
+		RTC_GetTime(&currentTime);
+		if((timeSetup_itemY == TIMEDATE_ITEM_Y_TIME) && (requestEnterKeyProc == SET))
+			Print_StringTime(ITEM_X(timeSetup_posX), UNDER_BAR, currentTime);
+		else
+			Print_StringTime(0, NULL, currentTime);
 	}
 }
 

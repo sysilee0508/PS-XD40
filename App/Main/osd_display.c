@@ -69,19 +69,6 @@ static const sPosition_t indicatorPositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_C
 
 static BOOL requestRefreshScreen = CLEAR;
 
-static void OSD_MakeTitleString(u8* title, u8 length)
-{
-	u8 index;
-
-	for(index = 0; index < length; index++)
-	{
-		if(*(title+index) == ASCII_UNDERBAR)
-		{
-			*(title+index) = ASCII_SPACE;
-		}
-	}
-}
-
 static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
 {
 	sPosition_t position;
@@ -292,7 +279,7 @@ static void OSD_EraseChannelName(void)
 	sPosition_t position;
 	eDisplayMode_t displayMode;
 	eChannel_t max_channel = NUM_OF_CHANNEL;
-	u8 channel_name[CHANNEL_NEME_LENGTH_MAX] = {0,};
+	u8 channel_name[CHANNEL_NEME_LENGTH_MAX+1] = {0,};
 
 	displayMode = Get_SystemDisplayMode();
 
@@ -599,13 +586,26 @@ void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
 
+void OSD_MakeTitleString(u8* title, u8 length)
+{
+	u8 index;
+
+	for(index = 0; index < length; index++)
+	{
+		if(*(title+index) == ASCII_UNDERBAR)
+		{
+			*(title+index) = ASCII_SPACE;
+		}
+	}
+}
+
 void OSD_DisplayChannelName(void)
 {
 	eChannel_t channel, max_channel = NUM_OF_CHANNEL;
 	sPosition_t positionValue;
 	BOOL titleDisplayOn;
 	eDisplayMode_t displayMode = Get_SystemDisplayMode();
-	u8 channel_name[CHANNEL_NEME_LENGTH_MAX] = {0,};
+	u8 channel_name[CHANNEL_NEME_LENGTH_MAX+1] = {0,};
 
 	Read_NvItem_TitleDispalyOn(&titleDisplayOn);
 
