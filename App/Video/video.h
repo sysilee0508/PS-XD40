@@ -18,9 +18,6 @@
 // -----------------------------------------------------------------------------
 // Include files
 // -----------------------------------------------------------------------------
-//#ifndef		__HDMIAMF_H__		   //by hungry 2012.03.07
-//#include	"..\hdmirx\HDRx_amf.h"
-//#endif
 
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
@@ -64,6 +61,7 @@
 #endif
 
 
+#if 0 //kukuri
 // vdcnv.c
 #define		VDCNV_NTSC					0
 #define		VDCNV_PAL					1
@@ -117,6 +115,9 @@ typedef enum {
 
 }	DEMO_DISPLAY_PIP_t;
 
+#endif
+
+
 typedef enum
 {
 	RESOLUTION_1920_1080_60P,
@@ -163,8 +164,11 @@ void VideoSetIPCSlowMotion(BOOL OnOff);
 void VideoSDITXCtrlHandler(void);	   	//by hungry 2012.02.23
 void SetVideoOutputfrmt(BYTE frmt);
 
+
+void UpdateVideoResolution(eResolution_t resolution);
 //void Change_Main_Aux_Input(BYTE sel);
 
+#if 0 //kukuri
 
 // demo.c
 void DEMO_SetInputSource(WORD nID);		// 1.SetUp
@@ -316,7 +320,8 @@ extern u8 SDIRX_change_flag;
 void SDITX_CtrlHandler(PMDIN_VIDEO_INFO pINFO);
 void SDITX_ShowStatus(void);
 
-extern void UpdateVideoResolution(eResolution_t resolution);
+#endif
+
 
 
 #endif	/* __VIDEO_H__ */

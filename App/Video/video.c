@@ -98,7 +98,7 @@ void UpdateVideoResolution(eResolution_t resolution)
 	}
 }
 
-static MDIN_OUTVIDEO_FORMAT_t GetResolution(void)
+static MDIN_OUTVIDEO_FORMAT_t GetOutputFormat(void)
 {
 	eResolution_t eResolution;
 	MDIN_OUTVIDEO_FORMAT_t outResolution;
@@ -186,7 +186,7 @@ static void MDIN3xx_SetRegInitial(void)
 
 	// define video format of MAIN-OUTPUT
 
-	stVideo.stOUT_m.frmt = GetResolution();//VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
+	stVideo.stOUT_m.frmt = GetOutputFormat();//VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
 	stVideo.stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
 	stVideo.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
@@ -216,7 +216,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
 
 	// define video format of AUX-OUTPUT
-	if(GetResolution() == VIDOUT_1920x1080p60)
+	if(GetOutputFormat() == VIDOUT_1920x1080p60)
 	{
 		stVideo.stOUT_x.frmt = VIDOUT_720x480i60;
 	}
@@ -242,7 +242,7 @@ static void MDIN3xx_SetRegInitial(void)
 #endif
 
 	// define video format of video encoder
-	if(GetResolution() == VIDOUT_1920x1080p60)
+	if(GetOutputFormat() == VIDOUT_1920x1080p60)
 	{
 		stVideo.encFRMT = VID_VENC_NTSC_M;
 	}
@@ -292,12 +292,8 @@ static void MDIN3xx_SetRegInitial(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-//static void DEMOKIT_Outputfrmt(BYTE frmt)		//by hungry 2012.03.06
 void SetVideoOutputfrmt(BYTE frmt)		//by hungry 2012.03.06
 {
-//	SetOSDMenuID(0x6210);
-//	SetOSDItemID(frmt);
-//	SetMenuStatus(6,2,frmt);
 	stVideo.stOUT_m.frmt = frmt;
 	OutMainFrmt = frmt;
 }
@@ -332,7 +328,6 @@ static BYTE GetSrcMainMode(BYTE src)
 		case VIDEO_SDI_2HD_POP:		return MDIN_SRC_EMB422_8;	
 		case VIDEO_DIGITAL_SDI:		return MDIN_SRC_EMB422_8;	//by hungry 2012.02.15
 		case VIDEO_DIGITAL_SDI2:	return MDIN_SRC_RGB444_8;	//by flcl 2013.04.23
-
 		default:					return MDIN_SRC_SEP422_8;
 	}
 }
@@ -340,12 +335,6 @@ static BYTE GetSrcMainMode(BYTE src)
 //--------------------------------------------------------------------------------------------------
 static BYTE GetSrcMainFrmt(BYTE src)
 {
-/*		 //by hungry 2012.03.07
-	switch (src) {
-		case VIDEO_ADCNV_COMPONENT:	return VIDSRC_720x480i60;
-		case VIDEO_ADCNV_PC_RGB:	return VIDSRC_640x480p60;
-	}
-*/
 	return SrcMainFrmt;
 }
 
@@ -359,7 +348,6 @@ static BYTE GetSrcAuxMode(BYTE src)
 	}
 }
 
-		//by hungry 2012.03.07
 //--------------------------------------------------------------------------------------------------
 static BYTE GetSrcAuxFrmt(BYTE src)
 {
@@ -396,11 +384,6 @@ static void InputSourceHandler(BYTE src)
 
 	
 	if (src==InputSelOld) return;
-
-//	MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-//	MDIN3xx_EnableMainDisplay(OFF);
-
-//	SetInputSource(src);		   //by hungry 2012.03.07
 
 	SetInVideoPath(src);
 	
@@ -497,7 +480,6 @@ static void SetOffChipFrmtInA(BYTE src)
 	}
 }
 
-	   //by hungry 2012.03.07
 //--------------------------------------------------------------------------------------------------
 static void SetOffChipFrmtInB(BYTE src)
 {
@@ -578,39 +560,20 @@ static void SetAUXVideoFilter(void)
 //}
 
 //--------------------------------------------------------------------------------------------------
-//static void SetOSDMenuRefresh(void)
-void SetOSDMenuRefresh(void)
+static void SetOSDMenuRefresh(void)
+//void SetOSDMenuRefresh(void)
 {
-	//BOOL h_rpt, OnOff = (stVideo.dacPATH==DAC_PATH_AUX_4CH)? ON : OFF;
-
-	//OSD_SetFontMAP();	
-
-	//SetOSDMenuID(GetOSDMenuID());	// refresh OSD-menu
-
 	OSD_ModifyPalette_M((OutMainMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
-	//OSD_ModifyPalette_X((OutAuxMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
+	OSD_ModifyPalette_X((OutAuxMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
 
-	//h_rpt = (OutAuxMode==MDIN_OUT_MUX656_8||OutAuxMode==MDIN_OUT_MUX656_10)? ON : OFF;
 	MDINOSD_EnableLayerRepeat(&stLayer[LAYER_INDEX0], OFF, OFF);
 
-	//if (OnOff==ON) SetSBoxAreaRefresh();				// refresh OSD-Sbox
-	//MDINOSD_EnableSBoxBorder(&stSBOX[0], OnOff);
 	MDIN3xx_EnableAuxWithMainOSD(&stVideo, ON);
-
-	//DEMO_EnableRectBGBOX((stVideo.dacPATH==DAC_PATH_MAIN_PIP)? ON : OFF);
-
-//	MDINOSD_SetSpriteBMPInfo(&stOSD[SPRITE_INDEXB], st4CH.w_m, st4CH.h_m, st4CH.addr_m);
-//	MDINOSD_SetSpritePosition(&stOSD[SPRITE_INDEXB], 876, 510);
-	//MDINOSD_EnableSprite(&stOSD[SPRITE_INDEXB], OnOff);
-
-//	OSD_SetDemo();
 }
 
 //--------------------------------------------------------------------------------------------------
 static void VideoFrameProcess(BYTE src)
 {
-//	unsigned char current_split_mode_tmp = 0;
-
 	if (fSyncParsed==FALSE) return;		// wait for sync detection
 
 	if (EncVideoFrmt!=PrevEncFrmt)	PrevSrcMainFrmt = 0xff;
@@ -646,11 +609,9 @@ static void VideoFrameProcess(BYTE src)
 		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
 		MDIN3xx_EnableMainDisplay(OFF);
 
-		//SetOSDMenuDisable();		// set OSD menu disable
 		SetOffChipFrmtInA(src);		// set InA offchip format
 		SetOffChipFrmtInB(src);		// set InB offchip format	//by hungry 2012.03.07
 		SetSrcMainFine(src);		// set source video fine (fldid, offset)
-	//	SetOutVideoFine();			// set output video fine (swap)
 
 		//DEMO_SetOutputMode(GetMenuStatus(6,3));		// update out port mode, add on 16Aug2012
 
@@ -687,7 +648,7 @@ static void VideoFrameProcess(BYTE src)
 
 		PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
 		PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
-		// Do not use aux display.. by kukuri
+
 		PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
 		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
 	}
