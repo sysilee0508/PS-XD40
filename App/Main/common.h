@@ -61,9 +61,6 @@ typedef enum {
 	MSG_LEVEL = 0, MSG_SHIFT, MSG_ZMOVE
 } 	MSG_EXE_SPEED;
 
-//#define TIME_AFTER(unknown,known)	(((long)(known)-(long)(unknown))<0)
-//#define TIME_BEFORE(unknown,known)	(((long)(unknown)-(long)(known))<0)
-
 #define NOP()	asm("NOP")
 
 #define CLEAR							0
@@ -76,6 +73,5 @@ typedef enum {
 // -----------------------------------------------------------------------------
 // External Variables declaration
 // -----------------------------------------------------------------------------
-extern volatile BOOL fZOOMMove, fCROPMove;
 
 #endif	/* __COMMON_H__ */

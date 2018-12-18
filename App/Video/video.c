@@ -351,15 +351,11 @@ static BYTE GetSrcAuxMode(BYTE src)
 //--------------------------------------------------------------------------------------------------
 static BYTE GetSrcAuxFrmt(BYTE src)
 {
-	BYTE frmt = 0xff;
-
-	if (frmt == 0xff) frmt = 0x0;	// 02Jan2012
-	
-	return VIDSRC_720x480i60; //frmt; 
+	return SrcAuxFrmt;
 }
 
 //--------------------------------------------------------------------------------------------------
-static void InputSourceHandler(BYTE src)
+static void UpdateOutputFormat(void)
 {
 	if(fUpdatedOutResolution== TRUE)
 	{
@@ -368,7 +364,7 @@ static void InputSourceHandler(BYTE src)
 		OutMainFrmt = Video_Out_Res_Val;		// get out-format
 		OutAuxMode = MDIN_OUT_MUX656_8;		// set aux-mode
 		
-		if(GetResolution() == VIDOUT_1920x1080p60)
+		if(GetOutputFormat() == VIDOUT_1920x1080p60)
 		{
 			OutAuxFrmt= VIDOUT_720x480i60;// set aux-format
 			EncVideoFrmt = VID_VENC_NTSC_M;
@@ -380,9 +376,11 @@ static void InputSourceHandler(BYTE src)
 		}
 	}
 
-	//OutAuxFrmt = VIDOUT_720x480i60;			// set aux-format
+}
 
-	
+//--------------------------------------------------------------------------------------------------
+static void InputSourceHandler(BYTE src)
+{
 	if (src==InputSelOld) return;
 
 	SetInVideoPath(src);
@@ -392,6 +390,7 @@ static void InputSourceHandler(BYTE src)
 	SrcAuxMode = GetSrcAuxMode(src);
 	SrcAuxFrmt = GetSrcAuxFrmt(src);		 //by hungry 2012.03.07
 	//GetExtVideoFrmt(src);	// get E-Video format,mode		//by hungry 2012.02.21
+	//OutAuxFrmt = VIDOUT_720x480i60;			// set aux-format
 
 	memset(&stVideo.stVIEW_m, 0, 8);		// clear stVIEW_m
 	memset(&stVideo.stVIEW_x, 0, 8);		// clear stVIEW_x
@@ -552,19 +551,11 @@ static void SetAUXVideoFilter(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------
-//static void SetSBoxAreaRefresh(void)
-//{
-//	PWORD pID = (PWORD)def4CHSBoxWND[SrcMainFrmt%2];
-//	MDINOSD_SetSBoxArea(&stSBOX[0], pID[0], pID[1], pID[2], pID[3]);
-//}
-
-//--------------------------------------------------------------------------------------------------
 static void SetOSDMenuRefresh(void)
 //void SetOSDMenuRefresh(void)
 {
 	OSD_ModifyPalette_M((OutMainMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
-	OSD_ModifyPalette_X((OutAuxMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
+	//OSD_ModifyPalette_X((OutAuxMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
 
 	MDINOSD_EnableLayerRepeat(&stLayer[LAYER_INDEX0], OFF, OFF);
 
@@ -629,8 +620,8 @@ static void VideoFrameProcess(BYTE src)
 		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS) // blocked by kukuri
 		//Set2HDVideoPathB();		// set 2HD pathB
 
-		SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO)); //by kukuri
-		DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
+		//SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO));
+		//DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
 		//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
 
 		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
@@ -657,6 +648,7 @@ static void VideoFrameProcess(BYTE src)
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
 {
+	UpdateOutputFormat();		//kukuri
 	InputSourceHandler(InputSelect);
 	InputSyncHandler_A(InputSelect);
 	//InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27

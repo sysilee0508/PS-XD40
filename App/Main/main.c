@@ -9,12 +9,6 @@
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-volatile BOOL fZOOMMove, fCROPMove;
-
-u8 PIP_mode = 5;
-u8 Pre_PIP_mode = 0xff;
-BYTE sysenv_split_mode = 0;
-
 static u8 alarmOutRequester = ALARMOUT_REQUESTER_NONE;
 
 void TurnOnAlarmOut(u8 requester)
@@ -130,14 +124,8 @@ void main(void)
 	// initialize Debug Serial
 	USART3_Init();
 
-	// I think we don't need this flag because we don't have aux display
-	//aux_display_flag = SET;
-	ReadNvItem(NV_ITEM_OUTPUT_RESOLUTION, &videoOutResolution, sizeof(videoOutResolution));
-	UpdateVideoResolution(videoOutResolution);
-
 	CreateVideoInstance();
 	CreateOSDInstance();
-	SetVideoOutputfrmt(Video_Out_Res_Val);
 	Osd_ClearScreen();
 
 	//VS4210 device initialization
@@ -153,14 +141,14 @@ void main(void)
 
 	UpdateKeyData(KEY_SPLIT);
 	SetKeyReady();
-	sysenv_split_mode = 5; //OMG! what is 5?!
 
 	OSD_DrawBorderLine();
 	OSD_RefreshScreen();
 
 	while(TRUE)
-	{ 
+	{
 		NVP6158_VideoDetectionProc();
+		Delay_ms(1);
 		Set_DisplayoutputMode_table();
 		
 		ScanVideoLossChannels();
