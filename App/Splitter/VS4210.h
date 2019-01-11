@@ -107,4 +107,7 @@ extern void VS4210_Input1080P_Output1080P_Mode12_w1(void);
 
 extern void vs4210_system_init();
 
+
+extern void VS4210_output720_temp(void);
+
 #endif

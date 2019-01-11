@@ -71,6 +71,7 @@ static void Display_FullMode(eChannel_t ch)
 {
 	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
 
+#if 0
 	switch(ch)
 	{
 		case CHANNEL1:
@@ -137,6 +138,10 @@ static void Display_FullMode(eChannel_t ch)
 			}
 			break;			
 	}
+#else
+	VS4210_output720_temp();
+#endif
+
 }
 
 static void Display_2SplitMode(void)
