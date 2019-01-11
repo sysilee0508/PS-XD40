@@ -137,9 +137,10 @@ void main(void)
 	InitializeMotionDetect();
 
 	InputSelect = VIDEO_DIGITAL_SDI;
-	DisplayMode_SplitScreen(Get_SystemSplitMode());
+	//DisplayMode_SplitScreen(Get_SystemSplitMode());
+	DisplayMode_FullScreen(CHANNEL1);
 
-	UpdateKeyData(KEY_SPLIT);
+	UpdateKeyData(KEY_FULL_CH1);
 	SetKeyReady();
 
 	OSD_DrawBorderLine();
