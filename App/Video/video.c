@@ -127,6 +127,8 @@ static void MDIN3xx_SetRegInitial(void)
 {
 	WORD nID = 0;
 	
+	PrevSrcMainFrmt = VIDSRC_1280x720p60;
+	SrcMainFrmt = VIDSRC_1920x1080p60;
 
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
@@ -178,7 +180,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
 	// define video format of PORTA-INPUT
-	stVideo.stSRC_a.frmt =  VIDSRC_1280x720p60;//VIDSRC_1920x1080p60;
+	stVideo.stSRC_a.frmt =  SrcMainFrmt;//VIDSRC_1280x720p60;//VIDSRC_1920x1080p60;
 	stVideo.stSRC_a.mode = MDIN_SRC_EMB422_8;
 	stVideo.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
 	stVideo.stSRC_a.offH = 0;	//API v0.31(2012.05.02)

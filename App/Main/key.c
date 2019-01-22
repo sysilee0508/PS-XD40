@@ -58,7 +58,7 @@ const static eKeyData_t key_table[] =
 #define KEYCOUNT_REPEAT			40	//400ms
 #define KEYCOUNT_LONG			80	//800ms
 
-#define VALID_LONG_KEY(key)		(key == KEY_FREEZE)?TRUE:FALSE
+#define VALID_LONG_KEY(key)		((key == KEY_FREEZE)||(key == KEY_AUTO_SEQ))?TRUE:FALSE
 
 #define VALID_REPEAT_KEY(key)	\
 	((key == KEY_FULL_CH1) || (key == KEY_FULL_CH2) || \
@@ -394,6 +394,7 @@ void Key_Check(void)
 	}
 }
 
+extern BYTE SrcMainFrmt, PrevSrcMainFrmt;
 void Key_Proc(void)
 {
 	static eKeyData_t previous_keydata = KEY_NONE;
@@ -483,6 +484,16 @@ void Key_Proc(void)
 					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				Enter_MainMenu();
+				break;
+
+			case KEY_HIDDEN:
+				// toggle 720p/1080p
+				{
+				BYTE temp;
+				temp = PrevSrcMainFrmt;
+				PrevSrcMainFrmt = SrcMainFrmt;
+				SrcMainFrmt = temp;
+				}
 				break;
 
 			case KEY_ALARM :

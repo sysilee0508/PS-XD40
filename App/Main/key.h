@@ -60,6 +60,7 @@ typedef enum
 //----Long Keys--------------------------------------
 	KEY_FREEZE_LONG		= KEY_FREEZE | KEY_LONG,	//0x99
 	KEY_MENU			= KEY_FREEZE_LONG,
+	KEY_HIDDEN			= KEY_AUTO_SEQ | KEY_LONG,	//0x9A
 	KEY_MAX				= 0xFF
 } eKeyData_t;
 
