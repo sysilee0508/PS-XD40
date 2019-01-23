@@ -2429,6 +2429,10 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			MDINOSD_SetBGBoxColor(RGB(255,255,255));
 			OSD_DrawBorderLine();
 			OSD_RefreshScreen();
+
+			// turn on button leds
+			TurnOnSelectedLed(Get_SystemDisplayChannel());
+			
 			break;
 	}
 }

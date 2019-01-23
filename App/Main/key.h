@@ -98,6 +98,7 @@ extern void Key_Proc(void);
 extern void Key_Led_Ctrl(void);
 
 // Interface
+extern void TurnOnSelectedLed(eChannel_t channel);
 extern void SetKeyMode(eKeyMode_t mode);
 extern eKeyMode_t GetKeyMode(void);
 extern keycode_t GetKeyCode(eKeyData_t key);

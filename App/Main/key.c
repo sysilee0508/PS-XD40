@@ -71,6 +71,32 @@ const static eKeyData_t key_table[] =
 //=============================================================================
 //  Function Definition
 //=============================================================================
+static void AllButtonLedOff(void)
+{
+	led_keycode = KEYCODE_NONE;
+}
+
+void TurnOnSelectedLed(eChannel_t channel)
+{
+	switch(channel)
+	{
+		case CHANNEL1:
+			led_keycode = KEYCODE_CH1;
+			break;
+		case CHANNEL2:
+			led_keycode = KEYCODE_CH2;
+			break;
+		case CHANNEL3:
+			led_keycode = KEYCODE_CH3;
+			break;
+		case CHANNEL4:
+			led_keycode = KEYCODE_CH4;
+			break;
+		case CHANNEL_SPLIT:
+			led_keycode = KEYCODE_SPLIT;
+			break;
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Interface
@@ -476,6 +502,7 @@ void Key_Proc(void)
 				break;
 
 			case KEY_MENU :
+				AllButtonLedOff();
 				InitializeAutoSeq(AUTO_SEQ_NONE);
 				if(screenFreezeOn == SET)
 				{
