@@ -139,7 +139,14 @@ static void Display_FullMode(eChannel_t ch)
 			break;			
 	}
 #else
-	VS4210_output720_temp();
+	if(GetSourceMainFormat() == VIDSRC_1920x1080p60)
+	{
+		VS4210_Input1080P_Output1080P_Mode0_w0();	
+	}
+	else
+	{
+		VS4210_output720_temp();
+	}
 #endif
 
 }

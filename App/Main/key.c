@@ -488,11 +488,9 @@ void Key_Proc(void)
 
 			case KEY_HIDDEN:
 				// toggle 720p/1080p
+				if(GetKeyStatus() == KEY_STATUS_RELEASED)
 				{
-				BYTE temp;
-				temp = PrevSrcMainFrmt;
-				PrevSrcMainFrmt = SrcMainFrmt;
-				SrcMainFrmt = temp;
+					ToggleInputSourceFormat();
 				}
 				break;
 
