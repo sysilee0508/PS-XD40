@@ -59,7 +59,6 @@ enum
 	MENU_PAGE_DISPLAY,
 	MENU_PAGE_ALARM_REMOCON,
 	MENU_PAGE_MOTION,
-	MENU_PAGE_DEVICE_INFO,
 	MENU_PAGE_MAX
 };
 
@@ -418,7 +417,7 @@ static void Erase_AllMenuScreen(void)
 //-----------------------------------------------------------------
 static void DrawSelectMark(u8 verticalItem)
 {	
-	static const u8 offset_x[MENU_PAGE_MAX] = {19,13,18,17,18,17,17,17}; //in characters
+	static const u8 offset_x[MENU_PAGE_MAX] = {19,13,18,17,18,17,17}; //in characters
 	static u8 previousLocationX;
 	static u8 previousLocationY;
 	u8 offset_y;
@@ -452,6 +451,8 @@ static void MainMenu_Entry(u8 itemY)
 			{22, LINE6_OFFSET_Y, menuStr_MainMenu_Alarm},
 	};
 	u8 index;
+	sVersion_t version;
+	u8 strVersion[6] = "00.00";
 
 	currentPage = MENU_PAGE_MAIN;
 	Erase_AllMenuScreen();
@@ -480,6 +481,22 @@ static void MainMenu_Entry(u8 itemY)
 	}
 	// print fw version
 	Print_StringWithSelectedMarkSize(22, LINE7_OFFSET_Y, menuStr_MainMenu_FW_Version, NULL, 0);
+
+	Read_NvItem_FwVersion(&version);
+	Int2Str(version.major, &strVersion[0]);
+	Int2Str(version.minor, &strVersion[3]);
+	if(strVersion[0] == ASCII_ZERO)
+	{
+		strVersion[0] = ASCII_SPACE;
+	}
+
+	Print_StringWithSelectedMarkSize(
+		22+ strlen(menuStr_MainMenu_FW_Version),
+		LINE7_OFFSET_Y,
+		strVersion,
+		NULL,0);
+
+
 }
 
 //------------------------------------------------------------------
@@ -2299,6 +2316,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 	}
 }   
 
+#if 0
 //------------------------------------------------------------------
 //   DeviceInfo Page Function
 //------------------------------------------------------------------
@@ -2350,6 +2368,7 @@ void DeviceInfoPage_KeyHandler(eKeyData_t key)
 			break;
 	}
 }   
+#endif
 
 //------------------------------------------------------------------
 //   Main Menu Page
@@ -2376,9 +2395,6 @@ static void SelectMainMenu(u8 itemY)
  		case MAINMENU_ITEM_Y_MOTION :
  			itemY = 0;
  			MotionDetectionPage_Entry();
- 			break;
- 		case MAINMENU_ITEM_Y_DEVICE_INFO :
- 			DeviceInfoPage_Entry();
  			break;
 	}
 }
@@ -2478,9 +2494,6 @@ void Menu_KeyProc(eKeyData_t key)
 			 break;
 		 case MENU_PAGE_MOTION :
 			 MotionDetectionPage_KeyHandler(key);
-			 break;
-		 case MENU_PAGE_DEVICE_INFO :
-			 DeviceInfoPage_KeyHandler(key);
 			 break;
 		 default :
 			 break;
