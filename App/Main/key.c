@@ -491,6 +491,8 @@ void Key_Proc(void)
 				if(GetKeyStatus() == KEY_STATUS_RELEASED)
 				{
 					ToggleInputSourceFormat();
+					Delay_ms(1000);
+					DisplayMode_FullScreen(CHANNEL1);
 				}
 				break;
 
