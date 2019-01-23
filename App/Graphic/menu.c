@@ -70,9 +70,8 @@ enum
 	MAINMENU_ITEM_Y_CAMERA_TITLE,
 	MAINMENU_ITEM_Y_AUTOSEQ,
 	MAINMENU_ITEM_Y_DISPLAY,
-	MAINMENU_ITEM_Y_ALARM_REMOCON,
 	MAINMENU_ITEM_Y_MOTION,
-	MAINMENU_ITEM_Y_DEVICE_INFO,
+	MAINMENU_ITEM_Y_ALARM_REMOCON,
 	MAINMENU_ITEM_Y_MAX
 };
 enum
@@ -96,6 +95,7 @@ enum
 	CAMERATITLE_ITEM_Y_CH3,
 	CAMERATITLE_ITEM_Y_CH4,
 	CAMERATITLE_ITEM_Y_DISPLAY_ON,
+	CAMERATITLE_ITEM_Y_VIDEOLOSS_TIME,
 	CAMERATITLE_ITEM_Y_MAX
 };
 
@@ -448,9 +448,8 @@ static void MainMenu_Entry(u8 itemY)
 			{22, LINE2_OFFSET_Y, menuStr_MainMenu_CameraTitle},
 			{22, LINE3_OFFSET_Y, menuStr_MainMenu_AutoSeq},
 			{22, LINE4_OFFSET_Y, menuStr_MainMenu_Display},
-			{22, LINE5_OFFSET_Y, menuStr_MainMenu_Alarm},
-			{22, LINE6_OFFSET_Y, menuStr_MainMenu_MotionDetection},
-			{22, LINE7_OFFSET_Y, menuStr_MainMenu_DeviceInfo}
+			{22, LINE5_OFFSET_Y, menuStr_MainMenu_MotionDetection},
+			{22, LINE6_OFFSET_Y, menuStr_MainMenu_Alarm},
 	};
 	u8 index;
 
@@ -479,6 +478,8 @@ static void MainMenu_Entry(u8 itemY)
 				mainMenu[index].str,
 				NULL, 0);
 	}
+	// print fw version
+	Print_StringWithSelectedMarkSize(22, LINE7_OFFSET_Y, menuStr_MainMenu_FW_Version, NULL, 0);
 }
 
 //------------------------------------------------------------------
@@ -935,13 +936,16 @@ const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 		{20, LINE2_OFFSET_Y, menuStr_CameraTitle_Ch2},
 		{20, LINE3_OFFSET_Y, menuStr_CameraTitle_Ch3},
 		{20, LINE4_OFFSET_Y, menuStr_CameraTitle_Ch4},
-		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay}
+		{20, LINE5_OFFSET_Y, menuStr_CameraTitle_TitleDisplay},
+		{20, LINE6_OFFSET_Y, menuStr_CameraTitle_VideoLossBuzzerTime}
 };
 static u8 channel_name[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX+1] = {0,};
 
 static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 {
 	BOOL titleOn;
+	u8 nv_data;
+	u8 str2digit[2];
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
 	switch(itemY)
@@ -969,8 +973,43 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 					cameraTitle[itemY].offset_y,
 					attribute, titleOn);
 			break;
-	}
 
+		case CAMERATITLE_ITEM_Y_VIDEOLOSS_TIME:
+ 			Read_NvItem_VideoLossBuzzerTime(&nv_data);
+ 			if(nv_data != 0)
+ 			{
+				Int2Str(nv_data, str2digit);
+                Print_StringWithSelectedMarkSize(
+                		cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+						cameraTitle[itemY].offset_y,
+						menuStr_Space3,
+						NULL, strlen(menuStr_Space3));
+				Print_StringWithSelectedMark(
+						cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+						cameraTitle[itemY].offset_y,
+						(const u8*)str2digit,
+						attribute, sizeof(str2digit));
+				Print_StringWithSelectedMarkSize(
+						cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str) + sizeof(str2digit),
+						cameraTitle[itemY].offset_y,
+						menuStr_Sec,
+						NULL, 0);
+ 			}
+ 			else
+ 			{
+                Print_StringWithSelectedMarkSize(
+                		cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+						cameraTitle[itemY].offset_y,
+						menuStr_Space6,
+						NULL, strlen(menuStr_Space6));
+                Print_StringWithSelectedMark(
+                		cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+						cameraTitle[itemY].offset_y,
+						menuStr_Off,
+						attribute, strlen(menuStr_Off));
+ 			}
+			break;
+	}
 }
 
 static void CameraTitlePage_Entry(void)
@@ -1001,6 +1040,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	static u8 charIndex;
 	BOOL inc_dec = DECREASE;
 	BOOL titleOn;
+	u8 intData;
 	eChannel_t channel = itemY-1;
 
 	switch(key)
@@ -1025,6 +1065,12 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 						Toggle(&titleOn);
 						Write_NvItem_TitleDispalyOn(titleOn);
 						break;
+
+    				case CAMERATITLE_ITEM_Y_VIDEOLOSS_TIME:
+    					Read_NvItem_VideoLossBuzzerTime(&intData);
+    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
+    					Write_NvItem_VideoLossBuzzerTime(intData);
+    					break;
 				}
 				CameraTitlePage_UpdatePage(itemY, pos_x);
 			}

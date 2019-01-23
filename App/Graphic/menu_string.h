@@ -83,7 +83,7 @@ const u8 menuStr_MainMenu_AutoSeq[] =         "3. AUTO SEQUENCE OPTION";
 const u8 menuStr_MainMenu_Display[] =         "4. DISPALY OPTION";
 const u8 menuStr_MainMenu_Alarm[] =           "5. ALARM / REMOTE OPTION";
 const u8 menuStr_MainMenu_MotionDetection[] = "6. MOTION DETECTION OPTION";
-const u8 menuStr_MainMenu_DeviceInfo[] =      "7. DEVICE INFO";
+const u8 menuStr_MainMenu_FW_Version[] =      "** F/W VERSION : v";
 
 // Time/Date
 const u8 menuStr_TimeDate_Title[] =          "-- TIME / DATE --";
@@ -102,7 +102,7 @@ const u8 menuStr_CameraTitle_Ch2[] =          "2. CH2 TITLE : ";
 const u8 menuStr_CameraTitle_Ch3[] =          "3. CH3 TITLE : ";
 const u8 menuStr_CameraTitle_Ch4[] =          "4. CH4 TITLE : ";
 const u8 menuStr_CameraTitle_TitleDisplay[] = "5. TITLE DISPLAY : ";
-const u8 menuStr_CameraTitle_Position[] =     "6. TITLE POSITION : ";
+const u8 menuStr_CameraTitle_VideoLossBuzzerTime[] = "6. VIDEO LOSS BUZZER TIME : ";
 
 // Auto Seq
 const u8 menuStr_AutoSeq_Title[]       = "-- AUTO SEQUENCE -- ";
@@ -141,8 +141,5 @@ const u8 menuStr_Motion_Channel4[] =    "4. CH 4:     / ";
 const u8 menuStr_Motion_Sensitivity[] = "5. MOTION SENSITIVITY (1~99) : ";
 const u8 menuStr_Motion_Indication[] =  "6. MOTION INDICATION : ";
 
-// Device Info
-const u8 menuStr_DeviceInfo_Title[] =   "-- DEVICE INFO --";
-const u8 menuStr_DeviceInfo_Version[] = "1. F/W VERSION : v";
 
 #endif
