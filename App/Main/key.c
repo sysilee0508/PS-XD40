@@ -158,7 +158,7 @@ void Key_Scan_ParallelKey(void)
 	BOOL paralleKeyOn;
 
 	Read_NvItem_AlarmRemoconSelect(&paralleKeyOn);
-	if((paralleKeyOn) && (frontKeyCode == KEYCODE_NONE))
+	if((paralleKeyOn) && (frontKeyCode == KEYCODE_NONE) && (CheckAlarmRemoteEnable()==TRUE))
 	{
 		backKeyCode = (keycode_t)ReadSpiDataByte();
 		current_keycode = backKeyCode;

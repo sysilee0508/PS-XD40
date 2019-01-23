@@ -21,6 +21,8 @@
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
+static BOOL alarmRemoteEnable = TRUE;
+
 static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_SPLIT;
@@ -56,7 +58,10 @@ static sVirtualKeys_t virtual_key_table[] =
 //=============================================================================
 //  Function Definition
 //=============================================================================
-
+BOOL CheckAlarmRemoteEnable(void)
+{
+	return alarmRemoteEnable;
+}
 //------------------------------------------------------------------------------
 // Alarm (SPI function)
 //------------------------------------------------------------------------------
@@ -77,6 +82,7 @@ BYTE ReadSpiDataByte(void)
 		SPI_DELAY;
 		SPI_CLK_HIGH;
 	}
+	alarmRemoteEnable = (SPI_MISO_DATA == SPI_MISO_HIGH)?TRUE:FALSE;
 	SPI_CS_LOW;
 
 	return spiDataByte;
@@ -91,7 +97,7 @@ void CheckAlarm(void)
 	BOOL alarmSelect;
 
 	Read_NvItem_AlarmRemoconSelect(&alarmSelect);
-	if(alarmSelect == ALARM_MODE)
+	if((alarmSelect == ALARM_MODE) && (CheckAlarmRemoteEnable() == TRUE))
 	{
 		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 		{

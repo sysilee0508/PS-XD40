@@ -82,6 +82,7 @@ typedef struct
 //=============================================================================
 //  Function Prototype
 //=============================================================================
+extern BOOL CheckAlarmRemoteEnable(void);
 extern BYTE ReadSpiDataByte(void);
 extern void ChangeAlarmRemoteKeyMode(BYTE mode);
 extern void StartStopAlarm(BOOL start_stop);
