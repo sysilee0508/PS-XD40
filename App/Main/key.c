@@ -271,6 +271,11 @@ void Key_Led_Ctrl(void)
 {
 	static u8 stage = KEYLED_STAGE_LEFT;
 
+	if(GetSystemMode() == SYSTEM_SETUP_MODE)
+	{
+		led_keycode = KEYCODE_NONE;
+	}
+
 	if(led_keycode != KEYCODE_NONE)
 	{
 		KEY_DATA_OUTPUT_MODE;

@@ -799,3 +799,50 @@ void DisplayMode_SplitScreen(eSplitMode_t splitMode)
 	Set_SystemDisplayChannel(CHANNEL_SPLIT);
 	Display_SplitMode(Get_SystemSplitMode());
 }
+
+eInputVideoMode_t Get_InputVideoMode(eChannel_t channel)
+{
+	eInputVideoMode_t videoMode;
+
+	switch(NVP6158_Current_Video_Format_Check(channel))
+	{
+		case AHD20_1080P_60P:
+		case AHD20_1080P_30P:
+		case TVI_FHD_30P:
+			videoMode = INPUT_VIDEO_1080P30;
+			break;
+
+		case AHD20_1080P_50P:
+		case AHD20_1080P_25P:
+		case TVI_FHD_25P:
+			videoMode = INPUT_VIDEO_1080P25;
+			break;
+
+		case AHD20_720P_60P:
+		case AHD20_720P_30P:
+		case AHD20_720P_30P_EX:
+		case AHD20_720P_30P_EX_Btype:
+		case TVI_HD_60P:
+		case TVI_HD_30P:
+		case TVI_HD_30P_EX:
+			videoMode = INPUT_VIDEO_720P30;
+			break;
+
+		case AHD20_720P_50P:
+		case AHD20_720P_25P:
+		case AHD20_720P_25P_EX:
+		case AHD20_720P_25P_EX_Btype:
+		case TVI_HD_50P:
+		case TVI_HD_25P:
+		case TVI_HD_25P_EX:
+			videoMode = INPUT_VIDEO_720P25;
+			break;
+
+		// To Do : Add CVBS_NTSC & CVBS_PAL
+
+		default:
+			videoMode = INPUT_VIDEO_1080P30;
+			break;
+	}
+	return videoMode;
+}

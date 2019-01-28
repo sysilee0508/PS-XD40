@@ -22,6 +22,17 @@ typedef enum
 
 typedef enum
 {
+	INPUT_VIDEO_1080P30,
+	INPUT_VIDEO_1080P25,
+	INPUT_VIDEO_720P30,
+	INPUT_VIDEO_720P25,
+	INPUT_VIDEO_CVBS_NTSC,
+	INPUT_VIDEO_CVBS_PAL,
+	INPUT_VIDEO_MAX
+} eInputVideoMode_t;
+
+typedef enum
+{
 //	DISPLAY_MODE_FULL,			// full screen mode for any channel
 	DISPLAY_MODE_QUAD_A,		// 4 split screen
 	DISPLAY_MODE_QUAD_B,
@@ -67,4 +78,5 @@ extern void Set_SystemSplitMode(eSplitMode_t mode);
 extern eSplitMode_t Get_SystemSplitMode(void);
 extern void Set_SystemDisplayChannel(eChannel_t channel);
 extern eChannel_t Get_SystemDisplayChannel(void);
+extern eInputVideoMode_t Get_InputVideoMode(eChannel_t channel);
 #endif

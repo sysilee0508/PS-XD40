@@ -67,6 +67,40 @@ static const sPosition_t indicatorPositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_C
 	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {0, 0}, {0, 0}}
 };
 
+static const sPosition_t videoPositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_CHANNEL] =
+{
+	//QUAD_A
+	{{DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT},
+			{DISPLAY_QUAD_WIDTH, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT}},
+	//Quad_B
+	{{DISPLAY_WIDTH/3, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HEIGHT/6},
+			{DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HEIGHT - (DISPLAY_HEIGHT/6)}},
+	//quad_c
+	{{(DISPLAY_WIDTH/3)*2, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH/6, DISPLAY_HEIGHT/6},
+			{DISPLAY_WIDTH/6, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH/6, DISPLAY_HEIGHT - (DISPLAY_HEIGHT/6)}},
+	//quad_d
+	{{DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT/3}, {DISPLAY_WIDTH/6, DISPLAY_HEIGHT-DISPLAY_HEIGHT/6},
+			{DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT-DISPLAY_HEIGHT/6}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HEIGHT-DISPLAY_HEIGHT/6}},
+	//quad_e
+	{{DISPLAY_HALF_WIDTH, (DISPLAY_HEIGHT/3)*2}, {DISPLAY_WIDTH/6, DISPLAY_HEIGHT/6},
+			{DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT/6}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HEIGHT/6}},
+	//3split_a
+	{{DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_HALF_WIDTH + DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT},
+			{DISPLAY_HALF_WIDTH + DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT-DISPLAY_QUAD_HEIGHT}, {0, 0}},
+	//3split_b
+	{{DISPLAY_HALF_WIDTH+DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT},
+			{DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT-DISPLAY_QUAD_HEIGHT}, {0, 0}},
+	//3split_c
+	{{DISPLAY_HALF_WIDTH, DISPLAY_QUAD_HEIGHT}, {DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT+DISPLAY_QUAD_HEIGHT},
+			{DISPLAY_HALF_WIDTH + DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT+DISPLAY_QUAD_HEIGHT}, {0, 0}},
+	//3split_d
+	{{DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT+DISPLAY_QUAD_HEIGHT}, {DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT},
+			{DISPLAY_HALF_WIDTH+DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT}, {0, 0}},
+	//split
+	{{DISPLAY_QUAD_WIDTH,DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT},
+			{0, 0}, {0, 0}}
+};
+
 static BOOL requestRefreshScreen = CLEAR;
 
 static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
@@ -103,11 +137,32 @@ static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_
 			break;
 
 		case DISPLAY_MODE_SPLIT:
-			position.pos_x = indicatorPositionTable_Split[splitMode][channel].pos_x;
-			position.pos_y = indicatorPositionTable_Split[splitMode][channel].pos_y;
+			position.pos_x = videoPositionTable_Split[splitMode][channel].pos_x;
+			position.pos_y = videoPositionTable_Split[splitMode][channel].pos_y;
 			break;
 	}
 	return position;
+}
+
+static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
+{
+	sPosition_t position;
+	eSplitMode_t splitMode = Get_SystemSplitMode();
+
+	switch(displayMode)
+	{
+		case DISPLAY_MODE_FULL:
+			position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH))/2;
+			position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
+			break;
+
+		case DISPLAY_MODE_SPLIT:
+			position.pos_x = indicatorPositionTable_Split[splitMode][channel].pos_x - ((length * CHAR_WIDTH)/2);
+			position.pos_y = indicatorPositionTable_Split[splitMode][channel].pos_y - CHAR_HEIGHT/2;
+			break;
+	}
+	return position;
+
 }
 
 static u8 Get_NumOfDisplayChannels(void)
@@ -406,14 +461,13 @@ static void OSD_DisplayAuto(void)
 static void OSD_DisplayNoVideo(void)
 {
 	sPosition_t position;
-//	eChannel_t channel;
 	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 	eSplitMode_t splitMode;
 	BOOL videoLossDiplayOn;
 
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
 
-	if((videoLossDiplayOn == ON) & ((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET)))
+	if((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET))
 	{
 		SetVideoLossEvent(CLEAR);
 
@@ -424,30 +478,18 @@ static void OSD_DisplayNoVideo(void)
 
 			if(IsVideoLossChannel(Get_SystemDisplayChannel()) == TRUE)
 			{
-				OSD_PrintString(position, osdStr_NoVideoFull, strlen(osdStr_NoVideoFull));
+				if(videoLossDiplayOn == ON)
+				{
+					OSD_PrintString(position, osdStr_NoVideoFull, strlen(osdStr_NoVideoFull));
+				}
 			}
 			else
 			{
 				OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
+				// video mode display for 2 seconds
+				OSD_DisplayVideoMode();
 			}
 		}
-//		else
-//		{
-//			splitMode = Get_SystemSplitMode();
-//			for(channel = CHANNEL1; channel < Get_NumOfDisplayChannels(); channel++)
-//			{
-//				position.pos_x = novideoPositionTable_Split[splitMode][channel].pos_x;
-//				position.pos_y = novideoPositionTable_Split[splitMode][channel].pos_y;
-//				if(IsVideoLossChannel(channel) == TRUE)
-//				{
-//					OSD_PrintString(position, osdStr_NoVideoFull, strlen(osdStr_NoVideoFull));
-//				}
-//				else
-//				{
-//					OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
-//				}
-//			}
-//		}
 	}
 }
 
@@ -468,11 +510,6 @@ static void OSD_DisplayIndicator(void)
 	if(displayMode == DISPLAY_MODE_FULL)//Full
 	{
 		channel = Get_SystemDisplayChannel();
-//		if((IsVideoLossChannel(channel) == TRUE) && (videoLossDiplayOn == ON))
-//		{
-//			pIndicator = (u8*)osdStr_NoVideoFull;
-//		}
-//		else if(GetAlarmStatus(channel) == ALARM_SET)
 		if(GetAlarmStatus(channel) == ALARM_SET)
 		{
 			pIndicator = (u8*)osdStr_AlarmFull;
@@ -585,20 +622,7 @@ void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pData, size, 0);
 	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
-/*
-void OSD_MakeTitleString(u8* title, u8 length)
-{
-	u8 index;
 
-	for(index = 0; index < length; index++)
-	{
-		if(*(title+index) == ASCII_UNDERBAR)
-		{
-			*(title+index) = ASCII_SPACE;
-		}
-	}
-}
-*/
 void OSD_DisplayChannelName(void)
 {
 	eChannel_t channel, max_channel = NUM_OF_CHANNEL;
@@ -615,7 +639,6 @@ void OSD_DisplayChannelName(void)
 		{
 			channel = Get_SystemDisplayChannel();
 			Read_NvItem_ChannelName(channel_name, channel);
-			//OSD_MakeTitleString(channel_name, strlen(channel_name));
 			positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 			OSD_PrintString(positionValue, channel_name, strlen(channel_name));
 		}
@@ -625,7 +648,6 @@ void OSD_DisplayChannelName(void)
 			for(channel = CHANNEL1; channel < max_channel; channel++)
 			{
 				Read_NvItem_ChannelName(channel_name, channel);
-				//OSD_MakeTitleString(channel_name, strlen(channel_name));
 				positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 				OSD_PrintString(positionValue, channel_name, strlen(channel_name));
 			}
@@ -633,6 +655,57 @@ void OSD_DisplayChannelName(void)
 	}
 }
 
+static
+
+void OSD_DisplayVideoMode(void)
+{
+	eChannel_t channel, max_channel = NUM_OF_CHANNEL;
+	sPosition_t position;
+	eDisplayMode_t displayMode = Get_SystemDisplayMode();
+	u8* pVideoModeStr;
+
+	if(displayMode == DISPLAY_MODE_FULL)
+	{
+		channel = Get_SystemDisplayChannel();
+		switch(Get_InputVideoMode(channel))
+		{
+			case INPUT_VIDEO_1080P30:
+				pVideoModeStr = osdStr_Video_1080p30;
+				break;
+
+			case INPUT_VIDEO_1080P25:
+				pVideoModeStr = osdStr_Video_1080p25;
+				break;
+
+			case INPUT_VIDEO_720P30:
+				pVideoModeStr = osdStr_Video_720p30;
+				break;
+
+			case INPUT_VIDEO_720P25:
+				pVideoModeStr = osdStr_Video_720p25;
+				break;
+
+			case INPUT_VIDEO_CVBS_NTSC:
+				pVideoModeStr = osdStr_Video_CVBS_NTSC;
+				break;
+
+			case INPUT_VIDEO_CVBS_PAL:
+				pVideoModeStr = osdStr_Video_CVBS_PAL;
+				break;
+		}
+		position =  OSD_VideoModeStringPosition(channel, displayMode, strlen(pVideoModeStr));
+		OSD_PrintString(position, pVideoModeStr, strlen(pVideoModeStr));
+	}
+	else
+	{
+		max_channel = Get_NumOfDisplayChannels();
+		for(channel = CHANNEL1; channel < max_channel; channel++)
+		{
+			position =  OSD_VideoModeStringPosition(channel, displayMode, strlen(pVideoModeStr));
+			OSD_PrintString(position, pVideoModeStr, strlen(pVideoModeStr));
+		}
+	}
+}
 //-----------------------------------------------------------------------------
 void Osd_ClearScreen(void)
 {
