@@ -26,6 +26,13 @@ const u8 osdStr_Motion[] = "M";
 const u8 osdStr_FreezeFull[] = "FREEZE";
 const u8 osdStr_Freeze[] = "F";
 //-----------------------------------------------------------------------------
+const u8 osdStr_Video_1080p30[] = "1080p30";
+const u8 osdStr_Video_1080p25[] = "1080p25";
+const u8 osdStr_Video_720p30[] = "720p30";
+const u8 osdStr_Video_720p25[] = "720p25";
+const u8 osdStr_Video_CVBS_NTSC[] = "CVBS(NTSC)";
+const u8 osdStr_Video_CVBS_PAL[] = "CVBS(PAL)";
+//-----------------------------------------------------------------------------
 const u8 osdStr_JAN[] = "JAN";
 const u8 osdStr_FEB[] = "FEB";
 const u8 osdStr_MAR[] = "MAR";
@@ -54,6 +61,4 @@ const u8* pStrMonthName[12] =
 		osdStr_NOV,
 		osdStr_DEC
 };
-
-
 #endif
