@@ -838,10 +838,28 @@ eInputVideoMode_t Get_InputVideoMode(eChannel_t channel)
 			videoMode = INPUT_VIDEO_720P25;
 			break;
 
-		// To Do : Add CVBS_NTSC & CVBS_PAL
+		case AHD20_SD_H960_NT:
+		case AHD20_SD_SH720_NT:
+		case AHD20_SD_H1280_NT:
+		case AHD20_SD_H1440_NT:
+		case AHD20_SD_H960_EX_NT:
+		case AHD20_SD_H960_2EX_NT:
+		case AHD20_SD_H960_2EX_Btype_NT:
+			videoMode = INPUT_VIDEO_CVBS_NTSC;
+			break;
+			
+		case AHD20_SD_H960_PAL:
+		case AHD20_SD_SH720_PAL:
+		case AHD20_SD_H1280_PAL:
+		case AHD20_SD_H1440_PAL:
+		case AHD20_SD_H960_EX_PAL:
+		case AHD20_SD_H960_2EX_PAL:
+		case AHD20_SD_H960_2EX_Btype_PAL:
+			videoMode = INPUT_VIDEO_CVBS_PAL;
+			break;
 
 		default:
-			videoMode = INPUT_VIDEO_1080P30;
+			videoMode = INPUT_VIDEO_MAX;
 			break;
 	}
 	return videoMode;
