@@ -149,7 +149,7 @@ void main(void)
 	{
 		NVP6158_VideoDetectionProc();
 		Delay_ms(1);
-		Set_DisplayoutputMode_table();
+		UpdateDisplayMode();
 		
 		ScanVideoLossChannels();
 		CheckAlarmClearCondition();
