@@ -8,14 +8,12 @@
 //  Global Variable Declaration
 //=============================================================================
 BOOL screenFreezeOn = CLEAR;
-u8 pre_special_mode = LEFT_TOP;
 
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
 static keycode_t current_keycode = KEYCODE_NONE;
 static keycode_t frontKeyCode = KEYCODE_NONE;
-static keycode_t backKeyCode = KEYCODE_NONE;
 static keycode_t led_keycode = KEYCODE_SPLIT;
 static eKeyMode_t key_mode = KEY_MODE_LONG;
 static eKeyMode_t saved_key_mode = KEY_MODE_LONG;
@@ -153,92 +151,73 @@ BOOL IsScreenFreeze(void)
 //-----------------------------------------------------------------------------
 //  Key Functions
 //-----------------------------------------------------------------------------
-void Key_Scan_ParallelKey(void)
-{
-	BOOL paralleKeyOn;
-
-	Read_NvItem_AlarmRemoconSelect(&paralleKeyOn);
-	if((paralleKeyOn) && (frontKeyCode == KEYCODE_NONE))
-	{
-		backKeyCode = (keycode_t)ReadSpiDataByte();
-		current_keycode = backKeyCode;
-	}
-	else
-	{
-		backKeyCode = KEYCODE_NONE;
-	}
-}
-
 void Key_Scan(void)
 {
 	keycode_t key_code = KEYCODE_NONE;
 	keycode_t tempKey = KEYCODE_NONE;
 
-	if(backKeyCode == KEYCODE_NONE)
+	// All key columns are HIGH and LED rows are LOW
+	KEY_LED1_5_HIGH;
+	KEY_LED2_6_HIGH;
+	KEY_LED3_7_HIGH;
+	KEY_LED4_HIGH;
+
+	KEY_LED0_LOW;
+	KEY_LED1_LOW;
+
+	KEY_DATA_INPUT_MODE;
+
+	//Scan KROW0
+	KEY_ROW1_HIGH;
+	KEY_ROW0_LOW;
+
+	Delay_us(10);
+
+	if(LOW == KEY_DATA1_5_INPUT)
+		key_code = KEYCODE_CH1;
+	else if(LOW== KEY_DATA2_6_INPUT)
+		key_code = KEYCODE_CH2;
+	else if(LOW == KEY_DATA3_7_INPUT)
+		key_code = KEYCODE_CH3;
+	else if(LOW == KEY_DATA4_INPUT)
+		key_code = KEYCODE_CH4;
+
+	//Scan KROW1
+	KEY_ROW0_HIGH;
+	KEY_ROW1_LOW;
+
+	Delay_us(10);
+
+	if(LOW == KEY_DATA1_5_INPUT)
+		key_code = KEYCODE_SPLIT;
+	else if(LOW== KEY_DATA2_6_INPUT)
+		key_code = KEYCODE_FREEZE;
+	else if(LOW == KEY_DATA3_7_INPUT)
+		key_code = KEYCODE_SEQUENCE;
+
+	KEY_ROW1_HIGH;
+
+	if((key_code != KEYCODE_NONE) && (frontKeyCode != key_code))
 	{
-		// All key columns are HIGH and LED rows are LOW
-		KEY_LED1_5_HIGH;
-		KEY_LED2_6_HIGH;
-		KEY_LED3_7_HIGH;
-		KEY_LED4_HIGH;
-
-		KEY_LED0_LOW;
-		KEY_LED1_LOW;
-
-		KEY_DATA_INPUT_MODE;
-
-		//Scan KROW0
-		KEY_ROW1_HIGH;
-		KEY_ROW0_LOW;
-
-		Delay_us(10);
-
-		if(LOW == KEY_DATA1_5_INPUT)
-			key_code = KEYCODE_CH1;
-		else if(LOW== KEY_DATA2_6_INPUT)
-			key_code = KEYCODE_CH2;
-		else if(LOW == KEY_DATA3_7_INPUT)
-			key_code = KEYCODE_CH3;
-		else if(LOW == KEY_DATA4_INPUT)
-			key_code = KEYCODE_CH4;
-
-		//Scan KROW1
-		KEY_ROW0_HIGH;
-		KEY_ROW1_LOW;
-
-		Delay_us(10);
-
-		if(LOW == KEY_DATA1_5_INPUT)
-			key_code = KEYCODE_SPLIT;
-		else if(LOW== KEY_DATA2_6_INPUT)
-			key_code = KEYCODE_FREEZE;
-		else if(LOW == KEY_DATA3_7_INPUT)
-			key_code = KEYCODE_SEQUENCE;
-
-		KEY_ROW1_HIGH;
-
-		if((key_code != KEYCODE_NONE) && (frontKeyCode != key_code))
+		if(key_code == KEYCODE_FREEZE)
 		{
-			if(key_code == KEYCODE_FREEZE)
-			{
-				tempKey = ~(led_keycode ^ key_code);
-				led_keycode = tempKey;
-			}
-			else
-			{
-				led_keycode = key_code;
-			}
-			UpdateKeyStatus(KEY_STATUS_PRESSED);
+			tempKey = ~(led_keycode ^ key_code);
+			led_keycode = tempKey;
 		}
-		else if(key_code == KEYCODE_NONE)
+		else
 		{
-			UpdateKeyStatus(KEY_STATUS_RELEASED);
+			led_keycode = key_code;
 		}
-		
-		frontKeyCode = key_code;
-		// Update current_keycode
-		current_keycode = key_code;
+		UpdateKeyStatus(KEY_STATUS_PRESSED);
 	}
+	else if(key_code == KEYCODE_NONE)
+	{
+		UpdateKeyStatus(KEY_STATUS_RELEASED);
+	}
+
+	frontKeyCode = key_code;
+	// Update current_keycode
+	current_keycode = key_code;
 }
 
 void Key_Led_Ctrl(void)

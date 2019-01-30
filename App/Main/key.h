@@ -43,23 +43,9 @@ typedef enum
 //----Short Keys-------------------------------------	
 	KEY_FULL_CH1		= 0x01,
 	KEY_FULL_CH2,
-	KEY_FULL_CH3,
-	KEY_FULL_CH4,
-	KEY_SPLIT			= 0x15,
-	KEY_FREEZE			= 0x19,
-	KEY_AUTO_SEQ		= 0x1A,
-//----Function (Virtual) Keys-----------------------
-	KEY_ALARM			= 0x21,
-//----Menu Keys-------------------------------------
-	KEY_LEFT			= KEY_FULL_CH1 | KEY_SPECIAL,
-	KEY_UP				= KEY_FULL_CH2 | KEY_SPECIAL,
-	KEY_DOWN			= KEY_FULL_CH3 | KEY_SPECIAL,
-	KEY_RIGHT			= KEY_FULL_CH4 | KEY_SPECIAL,
-	KEY_ENTER			= KEY_SPLIT | KEY_SPECIAL,
-	KEY_EXIT			= KEY_FREEZE | KEY_SPECIAL,
+	KEY_SPLIT,
 //----Long Keys--------------------------------------
-	KEY_FREEZE_LONG		= KEY_FREEZE | KEY_LONG,	//0x99
-	KEY_MENU			= KEY_FREEZE_LONG,
+	KEY_SPLIT_LONG		= KEY_SPLIT | KEY_LONG,	//0x99
 	KEY_MAX				= 0xFF
 } eKeyData_t;
 
@@ -71,28 +57,11 @@ typedef enum
 
 typedef u8 keycode_t;
 
-enum
-{
-	KEYLED_STAGE_LEFT = 0,
-	KEYLED_STAGE_RIGHT,
-	KEYLED_STAGE_MAX
-};
-
-//=============================================================================
-//  Extern Grobal Variable
-//=============================================================================
-//extern key_mode_e key_mode;
-//extern keydata_e current_keydata;
-
-//extern BOOL bScreenFreeze;
-
-extern u8 pre_special_mode;
 
 //=============================================================================
 //  Function Prototype
 //=============================================================================
 extern void Key_Scan(void);
-extern void Key_Scan_ParallelKey(void);
 extern void Key_Check(void);
 extern void Key_Proc(void);
 extern void Key_Led_Ctrl(void);

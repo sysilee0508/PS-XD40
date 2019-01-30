@@ -59,29 +59,29 @@ void MCU_init(void)
 	GPIOA->ODR = 0x0000FFFF;			//Initialize PAs to High
 
 //	[GPIO B]
-//    0 : NC
+//  0 : NC
 //	1 : ALM_OUT
 //	2 : BUX_OUT
-//	3 : K_ROW0 (active low)
-//	4 : K_ROW1 (active low)
+//	3 : LED_CH2
+//	4 : LED_Split
 //	5 : MDIN_CE (active low)
 //	6 : I2C_SCL (active low) /I2C1
 //	7 : I2C_SDA (active low) /I2C1
-//	8 : K_LED_R0 (active high)
-//	9 : K_LED_R1 (active high)
+//	8 : NC
+//	9 : NC
 //	10: TXD(UART3)
 //	11: RXD(UART3)
-//	12: K_CL0_MISO
-//	13: K_CL1_MOSI
-//	14: K_CL2_CLK
-//	15: K_CL3_KCS
-	GPIOB->CRH = 0x33334B33;		//PB10 uart_TX(alternate function), GPIO11-uart_RX
+//	12: SW_CH1
+//	13: SW_CH2
+//	14: SW_Split
+//	15: LED_CH1
+	GPIOB->CRH = 0x73334B33;		//PB15 --> output/open-drain //PB10 uart_TX(alternate function), //GPIO11-uart_RX
 	GPIOB->CRL = 0x33377333; 		//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
 	GPIOB->ODR = 0x0000FCFB;		//GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
 
 //	[GPIO C]
 //  0 : SPI_MISO
-//	1 : SPI_MOSI
+//	1 : JUMP1 (input pull-up)
 //	2 : SPI_CLK
 //	3 : SPI_CS
 //	4 : NC
@@ -97,7 +97,7 @@ void MCU_init(void)
 //	14: OSC32I
 //	15: OSC32O
 	GPIOC->CRH = 0x33833333;			//GPIOC13 is used for TAMPER-RTC INT
-	GPIOC->CRL = 0x33333338;			//PC0 : input(pull-up)
+	GPIOC->CRL = 0x33333388;			//PC0 : input(pull-up)
 	GPIOC->ODR = 0x0000FFFF;			//spi_clk & spi_cs is low (active high)
 
 //	[GPIO D]
