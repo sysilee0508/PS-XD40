@@ -7,7 +7,6 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
-BOOL screenFreezeOn = CLEAR;
 
 //=============================================================================
 //  Static Variable Declaration
@@ -29,12 +28,7 @@ const static keycode_t keycode_table[] =
 {
 	KEYCODE_CH1,		//0xFE	1111 1110	254
 	KEYCODE_CH2,		//0xFD 	1111 1101	253
-	KEYCODE_CH3,		//0xFB 	1111 1011 	251
-	KEYCODE_CH4,		//0xF7 	1111 0111 	247
-
 	KEYCODE_SPLIT,		//0xEF 	1110 1111 	239
-	KEYCODE_FREEZE,		//0xDF 	1101 1111 	223
-	KEYCODE_SEQUENCE,	//0xBF 	1011 1111 	191
 	KEYCODE_NONE,		//0x7F
 };
 
@@ -42,30 +36,17 @@ const static eKeyData_t key_table[] =
 {
 	KEY_FULL_CH1,
 	KEY_FULL_CH2,
-	KEY_FULL_CH3,
-	KEY_FULL_CH4,
-//-------------------------
-	KEY_SPLIT,
-	KEY_FREEZE,
-	KEY_AUTO_SEQ,
+	KEY_SPLIT
 };
 
-#define NUM_OF_KEYS				sizeof(key_table) //7
+#define NUM_OF_KEYS				sizeof(key_table) //3
 
 #define KEYCOUNT_SHORT			4
 #define KEYCOUNT_REPEAT			40	//400ms
 #define KEYCOUNT_LONG			80	//800ms
 
-#define VALID_LONG_KEY(key)		(key == KEY_FREEZE)?TRUE:FALSE
+#define VALID_LONG_KEY(key)		(key == KEY_SPLIT)?TRUE:FALSE
 
-#define VALID_REPEAT_KEY(key)	\
-	((key == KEY_FULL_CH1) || (key == KEY_FULL_CH2) || \
-	 (key == KEY_FULL_CH3) || (key == KEY_FULL_CH4))?TRUE:FALSE
-
-#define VALID_MENU_KEY(key)		\
-	((key == KEY_LEFT) || (key == KEY_RIGHT) || \
-	 (key == KEY_UP) || (key == KEY_DOWN) || \
-	 (key == KEY_ENTER) || (key == KEY_EXIT))?TRUE:FALSE
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -142,17 +123,13 @@ eKeyData_t GetCurrentKey(void)
 {
 	return current_keydata;
 }
-//-----------------------------------------------------------------------------
-BOOL IsScreenFreeze(void)
-{
-	return screenFreezeOn;
-}
 
 //-----------------------------------------------------------------------------
 //  Key Functions
 //-----------------------------------------------------------------------------
 void Key_Scan(void)
 {
+/*
 	keycode_t key_code = KEYCODE_NONE;
 	keycode_t tempKey = KEYCODE_NONE;
 
@@ -218,10 +195,12 @@ void Key_Scan(void)
 	frontKeyCode = key_code;
 	// Update current_keycode
 	current_keycode = key_code;
+*/
 }
 
 void Key_Led_Ctrl(void)
 {
+	/*
 	static u8 stage = KEYLED_STAGE_LEFT;
 
 	if(led_keycode != KEYCODE_NONE)
@@ -249,6 +228,7 @@ void Key_Led_Ctrl(void)
 	}
 	// Change stage for the next time
 	stage = (++stage) % KEYLED_STAGE_MAX;
+	*/
 }
 
 //-----------------------------------------------------------------------------
@@ -262,7 +242,6 @@ void Key_Check(void)
 	static u8 key_cnt = 0;
 	static eKeyData_t processing_key_data = KEY_NONE;
 	static BOOL bLongKey = CLEAR;
-	static BOOL bRepeatKey = CLEAR;
 
 	u8 i;
 
@@ -297,39 +276,15 @@ void Key_Check(void)
 				switch (GetKeyMode())
 				{
 				case KEY_MODE_SHORT:
-					if(CLEAR == bRepeatKey)
-					{
-						bRepeatKey = SET;
-						bLongKey = CLEAR;
-						UpdateKeyData(processing_key_data);
-						SetKeyReady();
-					}
-					break;
-
-				case KEY_MODE_REPEAT:
-					UpdateKeyData(processing_key_data);//current_keydata = processing_key_data;
-					debounce_cnt = KEYCOUNT_REPEAT;
-					if(SET == bRepeatKey)
-					{
-						if(FALSE == VALID_REPEAT_KEY(processing_key_data))
-						{
-							bRepeatKey = SET;
-							key_cnt = 0;
-							return;
-						}
-						debounce_cnt = KEYCOUNT_SHORT;
-					}
+					bLongKey = CLEAR;
+					UpdateKeyData(processing_key_data);
 					SetKeyReady();
-					bRepeatKey = SET;
-					key_cnt = 0;
 					break;
 
 				case KEY_MODE_LONG:
 					bLongKey = SET;
 					if((VALID_LONG_KEY(processing_key_data)) && (key_cnt > KEYCOUNT_LONG))
 					{
-						bRepeatKey = SET;
-
 						UpdateKeyData((eKeyData_t)(processing_key_data | KEY_LONG));
 						SetKeyReady();
 					}
@@ -349,7 +304,6 @@ void Key_Check(void)
 		else //reset all flags and count.
 		{
 			bLongKey = CLEAR;
-			bRepeatKey = CLEAR;
 			debounce_cnt = KEYCOUNT_SHORT;
 			key_cnt = 0;
 			UpdateKeyStatus(KEY_STATUS_RELEASED);
@@ -362,7 +316,6 @@ void Key_Check(void)
 			bLongKey = CLEAR;
 			SetKeyReady();
 		}
-		bRepeatKey = CLEAR;
 		debounce_cnt = KEYCOUNT_SHORT;
 		key_cnt = 0;
 		UpdateKeyStatus(KEY_STATUS_RELEASED);
@@ -383,27 +336,14 @@ void Key_Proc(void)
 	{
 		ClearKeyReady();
 
-		if(GetSystemMode() == SYSTEM_SETUP_MODE)
-		{
-			key |= KEY_SPECIAL;
-		}
-
 		switch(key)
 		{
 			case KEY_FULL_CH1 : 
 			case KEY_FULL_CH2 : 
-			case KEY_FULL_CH3 : 
-			case KEY_FULL_CH4 : 
 				// If key is changed...
 				if(previous_keydata != key)
 				{
-					if(screenFreezeOn == SET)
-					{
-						screenFreezeOn = CLEAR;
-						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					}
 					OSD_EraseAllText();
-					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
 					DisplayMode_FullScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
@@ -413,77 +353,14 @@ void Key_Proc(void)
 			case KEY_SPLIT : 
 				if(previous_keydata != key)
 				{
-					if(screenFreezeOn == SET)
-					{
-						screenFreezeOn = CLEAR;
-						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					}
 					OSD_EraseAllText();
-					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
 					DisplayMode_SplitScreen(Get_SystemSplitMode());
 					OSD_DrawBorderLine();
 				}
 				break;
 
-			case KEY_FREEZE :
-				InitializeAutoSeq(AUTO_SEQ_NONE);
-				if(screenFreezeOn == CLEAR)
-				{
-					screenFreezeOn = SET;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
-				}
-				else
-				{
-					screenFreezeOn = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-				}
-				break;
-
-			case KEY_AUTO_SEQ :
-				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
-				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
-				{
-					if(screenFreezeOn == SET)
-					{
-						screenFreezeOn = CLEAR;
-						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-					}
-					OSD_RefreshScreen();
-					InitializeAutoSeq(AUTO_SEQ_NORMAL);
-				}
-				break;
-
-			case KEY_MENU :
-				InitializeAutoSeq(AUTO_SEQ_NONE);
-				if(screenFreezeOn == SET)
-				{
-					screenFreezeOn = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-				}
-				Enter_MainMenu();
-				break;
-
-			case KEY_ALARM :
-				// Sound out beep for configured time(in sec)
-				if(screenFreezeOn == SET)
-				{
-					screenFreezeOn = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
-				}
-				OSD_EraseAllText();
-				OSD_RefreshScreen();
-				InitializeAutoSeq(AUTO_SEQ_ALARM);
-				OSD_DrawBorderLine();
-				break;
-
-			case KEY_UP:
-			case KEY_DOWN:
-			case KEY_LEFT:
-			case KEY_RIGHT:
-			case KEY_ENTER:
-			case KEY_EXIT:
-				Menu_KeyProc(key);
+			case KEY_SPLIT_LONG:
 				break;
 		}
 		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark

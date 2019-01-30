@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "constants.h"
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 #include "mdintype.h"
@@ -32,7 +31,6 @@
 #include "key.h"
 #include "Rtc.h"
 #include "osd_display.h"
-#include "Sequence.h"
 #include "MCU.h"
 #include "i2c.h"
 #include "delay.h"
@@ -41,13 +39,8 @@
 
 #include "osd.h"
 #include "osdmenu.h"
-#include "menu.h"
-#include "item.h"
-#include "video_loss.h"
 
 #include "timer.h"
-#include "MotionDetect.h"
-#include "alarm_remotekey.h"
 #include "display_mode.h"
 #include "nv_storage.h"
 

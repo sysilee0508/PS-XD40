@@ -22,26 +22,19 @@ typedef enum
 
 typedef enum
 {
-//	DISPLAY_MODE_FULL,			// full screen mode for any channel
-	DISPLAY_MODE_QUAD_A,		// 4 split screen
-	DISPLAY_MODE_QUAD_B,
-	DISPLAY_MODE_QUAD_C,
-	DISPLAY_MODE_QUAD_D,
-	DISPLAY_MODE_QUAD_E,
-	DISPLAY_MODE_3SPLIT_A,		// 3 split
-	DISPLAY_MODE_3SPLIT_B,
-	DISPLAY_MODE_3SPLIT_C,
-	DISPLAY_MODE_3SPLIT_D,
-	DISPLAY_MODE_2SPLIT,			// 2 split
+	DISPLAY_MODE_FULL_CH1,		// full screen - channel 1
+	DISPLAY_MODE_FULL_CH2,
+	DISPLAY_MODE_SPLIT_A,
+	DISPLAY_MODE_SPLIT_B,
+	DISPLAY_MODE_SPLIT_C,
+	DISPLAY_MODE_SPLIT_D,
+	DISPLAY_MODE_SPLIT_E,
+	DISPLAY_MODE_PIP_A,
+	DISPLAY_MODE_PIP_B,
+	DISPLAY_MODE_PIP_C,
+	DISPLAY_MODE_PIP_D,
 	DISPLAY_MODE_MAX
-} eSplitMode_t;
-
-typedef enum
-{
-	DISPLAY_MODE_FULL,
-	DISPLAY_MODE_SPLIT
 } eDisplayMode_t;
-
 
 //=============================================================================
 //  struct

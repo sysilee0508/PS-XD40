@@ -11,21 +11,12 @@
 //=============================================================================
 // Key Codes
 #define KEYCODE_NONE		0xFF	//0111 1111
-//#define KEYCODE_NONE_BACK	0xFF
-// Left 4keys
 #define KEYCODE_CH1			0xFE	//1111 1110
 #define KEYCODE_CH2			0xFD	//1111 1101
-#define KEYCODE_CH3			0xFB	//1111 1011
-#define KEYCODE_CH4			0xF7	//1111 0111
-// Right 3keys
 #define KEYCODE_SPLIT		0xEF	//1110 1111
-#define KEYCODE_FREEZE		0xDF	//1101 1111
-#define KEYCODE_SEQUENCE	0xBF	//1011 1111
 
-#define KEY_SPECIAL			0x40
 #define KEY_LONG			0x80
 
-#define LEFT_TOP			0x0
 //=============================================================================
 //  typedef
 //=============================================================================
@@ -33,7 +24,6 @@ typedef enum KeyMode
 {
 	KEY_MODE_SHORT = 0x00,
 	KEY_MODE_LONG,
-	KEY_MODE_REPEAT,
 	KEY_MODE_MAX
 } eKeyMode_t;
 

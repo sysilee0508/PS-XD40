@@ -15,20 +15,14 @@ typedef enum
 {
 	CHANNEL1 = 0,
 	CHANNEL2,
-	CHANNEL3,
-	CHANNEL4,
 	NUM_OF_CHANNEL,
 	CHANNEL_SPLIT
 } eChannel_t;
 
-extern s8 Video1_In_Res_Val;
-extern s8 Video2_In_Res_Val;
 extern s8 Video_Out_Res_Val;
 
 extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);
-
-extern void vs4210_system_init(void);
 
 extern void TurnOnAlarmOut(u8 requester);
 extern void TurnOffAlarmOut(u8 requester);
