@@ -652,7 +652,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>PS-XD40.hex</state>
+                    <state>PS-40XD_MDIN2CH.hex</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -707,7 +707,7 @@
                 </option>
                 <option>
                     <name>IlinkOutputFile</name>
-                    <state>PS-XD40.out</state>
+                    <state>PS-40XD_MDIN2CH.out</state>
                 </option>
                 <option>
                     <name>IlinkDebugInfoEnable</name>
@@ -1683,7 +1683,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>PS-XD40_rel.hex</state>
+                    <state>PS-40XD_MDIN2CH_rel.hex</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -2291,12 +2291,6 @@
         </group>
         <group>
             <name>Splitter</name>
-            <file>
-                <name>$PROJ_DIR$\..\App\Splitter\VS4210.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Splitter\VS4210.h</name>
-            </file>
         </group>
         <group>
             <name>Video</name>

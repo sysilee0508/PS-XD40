@@ -129,8 +129,8 @@ void main(void)
 	Osd_ClearScreen();
 
 	//VS4210 device initialization
-	vs4210_system_init();
-	Delay_ms(10);
+	//vs4210_system_init();
+	//Delay_ms(10);
 	//NVP6158 device initialization
 	NVP6158_init();
 	InitVideoLossCheck();
