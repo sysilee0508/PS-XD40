@@ -204,7 +204,7 @@ static void RTC_CalculateTimeDate(u32 count, sTimeDate_t* pTimeDate)
 void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 { 
 	u32 rtcCount = RTC_GetCounter();
-	sTimeCorrect_t timeCorrection;
+//	sTimeCorrect_t timeCorrection;
 	sTimeDate_t timeDate;
 	static sTimeDate_t oldTimeDate;
 
@@ -215,34 +215,34 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 
 		RTC_CalculateTimeDate(rtcCount, &timeDate);
 		//Time correction
-		Read_NvItem_TimeCorrect(&timeCorrection);
-		if(timeCorrection.timeCorrectOffset > 0)
-		{
-			if(((timeCorrection.timeCorrectUint == TIME_UNIT_DAY) && (oldTimeDate.day != timeDate.day)) ||
-				((timeCorrection.timeCorrectUint == TIME_UNIT_MONTH) &&	(oldTimeDate.month != timeDate.month)))
-			{
-				if(timeCorrection.timeCorrectDirection == DIRECTION_UP) // + --> up / - --> down
-				{
-					rtcCount += timeCorrection.timeCorrectOffset;
-				}
-				else if(timeCorrection.timeCorrectDirection == DIRECTION_DOWN)// -
-				{
-					if(rtcCount > timeCorrection.timeCorrectOffset)
-					{
-						rtcCount -= timeCorrection.timeCorrectOffset;
-					}
-					else
-					{
-						rtcCount = 0;
-					}
-				}
-			    RTC_WaitForLastTask();
-			    RTC_SetCounter(rtcCount);
-			    RTC_WaitForLastTask();
-
-			    RTC_CalculateTimeDate(rtcCount, &timeDate);
-			}
-		}
+//		Read_NvItem_TimeCorrect(&timeCorrection);
+//		if(timeCorrection.timeCorrectOffset > 0)
+//		{
+//			if(((timeCorrection.timeCorrectUint == TIME_UNIT_DAY) && (oldTimeDate.day != timeDate.day)) ||
+//				((timeCorrection.timeCorrectUint == TIME_UNIT_MONTH) &&	(oldTimeDate.month != timeDate.month)))
+//			{
+//				if(timeCorrection.timeCorrectDirection == DIRECTION_UP) // + --> up / - --> down
+//				{
+//					rtcCount += timeCorrection.timeCorrectOffset;
+//				}
+//				else if(timeCorrection.timeCorrectDirection == DIRECTION_DOWN)// -
+//				{
+//					if(rtcCount > timeCorrection.timeCorrectOffset)
+//					{
+//						rtcCount -= timeCorrection.timeCorrectOffset;
+//					}
+//					else
+//					{
+//						rtcCount = 0;
+//					}
+//				}
+//			    RTC_WaitForLastTask();
+//			    RTC_SetCounter(rtcCount);
+//			    RTC_WaitForLastTask();
+//
+//			    RTC_CalculateTimeDate(rtcCount, &timeDate);
+//			}
+//		}
 		// boundary condition
 		RTC_CheckBoundaryCondition(&timeDate);
 
