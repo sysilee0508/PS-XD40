@@ -19,7 +19,7 @@ typedef enum
 	CHANNEL_SPLIT
 } eChannel_t;
 
-extern s8 Video_Out_Res_Val;
+extern s8 videoOutResolution;
 
 extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);

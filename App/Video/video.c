@@ -52,8 +52,8 @@ BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 BYTE TempOutMainMode;		// 28Dec2011
 BOOL fSyncParsed;
 
-s8 Video_Out_Res_Val = VIDOUT_1920x1080p60;
-BOOL fUpdatedOutResolution = FALSE;
+s8 videoOutResolution = VIDOUT_1920x1080p60;
+BOOL requestChangeVideoOutResolution = FALSE;
 
 // ----------------------------------------------------------------------
 // External Variable 
@@ -79,22 +79,22 @@ void UpdateVideoResolution(eResolution_t resolution)
 	switch(resolution)
 	{
 		case RESOLUTION_1920_1080_60P:
-			Video_Out_Res_Val = VIDOUT_1920x1080p60;
+			videoOutResolution = VIDOUT_1920x1080p60;
 			break;
 
 		case RESOLUTION_1920_1080_50P:
-			Video_Out_Res_Val = VIDOUT_1920x1080p50;
+			videoOutResolution = VIDOUT_1920x1080p50;
 			break;
 
 		default:
-			Video_Out_Res_Val = VIDOUT_1920x1080p60;
+			videoOutResolution = VIDOUT_1920x1080p60;
 			break;
 	}
 
-	if(prevResolution != Video_Out_Res_Val)
+	if(prevResolution != videoOutResolution)
 	{
-		prevResolution = Video_Out_Res_Val;
-		fUpdatedOutResolution = TRUE;
+		prevResolution = videoOutResolution;
+		requestChangeVideoOutResolution = TRUE;
 	}
 }
 
@@ -127,7 +127,6 @@ static void MDIN3xx_SetRegInitial(void)
 {
 	WORD nID = 0;
 	
-
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
 	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
@@ -179,14 +178,14 @@ static void MDIN3xx_SetRegInitial(void)
 
 	// define video format of PORTA-INPUT
 	stVideo.stSRC_a.frmt =  VIDSRC_1920x1080p60;
-	stVideo.stSRC_a.mode = MDIN_SRC_EMB422_8;
+	stVideo.stSRC_a.mode = MDIN_SRC_MUX656_8;//MDIN_SRC_EMB422_8;
 	stVideo.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
 	stVideo.stSRC_a.offH = 0;	//API v0.31(2012.05.02)
 	stVideo.stSRC_a.offV = 0;	//API v0.31(2012.05.02)
 
 	// define video format of MAIN-OUTPUT
 
-	stVideo.stOUT_m.frmt = GetOutputFormat();//VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
+	stVideo.stOUT_m.frmt = VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
 	stVideo.stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
 	stVideo.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
@@ -216,14 +215,15 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
 
 	// define video format of AUX-OUTPUT
-	if(GetOutputFormat() == VIDOUT_1920x1080p60)
-	{
-		stVideo.stOUT_x.frmt = VIDOUT_720x480i60;
-	}
-	else
-	{
-		stVideo.stOUT_x.frmt = VIDOUT_720x576i50;
-	}
+//	if(GetOutputFormat() == VIDOUT_1920x1080p60)
+//	{
+//		stVideo.stOUT_x.frmt = VIDOUT_720x480i60;
+//	}
+//	else
+//	{
+//		stVideo.stOUT_x.frmt = VIDOUT_720x576i50;
+//	}
+	stVideo.stOUT_x.frmt = VIDOUT_720x480i60;
 	stVideo.stOUT_x.mode = MDIN_OUT_MUX656_8;
 	stVideo.stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
 
@@ -242,15 +242,15 @@ static void MDIN3xx_SetRegInitial(void)
 #endif
 
 	// define video format of video encoder
-	if(GetOutputFormat() == VIDOUT_1920x1080p60)
-	{
-		stVideo.encFRMT = VID_VENC_NTSC_M;
-	}
-	else
-	{
-		stVideo.encFRMT = VID_VENC_PAL_B;
-	}
-
+//	if(GetOutputFormat() == VIDOUT_1920x1080p60)
+//	{
+//		stVideo.encFRMT = VID_VENC_NTSC_M;
+//	}
+//	else
+//	{
+//		stVideo.encFRMT = VID_VENC_PAL_B;
+//	}
+	stVideo.encFRMT = VID_VENC_NTSC_M;
 
 	// define video format of HDMI-OUTPUT
 	stVideo.stVID_h.mode  = HDMI_OUT_RGB444_8;
@@ -326,7 +326,7 @@ static BYTE GetSrcMainMode(BYTE src)
 	switch (src) 
 	{
 		case VIDEO_SDI_2HD_POP:		return MDIN_SRC_EMB422_8;	
-		case VIDEO_DIGITAL_SDI:		return MDIN_SRC_EMB422_8;	//by hungry 2012.02.15
+		case VIDEO_DIGITAL_SDI:		return MDIN_SRC_MUX656_8;//MDIN_SRC_EMB422_8;	//by hungry 2012.02.15
 		case VIDEO_DIGITAL_SDI2:	return MDIN_SRC_RGB444_8;	//by flcl 2013.04.23
 		default:					return MDIN_SRC_SEP422_8;
 	}
@@ -357,11 +357,11 @@ static BYTE GetSrcAuxFrmt(BYTE src)
 //--------------------------------------------------------------------------------------------------
 static void UpdateOutputFormat(void)
 {
-	if(fUpdatedOutResolution== TRUE)
+	if(requestChangeVideoOutResolution== TRUE)
 	{
-		fUpdatedOutResolution = FALSE;
+		requestChangeVideoOutResolution = FALSE;
 		
-		OutMainFrmt = Video_Out_Res_Val;		// get out-format
+		OutMainFrmt = videoOutResolution;		// get out-format
 		OutAuxMode = MDIN_OUT_MUX656_8;		// set aux-mode
 		
 		if(GetOutputFormat() == VIDOUT_1920x1080p60)
@@ -434,7 +434,7 @@ static void InputSyncHandler_A(BYTE src)
 	{
 		case DAC_PATH_MAIN_PIP:	
 			SrcMainMode = MDIN_SRC_EMB422_8;	
-			OutMainFrmt = Video_Out_Res_Val+(frmt%2);	
+			OutMainFrmt = videoOutResolution+(frmt%2);
 			OutMainMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
 			break;
 	}
