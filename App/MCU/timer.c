@@ -55,13 +55,6 @@ void TIM3_IRQHandler(void)
 	Key_Scan();
 	Key_Led_Ctrl();
 	Key_Check();
-
-	// Check alarm every 20ms if alarm is enabled
-	if(count%2==0)
-	{
-		CheckAlarm();
-	}
-	count = (++count)%2;
 }
 
 //-----------------------------------------------------------------------------

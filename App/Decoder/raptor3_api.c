@@ -51,11 +51,11 @@ int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInfor
 	{
 		pInformation->curvideoloss[ch] = VIDEO_LOSS_ON;
 		pInformation->videolosscheck[ch] = 0;
-		if(Get_MotionDetect_OnOff(sMotion.ch))
-		{
-			motion_detection_get(&sMotion);
-			pInformation->motiondetect |= sMotion.set_val;
-		}
+//		if(Get_MotionDetect_OnOff(sMotion.ch))
+//		{
+//			motion_detection_get(&sMotion);
+//			pInformation->motiondetect |= sMotion.set_val;
+//		}
 	}
 	else
 	{

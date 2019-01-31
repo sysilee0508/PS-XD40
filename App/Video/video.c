@@ -100,10 +100,10 @@ void UpdateVideoResolution(eResolution_t resolution)
 
 static MDIN_OUTVIDEO_FORMAT_t GetOutputFormat(void)
 {
-	eResolution_t eResolution;
+	eResolution_t eResolution = RESOLUTION_1920_1080_60P;
 	MDIN_OUTVIDEO_FORMAT_t outResolution;
 
-	Read_NvItem_Resolution(&eResolution);
+	//Read_NvItem_Resolution(&eResolution);
 
 	switch(eResolution)
 	{

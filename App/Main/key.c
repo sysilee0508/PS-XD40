@@ -345,7 +345,7 @@ void Key_Proc(void)
 				{
 					OSD_EraseAllText();
 					OSD_RefreshScreen();
-					DisplayMode_FullScreen((eChannel_t)(key - 1));
+					DisplayScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -355,7 +355,7 @@ void Key_Proc(void)
 				{
 					OSD_EraseAllText();
 					OSD_RefreshScreen();
-					DisplayMode_SplitScreen(Get_SystemSplitMode());
+					DisplayScreen(DISPLAY_MODE_SPLIT_A);
 					OSD_DrawBorderLine();
 				}
 				break;

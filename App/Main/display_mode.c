@@ -145,7 +145,7 @@ static void Display_SplitB(void)
 
 }
 
-static void Display_SplitCMode(void)
+static void Display_SplitC(void)
 {
 
 }
@@ -201,8 +201,10 @@ void DisplayScreen(eDisplayMode_t mode)
 			Display_SplitC();
 			break;
 		case DISPLAY_MODE_SPLIT_D:
+			Display_SplitD();
 			break;
 		case DISPLAY_MODE_SPLIT_E:
+			Display_SplitE();
 			break;
 
 		case DISPLAY_MODE_PIP_A:
