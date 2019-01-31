@@ -37,7 +37,6 @@ typedef struct
 //-----------------------------------------------------------------
 // exported variable declaration
 //-----------------------------------------------------------------
-//extern BYTE requestRefreshScreen;
 
 //-----------------------------------------------------------------
 // Function declaration
@@ -46,10 +45,9 @@ extern void Osd_ClearScreen(void);
 extern void OSD_EraseAllText(void);
 extern void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size);
 extern void OSD_Display(void);
-extern void OSD_Display_Time(void);
-extern void OSD_Display_Time_NOW(void);
+//extern void OSD_Display_Time(void);
+//extern void OSD_Display_Time_NOW(void);
 extern void OSD_DisplayChannelName(void);
-extern void OSD_Display_State(void);
 
 extern void OSD_DrawBorderLine(void);
 extern void OSD_RefreshScreen(void);

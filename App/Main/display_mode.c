@@ -104,6 +104,7 @@ static void Display_FullMode(eChannel_t ch)
 				break;	
 			}
 			break;
+	}
 }
 
 static void Display_SplitA(void)

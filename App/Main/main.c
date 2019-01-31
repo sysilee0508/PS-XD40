@@ -4,70 +4,69 @@
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
-#include "video_loss.h"
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-static u8 alarmOutRequester = ALARMOUT_REQUESTER_NONE;
+//static u8 alarmOutRequester = ALARMOUT_REQUESTER_NONE;
+//
+//void TurnOnAlarmOut(u8 requester)
+//{
+//	alarmOutRequester |=  requester;
+//	ALARMOUT_LOW;
+//}
+//
+//void TurnOffAlarmOut(u8 requester)
+//{
+//	alarmOutRequester &= (~requester);
+//
+//	if(alarmOutRequester == ALARMOUT_REQUESTER_NONE)
+//	{
+//		ALARMOUT_HIGH;
+//	}
+//}
 
-void TurnOnAlarmOut(u8 requester)
-{
-	alarmOutRequester |=  requester;
-	ALARMOUT_LOW;
-}
-
-void TurnOffAlarmOut(u8 requester)
-{
-	alarmOutRequester &= (~requester);
-
-	if(alarmOutRequester == ALARMOUT_REQUESTER_NONE)
-	{
-		ALARMOUT_HIGH;
-	}
-}
-
-static void PlayBuzzer(void)
-{
-	sSystemTick_t* currentSystemTime = GetSystemTime();
-	static u32 previousSystemTimeIn100ms = 0;
-	u8 lossCount = GetVideoLossBuzzerCount();
-    u8 alarmCount = GetAlarmBuzzerCount();
-    u8 motionCount = GetMotionBuzzerCount();
-	u8 buzzerCount;
-
-	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
-	{
-		buzzerCount = MAX(MAX(lossCount, alarmCount), motionCount);
-
-		if(buzzerCount > 0)
-		{
-			if(buzzerCount%2)
-				BUZZER_LOW;
-			else
-				BUZZER_HIGH;
-
-			if(lossCount > 0)
-			{
-				DecreaseVideoLossBuzzerCount();
-			}
-			if(alarmCount > 0)
-			{
-				DecreaseAlarmBuzzerCount();
-			}
-			if(motionCount > 0)
-			{
-				DecreaseMotionBuzzerCount();
-			}
-		}
-		else
-		{
-			BUZZER_LOW;
-		}
-		previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
-	}
-}
-
+//static void PlayBuzzer(void)
+//{
+//	sSystemTick_t* currentSystemTime = GetSystemTime();
+//	static u32 previousSystemTimeIn100ms = 0;
+//	u8 lossCount = GetVideoLossBuzzerCount();
+//    u8 alarmCount = GetAlarmBuzzerCount();
+//    u8 motionCount = GetMotionBuzzerCount();
+//	u8 buzzerCount;
+//
+//	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
+//	{
+//		buzzerCount = MAX(MAX(lossCount, alarmCount), motionCount);
+//
+//		if(buzzerCount > 0)
+//		{
+//			if(buzzerCount%2)
+//				BUZZER_LOW;
+//			else
+//				BUZZER_HIGH;
+//
+//			if(lossCount > 0)
+//			{
+//				DecreaseVideoLossBuzzerCount();
+//			}
+//			if(alarmCount > 0)
+//			{
+//				DecreaseAlarmBuzzerCount();
+//			}
+//			if(motionCount > 0)
+//			{
+//				DecreaseMotionBuzzerCount();
+//			}
+//		}
+//		else
+//		{
+//			BUZZER_LOW;
+//		}
+//		previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
+//	}
+//}
+//
 //=============================================================================
 //  main function
 //=============================================================================
@@ -94,26 +93,26 @@ void main(void)
 	// Need additional 500us to check reset key
 	// Reset Key Function : Press and hold the menu button during turning on the power to initialize the EEPROM
 	Delay_ms(500);
-	if(IsKeyReady()) 
-	{
-		ClearKeyReady();
-		if(GetCurrentKey() == KEY_MENU || GetCurrentKey() == KEY_FREEZE)
-		{
-			InitializeNvData();
-
-			BUZZER_HIGH;
-			Delay_ms(100);
-			BUZZER_LOW;
-			Delay_ms(100);
-			BUZZER_HIGH;
-			Delay_ms(100);
-			BUZZER_LOW;
-			Delay_ms(100);
-			BUZZER_HIGH;
-			Delay_ms(100);
-			BUZZER_LOW;
-		}
-	}
+//	if(IsKeyReady())
+//	{
+//		ClearKeyReady();
+//		if(GetCurrentKey() == KEY_MENU || GetCurrentKey() == KEY_FREEZE)
+//		{
+//			InitializeNvData();
+//
+//			BUZZER_HIGH;
+//			Delay_ms(100);
+//			BUZZER_LOW;
+//			Delay_ms(100);
+//			BUZZER_HIGH;
+//			Delay_ms(100);
+//			BUZZER_LOW;
+//			Delay_ms(100);
+//			BUZZER_HIGH;
+//			Delay_ms(100);
+//			BUZZER_LOW;
+//		}
+//	}
 	//--------------------------------------------
 	// Set key mode as long key mode 
 	SetKeyMode(KEY_MODE_LONG);
@@ -133,13 +132,13 @@ void main(void)
 	//Delay_ms(10);
 	//NVP6158 device initialization
 	NVP6158_init();
-	InitVideoLossCheck();
-	InitializeMotionDetect();
+//	InitVideoLossCheck();
+//	InitializeMotionDetect();
 
 	InputSelect = VIDEO_DIGITAL_SDI;
-	DisplayMode_SplitScreen(Get_SystemSplitMode());
+	DisplayScreen(DISPLAY_MODE_FULL_CH1);
 
-	UpdateKeyData(KEY_SPLIT);
+	UpdateKeyData(KEY_FULL_CH1);
 	SetKeyReady();
 
 	OSD_DrawBorderLine();
@@ -152,12 +151,12 @@ void main(void)
 		UpdateDisplayMode();
 		
 		ScanVideoLossChannels();
-		CheckAlarmClearCondition();
-		MotionDetectCheck();
-		PlayBuzzer();
+//		CheckAlarmClearCondition();
+//		MotionDetectCheck();
+//		PlayBuzzer();
 
-		UpdateAutoSeqCount();
-		DisplayAutoSeqChannel();
+//		UpdateAutoSeqCount();
+//		DisplayAutoSeqChannel();
 
 		Key_Proc();
 		RTC_CheckTime();
