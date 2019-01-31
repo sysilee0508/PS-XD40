@@ -43,6 +43,7 @@
 #include "timer.h"
 #include "display_mode.h"
 #include "nv_storage.h"
+#include "video_loss.h"
 
 // msg.c
 typedef enum {

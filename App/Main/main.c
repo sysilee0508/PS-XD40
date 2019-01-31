@@ -121,7 +121,7 @@ void main(void)
 	LoadNvDataFromStorage();
 
 	// initialize Debug Serial
-	USART3_Init();
+//	USART3_Init();
 
 	CreateVideoInstance();
 	CreateOSDInstance();

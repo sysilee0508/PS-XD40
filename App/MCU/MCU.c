@@ -160,12 +160,12 @@ void IRQ_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
-	//UART3 interrupt -------------------------------------------------
-	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+//	//UART3 interrupt -------------------------------------------------
+//	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
+//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+//	NVIC_Init(&NVIC_InitStructure);
 
 	// RTC -------------------------------------------------------------
 	NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQn;

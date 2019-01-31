@@ -87,7 +87,7 @@
 extern BYTE nv_buffer[2048];
 
 extern void MCU_init(void);			
-extern void USART3_Init(void);
+//extern void USART3_Init(void);
 extern int fputc(int ch, FILE *f);
 extern void IRQ_Init(void);
 extern void RTC_Configuration(void);
