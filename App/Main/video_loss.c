@@ -4,7 +4,7 @@ extern void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss);
 
 static u32 videoLossChannels = VIDEO_LOSS_CHANNEL_NONE; /* 1:Loss 0:Video */
 static BOOL videoLossEvent = CLEAR;
-static u8 videoLossBuzzerCount = 0;
+//static u8 videoLossBuzzerCount = 0;
 
 
 //-----------------------------------------------------------------------------
@@ -31,8 +31,8 @@ void ScanVideoLossChannels(void)
     		{
     			// There is new loss channel..
     			// Should reset the buzzer count for video loss
-    			Read_NvItem_VideoLossBuzzerTime((u8*)&videoLossBuzzerCount);
-    			videoLossBuzzerCount *= 2;
+//    			Read_NvItem_VideoLossBuzzerTime((u8*)&videoLossBuzzerCount);
+//    			videoLossBuzzerCount *= 2;
     		}
 //    		if(GetCurrentAutoSeq() == AUTO_SEQ_NORMAL)
 //    		{
@@ -67,20 +67,20 @@ BOOL GetVideoLossEvent(void)
 void InitVideoLossCheck(void)
 {
 	SetVideoLossEvent(CLEAR);
-	videoLossBuzzerCount = 0;
+//	videoLossBuzzerCount = 0;
 }
 //-----------------------------------------------------------------------------
-u8 GetVideoLossBuzzerCount(void)
-{
-	return videoLossBuzzerCount;
-}
-
-void ClearVideoLossBuzzerCount(void)
-{
-	videoLossBuzzerCount = 0;
-}
-
-void DecreaseVideoLossBuzzerCount(void)
-{
-	videoLossBuzzerCount--;
-}
+//u8 GetVideoLossBuzzerCount(void)
+//{
+//	return videoLossBuzzerCount;
+//}
+//
+//void ClearVideoLossBuzzerCount(void)
+//{
+//	videoLossBuzzerCount = 0;
+//}
+//
+//void DecreaseVideoLossBuzzerCount(void)
+//{
+//	videoLossBuzzerCount--;
+//}
