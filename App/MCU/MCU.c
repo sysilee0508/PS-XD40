@@ -69,13 +69,13 @@ void MCU_init(void)
 //	7 : I2C_SDA (active low) /I2C1
 //	8 : NC
 //	9 : NC
-//	10: TXD(UART3)
-//	11: RXD(UART3)
+//	10: NC? TXD(UART3)
+//	11: NC? RXD(UART3)
 //	12: SW_CH1
 //	13: SW_CH2
 //	14: SW_Split
 //	15: LED_CH1
-	GPIOB->CRH = 0x73334B33;		//PB15 --> output/open-drain //PB10 uart_TX(alternate function), //GPIO11-uart_RX
+	GPIOB->CRH = 0x73333333;		//PB15 --> output/open-drain //PB10 uart_TX(alternate function), //GPIO11-uart_RX
 	GPIOB->CRL = 0x33377333; 		//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
 	GPIOB->ODR = 0x0000FCFB;		//GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
 

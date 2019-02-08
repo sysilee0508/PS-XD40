@@ -23,45 +23,55 @@
 	GPIOB->CRL &= 0x0fffffff; 	\
 	GPIOB->CRL |= 0x30000000
 
-#define KEY_ROW0_HIGH				GPIOB->BSRR = 0x00000008 	//PB3 //ROW0
-#define KEY_ROW0_LOW				GPIOB->BRR  = 0x00000008
-#define KEY_ROW1_HIGH				GPIOB->BSRR = 0x00000010 	//PB4 //ROW1
-#define KEY_ROW1_LOW				GPIOB->BRR  = 0x00000010
-#define KEY_EN_HIZ_MODE 			GPIOB->CRL  = 0x33344333 	//Change PB3, PB4 to Floating input in Input mode
-#define KEY_ROWS_OUT_MODE 			GPIOB->CRL  = 0x33333333 	//Change PB3, PB4 to Output mode
+//#define SW1_IN_DATA	//CH1
+//#define SW2_IN_DATA	//CH2
+//#define SW3_IN_DATA	//SPLIT
+//
+//#define LED1_HIGH	//CH1
+//#define LED1_LOW
+//#define LED2_HIGH	//CH2
+//#define LED2_LOW
+//#define LED3_HIGH	//SPLIT
+//#define LED3_LOW
 
-#define KEY_LED0_HIGH				GPIOB->BSRR = 0x00000100 	//PB8 //LED0
-#define KEY_LED0_LOW				GPIOB->BRR  = 0x00000100
-#define KEY_LED1_HIGH				GPIOB->BSRR = 0x00000200 	//PB9
-#define KEY_LED1_LOW				GPIOB->BRR  = 0x00000200
+//#define KEY_ROW0_HIGH				GPIOB->BSRR = 0x00000008 	//PB3 //ROW0
+//#define KEY_ROW0_LOW				GPIOB->BRR  = 0x00000008
+//#define KEY_ROW1_HIGH				GPIOB->BSRR = 0x00000010 	//PB4 //ROW1
+//#define KEY_ROW1_LOW				GPIOB->BRR  = 0x00000010
+//#define KEY_ROWS_OUT_MODE 			GPIOB->CRL  = 0x33333333 	//Change PB3, PB4 to Output mode
+//
+//#define KEY_LED0_HIGH				GPIOB->BSRR = 0x00000100 	//PB8 //LED0
+//#define KEY_LED0_LOW				GPIOB->BRR  = 0x00000100
+//#define KEY_LED1_HIGH				GPIOB->BSRR = 0x00000200 	//PB9
+//#define KEY_LED1_LOW				GPIOB->BRR  = 0x00000200
+//
+//#define KEY_LED1_5_HIGH				GPIOB->BSRR = 0x00001000
+//#define KEY_LED1_5_LOW				GPIOB->BRR  = 0x00001000
+//#define KEY_LED2_6_HIGH				GPIOB->BSRR = 0x00002000
+//#define KEY_LED2_6_LOW				GPIOB->BRR  = 0x00002000
+//#define KEY_LED3_7_HIGH				GPIOB->BSRR = 0x00004000
+//#define KEY_LED3_7_LOW				GPIOB->BRR  = 0x00004000
+//#define KEY_LED4_HIGH				GPIOB->BSRR = 0x00008000
+//#define KEY_LED4_LOW				GPIOB->BRR  = 0x00008000
+//
+#define KEY_DATA_OUTPUT_MODE 		GPIOB->CRH = 0x33333333 	//Change PB12, PB13, PB14, PB15 to Output mode
+//#define KEY_DATA1_5_INPUT 			((GPIOB->IDR >> 12) & 0x00000001)	//GPIOB12 status read
+//#define KEY_DATA2_6_INPUT 			((GPIOB->IDR >> 13) & 0x00000001)	//GPIOB13 status read
+//#define KEY_DATA3_7_INPUT 			((GPIOB->IDR >> 14) & 0x00000001) 	//GPIOB14 status read
+//#define KEY_DATA4_INPUT 			((GPIOB->IDR >> 15) & 0x00000001) 	//GPIOB15 status read
+#define KEY_DATA_INPUT_MODE  		GPIOB->CRH = 0x38883333 	//Change PB12, PB13, PB14, PB15 to Input mode
 
-#define KEY_LED1_5_HIGH				GPIOB->BSRR = 0x00001000
-#define KEY_LED1_5_LOW				GPIOB->BRR  = 0x00001000
-#define KEY_LED2_6_HIGH				GPIOB->BSRR = 0x00002000
-#define KEY_LED2_6_LOW				GPIOB->BRR  = 0x00002000
-#define KEY_LED3_7_HIGH				GPIOB->BSRR = 0x00004000
-#define KEY_LED3_7_LOW				GPIOB->BRR  = 0x00004000
-#define KEY_LED4_HIGH				GPIOB->BSRR = 0x00008000
-#define KEY_LED4_LOW				GPIOB->BRR  = 0x00008000
-
-#define KEY_DATA_OUTPUT_MODE 		GPIOB->CRH = 0x33334b33 	//Change PB12, PB13, PB14, PB15 to Output mode
-#define KEY_DATA1_5_INPUT 			((GPIOB->IDR >> 12) & 0x00000001)	//GPIOB12 status read
-#define KEY_DATA2_6_INPUT 			((GPIOB->IDR >> 13) & 0x00000001)	//GPIOB13 status read
-#define KEY_DATA3_7_INPUT 			((GPIOB->IDR >> 14) & 0x00000001) 	//GPIOB14 status read
-#define KEY_DATA4_INPUT 			((GPIOB->IDR >> 15) & 0x00000001) 	//GPIOB15 status read
-#define KEY_DATA_INPUT_MODE  		GPIOB->CRH = 0x88884b33 	//Change PB12, PB13, PB14, PB15 to Input mode
-
-#define BUZZER_HIGH					GPIOB->BSRR = 0x00000004 	//PB2
-#define BUZZER_LOW					GPIOB->BRR  = 0x00000004
-
-#define ALARMOUT_HIGH				GPIOB->BSRR = GPIO_Pin_1
-#define ALARMOUT_LOW 				GPIOB->BRR  = GPIO_Pin_1
-
-#define SPI_CS_HIGH					GPIOC->BSRR = GPIO_Pin_3
-#define SPI_CS_LOW					GPIOC->BRR  = GPIO_Pin_3
-#define SPI_CLK_HIGH				GPIOC->BSRR = GPIO_Pin_2
-#define SPI_CLK_LOW					GPIOC->BRR  = GPIO_Pin_2
-#define SPI_MISO_DATA				(GPIOC->IDR & 0x00000001)
+//#define BUZZER_HIGH					GPIOB->BSRR = 0x00000004 	//PB2
+//#define BUZZER_LOW					GPIOB->BRR  = 0x00000004
+//
+//#define ALARMOUT_HIGH				GPIOB->BSRR = GPIO_Pin_1
+//#define ALARMOUT_LOW 				GPIOB->BRR  = GPIO_Pin_1
+//
+//#define SPI_CS_HIGH					GPIOC->BSRR = GPIO_Pin_3
+//#define SPI_CS_LOW					GPIOC->BRR  = GPIO_Pin_3
+//#define SPI_CLK_HIGH				GPIOC->BSRR = GPIO_Pin_2
+//#define SPI_CLK_LOW					GPIOC->BRR  = GPIO_Pin_2
+//#define SPI_MISO_DATA				(GPIOC->IDR & 0x00000001)
 
 #define MDIN3xx_CS_HIGH				GPIOB->BSRR = 0x00000020 	//PB5
 #define MDIN3xx_CS_LOW 				GPIOB->BRR  = 0x00000020

@@ -46,13 +46,13 @@
 #include "video_loss.h"
 
 // msg.c
-typedef enum {
-	MSG_KEY = 0, MSG_IR, MSG_UART, MSG_USB
-} 	MSG_CTRL_MODE;
-
-typedef enum {
-	MSG_LEVEL = 0, MSG_SHIFT, MSG_ZMOVE
-} 	MSG_EXE_SPEED;
+//typedef enum {
+//	MSG_KEY = 0, MSG_IR, MSG_UART, MSG_USB
+//} 	MSG_CTRL_MODE;
+//
+//typedef enum {
+//	MSG_LEVEL = 0, MSG_SHIFT, MSG_ZMOVE
+//} 	MSG_EXE_SPEED;
 
 #define NOP()	asm("NOP")
 
