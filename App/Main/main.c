@@ -72,8 +72,6 @@
 //=============================================================================
 void main(void)
 {
-	eResolution_t videoOutResolution;
-
 	// initialize STM32F103x
 	MCU_init();
 	// initialize interrupt
@@ -120,64 +118,44 @@ void main(void)
 	// Load NV data from flash memory
 	LoadNvDataFromStorage();
 
-	// initialize Debug Serial
-//	USART3_Init();
-
 	CreateVideoInstance();
 	CreateOSDInstance();
 	Osd_ClearScreen();
 
-	//VS4210 device initialization
-	//vs4210_system_init();
-	//Delay_ms(10);
+	Delay_ms(1);
 	//NVP6158 device initialization
 	NVP6158_init();
 //	InitVideoLossCheck();
-//	InitializeMotionDetect();
 
-	InputSelect = VIDEO_DIGITAL_SDI;
 	DisplayScreen(DISPLAY_MODE_FULL_CH1);
+	OSD_DrawBorderLine();
+	OSD_RefreshScreen();
 
 	UpdateKeyData(KEY_FULL_CH1);
 	SetKeyReady();
 
-	OSD_DrawBorderLine();
-	OSD_RefreshScreen();
-
 #ifdef MDIN_TEST_PATTERN
-	//MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
-	//MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
+	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
+	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
 #endif
 
 	while(TRUE)
 	{
 		NVP6158_VideoDetectionProc();
 		Delay_ms(1);
-		UpdateDisplayMode();
-		
+		// check video loss
 //		ScanVideoLossChannels();
-//		CheckAlarmClearCondition();
-//		MotionDetectCheck();
-//		PlayBuzzer();
-
-//		UpdateAutoSeqCount();
-//		DisplayAutoSeqChannel();
+		UpdateDisplayMode();
 
 		Key_Proc();
 		RTC_CheckTime();
 		// video process handler
 		VideoProcessHandler();
-
 		// delay for HDMI-Tx register !!
 		MDINDLY_mSec(1);
-
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.
 		VideoHTXCtrlHandler();
-
 		OSD_Display();
-
 		StoreNvDataToStorage();
     }
 }
-
-
