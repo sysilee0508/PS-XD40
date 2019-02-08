@@ -135,7 +135,7 @@ static void MDIN3xx_SetRegInitial(void)
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
 	MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_ALL, ON);
 
-	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP3);		// set in_data_map_mode = �11�
+	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode = �11�
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP0);		// disable digital out
 	MDINOSD_SetBGLayerColor(RGB(128,128,128));			// set BG-Layer color
 
@@ -617,7 +617,7 @@ static void VideoFrameProcess(BYTE src)
 
 	//	GetExtVideoAttb(src);	// update E-Video attribute (edge,swap,clk,offset)	//by hungry 2012.02.15
 		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
-		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS) // blocked by kukuri
+		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
 		//Set2HDVideoPathB();		// set 2HD pathB
 
 		//SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO));

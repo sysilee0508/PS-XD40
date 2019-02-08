@@ -144,11 +144,16 @@ void main(void)
 	OSD_DrawBorderLine();
 	OSD_RefreshScreen();
 
+#ifdef MDIN_TEST_PATTERN
+	//MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
+	//MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
+#endif
+
 	while(TRUE)
 	{
 		NVP6158_VideoDetectionProc();
 		Delay_ms(1);
-//		UpdateDisplayMode();
+		UpdateDisplayMode();
 		
 //		ScanVideoLossChannels();
 //		CheckAlarmClearCondition();
@@ -160,17 +165,14 @@ void main(void)
 
 		Key_Proc();
 		RTC_CheckTime();
-		
-		MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
-
 		// video process handler
-//		VideoProcessHandler();
+		VideoProcessHandler();
 
 		// delay for HDMI-Tx register !!
 		MDINDLY_mSec(1);
 
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.
-//		VideoHTXCtrlHandler();
+		VideoHTXCtrlHandler();
 
 		OSD_Display();
 
