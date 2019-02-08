@@ -135,7 +135,7 @@ static void MDIN3xx_SetRegInitial(void)
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
 	MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_ALL, ON);
 
-	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode = �11�
+	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP0);		// disable digital out
 	MDINOSD_SetBGLayerColor(RGB(128,128,128));			// set BG-Layer color
 
@@ -183,8 +183,14 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stSRC_a.offH = 0;	//API v0.31(2012.05.02)
 	stVideo.stSRC_a.offV = 0;	//API v0.31(2012.05.02)
 
-	// define video format of MAIN-OUTPUT
+	// define video format of PORTB-INPUT
+	stVideo.stSRC_b.frmt =  VIDSRC_1920x1080p60;
+	stVideo.stSRC_b.mode = MDIN_SRC_MUX656_8;//MDIN_SRC_EMB422_8;
+	stVideo.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	stVideo.stSRC_b.offH = 0;	//API v0.31(2012.05.02)
+	stVideo.stSRC_b.offV = 0;	//API v0.31(2012.05.02)
 
+	// define video format of MAIN-OUTPUT
 	stVideo.stOUT_m.frmt = VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
 	stVideo.stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
 	stVideo.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
@@ -314,7 +320,8 @@ static void SetInVideoPath(BYTE src)
 			stVideo.srcPATH = PATH_MAIN_A_AUX_B;	stVideo.dacPATH = DAC_PATH_MAIN_PIP;  break;
 
 		case VIDEO_DIGITAL_SDI: 
-			stVideo.srcPATH = PATH_MAIN_A_AUX_M;	stVideo.dacPATH = DAC_PATH_MAIN_OUT; break;
+			//stVideo.srcPATH = PATH_MAIN_A_AUX_M;	stVideo.dacPATH = DAC_PATH_MAIN_OUT; break;
+			stVideo.srcPATH = PATH_MAIN_B_AUX_M;	stVideo.dacPATH = DAC_PATH_MAIN_OUT; break;
 		case VIDEO_DIGITAL_SDI2: 
 			stVideo.srcPATH = PATH_MAIN_B_AUX_B;	stVideo.dacPATH = DAC_PATH_MAIN_OUT; break;
 	}
