@@ -127,12 +127,13 @@ void main(void)
 	NVP6158_init();
 //	InitVideoLossCheck();
 
-	DisplayScreen(DISPLAY_MODE_FULL_CH1);
-	OSD_DrawBorderLine();
-	OSD_RefreshScreen();
+//	DisplayScreen(DISPLAY_MODE_FULL_CH1);
+//	OSD_DrawBorderLine();
+//	OSD_RefreshScreen();
 
 	UpdateKeyData(KEY_FULL_CH1);
 	SetKeyReady();
+	Key_Proc();
 
 #ifdef MDIN_TEST_PATTERN
 	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);

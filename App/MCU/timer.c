@@ -53,7 +53,7 @@ void TIM3_IRQHandler(void)
 	TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 
 	Key_Scan();
-	Key_Led_Ctrl();
+	//Key_Led_Ctrl();
 	Key_Check();
 }
 

@@ -4,17 +4,10 @@
 //=============================================================================
 //  MACRO
 //=============================================================================
-//#define KEY_LED_ON(led)		(GPIOB->BRR = (~led) << 12)
 
 //=============================================================================
 //  define
 //=============================================================================
-// Key Codes
-//#define KEYCODE_NONE		0xFF	//0111 1111
-//#define KEYCODE_CH1			0xFE	//1111 1110
-//#define KEYCODE_CH2			0xFD	//1111 1101
-//#define KEYCODE_SPLIT		0xEF	//1110 1111
-
 #define KEY_LONG			0x80
 
 //=============================================================================
@@ -54,13 +47,11 @@ typedef u8 keycode_t;
 extern void Key_Scan(void);
 extern void Key_Check(void);
 extern void Key_Proc(void);
-extern void Key_Led_Ctrl(void);
+//extern void Key_Led_Ctrl(void);
 
 // Interface
 extern void SetKeyMode(eKeyMode_t mode);
 extern eKeyMode_t GetKeyMode(void);
-extern keycode_t GetKeyCode(eKeyData_t key);
-extern void SetCurrentKeyCode(keycode_t keycode);
 extern void UpdateKeyStatus(eKeyStatus_t status);
 extern eKeyStatus_t GetKeyStatus(void);
 extern void SetKeyReady(void);

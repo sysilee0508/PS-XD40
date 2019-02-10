@@ -11,9 +11,6 @@
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
-//static keycode_t current_keycode = KEYCODE_NONE;
-//static keycode_t frontKeyCode = KEYCODE_NONE;
-//static keycode_t led_keycode = KEYCODE_SPLIT;
 static eKeyMode_t key_mode = KEY_MODE_LONG;
 static eKeyMode_t saved_key_mode = KEY_MODE_LONG;
 static eKeyStatus_t key_status = KEY_STATUS_RELEASED;
@@ -24,20 +21,6 @@ static eKeyData_t scanKey = KEY_NONE;
 //=============================================================================
 //  Constant Array Declaration (data table)
 //=============================================================================
-//const static keycode_t keycode_table[] =
-//{
-//	KEYCODE_CH1,		//0xFE	1111 1110	254
-//	KEYCODE_CH2,		//0xFD 	1111 1101	253
-//	KEYCODE_SPLIT,		//0xEF 	1110 1111 	239
-//	KEYCODE_NONE,		//0x7F
-//};
-
-const static eKeyData_t key_table[] =
-{
-	KEY_FULL_CH1,
-	KEY_FULL_CH2,
-	KEY_SPLIT
-};
 
 #define GPIO_KEY_CH1			GPIO_Pin_13	//SW2
 #define GPIO_KEY_CH2			GPIO_Pin_12	//SW1
@@ -51,7 +34,6 @@ const static eKeyData_t key_table[] =
 #define NUM_OF_KEYS				sizeof(key_table) //3
 
 #define KEYCOUNT_SHORT			4
-//#define KEYCOUNT_REPEAT			40	//400ms
 #define KEYCOUNT_LONG			80	//800ms
 
 #define VALID_LONG_KEY(key)		(key == KEY_SPLIT)?TRUE:FALSE
@@ -76,31 +58,7 @@ eKeyMode_t GetKeyMode(void)
 {
 	return key_mode;
 }
-//-----------------------------------------------------------------------------
-//keycode_t GetKeyCode(eKeyData_t key)
-//{
-//	keycode_t code = KEYCODE_NONE;
-//	u8 i;
-//
-//	for(i=0; i<NUM_OF_KEYS; i++)
-//	{
-//		if(key == key_table[i])
-//		{
-//			break;
-//		}
-//	}
-//
-//	if(i < NUM_OF_KEYS)
-//	{
-//		code = keycode_table[i];
-//	}
-//
-//	return code;
-//}
-//void SetCurrentKeyCode(keycode_t keycode)
-//{
-//	current_keycode = keycode;
-//}
+
 //-----------------------------------------------------------------------------
 void UpdateKeyStatus(eKeyStatus_t status)
 {
@@ -138,15 +96,6 @@ eKeyData_t GetCurrentKey(void)
 //-----------------------------------------------------------------------------
 void Key_Scan(void)
 {
-	// Set LED pins to low
-	//GPIO_SetBits(GPIOB, GPIO_ALL_KEYS);
-	
-	//Delay_us(1);
-
-	//KEY_DATA_INPUT_MODE;
-	//Delay_us(10);
-	//GPIO_ResetBits(GPIOB, GPIO_ALL_LEDS);
-	
 	if(RESET == GPIO_ReadInputDataBit(GPIOB, GPIO_KEY_CH1))	//KEY_CH1
 	{
 		scanKey = KEY_FULL_CH1;
@@ -163,126 +112,29 @@ void Key_Scan(void)
 	{
 		scanKey = KEY_NONE;
 	}
-
-/*
-	keycode_t key_code = KEYCODE_NONE;
-	keycode_t tempKey = KEYCODE_NONE;
-
-	// All key columns are HIGH and LED rows are LOW
-	KEY_LED1_5_HIGH;
-	KEY_LED2_6_HIGH;
-	KEY_LED3_7_HIGH;
-	KEY_LED4_HIGH;
-
-	KEY_LED0_LOW;
-	KEY_LED1_LOW;
-
-	KEY_DATA_INPUT_MODE;
-
-	//Scan KROW0
-	KEY_ROW1_HIGH;
-	KEY_ROW0_LOW;
-
-	Delay_us(10);
-
-	if(LOW == KEY_DATA1_5_INPUT)
-		key_code = KEYCODE_CH1;
-	else if(LOW== KEY_DATA2_6_INPUT)
-		key_code = KEYCODE_CH2;
-	else if(LOW == KEY_DATA3_7_INPUT)
-		key_code = KEYCODE_CH3;
-	else if(LOW == KEY_DATA4_INPUT)
-		key_code = KEYCODE_CH4;
-
-	//Scan KROW1
-	KEY_ROW0_HIGH;
-	KEY_ROW1_LOW;
-
-	Delay_us(10);
-
-	if(LOW == KEY_DATA1_5_INPUT)
-		key_code = KEYCODE_SPLIT;
-	else if(LOW== KEY_DATA2_6_INPUT)
-		key_code = KEYCODE_FREEZE;
-	else if(LOW == KEY_DATA3_7_INPUT)
-		key_code = KEYCODE_SEQUENCE;
-
-	KEY_ROW1_HIGH;
-
-	if((key_code != KEYCODE_NONE) && (frontKeyCode != key_code))
-	{
-		if(key_code == KEYCODE_FREEZE)
-		{
-			tempKey = ~(led_keycode ^ key_code);
-			led_keycode = tempKey;
-		}
-		else
-		{
-			led_keycode = key_code;
-		}
-		UpdateKeyStatus(KEY_STATUS_PRESSED);
-	}
-	else if(key_code == KEYCODE_NONE)
-	{
-		UpdateKeyStatus(KEY_STATUS_RELEASED);
-	}
-
-	frontKeyCode = key_code;
-	// Update current_keycode
-	current_keycode = key_code;
-*/
 }
 
-void Key_Led_Ctrl(void)
+static void Key_Led_Ctrl(eKeyData_t key)
 {
-	switch(scanKey)
+	static eKeyData_t previousKey = KEY_NONE;
+
+	if(previousKey != key)
 	{
-		case KEY_FULL_CH1:
-                     GPIO_SetBits(GPIOB, GPIO_LED_CH1);
-			GPIO_ResetBits(GPIOB, GPIO_LED_CH2);
-			GPIO_ResetBits(GPIOB, GPIO_LED_SPLIT);
-			break;
-		case KEY_FULL_CH2:
-                     GPIO_ResetBits(GPIOB, GPIO_LED_CH1);
-			GPIO_SetBits(GPIOB, GPIO_LED_CH2);
-			GPIO_ResetBits(GPIOB, GPIO_LED_SPLIT);
-			break;
-		case KEY_SPLIT:
-                     GPIO_ResetBits(GPIOB, GPIO_LED_CH1);
-			GPIO_ResetBits(GPIOB, GPIO_LED_CH2);
-			GPIO_SetBits(GPIOB, GPIO_LED_SPLIT);
-			break;
-	}
-
-	/*
-	static u8 stage = KEYLED_STAGE_LEFT;
-
-	if(led_keycode != KEYCODE_NONE)
-	{
-		KEY_DATA_OUTPUT_MODE;
-
-		if(stage == KEYLED_STAGE_LEFT)
+		previousKey = key;
+		GPIO_ResetBits(GPIOB, GPIO_ALL_LEDS);
+		switch(key)
 		{
-			KEY_LED0_LOW;
-			if((led_keycode & 0x0F) != 0x0F)
-			{
-				KEY_LED_ON(led_keycode);
-			}
-			KEY_LED1_HIGH;
-		}
-		else if(stage == KEYLED_STAGE_RIGHT)
-		{
-			KEY_LED1_LOW;
-			if((led_keycode & 0xF0) != 0xF0)
-			{
-				KEY_LED_ON((u32)((led_keycode>>4)|0xFFFFFFF0));
-			}
-			KEY_LED0_HIGH;
+			case KEY_FULL_CH1:
+				GPIO_SetBits(GPIOB, GPIO_LED_CH1);
+				break;
+			case KEY_FULL_CH2:
+				GPIO_SetBits(GPIOB, GPIO_LED_CH2);
+				break;
+			case KEY_SPLIT:
+				GPIO_SetBits(GPIOB, GPIO_LED_SPLIT);
+				break;
 		}
 	}
-	// Change stage for the next time
-	stage = (++stage) % KEYLED_STAGE_MAX;
-	*/
 }
 
 //-----------------------------------------------------------------------------
@@ -372,6 +224,7 @@ void Key_Proc(void)
 				// If key is changed...
 				if(previous_keydata != key)
 				{
+					Key_Led_Ctrl(key);
 					OSD_EraseAllText();
 					OSD_RefreshScreen();
 					DisplayScreen((eChannel_t)(key - 1));
@@ -383,6 +236,7 @@ void Key_Proc(void)
 				// display current split mode
 				if(previous_keydata != key)
 				{
+					Key_Led_Ctrl(key);
 					OSD_EraseAllText();
 					OSD_RefreshScreen();
 					DisplayScreen(DISPLAY_MODE_SPLIT_A);
@@ -391,6 +245,7 @@ void Key_Proc(void)
 				break;
 
 			case KEY_SPLIT_LONG:
+				Key_Led_Ctrl(KEY_SPLIT);
 				// display next split mode
 				break;
 		}
