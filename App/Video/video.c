@@ -477,7 +477,6 @@ static void InputSyncHandler_A(BYTE src)
 }
 
 //--------------------------------------------------------------------------------------------------
-/*
 static void InputSyncHandler_B(BYTE src)
 {
 	BYTE frmt = 0xff;
@@ -491,19 +490,17 @@ static void InputSyncHandler_B(BYTE src)
 	{
 		case DAC_PATH_MAIN_PIP:	
 			SrcAuxMode = MDIN_SRC_EMB422_8;	
-			OutAuxFrmt = Video_Out_Res_Val+(frmt%2);	
+			OutAuxFrmt = videoOutResolution+(frmt%2);
 			OutAuxMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
 		break;
 	}
 }
-*/
 
 //--------------------------------------------------------------------------------------------------
 static void SetOffChipFrmtInA(BYTE src)
 {
 	switch (src) 
 	{
-
 		case VIDEO_SDI_2HD_POP :
 			MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY5);
 			break;
@@ -662,9 +659,7 @@ static void VideoFrameProcess(BYTE src)
 		//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
 
 		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-
 		MDIN3xx_EnableMainDisplay(ON);
-		//if(sys_status.current_split_mode != FULL_9) MDIN3xx_EnableMainDisplay(ON);
 
 		// if src is 2HD input or dual display, trigger soft-reset.
 //		if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) 	//kukuri.. check it
@@ -688,7 +683,7 @@ void VideoProcessHandler(void)
 //	UpdateOutputFormat();		//kukuri
 	InputSourceHandler(InputSelect);
 	InputSyncHandler_A(InputSelect);
-	//InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
+	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
 	VideoFrameProcess(InputSelect);
 }
 

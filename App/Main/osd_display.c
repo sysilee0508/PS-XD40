@@ -4,12 +4,15 @@
 #define MARGIN_X						5
 #define MARGIN_Y						5
 
+#define TITLE_LENGTH					5
+#define VIDEO_FORMAT_LENGTH_MAX			20
+
 //#define DATE_TIME_LENGTH				21 // "yyyy-mmm-dd hh:mm:ss "
 //#define DATE_LENGTH_4DIGIT				11 // "yyyy-mmm-dd"
 //#define DATE_LENGTH_2DIGIT				9 // "yy-mmm-dd"
 //#define TIME_LENGTH						8 // "hh:mm:ss"
 
-static u8 displayingDateTimeLength = 0;
+//static u8 displayingDateTimeLength = 0;
 //static const sPosition_t titlePositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_CHANNEL] =
 //{
 //	//QUAD_A
@@ -69,16 +72,16 @@ static u8 displayingDateTimeLength = 0;
 
 static BOOL requestRefreshScreen = CLEAR;
 
-static sPosition_t OSD_TitleStringPosition(u8 length)
-{
-	sPosition_t position;
-
-	position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH)) / 2;
-	position.pos_y = MARGIN_Y;
-
-	return position;
-}
-
+//static sPosition_t OSD_TitleStringPosition(u8 length)
+//{
+//	sPosition_t position;
+//
+//	position.pos_x = (DISPLAY_WIDTH - (TITLE_LENGTH * CHAR_WIDTH)) / 2;
+//	position.pos_y = MARGIN_Y;
+//
+//	return position;
+//}
+//
 //static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
 //{
 //	sPosition_t position;
@@ -217,37 +220,35 @@ static sPosition_t OSD_TitleStringPosition(u8 length)
 //	return TIME_LENGTH;
 //}
 
+static const titlePosition =
+{
+		(DISPLAY_WIDTH - (TITLE_LENGTH * CHAR_WIDTH)) / 2, 	//x
+		MARGIN_Y	//y
+};
+static const videoInFormatPosition_Full =
+{
+		(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, //x
+		DISPLAY_HALF_HEIGHT - CHAR_HEIGHT - MARGIN_Y	//y
+};
+static const videoOutFormatPosiont_Full =
+{
+		(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, //x
+		DISPLAY_HALF_HEIGHT + MARGIN_Y	//y
+};
+
+static void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
+{
+	OSD_SetFontGAC(SPRITE_INDEX0);
+	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pData, size, 0);
+	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
+}
 
 //-----------------------------------------------------------------------------
 // Erase
 //-----------------------------------------------------------------------------
-static void OSD_EraseChannelName(void)
+static void OSD_EraseTitle(void)
 {
-	eChannel_t channel;
-	sPosition_t position;
-	eDisplayMode_t displayMode;
-	eChannel_t max_channel = NUM_OF_CHANNEL;
-	u8 channel_name[CHANNEL_NEME_LENGTH_MAX+1] = {0,};
-
-//	displayMode = Get_SystemDisplayMode();
-//
-//	if(displayMode == DISPLAY_MODE_FULL)
-//	{
-//		channel = Get_SystemDisplayChannel();
-//		Read_NvItem_ChannelName(channel_name, channel);
-//		position =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
-//		OSD_PrintString(position, osdStr_Space12, strlen(channel_name));
-//	}
-//	else
-//	{
-//		max_channel = Get_NumOfDisplayChannels();
-//		for(channel = CHANNEL1; channel < max_channel; channel++)
-//		{
-//			Read_NvItem_ChannelName(channel_name, channel);
-//			position =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
-//			OSD_PrintString(position, osdStr_Space12, strlen(channel_name));
-//		}
-//	}
+	OSD_PrintString(titlePosition, osdStr_Space5, TITLE_LENGTH);
 }
 
 //static void OSD_EraseTimeDate(void)
@@ -299,9 +300,9 @@ static void OSD_EraseChannelName(void)
 //	}
 //	OSD_PrintString(position, osdStr_Space6, strlen(osdStr_Space4));
 //}
-//
-//static void OSD_EraseNoVideo(void)
-//{
+
+static void OSD_EraseNoVideo(void)
+{
 //	sPosition_t position;
 //
 //	if(DISPLAY_MODE_FULL == Get_SystemDisplayMode())
@@ -310,7 +311,13 @@ static void OSD_EraseChannelName(void)
 //		position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
 //		OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
 //	}
-//}
+}
+
+void OSD_EraseVideoFormat(void)
+{
+	OSD_PrintString(videoInFormatPosition_Full, osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosiont_Full, osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+}
 
 //-----------------------------------------------------------------------------
 // auto
@@ -500,7 +507,14 @@ static void OSD_DisplayNoVideo(void)
 //	}
 //}
 
+void OSD_DisplayVideoFormat(void)
+{
+	u8* inStr = osdStr_Format_In_AHD_1080p30;
+	u8* outStr = osdStr_Format_Out_1080p60;
 
+	OSD_PrintString(videoInFormatPosition_Full, inStr, strlen(inStr));
+	OSD_PrintString(videoOutFormatPosiont_Full, outStr, strlen(outStr));
+}
 //-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
@@ -509,45 +523,25 @@ void OSD_RefreshScreen(void)
 	requestRefreshScreen = SET;
 }
 
-void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
+
+void OSD_DisplayTitle(void)
 {
-	OSD_SetFontGAC(SPRITE_INDEX0);
-	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pData, size, 0);
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
+	eDisplayMode_t displayMode;
+	u8* titleStr;
+
+	Read_NvItem_DisplayMode(&displayMode);
+	titleStr = osdStr_Title[displayMode];
+	//OSD_EraseTitle();
+	OSD_PrintString(titlePosition, titleStr, TITLE_LENGTH);
 }
 
-void OSD_DisplayChannelName(void)
+void OSD_DisplayVideoFormat(void)
 {
-//	eChannel_t channel, max_channel = NUM_OF_CHANNEL;
-//	sPosition_t positionValue;
-//	BOOL titleDisplayOn;
-//	eDisplayMode_t displayMode = Get_SystemDisplayMode();
-//	u8 channel_name[CHANNEL_NEME_LENGTH_MAX+1] = {0,};
-//
-//	Read_NvItem_TitleDispalyOn(&titleDisplayOn);
-//
-//	if(titleDisplayOn == ON)
-//	{
-//		if(displayMode == DISPLAY_MODE_FULL)
-//		{
-//			channel = Get_SystemDisplayChannel();
-//			Read_NvItem_ChannelName(channel_name, channel);
-//			//OSD_MakeTitleString(channel_name, strlen(channel_name));
-//			positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
-//			OSD_PrintString(positionValue, channel_name, strlen(channel_name));
-//		}
-//		else
-//		{
-//			max_channel = Get_NumOfDisplayChannels();
-//			for(channel = CHANNEL1; channel < max_channel; channel++)
-//			{
-//				Read_NvItem_ChannelName(channel_name, channel);
-//				//OSD_MakeTitleString(channel_name, strlen(channel_name));
-//				positionValue =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
-//				OSD_PrintString(positionValue, channel_name, strlen(channel_name));
-//			}
-//		}
-//	}
+	u8* inStr = osdStr_Format_In_AHD_1080p30;
+	u8* outStr = osdStr_Format_Out_1080p60;
+
+	OSD_PrintString(videoInFormatPosition_Full, inStr, strlen(inStr));
+	OSD_PrintString(videoOutFormatPosiont_Full, outStr, strlen(outStr));
 }
 
 //-----------------------------------------------------------------------------
@@ -568,29 +562,15 @@ void Osd_ClearScreen(void)
 //-----------------------------------------------------------------------------
 void OSD_EraseAllText(void)
 {
-//	if(osdOn == TRUE)
-//	{
-//		// erase freeze or auto
-//		if(titleOn == TRUE)
-//		{
-//			//erase title
-//			OSD_EraseChannelName();
-//		}
-//		if((dateOn == TRUE) || (timeOn == TRUE))
-//		{
-//			// erase time and/or date
-//			OSD_EraseTimeDate();
-//		}
-//		OSD_EraseNoVideo();
-//		OSD_EraseAuto();
-//		OSD_EraseIndicator();
-//	}
+	OSD_EraseTitle();
+	OSD_EraseNoVideo();
+	OSD_EraseVideoFormat();
 }
 
 //-----------------------------------------------------------------------------
 void OSD_Display(void)
 {
-	OSD_DisplayChannelName();
+	OSD_DisplayTitle();
 	OSD_DisplayNoVideo();
 	requestRefreshScreen = CLEAR;
 }
