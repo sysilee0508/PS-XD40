@@ -24,13 +24,13 @@ static eKeyData_t scanKey = KEY_NONE;
 //=============================================================================
 //  Constant Array Declaration (data table)
 //=============================================================================
-const static keycode_t keycode_table[] =
-{
-	KEYCODE_CH1,		//0xFE	1111 1110	254
-	KEYCODE_CH2,		//0xFD 	1111 1101	253
-	KEYCODE_SPLIT,		//0xEF 	1110 1111 	239
-	KEYCODE_NONE,		//0x7F
-};
+//const static keycode_t keycode_table[] =
+//{
+//	KEYCODE_CH1,		//0xFE	1111 1110	254
+//	KEYCODE_CH2,		//0xFD 	1111 1101	253
+//	KEYCODE_SPLIT,		//0xEF 	1110 1111 	239
+//	KEYCODE_NONE,		//0x7F
+//};
 
 const static eKeyData_t key_table[] =
 {
@@ -39,19 +39,19 @@ const static eKeyData_t key_table[] =
 	KEY_SPLIT
 };
 
-#define GPIO_KEY_CH1			GPIO_Pin_12
-#define GPIO_KEY_CH2			GPIO_Pin_13
-#define GPIO_KEY_SPLIT			GPIO_Pin_14
+#define GPIO_KEY_CH1			GPIO_Pin_13	//SW2
+#define GPIO_KEY_CH2			GPIO_Pin_12	//SW1
+#define GPIO_KEY_SPLIT			GPIO_Pin_14	//SW3
 #define GPIO_ALL_KEYS			GPIO_KEY_CH1 | GPIO_KEY_CH2 | GPIO_KEY_SPLIT
 #define GPIO_LED_CH1			GPIO_Pin_15
-#define GPIO_LED_CH2			GPIO_Pin_3
-#define GPIO_LED_SPLIT			GPIO_Pin_4
+#define GPIO_LED_CH2			GPIO_Pin_9	
+#define GPIO_LED_SPLIT			GPIO_Pin_3	
 #define GPIO_ALL_LEDS			GPIO_LED_CH1 | GPIO_LED_CH2 | GPIO_LED_SPLIT
 
 #define NUM_OF_KEYS				sizeof(key_table) //3
 
 #define KEYCOUNT_SHORT			4
-#define KEYCOUNT_REPEAT			40	//400ms
+//#define KEYCOUNT_REPEAT			40	//400ms
 #define KEYCOUNT_LONG			80	//800ms
 
 #define VALID_LONG_KEY(key)		(key == KEY_SPLIT)?TRUE:FALSE
@@ -139,13 +139,14 @@ eKeyData_t GetCurrentKey(void)
 void Key_Scan(void)
 {
 	// Set LED pins to low
-	GPIO_SetBits(GPIOB, GPIO_ALL_KEYS);
-	GPIO_ResetBits(GPIOB, GPIO_ALL_LEDS);	//LED_CH1
-	Delay_us(1);
+	//GPIO_SetBits(GPIOB, GPIO_ALL_KEYS);
+	
+	//Delay_us(1);
 
-	KEY_DATA_INPUT_MODE;
-	Delay_us(10);
-
+	//KEY_DATA_INPUT_MODE;
+	//Delay_us(10);
+	//GPIO_ResetBits(GPIOB, GPIO_ALL_LEDS);
+	
 	if(RESET == GPIO_ReadInputDataBit(GPIOB, GPIO_KEY_CH1))	//KEY_CH1
 	{
 		scanKey = KEY_FULL_CH1;
@@ -234,21 +235,22 @@ void Key_Scan(void)
 
 void Key_Led_Ctrl(void)
 {
-	KEY_DATA_OUTPUT_MODE;
-
-	GPIO_SetBits(GPIOB, GPIO_ALL_LEDS);
-	GPIO_SetBits(GPIOB, GPIO_ALL_KEYS);
-
 	switch(scanKey)
 	{
 		case KEY_FULL_CH1:
-			GPIO_ResetBits(GPIOB, GPIO_KEY_CH1);
+                     GPIO_SetBits(GPIOB, GPIO_LED_CH1);
+			GPIO_ResetBits(GPIOB, GPIO_LED_CH2);
+			GPIO_ResetBits(GPIOB, GPIO_LED_SPLIT);
 			break;
 		case KEY_FULL_CH2:
-			GPIO_ResetBits(GPIOB, GPIO_KEY_CH2);
+                     GPIO_ResetBits(GPIOB, GPIO_LED_CH1);
+			GPIO_SetBits(GPIOB, GPIO_LED_CH2);
+			GPIO_ResetBits(GPIOB, GPIO_LED_SPLIT);
 			break;
 		case KEY_SPLIT:
-			GPIO_ResetBits(GPIOB, GPIO_KEY_SPLIT);
+                     GPIO_ResetBits(GPIOB, GPIO_LED_CH1);
+			GPIO_ResetBits(GPIOB, GPIO_LED_CH2);
+			GPIO_SetBits(GPIOB, GPIO_LED_SPLIT);
 			break;
 	}
 
