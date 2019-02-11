@@ -213,6 +213,8 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_PIP_D:
 			break;
 	}
+	Write_NvItem_DisplayMode(mode);
+
 }
 
 void UpdateDisplayMode(void)

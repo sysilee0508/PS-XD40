@@ -220,17 +220,17 @@ static BOOL requestRefreshScreen = CLEAR;
 //	return TIME_LENGTH;
 //}
 
-static const titlePosition =
+static const sPosition_t titlePosition =
 {
 		(DISPLAY_WIDTH - (TITLE_LENGTH * CHAR_WIDTH)) / 2, 	//x
 		MARGIN_Y	//y
 };
-static const videoInFormatPosition_Full =
+static const sPosition_t videoInFormatPosition_Full =
 {
 		(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, //x
 		DISPLAY_HALF_HEIGHT - CHAR_HEIGHT - MARGIN_Y	//y
 };
-static const videoOutFormatPosiont_Full =
+static const sPosition_t videoOutFormatPosiont_Full =
 {
 		(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, //x
 		DISPLAY_HALF_HEIGHT + MARGIN_Y	//y
@@ -507,22 +507,17 @@ static void OSD_DisplayNoVideo(void)
 //	}
 //}
 
-void OSD_DisplayVideoFormat(void)
-{
-	u8* inStr = osdStr_Format_In_AHD_1080p30;
-	u8* outStr = osdStr_Format_Out_1080p60;
-
-	OSD_PrintString(videoInFormatPosition_Full, inStr, strlen(inStr));
-	OSD_PrintString(videoOutFormatPosiont_Full, outStr, strlen(outStr));
-}
 //-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
+static u8* GetInVideoFormatString(void)
+{
+}
+
 void OSD_RefreshScreen(void)
 {
 	requestRefreshScreen = SET;
 }
-
 
 void OSD_DisplayTitle(void)
 {
@@ -530,15 +525,15 @@ void OSD_DisplayTitle(void)
 	u8* titleStr;
 
 	Read_NvItem_DisplayMode(&displayMode);
-	titleStr = osdStr_Title[displayMode];
+	titleStr = (u8 *)osdStr_Title[displayMode];
 	//OSD_EraseTitle();
 	OSD_PrintString(titlePosition, titleStr, TITLE_LENGTH);
 }
 
 void OSD_DisplayVideoFormat(void)
 {
-	u8* inStr = osdStr_Format_In_AHD_1080p30;
-	u8* outStr = osdStr_Format_Out_1080p60;
+	u8* inStr = (u8 *)osdStr_Format_In_AHD_1080p30;
+	u8* outStr = (u8 *)osdStr_Format_Out_1080p60;
 
 	OSD_PrintString(videoInFormatPosition_Full, inStr, strlen(inStr));
 	OSD_PrintString(videoOutFormatPosiont_Full, outStr, strlen(outStr));
