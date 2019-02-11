@@ -214,7 +214,6 @@ void DisplayScreen(eDisplayMode_t mode)
 			break;
 	}
 	Write_NvItem_DisplayMode(mode);
-
 }
 
 void UpdateDisplayMode(void)

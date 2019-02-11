@@ -231,7 +231,7 @@ static const sPosition_t videoInFormatPosition_Full =
 		(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, //x
 		DISPLAY_HALF_HEIGHT - CHAR_HEIGHT - MARGIN_Y	//y
 };
-static const sPosition_t videoOutFormatPosiont_Full =
+static const sPosition_t videoOutFormatPosition_Full =
 {
 		(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, //x
 		DISPLAY_HALF_HEIGHT + MARGIN_Y	//y
@@ -350,7 +350,18 @@ static void OSD_EraseNoVideo(void)
 void OSD_EraseVideoFormat(void)
 {
 	OSD_PrintString(videoInFormatPosition_Full, osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
-	OSD_PrintString(videoOutFormatPosiont_Full, osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Full, osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+
+	OSD_PrintString(videoInFormatPosition_Split[SPLIT_A][CHANNEL1], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_A][CHANNEL1], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoInFormatPosition_Split[SPLIT_A][CHANNEL2], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_A][CHANNEL2], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+
+	OSD_PrintString(videoInFormatPosition_Split[SPLIT_C][CHANNEL1], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_C][CHANNEL1], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoInFormatPosition_Split[SPLIT_C][CHANNEL2], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_C][CHANNEL2], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+
 }
 
 //-----------------------------------------------------------------------------
@@ -640,12 +651,12 @@ void OSD_DisplayVideoFormat(void)
 	u8* inVideo[NUM_OF_CHANNEL];
 	u8* outVideo = GetOutVideoFormatString();
         
-        Read_NvItem_DisplayMode(&displayMode);
+	Read_NvItem_DisplayMode(&displayMode);
 	if(displayMode < DISPLAY_MODE_SPLIT_A)
 	{
 		inVideo[displayMode] = GetInVideoFormatString((eChannel_t)displayMode);
 		OSD_PrintString(videoInFormatPosition_Full, inVideo[displayMode], strlen((const u8*)inVideo[displayMode]));
-		OSD_PrintString(videoOutFormatPosiont_Full, outVideo, strlen((const u8*)outVideo));
+		OSD_PrintString(videoOutFormatPosition_Full, outVideo, strlen((const u8*)outVideo));
 	}
 	else
 	{
@@ -690,6 +701,7 @@ void OSD_EraseAllText(void)
 //-----------------------------------------------------------------------------
 void OSD_Display(void)
 {
+
 	OSD_DisplayTitle();
 	OSD_DisplayVideoFormat();
 	OSD_DisplayNoVideo();
@@ -698,165 +710,58 @@ void OSD_Display(void)
 //-----------------------------------------------------------------------------
 void OSD_DrawBorderLine(void)
 {
-//	eSplitMode_t splitMode = Get_SystemSplitMode();
-//
-//	Read_NvItem_BorderLineDisplay(&border_line);
-//	if((border_line == ON) && (Get_SystemDisplayMode() == DISPLAY_MODE_SPLIT))
-//	{
-//		MDINOSD_SetBGBoxColor(RGB(255,255,255));
-//		switch(splitMode)
-//		{
-//			case DISPLAY_MODE_QUAD_A:
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//
-//			case DISPLAY_MODE_QUAD_B:
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_WIDTH - (DISPLAY_WIDTH/3)-1, 0, 2, DISPLAY_HEIGHT);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_WIDTH - (DISPLAY_WIDTH/3), DISPLAY_HEIGHT / 3 - 1, DISPLAY_WIDTH/3, 2);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, DISPLAY_WIDTH - (DISPLAY_WIDTH/3), DISPLAY_HEIGHT / 3 * 2, DISPLAY_WIDTH/3, 2);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//
-//			case DISPLAY_MODE_QUAD_C:
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, (DISPLAY_WIDTH/3)-1, 0, 2, DISPLAY_HEIGHT);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 0, DISPLAY_HEIGHT/3-1, DISPLAY_WIDTH/3, 2);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 0, (DISPLAY_HEIGHT/3) * 2, DISPLAY_WIDTH/3, 2);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//
-//			case DISPLAY_MODE_QUAD_D:
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, (DISPLAY_HEIGHT/3)*2, DISPLAY_WIDTH, 2);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)*2, 2, DISPLAY_HEIGHT/3);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, (DISPLAY_WIDTH/3) * 2, (DISPLAY_HEIGHT/3)*2, 2, DISPLAY_HEIGHT/3);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//
-//			case DISPLAY_MODE_QUAD_E:
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, (DISPLAY_HEIGHT/3)-1, DISPLAY_WIDTH, 2);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_WIDTH/3, 0, 2, DISPLAY_HEIGHT/3);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, (DISPLAY_WIDTH/3) * 2, 0, 2, DISPLAY_HEIGHT/3);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//
-//			case DISPLAY_MODE_3SPLIT_A:
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_HALF_WIDTH-1, DISPLAY_HALF_HEIGHT-1, DISPLAY_HALF_WIDTH, 2);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//
-//			case DISPLAY_MODE_3SPLIT_B:
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_HALF_WIDTH, 2);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//			case DISPLAY_MODE_3SPLIT_C:
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, DISPLAY_HALF_HEIGHT-1, 2, DISPLAY_HALF_HEIGHT);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//			case DISPLAY_MODE_3SPLIT_D:
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HALF_HEIGHT);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//			case DISPLAY_MODE_2SPLIT:
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-//				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//				break;
-//
-//			default :
-//				MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//                break;
-//		}
-//	}
-//	else
-//	{
-//		MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-//		MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-//		MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-//		MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-//		MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-//		MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-//		MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-//		MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-//	}
+	eDisplayMode_t displayMode;
+
+	Read_NvItem_DisplayMode(&displayMode);
+
+	MDINOSD_SetBGBoxColor(RGB(255,255,255));
+	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+
+	switch(displayMode)
+	{
+		// FULL
+		case DISPLAY_MODE_FULL_CH1:
+		case DISPLAY_MODE_FULL_CH2:
+			MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+			break;
+
+		// Split Vertical
+		case DISPLAY_MODE_SPLIT_A:
+		case DISPLAY_MODE_SPLIT_B:
+		case DISPLAY_MODE_SPLIT_E:
+			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
+			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+			break;
+
+		// Split Horizontal
+		case DISPLAY_MODE_SPLIT_C:
+		case DISPLAY_MODE_SPLIT_D:
+			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+			break;
+
+		// PIP
+		case DISPLAY_MODE_PIP_A:
+//			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+//			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+			break;
+		case DISPLAY_MODE_PIP_B:
+//			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+//			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+			break;
+		case DISPLAY_MODE_PIP_C:
+//			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+//			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+			break;
+		case DISPLAY_MODE_PIP_D:
+//			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+//			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+			break;
+	}
 }

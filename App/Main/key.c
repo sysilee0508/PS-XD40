@@ -211,6 +211,7 @@ void Key_Check(void)
 void Key_Proc(void)
 {
 	static eKeyData_t previous_keydata = KEY_NONE;
+	static eSplit_t split = SPLIT_A;
 	eKeyData_t key = GetCurrentKey();
 
 	if(IsKeyReady()==TRUE)
@@ -239,14 +240,32 @@ void Key_Proc(void)
 					Key_Led_Ctrl(key);
 					OSD_EraseAllText();
 					OSD_RefreshScreen();
-					DisplayScreen(DISPLAY_MODE_SPLIT_A);
+					DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
 					OSD_DrawBorderLine();
 				}
+//				else
+//				{
+//					split = ++split % NUM_OF_SPLIT;
+//				}
+//				OSD_EraseAllText();
+//				OSD_RefreshScreen();
+//				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
+//				OSD_DrawBorderLine();
 				break;
 
 			case KEY_SPLIT_LONG:
-				Key_Led_Ctrl(KEY_SPLIT);
-				// display next split mode
+				if(previous_keydata == KEY_SPLIT)
+				{
+					split = ++split % NUM_OF_SPLIT;
+				}
+				else
+				{
+					Key_Led_Ctrl(KEY_SPLIT);
+				}
+				OSD_EraseAllText();
+				OSD_RefreshScreen();
+				DisplayScreen(DISPLAY_MODE_SPLIT_A);
+				OSD_DrawBorderLine();
 				break;
 		}
 		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark
