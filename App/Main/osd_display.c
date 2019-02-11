@@ -236,6 +236,39 @@ static const sPosition_t videoOutFormatPosiont_Full =
 		DISPLAY_HALF_HEIGHT + MARGIN_Y	//y
 };
 
+static const sPosition_t videoInFormatPosition_Split[NUM_OF_SPLIT][NUM_OF_CHANNEL] =
+{
+	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}},
+	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}},
+	{{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT - MARGIN_Y},
+			{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT - DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT - MARGIN_Y}},
+	{{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT - MARGIN_Y},
+			{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT - DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT - MARGIN_Y}},
+	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
+			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}},
+};
+
+static const sPosition_t videoOutFormatPosition_Split[NUM_OF_SPLIT] =
+{
+	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2, DISPLAY_HALF_HEIGHT+MARGIN_Y},
+			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT+MARGIN_Y}},
+	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2, DISPLAY_HALF_HEIGHT+MARGIN_Y},
+			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT+MARGIN_Y}},
+	{{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_QUAD_HEIGHT+MARGIN_Y},
+			{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT+MARGIN_Y}},
+	{{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_QUAD_HEIGHT+MARGIN_Y},
+			{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT+MARGIN_Y}},
+	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2,DISPLAY_HALF_HEIGHT+MARGIN_Y},
+			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT+MARGIN_Y}},
+};
+
+
+
+
+
+//-----------------------------------------------------------------------------
 static void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 {
 	OSD_SetFontGAC(SPRITE_INDEX0);
@@ -360,10 +393,10 @@ void OSD_EraseVideoFormat(void)
 //-----------------------------------------------------------------------------
 static void OSD_DisplayNoVideo(void)
 {
+	sPosition_t position;
 //	sPosition_t position;
 //	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 //	eSplitMode_t splitMode;
-//	BOOL videoLossDiplayOn;
 //
 //	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
 //
@@ -510,8 +543,77 @@ static void OSD_DisplayNoVideo(void)
 //-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
-static u8* GetInVideoFormatString(void)
+static u8* GetOutVideoFormatString(void)
 {
+	return (u8 *)osdStr_Format_Out_1080p60;
+}
+
+static u8* GetInVideoFormatString(eChannel_t channel)
+{
+	u8* inStr;
+
+	switch(NVP6158_Current_Video_Format_Check(channel))
+	{
+		// 1080p
+		case AHD20_1080P_60P:
+		case AHD20_1080P_30P:
+			inStr = (u8 *)osdStr_Format_In_AHD_1080p30;
+			break;
+		case AHD20_1080P_50P:
+		case AHD20_1080P_25P:
+			inStr = (u8 *)osdStr_Format_In_AHD_1080p25;
+			break;
+		case TVI_FHD_30P:
+			inStr = (u8 *)osdStr_Format_In_TVI_1080p30;
+			break;
+		case TVI_FHD_25P:
+			inStr = (u8 *)osdStr_Format_In_TVI_1080p25;
+			break;
+		case CVI_FHD_30P:
+			inStr = (u8 *)osdStr_Format_In_CVI_1080p30;
+			break;
+		case CVI_FHD_25P:
+			inStr = (u8 *)osdStr_Format_In_CVI_1080p25;
+			break;
+		// 720p
+		case AHD20_720P_60P:
+		case AHD20_720P_30P:
+		case AHD20_720P_30P_EX:
+		case AHD20_720P_30P_EX_Btype:
+			inStr = (u8 *)osdStr_Format_In_AHD_720p30;
+			break;
+		case AHD20_720P_50P:
+		case AHD20_720P_25P:
+		case AHD20_720P_25P_EX:
+		case AHD20_720P_25P_EX_Btype:
+			inStr = (u8 *)osdStr_Format_In_AHD_720p25;
+			break;
+		case TVI_HD_60P:
+		case TVI_HD_30P:
+		case TVI_HD_30P_EX:
+			inStr = (u8 *)osdStr_Format_In_TVI_720p30;
+			break;
+		case TVI_HD_50P:
+		case TVI_HD_25P:
+		case TVI_HD_25P_EX:
+			inStr = (u8 *)osdStr_Format_In_TVI_720p25;
+			break;
+		case CVI_HD_60P:
+		case CVI_HD_30P:
+		case CVI_HD_30P_EX:
+			inStr = (u8 *)osdStr_Format_In_CVI_720p30;
+			break;
+		case CVI_HD_50P:
+		case CVI_HD_25P:
+		case CVI_HD_25P_EX:
+			inStr = (u8 *)osdStr_Format_In_CVI_720p25;
+			break;
+
+		default:
+			inStr = (u8 *)osdSTr_Space20;
+			break;
+	}
+	return inStr;
 }
 
 void OSD_RefreshScreen(void)
@@ -532,11 +634,32 @@ void OSD_DisplayTitle(void)
 
 void OSD_DisplayVideoFormat(void)
 {
-	u8* inStr = (u8 *)osdStr_Format_In_AHD_1080p30;
-	u8* outStr = (u8 *)osdStr_Format_Out_1080p60;
+	eDisplayMode_t displayMode;
+	u8 iChannel;
+	u8* inVideo[NUM_OF_CHANNEL];
+	u8* outVideo = GetOutVideoFormatString();
 
-	OSD_PrintString(videoInFormatPosition_Full, inStr, strlen(inStr));
-	OSD_PrintString(videoOutFormatPosiont_Full, outStr, strlen(outStr));
+	if(displayMode < DISPLAY_MODE_SPLIT_A)
+	{
+		inVideo[displayMode] = GetInVideoFormatString(displayMode);
+		OSD_PrintString(videoInFormatPosition_Full, inVideo[displayMode], strlen(inVideo[displayMode]));
+		OSD_PrintString(videoOutFormatPosiont_Full, outVideo, strlen(outVideo));
+	}
+	else
+	{
+		for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
+		{
+			inVideo[iChannel] = GetInVideoFormatString(iChannel);
+			OSD_PrintString(
+					videoInFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
+					inVideo[iChannel],
+					strlen(inVideo[iChannel]));
+			OSD_PrintString(
+					videoOutFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
+					outVideo,
+					strlen(outVideo));
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -558,14 +681,15 @@ void Osd_ClearScreen(void)
 void OSD_EraseAllText(void)
 {
 	OSD_EraseTitle();
-	OSD_EraseNoVideo();
 	OSD_EraseVideoFormat();
+	OSD_EraseNoVideo();
 }
 
 //-----------------------------------------------------------------------------
 void OSD_Display(void)
 {
 	OSD_DisplayTitle();
+	OSD_DisplayVideoFormat();
 	OSD_DisplayNoVideo();
 	requestRefreshScreen = CLEAR;
 }
