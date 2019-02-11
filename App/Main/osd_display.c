@@ -1,5 +1,6 @@
 #include "common.h"
 #include "osd_string.h"
+#include "NVP6158.h"
 
 #define MARGIN_X						5
 #define MARGIN_Y						5
@@ -250,7 +251,7 @@ static const sPosition_t videoInFormatPosition_Split[NUM_OF_SPLIT][NUM_OF_CHANNE
 			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}},
 };
 
-static const sPosition_t videoOutFormatPosition_Split[NUM_OF_SPLIT] =
+static const sPosition_t videoOutFormatPosition_Split[NUM_OF_SPLIT][NUM_OF_CHANNEL] =
 {
 	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2, DISPLAY_HALF_HEIGHT+MARGIN_Y},
 			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT+MARGIN_Y}},
@@ -635,15 +636,16 @@ void OSD_DisplayTitle(void)
 void OSD_DisplayVideoFormat(void)
 {
 	eDisplayMode_t displayMode;
-	u8 iChannel;
+	eChannel_t iChannel;
 	u8* inVideo[NUM_OF_CHANNEL];
 	u8* outVideo = GetOutVideoFormatString();
-
+        
+        Read_NvItem_DisplayMode(&displayMode);
 	if(displayMode < DISPLAY_MODE_SPLIT_A)
 	{
-		inVideo[displayMode] = GetInVideoFormatString(displayMode);
-		OSD_PrintString(videoInFormatPosition_Full, inVideo[displayMode], strlen(inVideo[displayMode]));
-		OSD_PrintString(videoOutFormatPosiont_Full, outVideo, strlen(outVideo));
+		inVideo[displayMode] = GetInVideoFormatString((eChannel_t)displayMode);
+		OSD_PrintString(videoInFormatPosition_Full, inVideo[displayMode], strlen((const u8*)inVideo[displayMode]));
+		OSD_PrintString(videoOutFormatPosiont_Full, outVideo, strlen((const u8*)outVideo));
 	}
 	else
 	{
@@ -653,11 +655,11 @@ void OSD_DisplayVideoFormat(void)
 			OSD_PrintString(
 					videoInFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
 					inVideo[iChannel],
-					strlen(inVideo[iChannel]));
+					strlen((const u8*)inVideo[iChannel]));
 			OSD_PrintString(
 					videoOutFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
 					outVideo,
-					strlen(outVideo));
+					strlen((const u8*)outVideo));
 		}
 	}
 }
@@ -696,7 +698,6 @@ void OSD_Display(void)
 //-----------------------------------------------------------------------------
 void OSD_DrawBorderLine(void)
 {
-//	BOOL border_line;
 //	eSplitMode_t splitMode = Get_SystemSplitMode();
 //
 //	Read_NvItem_BorderLineDisplay(&border_line);

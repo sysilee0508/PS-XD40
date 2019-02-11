@@ -70,10 +70,10 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 #define	NULL				0
 #endif
 
-#define CH1					0
-#define CH2					1	
-#define CH3					2
-#define CH4					3
+//#define CH1					0
+//#define CH2					1	
+//#define CH3					2
+//#define CH4					3
 
 
 #define 	SYSTEM_USE_MDIN380			// for use MDIN380
