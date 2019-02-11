@@ -72,6 +72,8 @@
 //=============================================================================
 void main(void)
 {
+	eDisplayMode_t displayMode;
+	
 	// initialize STM32F103x
 	MCU_init();
 	// initialize interrupt
@@ -127,11 +129,19 @@ void main(void)
 	NVP6158_init();
 //	InitVideoLossCheck();
 
-//	DisplayScreen(DISPLAY_MODE_FULL_CH1);
-//	OSD_DrawBorderLine();
-//	OSD_RefreshScreen();
-
-	UpdateKeyData(KEY_FULL_CH1);
+	Read_NvItem_DisplayMode(&displayMode);
+	if(displayMode == DISPLAY_MODE_FULL_CH1)
+	{
+		UpdateKeyData(KEY_FULL_CH1);
+	}
+	else if(displayMode == DISPLAY_MODE_FULL_CH2)
+	{
+		UpdateKeyData(KEY_FULL_CH2);
+	}
+	else
+	{
+		UpdateKeyData(KEY_SPLIT);
+	}
 	SetKeyReady();
 	Key_Proc();
 

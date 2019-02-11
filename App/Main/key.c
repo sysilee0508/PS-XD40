@@ -212,12 +212,13 @@ void Key_Proc(void)
 {
 	static eKeyData_t previous_keydata = KEY_NONE;
 	static eSplit_t split = SPLIT_A;
+	eDisplayMode_t displayMode;
 	eKeyData_t key = GetCurrentKey();
 
 	if(IsKeyReady()==TRUE)
 	{
 		ClearKeyReady();
-
+		
 		switch(key)
 		{
 			case KEY_FULL_CH1 : 
@@ -235,24 +236,30 @@ void Key_Proc(void)
 				
 			case KEY_SPLIT : 
 				// display current split mode
+				if(previous_keydata == KEY_NONE)
+				{
+					Read_NvItem_DisplayMode(&displayMode);
+					split = displayMode - DISPLAY_MODE_SPLIT_A;
+				}
+				
 				if(previous_keydata != key)
 				{
 					Key_Led_Ctrl(key);
-					OSD_EraseAllText();
-					OSD_RefreshScreen();
-					DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
-					OSD_DrawBorderLine();
+//					OSD_EraseAllText();
+//					OSD_RefreshScreen();
+//					DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
+//					OSD_DrawBorderLine();
 				}
-//				else
-//				{
-//					split = ++split % NUM_OF_SPLIT;
-//				}
-//				OSD_EraseAllText();
-//				OSD_RefreshScreen();
-//				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
-//				OSD_DrawBorderLine();
+				else
+				{
+					split = ++split % NUM_OF_SPLIT;
+				}
+				OSD_EraseAllText();
+				OSD_RefreshScreen();
+				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
+				OSD_DrawBorderLine();
 				break;
-
+/*
 			case KEY_SPLIT_LONG:
 				if(previous_keydata == KEY_SPLIT)
 				{
@@ -264,9 +271,10 @@ void Key_Proc(void)
 				}
 				OSD_EraseAllText();
 				OSD_RefreshScreen();
-				DisplayScreen(DISPLAY_MODE_SPLIT_A);
+				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
 				OSD_DrawBorderLine();
 				break;
+				*/
 		}
 		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark
 	}
