@@ -53,10 +53,6 @@ BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
 BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 BYTE TempOutMainMode;		// 28Dec2011
 BOOL fSyncParsed;
-BOOL updateInputSource = FALSE;
-
-s8 videoOutResolution = VIDOUT_1920x1080p60;
-BOOL requestChangeVideoOutResolution = FALSE;
 
 // ----------------------------------------------------------------------
 // External Variable 
@@ -146,7 +142,7 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutAuxFormat(MDIN_OUTVIDEO_FORMAT_t videoOut)
 {
 	MDIN_OUTVIDEO_FORMAT_t auxOut = videoOut;
 
-	if(InputSelect == VIDEO_DIGITAL_NVP6158_2CH)	// CVBS out
+	if(InputSelect != VIDEO_DIGITAL_NVP6158_2CH)	// CVBS out
 	{
 		switch(videoOut)
 		{
@@ -162,38 +158,6 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutAuxFormat(MDIN_OUTVIDEO_FORMAT_t videoOut)
 	}
 	return auxOut;
 }
-
-//static BYTE GetInputSelectByDisplayMode(void)
-//{
-//	BYTE inputSource;
-//
-//	switch(GetCurrentDisplayMode())
-//	{
-//		case DISPLAY_MODE_FULL_CH1:
-//			inputSource = VIDEO_DIGITAL_NVP6158_A;
-//			break;
-//
-//		case DISPLAY_MODE_FULL_CH2:
-//			inputSource = VIDEO_DIGITAL_NVP6158_B;
-//			break;
-//
-//		case DISPLAY_MODE_SPLIT_A:
-//		case DISPLAY_MODE_SPLIT_B:
-//		case DISPLAY_MODE_SPLIT_C:
-//		case DISPLAY_MODE_SPLIT_D:
-//		case DISPLAY_MODE_SPLIT_E:
-//			inputSource = VIDEO_DIGITAL_NVP6158_2CH;
-//			break;
-//
-//		case DISPLAY_MODE_PIP_A:
-//		case DISPLAY_MODE_PIP_B:
-//		case DISPLAY_MODE_PIP_C:
-//		case DISPLAY_MODE_PIP_D:
-//			inputSource = VIDEO_DIGITAL_NVP6158_2CH_PIP;
-//			break;
-//	}
-//	return inputSource;
-//}
 
 static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 {
@@ -392,12 +356,12 @@ static void MDIN3xx_SetRegInitial(void)
 	MDIN3xx_VideoProcess(&stVideo);			// mdin3xx main video process
 
 	// define window for inter-area (PIP window? kukuri)
-//	stInterWND.lx = 315;
-//	stInterWND.rx = 405;
-//	stInterWND.ly = 90;
-//	stInterWND.ry = 150;
-//	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
-//	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
+	stInterWND.lx = 315;
+	stInterWND.rx = 405;
+	stInterWND.ly = 90;
+	stInterWND.ry = 150;
+	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
+	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
 
 	// define variable for EDK application
 	InputSelOld = 0xff;
@@ -475,19 +439,14 @@ static BYTE GetSrcMainFrmt(BYTE src)
 	switch(src)
 	{
 		case VIDEO_DIGITAL_NVP6158_A:
-//			stVideo.stSRC_a.frmt = GetInSourceFormat(CHANNEL1);
 			currentMainFrmt = GetInSourceFormat(CHANNEL1);//stVideo.stSRC_a.frmt;
 			break;
 
 		case VIDEO_DIGITAL_NVP6158_B:
-//			stVideo.stSRC_b.frmt = GetInSourceFormat(CHANNEL2);
 			currentMainFrmt = GetInSourceFormat(CHANNEL2);//stVideo.stSRC_b.frmt;
 			break;
 
 		case VIDEO_DIGITAL_NVP6158_2CH:
-//		case VIDEO_DIGITAL_NVP6158_2CH_PIP:
-//			stVideo.stSRC_a.frmt = GetInSourceFormat(CHANNEL1);
-//			stVideo.stSRC_b.frmt = GetInSourceFormat(CHANNEL2);
 			currentMainFrmt = GetInSourceFormat(CHANNEL1);//stVideo.stSRC_a.frmt;
 			break;
 
@@ -586,6 +545,7 @@ static void InputSourceHandler(BYTE src)
 		fSyncParsed = FALSE;
 	}
 	InputSelOld = src;
+	stVideo.exeFLAG |= MDIN_UPDATE_MAINFMT;
 //	PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;
 }
 
@@ -732,12 +692,12 @@ static void VideoFrameProcess(BYTE src)
 {
 	if (fSyncParsed==FALSE) return;		// wait for sync detection
 
-//	if (EncVideoFrmt!=PrevEncFrmt)
-//	{
-//		PrevSrcMainFrmt = 0xff;
-//	}
-//	stVideo.encFRMT = EncVideoFrmt;
-//	PrevEncFrmt = EncVideoFrmt;
+	if (EncVideoFrmt!=PrevEncFrmt)
+	{
+		PrevSrcMainFrmt = 0xff;
+	}
+	stVideo.encFRMT = EncVideoFrmt;
+	PrevEncFrmt = EncVideoFrmt;
 
 	if (SrcMainFrmt!=PrevSrcMainFrmt||SrcMainMode!=PrevSrcMainMode||
 		OutMainFrmt!=PrevOutMainFrmt||OutMainMode!=PrevOutMainMode)
@@ -751,10 +711,10 @@ static void VideoFrameProcess(BYTE src)
 		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
 	}
 
-	if(EncVideoFrmt != PrevEncFrmt)
-	{
-		stVideo.exeFLAG |= MDIN_UPDATE_ENCFMT;
-	}
+//	if(EncVideoFrmt != PrevEncFrmt)
+//	{
+//		stVideo.exeFLAG |= MDIN_UPDATE_ENCFMT;
+//	}
 
 	if (stVideo.exeFLAG!=MDIN_UPDATE_CLEAR) // updated video formats
 	{
@@ -835,11 +795,6 @@ void InitInputSource(void)
 void SetInputSource(BYTE input)
 {
 	InputSelect = input;
-	//if(input != InputSelect)
-	//{
-	//	InputSelOld = InputSelect;
-	//	
-	//}
 }
 
 //--------------------------------------------------------------------------------------------------
