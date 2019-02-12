@@ -149,10 +149,12 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutAuxFormat(MDIN_OUTVIDEO_FORMAT_t videoOut)
 			case VIDOUT_1920x1080p60:
 			case VIDOUT_1920x1080p30:
 				auxOut = VIDOUT_720x480i60;
+				EncVideoFrmt = VID_VENC_NTSC_M;
 				break;
 			case VIDOUT_1920x1080p50:
 			case VIDOUT_1920x1080p25:
 				auxOut = VIDOUT_720x576i50;
+				EncVideoFrmt = VID_VENC_PAL_B;
 				break;
 		}
 	}
@@ -436,6 +438,7 @@ static void SetInVideoPath(BYTE src)
 static BYTE GetSrcMainFrmt(BYTE src)
 {
 	BYTE currentMainFrmt;
+
 	switch(src)
 	{
 		case VIDEO_DIGITAL_NVP6158_A:
@@ -451,6 +454,7 @@ static BYTE GetSrcMainFrmt(BYTE src)
 			break;
 
 	}
+
 	return currentMainFrmt;
 }
 
@@ -470,6 +474,7 @@ static BYTE GetSrcAuxMode(BYTE src)
 			mode = MDIN_SRC_MUX656_8;
 			break;
 	}
+
 	return mode;
 }
 
@@ -495,6 +500,7 @@ static BYTE GetSrcAuxFrmt(BYTE src)
 			frmt = GetInSourceFormat(CHANNEL2);
 			break;
 	}
+
 	return frmt;
 }
 
@@ -545,65 +551,63 @@ static void InputSourceHandler(BYTE src)
 		fSyncParsed = FALSE;
 	}
 	InputSelOld = src;
-	stVideo.exeFLAG |= MDIN_UPDATE_MAINFMT;
-//	PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;
+	PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;
+}
+
+#if 0
+//--------------------------------------------------------------------------------------------------
+static void InputSyncHandler_A(BYTE src)
+{
+	BYTE frmt = 0xff;
+
+	frmt = SrcMainFrmt;
+	if ((frmt!=0xff) && (frmt!=0xfe))
+	{
+		fSyncParsed = TRUE;
+		SrcMainFrmt = frmt;
+	}
+	else							  //by hungry 2012.05.02 for dark screen on no video.
+	{
+		SrcMainFrmt = frmt;
+	}
+
+	SrcSyncInfo = (frmt==0xff)? VIDSRC_FORMAT_END : SrcMainFrmt;
+
+
+	switch (stVideo.dacPATH) 
+	{
+		case DAC_PATH_MAIN_PIP:	
+			SrcMainMode = MDIN_SRC_EMB422_8;	
+			//OutMainFrmt = videoOutResolution+(frmt%2);
+			OutMainFrmt = OutMainFrmt+(frmt%2);
+			OutMainMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
+			break;
+	}
+
 }
 
 //--------------------------------------------------------------------------------------------------
-//static void InputSyncHandler_A(BYTE src)
-//{
-//	BYTE frmt = GetInSourceFormat(CHANNEL1);//SrcMainFrmt;
-//
-//	if ((frmt!=0xff) && (frmt!=0xfe))
-//	{
-//		fSyncParsed = TRUE;
-////		SrcMainFrmt = frmt;
-//	}
-//	else							  //by hungry 2012.05.02 for dark screen on no video.
-//	{
-//		SrcMainFrmt = frmt;
-//	}
-//
-//	SrcSyncInfo = (frmt==0xff)? VIDSRC_FORMAT_END : SrcMainFrmt;
-//
-//
-//	switch (stVideo.dacPATH)
-//	{
-//		case DAC_PATH_MAIN_OUT:
-//			break;
-//
-//		case DAC_PATH_AUX_2HD:
-//			break;
-//
-//		case DAC_PATH_MAIN_PIP:
-//			//SrcMainMode = MDIN_SRC_EMB422_8;
-//			OutMainFrmt = videoOutResolution+(frmt%2);
-//			OutMainMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
-//			break;
-//	}
-//
-//}
-//
-////--------------------------------------------------------------------------------------------------
-//static void InputSyncHandler_B(BYTE src)
-//{
-//	BYTE frmt = 0xff;
-//
-//	if (frmt!=0xff&&frmt!=0xfe)
-//	{
-//		fSyncParsed = TRUE;
-//		SrcAuxFrmt = frmt;
-//	}
-//	switch (stVideo.dacPATH)
-//	{
-//		case DAC_PATH_MAIN_PIP:
-//			SrcAuxMode = MDIN_SRC_EMB422_8;
-//			OutAuxFrmt = videoOutResolution+(frmt%2);
-//			OutAuxMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
-//		break;
-//	}
-//}
-//
+static void InputSyncHandler_B(BYTE src)
+{
+	BYTE frmt = 0xff;
+
+	if (frmt!=0xff&&frmt!=0xfe)
+	{
+		fSyncParsed = TRUE;
+		SrcAuxFrmt = frmt;
+	}
+	switch (stVideo.dacPATH) 
+	{
+		case DAC_PATH_MAIN_PIP:	
+			SrcAuxMode = MDIN_SRC_EMB422_8;	
+			//OutAuxFrmt = videoOutResolution+(frmt%2);
+			OutAuxFrmt = OutMainFrmt+(frmt%2);
+			OutAuxMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
+		break;
+	}
+}
+#endif
+
 //--------------------------------------------------------------------------------------------------
 static void SetOffChipFrmt(BYTE src)
 {
@@ -710,11 +714,6 @@ static void VideoFrameProcess(BYTE src)
 	{
 		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
 	}
-
-//	if(EncVideoFrmt != PrevEncFrmt)
-//	{
-//		stVideo.exeFLAG |= MDIN_UPDATE_ENCFMT;
-//	}
 
 	if (stVideo.exeFLAG!=MDIN_UPDATE_CLEAR) // updated video formats
 	{
