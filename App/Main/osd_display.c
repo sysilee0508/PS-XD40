@@ -274,7 +274,7 @@ static void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 {
 	OSD_SetFontGAC(SPRITE_INDEX0);
 	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pData, size, 0);
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
+	OSD_EnableSprite(SPRITE_INDEX0, ON);//MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
 
 //-----------------------------------------------------------------------------
@@ -564,7 +564,7 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 {
 	u8* inStr;
 
-	switch(NVP6158_Current_Video_Format_Check(channel))
+	switch(GetInputVideoFormat(channel))
 	{
 		// 1080p
 		case AHD20_1080P_60P:
@@ -710,10 +710,6 @@ void OSD_Display(void)
 //-----------------------------------------------------------------------------
 void OSD_DrawBorderLine(void)
 {
-	eDisplayMode_t displayMode;
-
-	Read_NvItem_DisplayMode(&displayMode);
-
 	MDINOSD_SetBGBoxColor(RGB(255,255,255));
 	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
 	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
@@ -723,7 +719,7 @@ void OSD_DrawBorderLine(void)
 	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
 	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
 
-	switch(displayMode)
+	switch(GetCurrentDisplayMode())
 	{
 		// FULL
 		case DISPLAY_MODE_FULL_CH1:

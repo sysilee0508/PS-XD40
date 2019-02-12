@@ -1,13 +1,6 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-#define SYSTEM_SETUP_MODE			1	//set-up menu
-#define SYSTEM_NORMAL_MODE			0	//normal working
-
-#define ALARMOUT_REQUESTER_NONE		0x00
-#define ALARMOUT_REQUESTER_ALARM	0x01
-#define ALARMOUT_REQUESTER_MOTION	0x02
-
 //-----------------------------------------------------------------------------
 //  ���� �ý��� ���� ����
 //-----------------------------------------------------------------------------

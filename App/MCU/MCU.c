@@ -97,7 +97,7 @@ void MCU_init(void)
 //	14: OSC32I
 //	15: OSC32O
 	GPIOC->CRH = 0x33833333;			//GPIOC13 is used for TAMPER-RTC INT
-	GPIOC->CRL = 0x33333388;			//PC0 : input(pull-up)
+	GPIOC->CRL = 0x34444484;			//PC0 : input(pull-up)
 	GPIOC->ODR = 0x0000FFFF;			//spi_clk & spi_cs is low (active high)
 
 //	[GPIO D]
@@ -110,31 +110,6 @@ void MCU_init(void)
 
 	Delay_ms(200); // why we need delay 200ms here?
 }
-
-//-----------------------------------------------------------------------------
-//  IThe IAR compiler uses the fputc function when using the printf function.
-//-----------------------------------------------------------------------------
-//int fputc(int ch, FILE *f)
-//{
-//    //Use USART3 as debug port
-//    //Write a character to the USART3
-//
-//    if(ch == '\n')
-//    {
-//        USART_SendData(USART3, '\r');
-//        while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
-//        USART_SendData(USART3, '\n');
-//    }
-//    else
-//    {
-//        USART_SendData(USART3, (uint8_t)ch);
-//    }
-//
-//    //Loop until the end of transmission
-//    while(USART_GetFlagStatus(USART3, USART_FLAG_TXE) == RESET);
-//
-//    return ch;
-//}
 
 //-----------------------------------------------------------------------------
 //	Interrupt initialize
@@ -174,3 +149,5 @@ void IRQ_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
+
+//-----------------------------------------------------------------------------

@@ -7,6 +7,7 @@
 // ----------------------------------------------------------------------
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
+#define GPIO_JUMP				GPIO_Pin_1	//PC1
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -51,6 +52,7 @@ BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
 BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 BYTE TempOutMainMode;		// 28Dec2011
 BOOL fSyncParsed;
+BOOL updateInputSource = FALSE;
 
 s8 videoOutResolution = VIDOUT_1920x1080p60;
 BOOL requestChangeVideoOutResolution = FALSE;
@@ -66,62 +68,188 @@ BOOL requestChangeVideoOutResolution = FALSE;
 // ----------------------------------------------------------------------
 // Static functions
 // ----------------------------------------------------------------------
+static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
+{
+	BYTE inputFormat = NC_VIVO_CH_FORMATDEF_UNKNOWN;
+	static MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p60;
 
-// ----------------------------------------------------------------------
-// Exported functions
-// ----------------------------------------------------------------------
+	if(IsVideoLossChannel(CHANNEL1) == FALSE)
+	{
+		inputFormat = GetInputVideoFormat(CHANNEL1);
+	}
+	else if(IsVideoLossChannel(CHANNEL2) == FALSE)
+	{
+		inputFormat = GetInputVideoFormat(CHANNEL2);
+	}
 
-//--------------------------------------------------------------------------------------------------------------------------
-//void UpdateVideoResolution(eResolution_t resolution)
+	switch(inputFormat)
+	{
+		case AHD20_SD_SH720_NT:
+		case AHD20_1080P_60P:
+		case AHD20_1080P_30P:
+		case AHD20_720P_60P:
+		case AHD20_720P_30P:
+		case AHD20_720P_30P_EX:
+		case AHD20_720P_30P_EX_Btype:
+		case TVI_FHD_30P:
+		case TVI_HD_60P:
+		case TVI_HD_30P:
+		case TVI_HD_30P_EX:
+		case TVI_HD_B_30P:
+		case TVI_HD_B_30P_EX:
+		case CVI_FHD_30P:
+		case CVI_HD_60P:
+		case CVI_HD_30P:
+		case CVI_HD_30P_EX:
+			if(GPIO_ReadInputDataBit(GPIOC, GPIO_JUMP) == LOW)	//short?
+			{
+				output = VIDOUT_1920x1080p30;
+			}
+			else
+			{
+				output = VIDOUT_1920x1080p60;
+			}
+			break;
+
+		case AHD20_SD_SH720_PAL:
+		case AHD20_1080P_50P:
+		case AHD20_1080P_25P:
+		case AHD20_720P_50P:
+		case AHD20_720P_25P:
+		case AHD20_720P_25P_EX:
+		case AHD20_720P_25P_EX_Btype:
+		case TVI_FHD_25P:
+		case TVI_HD_50P:
+		case TVI_HD_25P:
+		case TVI_HD_25P_EX:
+		case TVI_HD_B_25P:
+		case TVI_HD_B_25P_EX:
+		case CVI_FHD_25P:
+		case CVI_HD_50P:
+		case CVI_HD_25P:
+		case CVI_HD_25P_EX:
+			if(GPIO_ReadInputDataBit(GPIOC, GPIO_JUMP) == LOW)	//short?
+			{
+				output = VIDOUT_1920x1080p50;
+			}
+			else
+			{
+				output = VIDOUT_1920x1080p25;
+			}
+			break;
+	}
+	return output;
+}
+
+static MDIN_OUTVIDEO_FORMAT_t GetOutAuxFormat(MDIN_OUTVIDEO_FORMAT_t videoOut)
+{
+	MDIN_OUTVIDEO_FORMAT_t auxOut = videoOut;
+
+	if(InputSelect == VIDEO_DIGITAL_NVP6158_2CH)	// CVBS out
+	{
+		switch(videoOut)
+		{
+			case VIDOUT_1920x1080p60:
+			case VIDOUT_1920x1080p30:
+				auxOut = VIDOUT_720x480i60;
+				break;
+			case VIDOUT_1920x1080p50:
+			case VIDOUT_1920x1080p25:
+				auxOut = VIDOUT_720x576i50;
+				break;
+		}
+	}
+	return auxOut;
+}
+
+//static BYTE GetInputSelectByDisplayMode(void)
 //{
-//	static MDIN_OUTVIDEO_FORMAT_t prevResolution;
+//	BYTE inputSource;
 //
-//	switch(resolution)
+//	switch(GetCurrentDisplayMode())
 //	{
-//		case RESOLUTION_1920_1080_60P:
-//			videoOutResolution = VIDOUT_1920x1080p60;
+//		case DISPLAY_MODE_FULL_CH1:
+//			inputSource = VIDEO_DIGITAL_NVP6158_A;
 //			break;
 //
-//		case RESOLUTION_1920_1080_50P:
-//			videoOutResolution = VIDOUT_1920x1080p50;
+//		case DISPLAY_MODE_FULL_CH2:
+//			inputSource = VIDEO_DIGITAL_NVP6158_B;
 //			break;
 //
-//		default:
-//			videoOutResolution = VIDOUT_1920x1080p60;
+//		case DISPLAY_MODE_SPLIT_A:
+//		case DISPLAY_MODE_SPLIT_B:
+//		case DISPLAY_MODE_SPLIT_C:
+//		case DISPLAY_MODE_SPLIT_D:
+//		case DISPLAY_MODE_SPLIT_E:
+//			inputSource = VIDEO_DIGITAL_NVP6158_2CH;
+//			break;
+//
+//		case DISPLAY_MODE_PIP_A:
+//		case DISPLAY_MODE_PIP_B:
+//		case DISPLAY_MODE_PIP_C:
+//		case DISPLAY_MODE_PIP_D:
+//			inputSource = VIDEO_DIGITAL_NVP6158_2CH_PIP;
 //			break;
 //	}
-//
-//	if(prevResolution != videoOutResolution)
-//	{
-//		prevResolution = videoOutResolution;
-//		requestChangeVideoOutResolution = TRUE;
-//	}
+//	return inputSource;
 //}
 
-//static MDIN_OUTVIDEO_FORMAT_t GetOutputFormat(void)
-//{
-//	eResolution_t eResolution = RESOLUTION_1920_1080_60P;
-//	MDIN_OUTVIDEO_FORMAT_t outResolution;
-//
-//	//Read_NvItem_Resolution(&eResolution);
-//
-//	switch(eResolution)
-//	{
-//		case RESOLUTION_1920_1080_60P:
-//			outResolution = VIDOUT_1920x1080p60;
-//			break;
-//
-//		case RESOLUTION_1920_1080_50P:
-//			outResolution = VIDOUT_1920x1080p50;
-//			break;
-//
-//		default:
-//			outResolution = VIDOUT_1920x1080p60;
-//			break;
-//	}
-//
-//	return outResolution;
-//}
+static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
+{
+	MDIN_SRCVIDEO_FORMAT_t format = VIDSRC_1920x1080p60;
+
+	switch(GetInputVideoFormat(channel))
+	{
+		case AHD20_SD_SH720_NT:
+		case AHD20_SD_SH720_PAL:
+			break;
+
+		case AHD20_1080P_60P:
+		case AHD20_1080P_30P:
+		case TVI_FHD_30P:
+		case CVI_FHD_30P:
+			format = VIDSRC_1920x1080p60;	//1080p60
+			break;
+
+		case AHD20_1080P_50P:
+		case AHD20_1080P_25P:
+		case TVI_FHD_25P:
+		case CVI_FHD_25P:
+			format = VIDSRC_1920x1080p50;	//1080p50
+			break;
+
+		case AHD20_720P_60P:
+		case AHD20_720P_30P:
+		case AHD20_720P_30P_EX:
+		case AHD20_720P_30P_EX_Btype:
+		case TVI_HD_60P:
+		case TVI_HD_30P:
+		case TVI_HD_30P_EX:
+		case TVI_HD_B_30P:
+		case TVI_HD_B_30P_EX:
+		case CVI_HD_60P:
+		case CVI_HD_30P:
+		case CVI_HD_30P_EX:
+			format = VIDSRC_1280x720p60;	//720p60
+			break;
+
+		case AHD20_720P_50P:
+		case AHD20_720P_25P:
+		case AHD20_720P_25P_EX:
+		case AHD20_720P_25P_EX_Btype:
+		case TVI_HD_50P:
+		case TVI_HD_25P:
+		case TVI_HD_25P_EX:
+		case TVI_HD_B_25P:
+		case TVI_HD_B_25P_EX:
+		case CVI_HD_50P:
+		case CVI_HD_25P:
+		case CVI_HD_25P_EX:
+			format = VIDSRC_1280x720p50;	//720p50
+			break;
+	}
+	return format;
+}
 
 static void MDIN3xx_SetRegInitial(void)
 {
@@ -191,7 +319,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stSRC_b.offV = 0;
 
 	// define video format of MAIN-OUTPUT
-	stVideo.stOUT_m.frmt = VIDOUT_1920x1080p60;	   //by hungry 2012.03.07
+	stVideo.stOUT_m.frmt = VIDOUT_1920x1080p60;
 	stVideo.stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
 	stVideo.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
@@ -220,15 +348,7 @@ static void MDIN3xx_SetRegInitial(void)
 	// define video format of AUX-INPUT
 	stVideo.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
 
-	// define video format of AUX-OUTPUT
-//	if(GetOutputFormat() == VIDOUT_1920x1080p60)
-//	{
-//		stVideo.stOUT_x.frmt = VIDOUT_720x480i60;
-//	}
-//	else
-//	{
-//		stVideo.stOUT_x.frmt = VIDOUT_720x576i50;
-//	}
+	// define video format of AUX-OUTPUT (CVBS output)
 	stVideo.stOUT_x.frmt = VIDOUT_720x480i60;
 	stVideo.stOUT_x.mode = MDIN_OUT_MUX656_8;
 	stVideo.stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
@@ -248,16 +368,7 @@ static void MDIN3xx_SetRegInitial(void)
 #endif
 
 	// define video format of video encoder
-//	if(GetOutputFormat() == VIDOUT_1920x1080p60)
-//	{
-//		stVideo.encFRMT = VID_VENC_NTSC_M;
-//	}
-//	else
-//	{
-//		stVideo.encFRMT = VID_VENC_PAL_B;
-//	}
 	stVideo.encFRMT = VID_VENC_NTSC_M;
-
 	// define video format of HDMI-OUTPUT
 	stVideo.stVID_h.mode  = HDMI_OUT_RGB444_8;
 	stVideo.stVID_h.fine  = HDMI_CLK_EDGE_RISE;
@@ -267,6 +378,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
 	stVideo.stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
 							AUDIO_SCK_EDGE_RISE | AUDIO_SD_MSB_FIRST | AUDIO_SD_1ST_SHIFT;
+
 	MDINHTX_SetHDMIBlock(&stVideo);		// initialize HDMI block
 
 #if 0		// temporary blocked by kukuri
@@ -278,17 +390,17 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
 	MDIN3xx_VideoProcess(&stVideo);			// mdin3xx main video process
 
-	// define window for inter-area
-	stInterWND.lx = 315;
-	stInterWND.rx = 405;
-	stInterWND.ly = 90;
-	stInterWND.ry = 150;
-	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
-	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
+	// define window for inter-area (PIP window? kukuri)
+//	stInterWND.lx = 315;
+//	stInterWND.rx = 405;
+//	stInterWND.ly = 90;
+//	stInterWND.ry = 150;
+//	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
+//	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
 
 	// define variable for EDK application
 	InputSelOld = 0xff;
-	InputSelect = VIDEO_DIGITAL_SDI;	// should be changed to last saved seletion
+	InputSelect = VIDEO_DIGITAL_NVP6158_A;
 
 	PrevSrcMainFrmt = 0xff;
 	SrcMainFrmt = stVideo.stSRC_a.frmt;
@@ -310,38 +422,24 @@ static void MDIN3xx_SetRegInitial(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-void SetVideoOutputfrmt(BYTE frmt)		//by hungry 2012.03.06
-{
-	stVideo.stOUT_m.frmt = frmt;
-	OutMainFrmt = frmt;
-}
-
-//--------------------------------------------------------------------------------------------------
-void CreateVideoInstance(void)
-{
-	MDIN3xx_SetRegInitial();	// initialize MDIN-3xx
-}
-
+// Set Input Video Path
 //--------------------------------------------------------------------------------------------------
 static void SetInVideoPath(BYTE src)
 {
-	switch (src) {
-		case VIDEO_ADCNV_2HD_IN: 
-			stVideo.srcPATH = PATH_MAIN_A_AUX_M;
-			stVideo.dacPATH = DAC_PATH_AUX_2HD;
-			break;
-
-		case VIDEO_SDI_2HD_POP: 
+	switch (src)
+	{
+		case VIDEO_DIGITAL_NVP6158_2CH: //VIDEO_ADCNV_2HD_IN:
+//		case VIDEO_DIGITAL_NVP6158_2CH_PIP: //VIDEO_SDI_2HD_POP:
 			stVideo.srcPATH = PATH_MAIN_A_AUX_B;
 			stVideo.dacPATH = DAC_PATH_MAIN_PIP;
 			break;
 
-		case VIDEO_DIGITAL_SDI: 
+		case VIDEO_DIGITAL_NVP6158_A:
 			stVideo.srcPATH = PATH_MAIN_A_AUX_M;
 			stVideo.dacPATH = DAC_PATH_MAIN_OUT;
 			break;
 
-		case VIDEO_DIGITAL_SDI2: 
+		case VIDEO_DIGITAL_NVP6158_B:
 			stVideo.srcPATH = PATH_MAIN_B_AUX_M;
 			stVideo.dacPATH = DAC_PATH_MAIN_OUT;
 			break;
@@ -349,30 +447,51 @@ static void SetInVideoPath(BYTE src)
 }
 
 //--------------------------------------------------------------------------------------------------
-static BYTE GetSrcMainMode(BYTE src)
-{
-	BYTE mode;
-
-	switch (src) 
-	{
-		case VIDEO_SDI_2HD_POP:
-			mode = MDIN_SRC_EMB422_8;
-			break;
-		case VIDEO_DIGITAL_SDI:
-		case VIDEO_DIGITAL_SDI2:
-			mode = MDIN_SRC_MUX656_8;
-			break;
-		default:
-			mode = MDIN_SRC_SEP422_8;
-			break;
-	}
-	return mode;
-}
+//static BYTE GetSrcMainMode(BYTE src)
+//{
+//	BYTE mode;
+//
+//	switch (src)
+//	{
+//		case VIDEO_SDI_2HD_POP:
+//			mode = MDIN_SRC_EMB422_8;
+//			break;
+//		case VIDEO_DIGITAL_SDI:
+//		case VIDEO_DIGITAL_SDI2:
+//			mode = MDIN_SRC_MUX656_8;
+//			break;
+//		default:
+//			mode = MDIN_SRC_SEP422_8;
+//			break;
+//	}
+//	return mode;
+//}
 
 //--------------------------------------------------------------------------------------------------
 static BYTE GetSrcMainFrmt(BYTE src)
 {
-	return SrcMainFrmt;
+	BYTE currentMainFrmt;
+	switch(src)
+	{
+		case VIDEO_DIGITAL_NVP6158_A:
+//			stVideo.stSRC_a.frmt = GetInSourceFormat(CHANNEL1);
+			currentMainFrmt = GetInSourceFormat(CHANNEL1);//stVideo.stSRC_a.frmt;
+			break;
+
+		case VIDEO_DIGITAL_NVP6158_B:
+//			stVideo.stSRC_b.frmt = GetInSourceFormat(CHANNEL2);
+			currentMainFrmt = GetInSourceFormat(CHANNEL2);//stVideo.stSRC_b.frmt;
+			break;
+
+		case VIDEO_DIGITAL_NVP6158_2CH:
+//		case VIDEO_DIGITAL_NVP6158_2CH_PIP:
+//			stVideo.stSRC_a.frmt = GetInSourceFormat(CHANNEL1);
+//			stVideo.stSRC_b.frmt = GetInSourceFormat(CHANNEL2);
+			currentMainFrmt = GetInSourceFormat(CHANNEL1);//stVideo.stSRC_a.frmt;
+			break;
+
+	}
+	return currentMainFrmt;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -382,47 +501,59 @@ static BYTE GetSrcAuxMode(BYTE src)
 
 	switch (src) 
 	{
-		case VIDEO_SDI_2HD_POP:
-			mode = MDIN_SRC_EMB422_8;
+		case VIDEO_DIGITAL_NVP6158_A:
+		case VIDEO_DIGITAL_NVP6158_B:
+			mode = OutMainMode;
 			break;
-		case VIDEO_DIGITAL_SDI:
-		case VIDEO_DIGITAL_SDI2:
+		case VIDEO_DIGITAL_NVP6158_2CH:
 		default:
 			mode = MDIN_SRC_MUX656_8;
 			break;
 	}
+	return mode;
 }
 
 //--------------------------------------------------------------------------------------------------
 static BYTE GetSrcAuxFrmt(BYTE src)
 {
-	return SrcAuxFrmt;
+	BYTE frmt;
+
+	switch (src)
+	{
+		case VIDEO_DIGITAL_NVP6158_A:
+		case VIDEO_DIGITAL_NVP6158_B:
+			if((OutMainFrmt == VIDOUT_1920x1080p60) || (OutMainFrmt == VIDOUT_1920x1080p30))
+			{
+				frmt = VIDSRC_1920x1080p60;
+			}
+			else
+			{
+				frmt = VIDSRC_1920x1080p50;
+			}
+			break;
+		case VIDEO_DIGITAL_NVP6158_2CH:
+			frmt = GetInSourceFormat(CHANNEL2);
+			break;
+	}
+	return frmt;
 }
 
-//--------------------------------------------------------------------------------------------------
-//static void UpdateOutputFormat(void)
-//{
-//	if(requestChangeVideoOutResolution== TRUE)
-//	{
-//		requestChangeVideoOutResolution = FALSE;
-//
-//		OutMainFrmt = videoOutResolution;		// get out-format
-//		OutAuxMode = MDIN_OUT_MUX656_8;		// set aux-mode
-//
-//		if(GetOutputFormat() == VIDOUT_1920x1080p60)
-//		{
-//			OutAuxFrmt= VIDOUT_720x480i60;// set aux-format
-//			EncVideoFrmt = VID_VENC_NTSC_M;
-//		}
-//		else
-//		{
-//			OutAuxFrmt = VIDOUT_720x576i50;// set aux-format
-//			EncVideoFrmt = VID_VENC_PAL_B;
-//		}
-//	}
-//
-//}
+static BYTE GetOutAuxMode(BYTE src)
+{
+	BYTE mode;
 
+	switch (src)
+	{
+		case VIDEO_DIGITAL_NVP6158_A:
+		case VIDEO_DIGITAL_NVP6158_B:
+			mode = MDIN_OUT_MUX656_8;
+			break;
+		case VIDEO_DIGITAL_NVP6158_2CH:
+			mode = MDIN_OUT_RGB444_8;
+			break;
+	}
+	return mode;
+}
 //--------------------------------------------------------------------------------------------------
 static void InputSourceHandler(BYTE src)
 {
@@ -430,123 +561,125 @@ static void InputSourceHandler(BYTE src)
 
 	SetInVideoPath(src);
 	
-	SrcMainMode = GetSrcMainMode(src);
+	// source : main
+	SrcMainMode = MDIN_SRC_MUX656_8; // this is fixed (never changed)
 	SrcMainFrmt = GetSrcMainFrmt(src);
+	// source : aux (full screen : main out / Split(PIP) : ch2)
 	SrcAuxMode = GetSrcAuxMode(src);
-	SrcAuxFrmt = GetSrcAuxFrmt(src);		 //by hungry 2012.03.07
-	//OutAuxFrmt = VIDOUT_720x480i60;			// set aux-format
+	SrcAuxFrmt = GetSrcAuxFrmt(src);
+	// out format
+	OutMainFrmt = GetOutVideoFrameRate();		// get out-main format
+	OutMainMode = MDIN_OUT_RGB444_8;
+	OutAuxFrmt = GetOutAuxFormat(OutMainFrmt);	// get out-aux format
+	OutAuxMode = GetOutAuxMode(src);
 
 	memset(&stVideo.stVIEW_m, 0, 8);		// clear stVIEW_m
 	memset(&stVideo.stVIEW_x, 0, 8);		// clear stVIEW_x
 
-	//OutMainFrmt = GetMenuStatus(6,2);		// get out-format
-
-	fSyncParsed = FALSE;
+	if((SrcMainFrmt != 0xFF) && (SrcMainFrmt != 0xFE))
+	{
+		fSyncParsed = TRUE;
+	}
+	else
+	{
+		fSyncParsed = FALSE;
+	}
 	InputSelOld = src;
-	PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;
+//	PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;
 }
 
 //--------------------------------------------------------------------------------------------------
-static void InputSyncHandler_A(BYTE src)
-{
-	BYTE frmt = 0xff;
-
-	frmt = SrcMainFrmt;
-	if ((frmt!=0xff) && (frmt!=0xfe))
-	{
-		fSyncParsed = TRUE;
-		SrcMainFrmt = frmt;
-	}
-	else							  //by hungry 2012.05.02 for dark screen on no video.
-	{
-		SrcMainFrmt = frmt;
-	}
-
-	SrcSyncInfo = (frmt==0xff)? VIDSRC_FORMAT_END : SrcMainFrmt;
-
-
-	switch (stVideo.dacPATH) 
-	{
-		case DAC_PATH_MAIN_PIP:	
-			SrcMainMode = MDIN_SRC_EMB422_8;	
-			OutMainFrmt = videoOutResolution+(frmt%2);
-			OutMainMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
-			break;
-	}
-
-}
-
+//static void InputSyncHandler_A(BYTE src)
+//{
+//	BYTE frmt = GetInSourceFormat(CHANNEL1);//SrcMainFrmt;
+//
+//	if ((frmt!=0xff) && (frmt!=0xfe))
+//	{
+//		fSyncParsed = TRUE;
+////		SrcMainFrmt = frmt;
+//	}
+//	else							  //by hungry 2012.05.02 for dark screen on no video.
+//	{
+//		SrcMainFrmt = frmt;
+//	}
+//
+//	SrcSyncInfo = (frmt==0xff)? VIDSRC_FORMAT_END : SrcMainFrmt;
+//
+//
+//	switch (stVideo.dacPATH)
+//	{
+//		case DAC_PATH_MAIN_OUT:
+//			break;
+//
+//		case DAC_PATH_AUX_2HD:
+//			break;
+//
+//		case DAC_PATH_MAIN_PIP:
+//			//SrcMainMode = MDIN_SRC_EMB422_8;
+//			OutMainFrmt = videoOutResolution+(frmt%2);
+//			OutMainMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
+//			break;
+//	}
+//
+//}
+//
+////--------------------------------------------------------------------------------------------------
+//static void InputSyncHandler_B(BYTE src)
+//{
+//	BYTE frmt = 0xff;
+//
+//	if (frmt!=0xff&&frmt!=0xfe)
+//	{
+//		fSyncParsed = TRUE;
+//		SrcAuxFrmt = frmt;
+//	}
+//	switch (stVideo.dacPATH)
+//	{
+//		case DAC_PATH_MAIN_PIP:
+//			SrcAuxMode = MDIN_SRC_EMB422_8;
+//			OutAuxFrmt = videoOutResolution+(frmt%2);
+//			OutAuxMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
+//		break;
+//	}
+//}
+//
 //--------------------------------------------------------------------------------------------------
-static void InputSyncHandler_B(BYTE src)
-{
-	BYTE frmt = 0xff;
-
-	if (frmt!=0xff&&frmt!=0xfe)
-	{
-		fSyncParsed = TRUE;
-		SrcAuxFrmt = frmt;
-	}
-	switch (stVideo.dacPATH) 
-	{
-		case DAC_PATH_MAIN_PIP:	
-			SrcAuxMode = MDIN_SRC_EMB422_8;	
-			OutAuxFrmt = videoOutResolution+(frmt%2);
-			OutAuxMode = MDIN_OUT_RGB444_8;//MDIN_OUT_SEP422_8;
-		break;
-	}
-}
-
-//--------------------------------------------------------------------------------------------------
-static void SetOffChipFrmtInA(BYTE src)
+static void SetOffChipFrmt(BYTE src)
 {
 	switch (src) 
 	{
-		case VIDEO_SDI_2HD_POP :
-			MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY5);
-			break;
- 		case VIDEO_DIGITAL_SDI:
+ 		case VIDEO_DIGITAL_NVP6158_A:
  			MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY0);
  			break;
- 		case VIDEO_DIGITAL_SDI2:
+ 		case VIDEO_DIGITAL_NVP6158_B:
  			MDIN3xx_SetDelayCLK_B(MDIN_CLK_DELAY0);
  			break;
+		case VIDEO_DIGITAL_NVP6158_2CH :
+			MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY5);
+			MDIN3xx_SetDelayCLK_B(MDIN_CLK_DELAY5);
+			break;
 		default:
  			MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY0);
+ 			MDIN3xx_SetDelayCLK_B(MDIN_CLK_DELAY0);
  			break;
 	}
 }
 
-//--------------------------------------------------------------------------------------------------
-static void SetOffChipFrmtInB(BYTE src)
-{
-	switch (src) 
-	{
-		case VIDEO_SDI_2HD_POP : MDIN3xx_SetDelayCLK_B(MDIN_CLK_DELAY5); break;
-	}
-}
-
-//--------------------------------------------------------------------------------------------------
-static void SetSDIRXInVideoFine(void)	   //by hungry 2012.02.15
-{
- 	stVideo.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
- 	stVideo.stSRC_a.offH = 0;		stVideo.stSRC_a.offV = 0;
-}
-//--------------------------------------------------------------------------------------------------
-static void SetSDI2RXInVideoFine(void)	   //by flcl 2013.04.23
-{
- 	stVideo.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
- 	stVideo.stSRC_b.offH = 0;		stVideo.stSRC_b.offV = 0;
-}
 //--------------------------------------------------------------------------------------------------
 static void SetSrcMainFine(BYTE src)
 {
 	switch (src)
 	{
-		case VIDEO_DIGITAL_SDI:
-			SetSDIRXInVideoFine();
+		case VIDEO_DIGITAL_NVP6158_A:
+		case VIDEO_DIGITAL_NVP6158_2CH:
+		 	stVideo.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
+		 	stVideo.stSRC_a.offH = 0;
+		 	stVideo.stSRC_a.offV = 0;
 			break;
-		case VIDEO_DIGITAL_SDI2:
-			SetSDI2RXInVideoFine();
+		case VIDEO_DIGITAL_NVP6158_B:
+		 	stVideo.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
+		 	stVideo.stSRC_b.offH = 0;
+		 	stVideo.stSRC_b.offV = 0;
 			break;
 	}
 }
@@ -598,12 +731,12 @@ static void VideoFrameProcess(BYTE src)
 {
 	if (fSyncParsed==FALSE) return;		// wait for sync detection
 
-	if (EncVideoFrmt!=PrevEncFrmt)
-	{
-		PrevSrcMainFrmt = 0xff;
-	}
-	stVideo.encFRMT = EncVideoFrmt;
-	PrevEncFrmt = EncVideoFrmt;
+//	if (EncVideoFrmt!=PrevEncFrmt)
+//	{
+//		PrevSrcMainFrmt = 0xff;
+//	}
+//	stVideo.encFRMT = EncVideoFrmt;
+//	PrevEncFrmt = EncVideoFrmt;
 
 	if (SrcMainFrmt!=PrevSrcMainFrmt||SrcMainMode!=PrevSrcMainMode||
 		OutMainFrmt!=PrevOutMainFrmt||OutMainMode!=PrevOutMainMode)
@@ -615,6 +748,11 @@ static void VideoFrameProcess(BYTE src)
 		OutAuxFrmt!=PrevOutAuxFrmt||OutAuxMode!=PrevOutAuxMode)
 	{
 		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
+	}
+
+	if(EncVideoFrmt != PrevEncFrmt)
+	{
+		stVideo.exeFLAG |= MDIN_UPDATE_ENCFMT;
 	}
 
 	if (stVideo.exeFLAG!=MDIN_UPDATE_CLEAR) // updated video formats
@@ -637,8 +775,7 @@ static void VideoFrameProcess(BYTE src)
 		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
 		MDIN3xx_EnableMainDisplay(OFF);
 
-		SetOffChipFrmtInA(src);		// set InA offchip format
-		SetOffChipFrmtInB(src);		// set InB offchip format	//by hungry 2012.03.07
+		SetOffChipFrmt(src);		// set InA offchip format
 		SetSrcMainFine(src);		// set source video fine (fldid, offset)
 
 		if (OutMainFrmt!=PrevOutMainFrmt) {
@@ -677,13 +814,38 @@ static void VideoFrameProcess(BYTE src)
 	}
 }
 
+
+// ----------------------------------------------------------------------
+// Exported functions
+// ----------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+void CreateVideoInstance(void)
+{
+	MDIN3xx_SetRegInitial();	// initialize MDIN-3xx
+}
+
+void InitInputSource(void)
+{
+	InputSelOld = 0xFF;
+	InputSelect = 0xFF;
+}
+
+//--------------------------------------------------------------------------------------------------
+void SetInputSource(BYTE input)
+{
+	if(input != InputSelect)
+	{
+		InputSelOld = InputSelect;
+		InputSelect = input;
+	}
+}
+
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
 {
-//	UpdateOutputFormat();		//kukuri
 	InputSourceHandler(InputSelect);
-	InputSyncHandler_A(InputSelect);
-	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
+//	InputSyncHandler_A(InputSelect);
+//	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
 	VideoFrameProcess(InputSelect);
 }
 
@@ -692,6 +854,7 @@ void VideoHTXCtrlHandler(void)
 {
 	MDINHTX_CtrlHandler(&stVideo);
 }
+
 #endif	/* defined(SYSTEM_USE_MDIN380) */
 
 /*  FILE_END_HERE */

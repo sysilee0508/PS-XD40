@@ -212,7 +212,6 @@ void Key_Proc(void)
 {
 	static eKeyData_t previous_keydata = KEY_NONE;
 	static eSplit_t split = SPLIT_A;
-	eDisplayMode_t displayMode;
 	eKeyData_t key = GetCurrentKey();
 
 	if(IsKeyReady()==TRUE)
@@ -238,8 +237,7 @@ void Key_Proc(void)
 				// display current split mode
 				if(previous_keydata == KEY_NONE)
 				{
-					Read_NvItem_DisplayMode(&displayMode);
-					split = displayMode - DISPLAY_MODE_SPLIT_A;
+					split = GetCurrentDisplayMode() - DISPLAY_MODE_SPLIT_A;
 				}
 				
 				if(previous_keydata != key)
@@ -279,5 +277,3 @@ void Key_Proc(void)
 		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark
 	}
 }
-
-

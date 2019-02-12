@@ -83,52 +83,24 @@ void main(void)
 	// initialize RTC
 	RTC_Configuration();
 
-	// Set key mode as short key mode in order to check reset key 
-	SetKeyMode(KEY_MODE_SHORT);
+	// Load NV data from flash memory
+	LoadNvDataFromStorage();
 
+	//NVP6158 device initialization
+	NVP6158_init();
+	InitVideoLossCheck();
+	Delay_ms(1);
+	// Reset MDIN
 	MDIN3XX_RST_LOW;
 	Delay_ms(500);
 	MDIN3XX_RST_HIGH;	
-
-	// Need additional 500us to check reset key
-	// Reset Key Function : Press and hold the menu button during turning on the power to initialize the EEPROM
-	Delay_ms(500);
-//	if(IsKeyReady())
-//	{
-//		ClearKeyReady();
-//		if(GetCurrentKey() == KEY_MENU || GetCurrentKey() == KEY_FREEZE)
-//		{
-//			InitializeNvData();
-//
-//			BUZZER_HIGH;
-//			Delay_ms(100);
-//			BUZZER_LOW;
-//			Delay_ms(100);
-//			BUZZER_HIGH;
-//			Delay_ms(100);
-//			BUZZER_LOW;
-//			Delay_ms(100);
-//			BUZZER_HIGH;
-//			Delay_ms(100);
-//			BUZZER_LOW;
-//		}
-//	}
-	//--------------------------------------------
-	// Set key mode as long key mode 
-	SetKeyMode(KEY_MODE_LONG);
-
-	// Load NV data from flash memory
-	LoadNvDataFromStorage();
 
 	CreateVideoInstance();
 	CreateOSDInstance();
 	Osd_ClearScreen();
 
-	Delay_ms(1);
-	//NVP6158 device initialization
-	NVP6158_init();
-//	InitVideoLossCheck();
-
+	// Set key mode as long key mode
+	SetKeyMode(KEY_MODE_LONG);
 	Read_NvItem_DisplayMode(&displayMode);
 	if(displayMode == DISPLAY_MODE_FULL_CH1)
 	{
@@ -143,23 +115,22 @@ void main(void)
 		UpdateKeyData(KEY_SPLIT);
 	}
 	SetKeyReady();
-	Key_Proc();
+//	Key_Proc();
 
 #ifdef MDIN_TEST_PATTERN
-	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
+//	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
 	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
 #endif
 
 	while(TRUE)
 	{
+		RTC_CheckTime();
+		Key_Proc();
 		NVP6158_VideoDetectionProc();
 		Delay_ms(1);
 		// check video loss
 //		ScanVideoLossChannels();
 		UpdateDisplayMode();
-
-		Key_Proc();
-		RTC_CheckTime();
 		// video process handler
 		VideoProcessHandler();
 		// delay for HDMI-Tx register !!

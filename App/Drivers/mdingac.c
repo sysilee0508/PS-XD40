@@ -24,7 +24,7 @@
 #include	"mdin3xx.h"
 
 
-extern GACMAP_FONT_INFO stFONT;
+//extern GACMAP_FONT_INFO stFONT;
 
 // ----------------------------------------------------------------------
 // Struct/Union Types and define

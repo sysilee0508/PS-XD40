@@ -53,4 +53,6 @@ typedef enum
 //=============================================================================
 extern void DisplayScreen(eDisplayMode_t mode);
 extern void UpdateDisplayMode(void);
+extern eDisplayMode_t GetCurrentDisplayMode(void);
+extern BYTE GetInputVideoFormat(eChannel_t channel);
 #endif

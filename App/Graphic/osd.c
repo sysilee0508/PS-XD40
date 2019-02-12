@@ -21,7 +21,6 @@
 
 #if	defined(SYSTEM_USE_MDIN380)
 #include "mdinpalt.h"
-//#include	"..\drivers\mdintrue.h"
 #endif
 
 // -----------------------------------------------------------------------------
@@ -365,7 +364,7 @@ static void XferDataBMP(DWORD src, DWORD dst, DWORD bytes)
 
 }
 */
-void OSD_SetSprite_layer0(void)
+static void OSD_SetSprite_layer0(void)
 {
 	DWORD e_addr = (DWORD)MDIN3xx_GetSizeOfBank()*2*8192-192*96;	 
 
@@ -454,7 +453,7 @@ void OSD_SetSprite_layer2(WORD x, WORD y)
 }*/
 
 //--------------------------------------------------------------------------------------------------------------------------
-void OSD_SetFontMAP(void)
+static void OSD_SetFontMAP(void)
 {
 	MDIN_BITMAP_INFO stBMP;
 	DWORD e_addr = (DWORD)MDIN3xx_GetSizeOfBank()*2*8192;		//API v0.31(2012.05.02)
@@ -532,6 +531,10 @@ void OSD_SetFontGAC(SPRITE_INDEX_t index)
 	MDINGAC_SetFontMode(&stFONT, &stOSD[index]);
 }
 
+void OSD_EnableSprite(SPRITE_INDEX_t index, BOOL OnOff)
+{
+	MDINOSD_EnableSprite(&stOSD[index], OnOff);
+}
 //--------------------------------------------------------------------------------------------------------------------------
 void OSD_ModifyPalette_M(BOOL rgb)
 {

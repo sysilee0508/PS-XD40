@@ -58,14 +58,11 @@
 #define		VIDEO_ADCNV_2HD_IN			7
 #define		VIDEO_DIGITAL_SDI2			8				   //by flcl 2013.04.23
 #define		VIDEO_SDI_2HD_POP			9
+#define		VIDEO_DIGITAL_NVP6158_A		10
+#define		VIDEO_DIGITAL_NVP6158_B		11
+#define		VIDEO_DIGITAL_NVP6158_2CH	12
+//#define		VIDEO_DIGITAL_NVP6158_2CH_PIP	13
 #endif
-
-typedef enum
-{
-	RESOLUTION_1920_1080_60P,
-	RESOLUTION_1920_1080_50P,
-	RESOLUTION_MAX
-} eResolution_t;
 
 // ----------------------------------------------------------------------
 // Exported Variables
@@ -85,23 +82,9 @@ extern BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 // Exported function Prototype
 // -----------------------------------------------------------------------------
 void CreateVideoInstance(void);
+void InitInputSource(void)
+void SetInputSource(BYTE input);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
-void VideoSetEdgeEnhance(BYTE mode);
-void VideoSetAspectRatio(BYTE mode);
-void VideoSetOverScanning(BYTE mode);
-void VideoSetMFCHYFilter(BYTE mode);
-void VideoSetMFCHCFilter(BYTE mode);
-void VideoSetMFCVYFilter(BYTE mode);
-void VideoSetMFCVCFilter(BYTE mode);
-void VideoSetOutCSCCoef(BYTE mode);
-void VideoSetInCSCCoef(BYTE mode);
-void VideoSetIPCNoiseRobust1(BOOL OnOff);
-void VideoSetIPCNoiseRobust2(BOOL OnOff);
-void VideoSetIPCSlowMotion(BOOL OnOff);
-void VideoSDITXCtrlHandler(void);	   	//by hungry 2012.02.23
-void SetVideoOutputfrmt(BYTE frmt);
-
-void UpdateVideoResolution(eResolution_t resolution);
 
 #endif	/* __VIDEO_H__ */
