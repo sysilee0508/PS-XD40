@@ -1,7 +1,8 @@
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
-#include	"common.h"
+#include "common.h"
+#include "NVP6158.h"        
 
 #if defined(SYSTEM_USE_MDIN380)
 // ----------------------------------------------------------------------
@@ -833,11 +834,12 @@ void InitInputSource(void)
 //--------------------------------------------------------------------------------------------------
 void SetInputSource(BYTE input)
 {
-	if(input != InputSelect)
-	{
-		InputSelOld = InputSelect;
-		InputSelect = input;
-	}
+	InputSelect = input;
+	//if(input != InputSelect)
+	//{
+	//	InputSelOld = InputSelect;
+	//	
+	//}
 }
 
 //--------------------------------------------------------------------------------------------------
