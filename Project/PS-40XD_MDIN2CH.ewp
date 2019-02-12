@@ -2175,21 +2175,6 @@
         <group>
             <name>Graphic</name>
             <file>
-                <name>$PROJ_DIR$\..\App\Graphic\item.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Graphic\item.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Graphic\menu.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Graphic\menu.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Graphic\menu_string.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\App\Graphic\osd.c</name>
             </file>
             <file>
@@ -2201,9 +2186,6 @@
         </group>
         <group>
             <name>Main</name>
-            <file>
-                <name>$PROJ_DIR$\..\App\Main\alarm_remotekey.c</name>
-            </file>
             <file>
                 <name>$PROJ_DIR$\..\App\Main\alarm_remotekey.h</name>
             </file>
@@ -2226,12 +2208,6 @@
                 <name>$PROJ_DIR$\..\App\Main\main.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\App\Main\MotionDetect.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Main\MotionDetect.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\App\Main\osd_display.c</name>
             </file>
             <file>
@@ -2245,12 +2221,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\App\Main\Rtc.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Main\sequence.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Main\sequence.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\App\Main\video_loss.c</name>
@@ -2294,9 +2264,6 @@
         </group>
         <group>
             <name>Video</name>
-            <file>
-                <name>$PROJ_DIR$\..\App\Video\demo.c</name>
-            </file>
             <file>
                 <name>$PROJ_DIR$\..\App\Video\mfccoef.h</name>
             </file>
