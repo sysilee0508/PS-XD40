@@ -833,14 +833,14 @@ void Set_DisplayWindow(eWindow_t windowType)
 			break;
 
 		case WINDOW_SPLIT_A:
-			stMainWindow.w = DISPLAY_WIDTH;
+			stMainWindow.w = DISPLAY_HALF_WIDTH;
 			stMainWindow.h = DISPLAY_HEIGHT;
 			stMainWindow.x = 0;
 			stMainWindow.y = 0;
 
-			stAuxWindow.w = DISPLAY_WIDTH;
+			stAuxWindow.w = DISPLAY_HALF_WIDTH;
 			stAuxWindow.h = DISPLAY_HEIGHT;
-			stAuxWindow.x = 0;
+			stAuxWindow.x = DISPLAY_HALF_WIDTH;
 			stAuxWindow.y = 0;
 			break;
 
