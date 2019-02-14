@@ -80,22 +80,22 @@ static void Display_SplitA(void)
 
 static void Display_SplitB(void)
 {
-
+	Set_DisplayWindow(WINDOW_SPLIT_V);
 }
 
 static void Display_SplitC(void)
 {
-
+	Set_DisplayWindow(WINDOW_SPLIT_H);
 }
 
 static void Display_SplitD(void)
 {
-
+	Set_DisplayWindow(WINDOW_SPLIT_H);
 }
 
 static void Display_SplitE(void)
 {
-
+	Set_DisplayWindow(WINDOW_SPLIT_V);
 }
 
 static BYTE Check_VideoFormat_Change(void)
