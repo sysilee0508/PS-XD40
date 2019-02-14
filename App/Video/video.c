@@ -741,7 +741,7 @@ static void VideoFrameProcess(BYTE src)
 		memcpy(stVideo.stVIEW_m, &stMainWindow, sizeof(MDIN_VIDEO_WINDOW));
 		//memcpy(stVideo.stVIEW_x, &stAwxWindow, sizeof(MDIN_VIDEO_WINDOW));
 		MDIN3xx_SetScaleProcess(&stVideo);
-		memcpy(stVideo.stVIEW_m, &stAwxWindow, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stVIEW_x, &stAuxWindow, sizeof(MDIN_VIDEO_WINDOW));
 		MDIN3xx_SetScaleProcess(&stVideo);
 
 		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
