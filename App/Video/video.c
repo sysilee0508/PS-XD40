@@ -53,6 +53,7 @@ BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
 BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 BYTE TempOutMainMode;		// 28Dec2011
 BOOL fSyncParsed;
+BOOL fInputChanged;
 
 MDIN_VIDEO_WINDOW stMainWindow;
 MDIN_VIDEO_WINDOW stAuxWindow;
@@ -528,8 +529,10 @@ static BYTE GetOutAuxMode(BYTE src)
 //--------------------------------------------------------------------------------------------------
 static void InputSourceHandler(BYTE src)
 {
-	if ((src==InputSelOld) && (src!=VIDEO_DIGITAL_NVP6158_2CH)) return;
+	//if ((src==InputSelOld) && (src!=VIDEO_DIGITAL_NVP6158_2CH)) return;
+	if(fInputChanged != TRUE)  return;
 
+	fInputChanged = FALSE;
 	SetInVideoPath(src);
 	
 	// source : main
@@ -739,7 +742,7 @@ static void VideoFrameProcess(BYTE src)
 
 		//Set main & aux window scale, crop, zoom
 		memcpy(&stVideo.stVIEW_m, &stMainWindow, sizeof(MDIN_VIDEO_WINDOW));
-		memcpy(&stVideo.stVIEW_x, &stAwxWindow, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stVIEW_x, &stAuxWindow, sizeof(MDIN_VIDEO_WINDOW));
 		MDIN3xx_SetScaleProcess(&stVideo);
 
 		//MDIN3xx_SetScaleProcess(&stVideo);
@@ -806,6 +809,7 @@ void InitInputSource(void)
 void SetInputSource(BYTE input)
 {
 	InputSelect = input;
+	fInputChanged = TRUE;
 }
 
 //--------------------------------------------------------------------------------------------------
