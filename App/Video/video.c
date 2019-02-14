@@ -223,29 +223,6 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 	return format;
 }
 
-
-//void Set_SplitWindow(WORD w, WORD h, WORD x, WORD y)
-//{
-//	MDIN_VIDEO_WINDOW stWindow;
-//
-//	stWindow.w = w; // width
-//	stWindow.h = h; // height
-//	stWindow.x = x; // x position
-//	stWindow.y = y; // y position
-//	MDIN3xx_SetVideoWindowVIEW(&stVideo, stWindow);
-//}
-//
-//void Set_AuxWindow(WORD w, WORD h, WORD x, WORD y)
-//{
-//	MDIN_VIDEO_WINDOW stAuxView;
-//
-//	stAuxView.w = w; // width
-//	stAuxView.h = h; // height
-//	stAuxView.x = x; // x position
-//	stAuxView.y = y; // y position
-//	MDINAUX_SetVideoWindowVIEW(&stVideo, stAuxView);
-//}
-
 static void MDIN3xx_SetRegInitial(void)
 {
 	WORD nID = 0;
@@ -426,16 +403,19 @@ static void SetInVideoPath(BYTE src)
 		case VIDEO_DIGITAL_NVP6158_2CH: //VIDEO_ADCNV_2HD_IN:
 			stVideo.srcPATH = PATH_MAIN_A_AUX_B;
 			stVideo.dacPATH = DAC_PATH_MAIN_PIP;
+			stVideo.encPATH = VENC_PATH_PORT_B;
 			break;
 
 		case VIDEO_DIGITAL_NVP6158_A:
 			stVideo.srcPATH = PATH_MAIN_A_AUX_M;
 			stVideo.dacPATH = DAC_PATH_MAIN_OUT;
+			stVideo.encPATH = VENC_PATH_PORT_X;
 			break;
 
 		case VIDEO_DIGITAL_NVP6158_B:
 			stVideo.srcPATH = PATH_MAIN_B_AUX_M;
 			stVideo.dacPATH = DAC_PATH_MAIN_OUT;
+			stVideo.encPATH = VENC_PATH_PORT_X;
 			break;
 	}
 }
@@ -628,8 +608,8 @@ static void SetOffChipFrmt(BYTE src)
  			MDIN3xx_SetDelayCLK_B(MDIN_CLK_DELAY0);
  			break;
 		case VIDEO_DIGITAL_NVP6158_2CH :
-			MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY5);
-			MDIN3xx_SetDelayCLK_B(MDIN_CLK_DELAY5);
+			MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY0);
+			MDIN3xx_SetDelayCLK_B(MDIN_CLK_DELAY0);
 			break;
 		default:
  			MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY0);
@@ -675,7 +655,6 @@ static PMDIN_AUXFILT_COEF GetAUXFilterCoef(void)
 	switch (stVideo.stOUT_x.frmt) {
 		case VIDOUT_1280x1024p60:	return (PMDIN_AUXFILT_COEF)&defAUXFiltCoef[0];
 		case VIDOUT_1024x768p60:	return (PMDIN_AUXFILT_COEF)&defAUXFiltCoef[1];
-		//case VIDOUT_800x600p60:		return (PMDIN_AUXFILT_COEF)&defAUXFiltCoef[2];
 		case VIDOUT_720x576i50:		return (PMDIN_AUXFILT_COEF)&defAUXFiltCoef[3];
 		case VIDOUT_720x480i60:		return (PMDIN_AUXFILT_COEF)&defAUXFiltCoef[4];
 		default:					return (PMDIN_AUXFILT_COEF)NULL;
@@ -743,7 +722,6 @@ static void VideoFrameProcess(BYTE src)
 		//Set main & aux window scale, crop, zoom
 		memcpy(&stVideo.stVIEW_m, &stMainWindow, sizeof(MDIN_VIDEO_WINDOW));
 		memcpy(&stVideo.stVIEW_x, &stAuxWindow, sizeof(MDIN_VIDEO_WINDOW));
-		MDIN3xx_SetScaleProcess(&stVideo);
 
 		//MDIN3xx_SetScaleProcess(&stVideo);
 
@@ -764,22 +742,12 @@ static void VideoFrameProcess(BYTE src)
 	//	GetExtVideoAttb(src);	// update E-Video attribute (edge,swap,clk,offset)	//by hungry 2012.02.15
 		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
 		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
-		//Set2HDVideoPathB();		// set 2HD pathB
-
-		//SetMenuStatus(4,6,MBIT(stVideo.stOUT_m.stATTB.attb,MDIN_WIDE_RATIO));
-		//DEMO_SetWindowPIPPOP(GetMenuStatus(4,3));	// update pip/pop window	//by kukuri
-		//DEMO_SetImageMirrorV(GetMenuStatus(6,7));	// update v-mirror
 
 		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
 		MDIN3xx_EnableMainDisplay(ON);
 
-		// if src is 2HD input or dual display, trigger soft-reset.
-//		if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) 	//kukuri.. check it
-//			MDIN3xx_SoftReset();
-
 		// Do we need below line? by kukuri
 		SetOSDMenuRefresh();	// for framebuffer map bug
-	//	SetOutHDMI_DVI();
 
 		PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
 		PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
@@ -856,7 +824,7 @@ void Set_DisplayWindow(eWindow_t windowType)
 			stMainWindow.x = 0;
 			stMainWindow.y = 0;
 
-			stAuxWindow.w = DISPLAY_HALF_WIDTH;
+			stAuxWindow.w = DISPLAY_WIDTH;
 			stAuxWindow.h = DISPLAY_HALF_HEIGHT;
 			stAuxWindow.x = 0;
 			stAuxWindow.y = DISPLAY_HALF_HEIGHT;

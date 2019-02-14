@@ -2388,7 +2388,8 @@ MDIN_ERROR_t MDIN3xx_EnableAuxDisplay(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 {
 	//printf("MDIN3xx_EnableAuxDisplay = %d \n",OnOff);
 
-	if (pINFO->dacPATH==DAC_PATH_MAIN_PIP) return MDIN3xx_EnableAuxSyncPIP(pINFO, OnOff);
+	if (pINFO->dacPATH==DAC_PATH_MAIN_PIP) //return 
+		MDIN3xx_EnableAuxSyncPIP(pINFO, OnOff);
 
 	if (OnOff)	pINFO->dspFLAG |=  MDIN_AUX_DISPLAY_ON;
 	else		pINFO->dspFLAG &= ~MDIN_AUX_DISPLAY_ON;
