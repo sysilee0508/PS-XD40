@@ -81,6 +81,7 @@ static void Display_SplitA(void)
 static void Display_SplitB(void)
 {
 	Set_DisplayWindow(WINDOW_SPLIT_V);
+	//crop
 }
 
 static void Display_SplitC(void)
@@ -124,32 +125,25 @@ void DisplayScreen(eDisplayMode_t mode)
 	{
 		case DISPLAY_MODE_FULL_CH1:
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
-			Display_FullMode();
 			break;
 		case DISPLAY_MODE_FULL_CH2:
 			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
-			Display_FullMode();
 			break;
 
 		case DISPLAY_MODE_SPLIT_A:
 			SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);
-			Display_SplitA();
 			break;
 		case DISPLAY_MODE_SPLIT_B:
 			SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);
-			Display_SplitB();
 			break;
 		case DISPLAY_MODE_SPLIT_C:
 			SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);
-			Display_SplitC();
 			break;
 		case DISPLAY_MODE_SPLIT_D:
 			SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);
-			Display_SplitD();
 			break;
 		case DISPLAY_MODE_SPLIT_E:
 			SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);
-			Display_SplitE();
 			break;
 
 		case DISPLAY_MODE_PIP_A:
@@ -159,6 +153,8 @@ void DisplayScreen(eDisplayMode_t mode)
 			SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);
 			break;
 	}
+
+	Set_DisplayWindow(mode);
 	Write_NvItem_DisplayMode(mode);
 }
 

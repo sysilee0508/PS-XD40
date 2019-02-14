@@ -64,17 +64,13 @@
 //#define		VIDEO_DIGITAL_NVP6158_2CH_PIP	13
 #endif
 
-typedef enum
-{
-	WINDOW_FULL = 0,
-	WINDOW_SPLIT_V,
-	WINDOW_SPLIT_H,
-	WINDOW_PIP_A,
-	WINDOW_PIP_B,
-	WINDOW_PIP_C,
-	WINDOW_PIP_D,
-	WINDOW_MAX
-} eWindow_t;
+#define VIDEO_CORP_NONE				0x00
+#define VIDEO_CROP_H				0x01
+#define VIDEO_CROP_V				0x02
+
+#define VIDEO_CORP_HALF				0x01
+#define VIDEO_CORP_QUAD				0x02
+
 
 // ----------------------------------------------------------------------
 // Exported Variables
@@ -98,6 +94,6 @@ void InitInputSource(void);
 void SetInputSource(BYTE input);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
-void Set_DisplayWindow(eWindow_t windowType);
+void Set_DisplayWindow(eDisplayMode_t displayMode);
 
 #endif	/* __VIDEO_H__ */

@@ -43,7 +43,7 @@ static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
 
 MDIN_VIDEO_INFO		stVideo;
 MDIN_INTER_WINDOW	stInterWND;
-MDIN_VIDEO_WINDOW	stZOOM, stCROP;
+//MDIN_VIDEO_WINDOW	stZOOM, stCROP;
 
 BYTE AdjInterWND,  InputSelect, InputSelOld,  SrcSyncInfo;
 BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;
@@ -55,8 +55,8 @@ BYTE TempOutMainMode;		// 28Dec2011
 BOOL fSyncParsed;
 BOOL fInputChanged;
 
-MDIN_VIDEO_WINDOW stMainWindow;
-MDIN_VIDEO_WINDOW stAuxWindow;
+MDIN_VIDEO_WINDOW stMainVIEW, stAuxVIEW;
+MDIN_VIDEO_WINDOW stMainCROP, stAuxCROP;
 
 
 // ----------------------------------------------------------------------
@@ -720,8 +720,12 @@ static void VideoFrameProcess(BYTE src)
 		stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
 
 		//Set main & aux window scale, crop, zoom
-		memcpy(&stVideo.stVIEW_m, &stMainWindow, sizeof(MDIN_VIDEO_WINDOW));
-		memcpy(&stVideo.stVIEW_x, &stAuxWindow, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(&stVideo.stVIEW_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(&stVideo.stVIEW_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
+
+		memcpy(&stVideo.stCROP_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stCROP_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
+
 
 		//MDIN3xx_SetScaleProcess(&stVideo);
 
@@ -795,42 +799,119 @@ void VideoHTXCtrlHandler(void)
 	MDINHTX_CtrlHandler(&stVideo);
 }
 
-void Set_DisplayWindow(eWindow_t windowType)
+void Set_DisplayWindow(eDisplayMode_t displayMode)
 {
-	switch(windowType)
+	// initialize each object
+	memset(&stMainVIEW, 0x00, sizeof(MDIN_VIDEO_WINDOW));
+	memset(&stAuxVIEW, 0x00, sizeof(MDIN_VIDEO_WINDOW));
+	memset(&stMainCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
+	memset(&stAuxCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
+
+	switch(displayMode)
 	{
-		case WINDOW_FULL:
-			stMainWindow.w = DISPLAY_WIDTH;
-			stMainWindow.h = DISPLAY_HEIGHT;
-			stMainWindow.x = 0;
-			stMainWindow.y = 0;
+		case DISPLAY_MODE_FULL_CH1:
+		case DISPLAY_MODE_FULL_CH2:
+			stMainVIEW.w = DISPLAY_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
 			break;
 
-		case WINDOW_SPLIT_V:
-			stMainWindow.w = DISPLAY_HALF_WIDTH;
-			stMainWindow.h = DISPLAY_HEIGHT;
-			stMainWindow.x = 0;
-			stMainWindow.y = 0;
+		case DISPLAY_MODE_SPLIT_A:
+			stMainVIEW.w = DISPLAY_HALF_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
 
-			stAuxWindow.w = DISPLAY_HALF_WIDTH;
-			stAuxWindow.h = DISPLAY_HEIGHT;
-			stAuxWindow.x = DISPLAY_HALF_WIDTH;
-			stAuxWindow.y = 0;
+			stAuxVIEW.w = DISPLAY_HALF_WIDTH;
+			stAuxVIEW.h = DISPLAY_HEIGHT;
+			stAuxVIEW.x = DISPLAY_HALF_WIDTH;
+			stAuxVIEW.y = 0;
 			break;
 
-		case WINDOW_SPLIT_H:
-			stMainWindow.w = DISPLAY_WIDTH;
-			stMainWindow.h = DISPLAY_HALF_HEIGHT;
-			stMainWindow.x = 0;
-			stMainWindow.y = 0;
+		case DISPLAY_MODE_SPLIT_B:
+			stMainVIEW.w = DISPLAY_HALF_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
 
-			stAuxWindow.w = DISPLAY_WIDTH;
-			stAuxWindow.h = DISPLAY_HALF_HEIGHT;
-			stAuxWindow.x = 0;
-			stAuxWindow.y = DISPLAY_HALF_HEIGHT;
+			stAuxVIEW.w = DISPLAY_HALF_WIDTH;
+			stAuxVIEW.h = DISPLAY_HEIGHT;
+			stAuxVIEW.x = DISPLAY_HALF_WIDTH;
+			stAuxVIEW.y = 0;
+
+			stMainCROP.w = DISPLAY_HALF_WIDTH;
+			stMainCROP.h = DISPLAY_HEIGHT;
+			stMainCROP.x = 0;
+			stMainCROP.y = 0;
+
+			stAuxCROP.w = DISPLAY_HALF_WIDTH;
+			stAuxCROP.h = DISPLAY_HEIGHT;
+			stAuxCROP.x = 0;
+			stAuxCROP.y = 0;
 			break;
 
+		case DISPLAY_MODE_SPLIT_C:
+			stMainVIEW.w = DISPLAY_WIDTH;
+			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
+
+			stAuxVIEW.w = DISPLAY_WIDTH;
+			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
+			stAuxVIEW.x = DISPLAY_WIDTH;
+			stAuxVIEW.y = 0;
+			break;
+
+		case DISPLAY_MODE_SPLIT_D:
+			stMainVIEW.w = DISPLAY_WIDTH;
+			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
+
+			stAuxVIEW.w = DISPLAY_WIDTH;
+			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
+			stAuxVIEW.x = DISPLAY_WIDTH;
+			stAuxVIEW.y = 0;
+
+			stMainCROP.w = DISPLAY_WIDTH;
+			stMainCROP.h = DISPLAY_HALF_HEIGHT;
+			stMainCROP.x = 0;
+			stMainCROP.y = 0;
+
+			stAuxCROP.w = DISPLAY_WIDTH;
+			stAuxCROP.h = DISPLAY_HALF_HEIGHT;
+			stAuxCROP.x = 0;
+			stAuxCROP.y = 0;
+			break;
+
+		case DISPLAY_MODE_SPLIT_E:
+			stMainVIEW.w = DISPLAY_HALF_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = DISPLAY_QUAD_HEIGHT;
+
+			stAuxVIEW.w = DISPLAY_HALF_WIDTH;
+			stAuxVIEW.h = DISPLAY_HEIGHT;
+			stAuxVIEW.x = DISPLAY_HALF_WIDTH;
+			stAuxVIEW.y = DISPLAY_QUAD_HEIGHT;
+
+			stMainCROP.w = DISPLAY_HALF_WIDTH;
+			stMainCROP.h = DISPLAY_HALF_HEIGHT;
+			stMainCROP.x = 0;
+			stMainCROP.y = 0;
+
+			stAuxCROP.w = DISPLAY_HALF_WIDTH;
+			stAuxCROP.h = DISPLAY_HALF_HEIGHT;
+			stAuxCROP.x = 0;
+			stAuxCROP.y = 0;
+			break;
 	}
+}
+
+void Set_VideoCrop(eChannel_t channel, BYTE crop, BYTE direct)
+{
+
 }
 
 #endif	/* defined(SYSTEM_USE_MDIN380) */
