@@ -396,7 +396,6 @@ static void SetInVideoPath(BYTE src)
 	switch (src)
 	{
 		case VIDEO_DIGITAL_NVP6158_2CH: //VIDEO_ADCNV_2HD_IN:
-//		case VIDEO_DIGITAL_NVP6158_2CH_PIP: //VIDEO_SDI_2HD_POP:
 			stVideo.srcPATH = PATH_MAIN_A_AUX_B;
 			stVideo.dacPATH = DAC_PATH_MAIN_PIP;
 			break;
@@ -412,27 +411,6 @@ static void SetInVideoPath(BYTE src)
 			break;
 	}
 }
-
-//--------------------------------------------------------------------------------------------------
-//static BYTE GetSrcMainMode(BYTE src)
-//{
-//	BYTE mode;
-//
-//	switch (src)
-//	{
-//		case VIDEO_SDI_2HD_POP:
-//			mode = MDIN_SRC_EMB422_8;
-//			break;
-//		case VIDEO_DIGITAL_SDI:
-//		case VIDEO_DIGITAL_SDI2:
-//			mode = MDIN_SRC_MUX656_8;
-//			break;
-//		default:
-//			mode = MDIN_SRC_SEP422_8;
-//			break;
-//	}
-//	return mode;
-//}
 
 //--------------------------------------------------------------------------------------------------
 static BYTE GetSrcMainFrmt(BYTE src)
