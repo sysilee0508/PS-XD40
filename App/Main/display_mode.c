@@ -68,7 +68,7 @@ static eChannel_t systemDisplayChannel = CHANNEL1;
 //}
 
 
-static void Display_FullMode(eChannel_t ch)
+static void Display_FullMode(void)
 {
 	Set_DisplayWindow(WINDOW_FULL);
 }
