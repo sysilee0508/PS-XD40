@@ -720,12 +720,10 @@ static void VideoFrameProcess(BYTE src)
 		stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
 
 		//Set main & aux window scale, crop, zoom
-		//memcpy(&stVideo.stVIEW_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
-		//memcpy(&stVideo.stVIEW_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
-
+		memcpy(&stVideo.stVIEW_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stVIEW_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
 		memcpy(&stVideo.stCROP_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
 		memcpy(&stVideo.stCROP_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
-
 
 		//MDIN3xx_SetScaleProcess(&stVideo);
 
