@@ -75,7 +75,7 @@ static void Display_FullMode(eChannel_t ch)
 
 static void Display_SplitA(void)
 {
-	Set_DisplayWindow(WINDOW_SPLIT_A);
+	Set_DisplayWindow(WINDOW_SPLIT_V);
 }
 
 static void Display_SplitB(void)

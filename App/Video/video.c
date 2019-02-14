@@ -739,7 +739,9 @@ static void VideoFrameProcess(BYTE src)
 
 		//Set main & aux window scale, crop, zoom
 		memcpy(stVideo.stVIEW_m, &stMainWindow, sizeof(MDIN_VIDEO_WINDOW));
-		memcpy(stVideo.stVIEW_x, &stAwxWindow, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(stVideo.stVIEW_x, &stAwxWindow, sizeof(MDIN_VIDEO_WINDOW));
+		MDIN3xx_SetScaleProcess(&stVideo);
+		memcpy(stVideo.stVIEW_m, &stAwxWindow, sizeof(MDIN_VIDEO_WINDOW));
 		MDIN3xx_SetScaleProcess(&stVideo);
 
 		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
@@ -832,7 +834,7 @@ void Set_DisplayWindow(eWindow_t windowType)
 			stMainWindow.y = 0;
 			break;
 
-		case WINDOW_SPLIT_A:
+		case WINDOW_SPLIT_V:
 			stMainWindow.w = DISPLAY_HALF_WIDTH;
 			stMainWindow.h = DISPLAY_HEIGHT;
 			stMainWindow.x = 0;
@@ -842,6 +844,18 @@ void Set_DisplayWindow(eWindow_t windowType)
 			stAuxWindow.h = DISPLAY_HEIGHT;
 			stAuxWindow.x = DISPLAY_HALF_WIDTH;
 			stAuxWindow.y = 0;
+			break;
+
+		case WINDOW_SPLIT_H:
+			stMainWindow.w = DISPLAY_WIDTH;
+			stMainWindow.h = DISPLAY_HALF_HEIGHT;
+			stMainWindow.x = 0;
+			stMainWindow.y = 0;
+
+			stAuxWindow.w = DISPLAY_HALF_WIDTH;
+			stAuxWindow.h = DISPLAY_HALF_HEIGHT;
+			stAuxWindow.x = 0;
+			stAuxWindow.y = DISPLAY_HALF_HEIGHT;
 			break;
 
 	}
