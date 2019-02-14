@@ -528,7 +528,7 @@ static BYTE GetOutAuxMode(BYTE src)
 //--------------------------------------------------------------------------------------------------
 static void InputSourceHandler(BYTE src)
 {
-	if (src==InputSelOld) return;
+	if ((src==InputSelOld) && (src!=VIDEO_DIGITAL_NVP6158_2CH)) return;
 
 	SetInVideoPath(src);
 	
@@ -738,11 +738,11 @@ static void VideoFrameProcess(BYTE src)
 		stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
 
 		//Set main & aux window scale, crop, zoom
-		memcpy(stVideo.stVIEW_m, &stMainWindow, sizeof(MDIN_VIDEO_WINDOW));
-		//memcpy(stVideo.stVIEW_x, &stAwxWindow, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stVIEW_m, &stMainWindow, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stVIEW_x, &stAwxWindow, sizeof(MDIN_VIDEO_WINDOW));
 		MDIN3xx_SetScaleProcess(&stVideo);
-		memcpy(&stVideo.stVIEW_x, &stAuxWindow, sizeof(MDIN_VIDEO_WINDOW));
-		MDIN3xx_SetScaleProcess(&stVideo);
+
+		//MDIN3xx_SetScaleProcess(&stVideo);
 
 		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
 		MDIN3xx_EnableMainDisplay(OFF);
