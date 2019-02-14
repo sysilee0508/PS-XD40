@@ -70,75 +70,12 @@ static eChannel_t systemDisplayChannel = CHANNEL1;
 
 static void Display_FullMode(eChannel_t ch)
 {
-	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
-
-	switch(ch)
-	{
-		case CHANNEL1:
-//			oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
-//			switch(oCurVideoRes)
-//			{
-//				case VIDEO_RESOLUTION_1080P:
-//					//VS4210_Input1080P_Output1080P_Mode0_w0();
-//					break;
-//				case VIDEO_RESOLUTION_720P:
-//					//VS4210_Input720P_Output1080P_Mode0_w0();
-//					break;
-//				default :
-//					//VS4210_Input1080P_Output1080P_Mode0_w0();
-//					break;
-//			}
-			break;
-			
-		case CHANNEL2:
-//			oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL2);
-//			switch(oCurVideoRes)
-//			{
-//				case VIDEO_RESOLUTION_1080P:
-//					//VS4210_Input1080P_Output1080P_Mode0_w1();
-//					break;
-//				case VIDEO_RESOLUTION_720P:
-//					//VS4210_Input720P_Output1080P_Mode0_w1();
-//					break;
-//				default :
-//					//VS4210_Input1080P_Output1080P_Mode0_w1();
-//				break;
-//			}
-			break;
-	}
+	Set_DisplayWindow(WINDOW_FULL);
 }
 
 static void Display_SplitA(void)
 {
-//	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
-//
-//	oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
-//	switch(oCurVideoRes)
-//	{
-//		case VIDEO_RESOLUTION_1080P:
-//			//VS4210_Input1080P_Output1080P_Mode12_w0();
-//			break;
-//		case VIDEO_RESOLUTION_720P:
-//			//VS4210_Input720P_Output1080P_Mode12_w0();
-//			break;
-//		default :
-//			//VS4210_Input1080P_Output1080P_Mode12_w0();
-//			break;
-//	}
-//
-//	oCurVideoRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL2);
-//	switch(oCurVideoRes)
-//	{
-//		case VIDEO_RESOLUTION_1080P:
-//			//VS4210_Input1080P_Output1080P_Mode12_w1();
-//			break;
-//		case VIDEO_RESOLUTION_720P:
-//			//VS4210_Input720P_Output1080P_Mode12_w1();
-//			break;
-//		default :
-//			//VS4210_Input1080P_Output1080P_Mode12_w1();
-//			break;
-//	}
+	Set_DisplayWindow(WINDOW_SPLIT_A);
 }
 
 static void Display_SplitB(void)
@@ -187,11 +124,11 @@ void DisplayScreen(eDisplayMode_t mode)
 	{
 		case DISPLAY_MODE_FULL_CH1:
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
-			//Display_FullMode(CHANNEL1);
+			Display_FullMode();
 			break;
 		case DISPLAY_MODE_FULL_CH2:
 			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
-			//Display_FullMode(CHANNEL2);
+			Display_FullMode();
 			break;
 
 		case DISPLAY_MODE_SPLIT_A:

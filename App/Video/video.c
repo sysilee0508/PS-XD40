@@ -54,6 +54,10 @@ BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 BYTE TempOutMainMode;		// 28Dec2011
 BOOL fSyncParsed;
 
+MDIN_VIDEO_WINDOW stMainWindow;
+MDIN_VIDEO_WINDOW stAuxWindow;
+
+
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
@@ -217,6 +221,29 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 	}
 	return format;
 }
+
+
+//void Set_SplitWindow(WORD w, WORD h, WORD x, WORD y)
+//{
+//	MDIN_VIDEO_WINDOW stWindow;
+//
+//	stWindow.w = w; // width
+//	stWindow.h = h; // height
+//	stWindow.x = x; // x position
+//	stWindow.y = y; // y position
+//	MDIN3xx_SetVideoWindowVIEW(&stVideo, stWindow);
+//}
+//
+//void Set_AuxWindow(WORD w, WORD h, WORD x, WORD y)
+//{
+//	MDIN_VIDEO_WINDOW stAuxView;
+//
+//	stAuxView.w = w; // width
+//	stAuxView.h = h; // height
+//	stAuxView.x = x; // x position
+//	stAuxView.y = y; // y position
+//	MDINAUX_SetVideoWindowVIEW(&stVideo, stAuxView);
+//}
 
 static void MDIN3xx_SetRegInitial(void)
 {
@@ -710,6 +737,11 @@ static void VideoFrameProcess(BYTE src)
 		stVideo.stOUT_m.frmt = OutMainFrmt; stVideo.stOUT_m.mode = OutMainMode;
 		stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
 
+		//Set main & aux window scale, crop, zoom
+		memcpy(stVideo.stVIEW_m, &stMainWindow, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(stVideo.stVIEW_x, &stAwxWindow, sizeof(MDIN_VIDEO_WINDOW));
+		MDIN3xx_SetScaleProcess(&stVideo);
+
 		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
 		MDIN3xx_EnableMainDisplay(OFF);
 
@@ -787,6 +819,32 @@ void VideoProcessHandler(void)
 void VideoHTXCtrlHandler(void)
 {
 	MDINHTX_CtrlHandler(&stVideo);
+}
+
+void Set_DisplayWindow(eWindow_t windowType)
+{
+	switch(windowType)
+	{
+		case WINDOW_FULL:
+			stMainWindow.w = DISPLAY_WIDTH;
+			stMainWindow.h = DISPLAY_HEIGHT;
+			stMainWindow.x = 0;
+			stMainWindow.y = 0;
+			break;
+
+		case WINDOW_SPLIT_A:
+			stMainWindow.w = DISPLAY_WIDTH;
+			stMainWindow.h = DISPLAY_HEIGHT;
+			stMainWindow.x = 0;
+			stMainWindow.y = 0;
+
+			stAuxWindow.w = DISPLAY_WIDTH;
+			stAuxWindow.h = DISPLAY_HEIGHT;
+			stAuxWindow.x = 0;
+			stAuxWindow.y = 0;
+			break;
+
+	}
 }
 
 #endif	/* defined(SYSTEM_USE_MDIN380) */
