@@ -83,6 +83,11 @@ void main(void)
 	// initialize RTC
 	RTC_Configuration();
 
+	// Reset MDIN
+	MDIN3XX_RST_LOW;
+	Delay_ms(500);
+	MDIN3XX_RST_HIGH;	
+	
 	// Load NV data from flash memory
 	LoadNvDataFromStorage();
 
@@ -90,10 +95,6 @@ void main(void)
 	NVP6158_init();
 	InitVideoLossCheck();
 	Delay_ms(1);
-	// Reset MDIN
-	MDIN3XX_RST_LOW;
-	Delay_ms(500);
-	MDIN3XX_RST_HIGH;	
 
 	CreateVideoInstance();
 	CreateOSDInstance();

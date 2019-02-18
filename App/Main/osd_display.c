@@ -249,6 +249,9 @@ static const sPosition_t videoInFormatPosition_Split[NUM_OF_SPLIT][NUM_OF_CHANNE
 			{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT - DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT - MARGIN_Y}},
 	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
 			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}},
+//	{{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2,DISPLAY_HALF_HEIGHT - CHAR_HEIGHT - MARGIN_Y},
+//			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}},
+
 };
 
 static const sPosition_t videoOutFormatPosition_Split[NUM_OF_SPLIT][NUM_OF_CHANNEL] =
@@ -640,7 +643,6 @@ void OSD_DisplayTitle(void)
 
 	Read_NvItem_DisplayMode(&displayMode);
 	titleStr = (u8 *)osdStr_Title[displayMode];
-	//OSD_EraseTitle();
 	OSD_PrintString(titlePosition, titleStr, TITLE_LENGTH);
 }
 
@@ -658,7 +660,7 @@ void OSD_DisplayVideoFormat(void)
 		OSD_PrintString(videoInFormatPosition_Full, inVideo[displayMode], strlen((const u8*)inVideo[displayMode]));
 		OSD_PrintString(videoOutFormatPosition_Full, outVideo, strlen((const u8*)outVideo));
 	}
-	else
+	else if(displayMode < DISPLAY_MODE_PIP_A)
 	{
 		for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
 		{
@@ -672,6 +674,12 @@ void OSD_DisplayVideoFormat(void)
 					outVideo,
 					strlen((const u8*)outVideo));
 		}
+	}
+	else
+	{
+		inVideo[CHANNEL1] = GetInVideoFormatString(CHANNEL1);
+		OSD_PrintString(videoInFormatPosition_Full, inVideo[CHANNEL1], strlen((const u8*)inVideo[CHANNEL1]));
+		OSD_PrintString(videoOutFormatPosition_Full, outVideo, strlen((const u8*)outVideo));
 	}
 }
 
@@ -731,7 +739,7 @@ void OSD_DrawBorderLine(void)
 		case DISPLAY_MODE_SPLIT_A:
 		case DISPLAY_MODE_SPLIT_B:
 		case DISPLAY_MODE_SPLIT_E:
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
+			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_HALF_WIDTH-2, 0, 2, DISPLAY_HEIGHT);
 			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 			break;
 
@@ -744,6 +752,7 @@ void OSD_DrawBorderLine(void)
 
 		// PIP
 		case DISPLAY_MODE_PIP_A:
+			MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 //			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
 //			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 			break;

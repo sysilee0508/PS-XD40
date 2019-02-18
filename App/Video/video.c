@@ -58,6 +58,10 @@ BOOL fInputChanged;
 MDIN_VIDEO_WINDOW stMainVIEW, stAuxVIEW;
 MDIN_VIDEO_WINDOW stMainCROP, stAuxCROP;
 
+#define PIP_WINDOW_WIDTH			DISPLAY_WIDTH/3
+#define PIP_WINDOW_HEIGHT			DISPLAY_HEIGHT/3
+#define PIP_POSITION_MARGIN		100
+
 
 // ----------------------------------------------------------------------
 // External Variable 
@@ -527,8 +531,8 @@ static void InputSourceHandler(BYTE src)
 	OutAuxFrmt = GetOutAuxFormat(OutMainFrmt);	// get out-aux format
 	OutAuxMode = GetOutAuxMode(src);
 
-	memset(&stVideo.stVIEW_m, 0, 8);		// clear stVIEW_m
-	memset(&stVideo.stVIEW_x, 0, 8);		// clear stVIEW_x
+	//memset(&stVideo.stVIEW_m, 0, 8);		// clear stVIEW_m
+	//memset(&stVideo.stVIEW_x, 0, 8);		// clear stVIEW_x
 
 	if((SrcMainFrmt != 0xFF) && (SrcMainFrmt != 0xFE))
 	{
@@ -722,8 +726,8 @@ static void VideoFrameProcess(BYTE src)
 		//Set main & aux window scale, crop, zoom
 		memcpy(&stVideo.stVIEW_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
 		memcpy(&stVideo.stVIEW_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
-		memcpy(&stVideo.stCROP_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
-		memcpy(&stVideo.stCROP_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stCROP_m, &stMainCROP, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stCROP_x, &stAuxCROP, sizeof(MDIN_VIDEO_WINDOW));
 
 		//MDIN3xx_SetScaleProcess(&stVideo);
 
@@ -857,8 +861,8 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 			stAuxVIEW.w = DISPLAY_WIDTH;
 			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
-			stAuxVIEW.x = DISPLAY_WIDTH;
-			stAuxVIEW.y = 0;
+			stAuxVIEW.x = 0;
+			stAuxVIEW.y = DISPLAY_HALF_HEIGHT;
 			break;
 
 		case DISPLAY_MODE_SPLIT_D:
@@ -869,8 +873,8 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 			stAuxVIEW.w = DISPLAY_WIDTH;
 			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
-			stAuxVIEW.x = DISPLAY_WIDTH;
-			stAuxVIEW.y = 0;
+			stAuxVIEW.x = 0;
+			stAuxVIEW.y = DISPLAY_HALF_HEIGHT;
 
 			stMainCROP.w = DISPLAY_WIDTH;
 			stMainCROP.h = DISPLAY_HALF_HEIGHT;
@@ -885,33 +889,67 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 		case DISPLAY_MODE_SPLIT_E:
 			stMainVIEW.w = DISPLAY_HALF_WIDTH;
-			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
 			stMainVIEW.x = 0;
 			stMainVIEW.y = DISPLAY_QUAD_HEIGHT;
 
 			stAuxVIEW.w = DISPLAY_HALF_WIDTH;
-			stAuxVIEW.h = DISPLAY_HEIGHT;
+			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
 			stAuxVIEW.x = DISPLAY_HALF_WIDTH;
 			stAuxVIEW.y = DISPLAY_QUAD_HEIGHT;
-
-			stMainCROP.w = DISPLAY_HALF_WIDTH;
-			stMainCROP.h = DISPLAY_HALF_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stAuxCROP.w = DISPLAY_HALF_WIDTH;
-			stAuxCROP.h = DISPLAY_HALF_HEIGHT;
-			stAuxCROP.x = 0;
-			stAuxCROP.y = 0;
 			break;
+
+		case DISPLAY_MODE_PIP_A:
+			stMainVIEW.w = DISPLAY_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
+
+			stAuxVIEW.w = PIP_WINDOW_WIDTH;
+			stAuxVIEW.h = PIP_WINDOW_HEIGHT;
+			stAuxVIEW.x = DISPLAY_WIDTH -PIP_WINDOW_WIDTH -PIP_POSITION_MARGIN;
+			stAuxVIEW.y = PIP_POSITION_MARGIN;
+			break;
+
+		case DISPLAY_MODE_PIP_B:
+			stMainVIEW.w = DISPLAY_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
+
+			stAuxVIEW.w = PIP_WINDOW_WIDTH;
+			stAuxVIEW.h = PIP_WINDOW_HEIGHT;
+			stAuxVIEW.x = PIP_POSITION_MARGIN;
+			stAuxVIEW.y = DISPLAY_HEIGHT -PIP_WINDOW_HEIGHT -PIP_POSITION_MARGIN;
+			break;
+
+		case DISPLAY_MODE_PIP_C:
+			stMainVIEW.w = DISPLAY_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
+
+			stAuxVIEW.w = PIP_WINDOW_WIDTH;
+			stAuxVIEW.h = PIP_WINDOW_HEIGHT;
+			stAuxVIEW.x = DISPLAY_WIDTH -PIP_WINDOW_WIDTH -PIP_POSITION_MARGIN;
+			stAuxVIEW.y = DISPLAY_HEIGHT -PIP_WINDOW_HEIGHT -PIP_POSITION_MARGIN;
+			break;
+
+		case DISPLAY_MODE_PIP_D:
+			stMainVIEW.w = DISPLAY_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
+
+			stAuxVIEW.w = PIP_WINDOW_WIDTH;
+			stAuxVIEW.h = PIP_WINDOW_HEIGHT;
+			stAuxVIEW.x = PIP_POSITION_MARGIN;
+			stAuxVIEW.y = PIP_POSITION_MARGIN;
+			break;
+
+
 	}
 }
-
-void Set_VideoCrop(eChannel_t channel, BYTE crop, BYTE direct)
-{
-
-}
-
 #endif	/* defined(SYSTEM_USE_MDIN380) */
 
 /*  FILE_END_HERE */

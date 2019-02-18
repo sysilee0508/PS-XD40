@@ -244,14 +244,10 @@ void Key_Proc(void)
 				if(previous_keydata != key)
 				{
 					Key_Led_Ctrl(key);
-//					OSD_EraseAllText();
-//					OSD_RefreshScreen();
-//					DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
-//					OSD_DrawBorderLine();
 				}
 				else
 				{
-					split = ++split % NUM_OF_SPLIT;
+					split = ++split % (NUM_OF_SPLIT+NUM_OF_PIF);
 				}
 				OSD_EraseAllText();
 				OSD_RefreshScreen();
@@ -273,7 +269,7 @@ void Key_Proc(void)
 				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
 				OSD_DrawBorderLine();
 				break;
-				*/
+*/
 		}
 		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark
 	}

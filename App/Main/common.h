@@ -34,7 +34,6 @@
 #include "MCU.h"
 #include "i2c.h"
 #include "delay.h"
-#include "video.h"
 #include "mfccoef.h"
 
 #include "osd.h"
@@ -44,6 +43,7 @@
 #include "display_mode.h"
 #include "nv_storage.h"
 #include "video_loss.h"
+#include "video.h"
 
 // msg.c
 //typedef enum {
