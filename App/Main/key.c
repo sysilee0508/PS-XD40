@@ -248,7 +248,7 @@ void Key_Proc(void)
 				}
 				else
 				{
-					split = ++split % 2;//(NUM_OF_SPLIT+NUM_OF_PIF);
+					split = ++split % (NUM_OF_SPLIT+NUM_OF_PIF);
 				}
 				OSD_RefreshScreen();
 				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
