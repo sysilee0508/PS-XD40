@@ -813,6 +813,11 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	{
 		case DISPLAY_MODE_FULL_CH1:
 		case DISPLAY_MODE_FULL_CH2:
+			stMainCROP.w = DISPLAY_WIDTH;
+			stMainCROP.h = DISPLAY_HEIGHT;
+			stMainCROP.x = 0;
+			stMainCROP.y = 0;
+
 			stMainVIEW.w = DISPLAY_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;
 			stMainVIEW.x = 0;
@@ -825,7 +830,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stMainCROP.x = 0;
 			stMainCROP.y = 0;
 
-			stAuxCROP.w = DISPLAY_WIDTH;
+			stAuxCROP.w = DISPLAY_HALF_WIDTH;
 			stAuxCROP.h = DISPLAY_HEIGHT;
 			stAuxCROP.x = 0;
 			stAuxCROP.y = 0;
@@ -864,16 +869,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_SPLIT_C:
-			stMainCROP.w = DISPLAY_WIDTH;
-			stMainCROP.h = DISPLAY_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stAuxCROP.w = DISPLAY_WIDTH;
-			stAuxCROP.h = DISPLAY_HEIGHT;
-			stAuxCROP.x = 0;
-			stAuxCROP.y = 0;
-
 			stMainVIEW.w = DISPLAY_WIDTH;
 			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
 			stMainVIEW.x = 0;
@@ -905,12 +900,10 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
 			stAuxVIEW.x = 0;
 			stAuxVIEW.y = DISPLAY_HALF_HEIGHT;
-<<<<<<< HEAD
-=======
 			break;
->>>>>>> f6e0a9081830d8975642f4182516702d108a2ff2
 
 		case DISPLAY_MODE_SPLIT_E:
+/*
 			stMainCROP.w = DISPLAY_WIDTH;
 			stMainCROP.h = DISPLAY_HEIGHT;
 			stMainCROP.x = 0;
@@ -920,7 +913,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stAuxCROP.h = DISPLAY_HEIGHT;
 			stAuxCROP.x = 0;
 			stAuxCROP.y = 0;
-
+*/
 			stMainVIEW.w = DISPLAY_HALF_WIDTH;
 			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
 			stMainVIEW.x = 0;
@@ -930,7 +923,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
 			stAuxVIEW.x = DISPLAY_HALF_WIDTH;
 			stAuxVIEW.y = DISPLAY_QUAD_HEIGHT;
-<<<<<<< HEAD
 			break;
 
 		case DISPLAY_MODE_PIP_A:
@@ -943,8 +935,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stAuxVIEW.h = PIP_WINDOW_HEIGHT;
 			stAuxVIEW.x = DISPLAY_WIDTH -PIP_WINDOW_WIDTH -PIP_POSITION_MARGIN;
 			stAuxVIEW.y = PIP_POSITION_MARGIN;
-=======
->>>>>>> f6e0a9081830d8975642f4182516702d108a2ff2
 			break;
 
 		case DISPLAY_MODE_PIP_B:

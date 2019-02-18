@@ -235,6 +235,7 @@ void Key_Proc(void)
 				break;
 				
 			case KEY_SPLIT : 
+				OSD_EraseAllText();
 				// display current split mode
 				if(previous_keydata == KEY_NONE)
 				{
@@ -247,9 +248,8 @@ void Key_Proc(void)
 				}
 				else
 				{
-					split = ++split % (NUM_OF_SPLIT+NUM_OF_PIF);
+					split = ++split % 2;//(NUM_OF_SPLIT+NUM_OF_PIF);
 				}
-				OSD_EraseAllText();
 				OSD_RefreshScreen();
 				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
 				OSD_DrawBorderLine();

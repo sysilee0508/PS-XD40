@@ -352,18 +352,18 @@ static void OSD_EraseNoVideo(void)
 
 void OSD_EraseVideoFormat(void)
 {
-	OSD_PrintString(videoInFormatPosition_Full, osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
-	OSD_PrintString(videoOutFormatPosition_Full, osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoInFormatPosition_Full, osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Full, osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
 
-	OSD_PrintString(videoInFormatPosition_Split[SPLIT_A][CHANNEL1], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
-	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_A][CHANNEL1], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
-	OSD_PrintString(videoInFormatPosition_Split[SPLIT_A][CHANNEL2], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
-	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_A][CHANNEL2], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoInFormatPosition_Split[SPLIT_A][CHANNEL1], osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_A][CHANNEL1], osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoInFormatPosition_Split[SPLIT_A][CHANNEL2], osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_A][CHANNEL2], osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
 
-	OSD_PrintString(videoInFormatPosition_Split[SPLIT_C][CHANNEL1], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
-	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_C][CHANNEL1], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
-	OSD_PrintString(videoInFormatPosition_Split[SPLIT_C][CHANNEL2], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
-	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_C][CHANNEL2], osdSTr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoInFormatPosition_Split[SPLIT_C][CHANNEL1], osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_C][CHANNEL1], osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoInFormatPosition_Split[SPLIT_C][CHANNEL2], osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+	OSD_PrintString(videoOutFormatPosition_Split[SPLIT_C][CHANNEL2], osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
 
 }
 
@@ -625,7 +625,7 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 			break;
 
 		default:
-			inStr = (u8 *)osdSTr_Space20;
+			inStr = (u8 *)osdStr_Space20;
 			break;
 	}
 	return inStr;

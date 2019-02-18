@@ -15,7 +15,7 @@ const u8 osdStr_Space8[] = "        ";
 const u8 osdStr_Space9[] = "         ";
 const u8 osdStr_Space10[] = "          ";
 const u8 osdStr_Space12[] = "            ";
-const u8 osdSTr_Space20[] = "                    ";
+const u8 osdStr_Space20[] = "                    ";
 //-----------------------------------------------------------------------------
 
 const u8 osdStr_Title_CAM1[] = "CAM 1";
