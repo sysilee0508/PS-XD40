@@ -720,10 +720,10 @@ static void VideoFrameProcess(BYTE src)
 		stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
 
 		//Set main & aux window scale, crop, zoom
-		memcpy(&stVideo.stVIEW_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
-		memcpy(&stVideo.stVIEW_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
 		memcpy(&stVideo.stCROP_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
 		memcpy(&stVideo.stCROP_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stVIEW_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
+		memcpy(&stVideo.stVIEW_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
 
 		//MDIN3xx_SetScaleProcess(&stVideo);
 
@@ -816,6 +816,16 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_SPLIT_A:
+			stMainCROP.w = DISPLAY_WIDTH;
+			stMainCROP.h = DISPLAY_HEIGHT;
+			stMainCROP.x = 0;
+			stMainCROP.y = 0;
+
+			stAuxCROP.w = DISPLAY_WIDTH;
+			stAuxCROP.h = DISPLAY_HEIGHT;
+			stAuxCROP.x = 0;
+			stAuxCROP.y = 0;
+
 			stMainVIEW.w = DISPLAY_HALF_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;
 			stMainVIEW.x = 0;
@@ -828,16 +838,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_SPLIT_B:
-			stMainVIEW.w = DISPLAY_HALF_WIDTH;
-			stMainVIEW.h = DISPLAY_HEIGHT;
-			stMainVIEW.x = 0;
-			stMainVIEW.y = 0;
-
-			stAuxVIEW.w = DISPLAY_HALF_WIDTH;
-			stAuxVIEW.h = DISPLAY_HEIGHT;
-			stAuxVIEW.x = DISPLAY_HALF_WIDTH;
-			stAuxVIEW.y = 0;
-
 			stMainCROP.w = DISPLAY_HALF_WIDTH;
 			stMainCROP.h = DISPLAY_HEIGHT;
 			stMainCROP.x = 0;
@@ -847,9 +847,29 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stAuxCROP.h = DISPLAY_HEIGHT;
 			stAuxCROP.x = 0;
 			stAuxCROP.y = 0;
+
+			stMainVIEW.w = DISPLAY_HALF_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
+
+			stAuxVIEW.w = DISPLAY_HALF_WIDTH;
+			stAuxVIEW.h = DISPLAY_HEIGHT;
+			stAuxVIEW.x = DISPLAY_HALF_WIDTH;
+			stAuxVIEW.y = 0;
 			break;
 
 		case DISPLAY_MODE_SPLIT_C:
+			stMainCROP.w = DISPLAY_WIDTH;
+			stMainCROP.h = DISPLAY_HEIGHT;
+			stMainCROP.x = 0;
+			stMainCROP.y = 0;
+
+			stAuxCROP.w = DISPLAY_WIDTH;
+			stAuxCROP.h = DISPLAY_HEIGHT;
+			stAuxCROP.x = 0;
+			stAuxCROP.y = 0;
+
 			stMainVIEW.w = DISPLAY_WIDTH;
 			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
 			stMainVIEW.x = 0;
@@ -857,21 +877,11 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 			stAuxVIEW.w = DISPLAY_WIDTH;
 			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
-			stAuxVIEW.x = DISPLAY_WIDTH;
-			stAuxVIEW.y = 0;
+			stAuxVIEW.x = 0;
+			stAuxVIEW.y = DISPLAY_HALF_HEIGHT;
 			break;
 
 		case DISPLAY_MODE_SPLIT_D:
-			stMainVIEW.w = DISPLAY_WIDTH;
-			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
-			stMainVIEW.x = 0;
-			stMainVIEW.y = 0;
-
-			stAuxVIEW.w = DISPLAY_WIDTH;
-			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
-			stAuxVIEW.x = DISPLAY_WIDTH;
-			stAuxVIEW.y = 0;
-
 			stMainCROP.w = DISPLAY_WIDTH;
 			stMainCROP.h = DISPLAY_HALF_HEIGHT;
 			stMainCROP.x = 0;
@@ -881,28 +891,38 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stAuxCROP.h = DISPLAY_HALF_HEIGHT;
 			stAuxCROP.x = 0;
 			stAuxCROP.y = 0;
+
+			stMainVIEW.w = DISPLAY_WIDTH;
+			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
+
+			stAuxVIEW.w = DISPLAY_WIDTH;
+			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
+			stAuxVIEW.x = 0;
+			stAuxVIEW.y = DISPLAY_HALF_HEIGHT;
 			break;
 
 		case DISPLAY_MODE_SPLIT_E:
+			stMainCROP.w = DISPLAY_WIDTH;
+			stMainCROP.h = DISPLAY_HEIGHT;
+			stMainCROP.x = 0;
+			stMainCROP.y = 0;
+
+			stAuxCROP.w = DISPLAY_WIDTH;
+			stAuxCROP.h = DISPLAY_HEIGHT;
+			stAuxCROP.x = 0;
+			stAuxCROP.y = 0;
+
 			stMainVIEW.w = DISPLAY_HALF_WIDTH;
-			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
 			stMainVIEW.x = 0;
 			stMainVIEW.y = DISPLAY_QUAD_HEIGHT;
 
 			stAuxVIEW.w = DISPLAY_HALF_WIDTH;
-			stAuxVIEW.h = DISPLAY_HEIGHT;
+			stAuxVIEW.h = DISPLAY_HALF_HEIGHT;
 			stAuxVIEW.x = DISPLAY_HALF_WIDTH;
 			stAuxVIEW.y = DISPLAY_QUAD_HEIGHT;
-
-			stMainCROP.w = DISPLAY_HALF_WIDTH;
-			stMainCROP.h = DISPLAY_HALF_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stAuxCROP.w = DISPLAY_HALF_WIDTH;
-			stAuxCROP.h = DISPLAY_HALF_HEIGHT;
-			stAuxCROP.x = 0;
-			stAuxCROP.y = 0;
 			break;
 	}
 }
