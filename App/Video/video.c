@@ -136,11 +136,11 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
 		case CVI_HD_25P_EX:
 			if(GPIO_ReadInputDataBit(GPIOC, GPIO_JUMP) == LOW)	//short?
 			{
-				output = VIDOUT_1920x1080p50;
+				output = VIDOUT_1920x1080p25;
 			}
 			else
 			{
-				output = VIDOUT_1920x1080p25;
+				output = VIDOUT_1920x1080p50;;
 			}
 			break;
 	}
@@ -756,7 +756,7 @@ static void VideoFrameProcess(BYTE src)
 			stVideo.pVC_m		= 	NULL;		// restore MFCHY from API
 		}
 		MDIN3xx_VideoProcess(&stVideo);		// mdin3xx main video process
-		MDINAUX_VideoProcess(&stVideo);
+		//MDINAUX_VideoProcess(&stVideo);
 
 		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
 		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
