@@ -62,6 +62,9 @@ const u8 osdStr_Format_In_CVI_720p30[] =  "Input  : CVI 720p30";
 const u8 osdStr_Format_In_CVI_720p25[] =  "Input  : CVI 720p25";
 const u8 osdStr_Format_Out_1080p60[] =    "Output : 1080p60";
 const u8 osdStr_Format_Out_1080p50[] =    "Output : 1080p50";
+const u8 osdStr_Format_Out_1080p30[] =    "Output : 1080p30";
+const u8 osdStr_Format_Out_1080p25[] =    "Output : 1080p25";
+
 
 const u8 osdStr_NoVideo[] = "NO VIDEO";
 

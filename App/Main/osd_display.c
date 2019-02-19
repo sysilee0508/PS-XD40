@@ -561,11 +561,29 @@ static void OSD_DisplayNoVideo(void)
 static u8* GetOutVideoFormatString(void)
 {
 	u8* outStr;
-	
-	if((OutMainFrmt == VIDOUT_1920x1080p60) || (OutMainFrmt == VIDOUT_1920x1080p30))
-		outStr = (u8 *)osdStr_Format_Out_1080p60;
-	else
-		outStr = (u8 *)osdStr_Format_Out_1080p50;
+
+	switch(OutMainFrmt)
+	{
+		case VIDOUT_1920x1080p60:
+			outStr = (u8 *)osdStr_Format_Out_1080p60;
+			break;
+
+		case VIDOUT_1920x1080p30:
+			outStr = (u8 *)osdStr_Format_Out_1080p30;
+			break;
+
+		case VIDOUT_1920x1080p50:
+			outStr = (u8 *)osdStr_Format_Out_1080p50;
+			break;
+
+		case VIDOUT_1920x1080p25:
+			outStr = (u8 *)osdStr_Format_Out_1080p25;
+			break;
+		default:
+			outStr = (u8 *)osdStr_Space20;
+			break;
+
+	}
 	
 	return outStr;
 }
