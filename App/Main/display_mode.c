@@ -52,7 +52,7 @@ void DisplayScreen(eDisplayMode_t mode)
 	{
 		SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 	}
-	else if(mode == DISPLAY_MODE_FULL_CH1)
+	else if(mode == DISPLAY_MODE_FULL_CH2)
 	{
 		SetInputSource(VIDEO_DIGITAL_NVP6158_B);
 	}

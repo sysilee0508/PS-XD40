@@ -176,11 +176,24 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 
 	switch(GetInputVideoFormat(channel))
 	{
+		case AHD20_SD_H960_NT:
 		case AHD20_SD_SH720_NT:
-			VIDSRC_720x480p60;	//720x480p 60hz
+		case AHD20_SD_H1280_NT:
+		case AHD20_SD_H1440_NT:
+		case AHD20_SD_H960_EX_NT:
+		case AHD20_SD_H960_2EX_NT:
+		case AHD20_SD_H960_2EX_Btype_NT:
+			format = VIDSRC_720x480p60;	//720x480p 60hz
 			break;
+
+		case AHD20_SD_H960_PAL:
 		case AHD20_SD_SH720_PAL:
-			VIDSRC_720x576p50;	//720x576p 50hz
+		case AHD20_SD_H1280_PAL:
+		case AHD20_SD_H1440_PAL:
+		case AHD20_SD_H960_EX_PAL:
+		case AHD20_SD_H960_2EX_PAL:
+		case AHD20_SD_H960_2EX_Btype_PAL:
+			format = VIDSRC_720x576p50;	//720x576p 50hz
 			break;
 
 		case AHD20_1080P_60P:
@@ -819,7 +832,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	}
 	else
 	{
-		mainWidth = DISPLAY_WIDTH_1280x720;
+		mainWidth = DISPLAY_WIDTH_1920X1080;//DISPLAY_WIDTH_1280x720;
 		mainHeight = DISPLAY_HEIGHT_1280x720;
 	}
 
@@ -830,7 +843,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	}
 	else
 	{
-		auxWidth = DISPLAY_WIDTH_1280x720;
+		auxWidth = DISPLAY_WIDTH_1920X1080;
 		auxHeight = DISPLAY_HEIGHT_1280x720;
 	}
 	
@@ -845,7 +858,15 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	stAuxCROP.y = 0;
 
 	switch(displayMode)
-	{
+	{	
+		case DISPLAY_MODE_FULL_CH1:
+			//stMainCROP.w = 720;
+			//stMainCROP.h = 480;
+			//stMainCROP.x = 0;
+			//stMainCROP.y = 0;
+
+			break;
+			
 		case DISPLAY_MODE_SPLIT_A:
 			stMainVIEW.w = DISPLAY_HALF_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;

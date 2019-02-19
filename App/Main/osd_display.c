@@ -628,6 +628,26 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 			inStr = (u8 *)osdStr_Format_In_CVI_720p25;
 			break;
 
+		case AHD20_SD_H960_NT:
+		case AHD20_SD_SH720_NT:
+		case AHD20_SD_H1280_NT:
+		case AHD20_SD_H1440_NT:
+		case AHD20_SD_H960_EX_NT:
+		case AHD20_SD_H960_2EX_NT:
+		case AHD20_SD_H960_2EX_Btype_NT:
+			inStr = (u8 *)osdStr_Format_In_CVBS_NTSC;
+			break;
+
+		case AHD20_SD_H960_PAL:
+		case AHD20_SD_SH720_PAL:
+		case AHD20_SD_H1280_PAL:
+		case AHD20_SD_H1440_PAL:
+		case AHD20_SD_H960_EX_PAL:
+		case AHD20_SD_H960_2EX_PAL:
+		case AHD20_SD_H960_2EX_Btype_PAL:
+			inStr = (u8 *)osdStr_Format_In_CVBS_PAL;
+			break;
+
 		default:
 			inStr = (u8 *)osdStr_Space20;
 			break;
