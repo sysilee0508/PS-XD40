@@ -9,6 +9,8 @@
 //-----------------------------------------------------------------
 #define DISPLAY_WIDTH_1920X1080				1920
 #define DISPLAY_HEIGHT_1920x1080			1080
+#define DISPLAY_WIDTH_1280x720				1280
+#define DISPLAY_HEIGHT_1280x720				720
 
 #define DISPLAY_WIDTH 						DISPLAY_WIDTH_1920X1080
 #define DISPLAY_HEIGHT						DISPLAY_HEIGHT_1920x1080

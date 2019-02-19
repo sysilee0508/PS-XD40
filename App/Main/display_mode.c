@@ -60,7 +60,7 @@ void DisplayScreen(eDisplayMode_t mode)
 	{
 		SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);
 	}
-	Set_DisplayWindow(mode);
+	//Set_DisplayWindow(mode);
 	Write_NvItem_DisplayMode(mode);
 }
 

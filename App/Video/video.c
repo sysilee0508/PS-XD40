@@ -177,7 +177,10 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 	switch(GetInputVideoFormat(channel))
 	{
 		case AHD20_SD_SH720_NT:
+			VIDSRC_720x480p60;	//720x480p 60hz
+			break;
 		case AHD20_SD_SH720_PAL:
+			VIDSRC_720x576p50;	//720x576p 50hz
 			break;
 
 		case AHD20_1080P_60P:
@@ -513,7 +516,6 @@ static BYTE GetOutAuxMode(BYTE src)
 //--------------------------------------------------------------------------------------------------
 static void InputSourceHandler(BYTE src)
 {
-	//if ((src==InputSelOld) && (src!=VIDEO_DIGITAL_NVP6158_2CH)) return;
 	if(fInputChanged != TRUE)  return;
 
 	fInputChanged = FALSE;
@@ -530,9 +532,6 @@ static void InputSourceHandler(BYTE src)
 	OutMainMode = MDIN_OUT_RGB444_8;
 	OutAuxFrmt = GetOutAuxFormat(OutMainFrmt);	// get out-aux format
 	OutAuxMode = GetOutAuxMode(src);
-
-	//memset(&stVideo.stVIEW_m, 0, 8);		// clear stVIEW_m
-	//memset(&stVideo.stVIEW_x, 0, 8);		// clear stVIEW_x
 
 	if((SrcMainFrmt != 0xFF) && (SrcMainFrmt != 0xFE))
 	{
@@ -790,6 +789,7 @@ void SetInputSource(BYTE input)
 void VideoProcessHandler(void)
 {
 	InputSourceHandler(InputSelect);
+	Set_DisplayWindow(GetCurrentDisplayMode());
 //	InputSyncHandler_A(InputSelect);
 //	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
 	VideoFrameProcess(InputSelect);
@@ -803,38 +803,50 @@ void VideoHTXCtrlHandler(void)
 
 void Set_DisplayWindow(eDisplayMode_t displayMode)
 {
+	WORD mainWidth, mainHeight;
+	WORD auxWidth, auxHeight;
+	
 	// initialize each object
 	memset(&stMainVIEW, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 	memset(&stAuxVIEW, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 	memset(&stMainCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 	memset(&stAuxCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 
+	if(SrcMainFrmt == VIDSRC_1920x1080p60)
+	{
+		mainWidth = DISPLAY_WIDTH_1920X1080;
+		mainHeight = DISPLAY_HEIGHT_1920x1080;
+	}
+	else
+	{
+		mainWidth = DISPLAY_WIDTH_1280x720;
+		mainHeight = DISPLAY_HEIGHT_1280x720;
+	}
+
+	if(SrcAuxFrmt == VIDSRC_1920x1080p60)
+	{
+		auxWidth = DISPLAY_WIDTH_1920X1080;
+		auxHeight = DISPLAY_HEIGHT_1920x1080;
+	}
+	else
+	{
+		auxWidth = DISPLAY_WIDTH_1280x720;
+		auxHeight = DISPLAY_HEIGHT_1280x720;
+	}
+	
+	stMainCROP.w = mainWidth;
+	stMainCROP.h = mainHeight;
+	stMainCROP.x = 0;
+	stMainCROP.y = 0;
+
+	stAuxCROP.w = auxWidth;
+	stAuxCROP.h = auxHeight;
+	stAuxCROP.x = 0;
+	stAuxCROP.y = 0;
+
 	switch(displayMode)
 	{
-		case DISPLAY_MODE_FULL_CH1:
-		case DISPLAY_MODE_FULL_CH2:
-			stMainCROP.w = DISPLAY_WIDTH;
-			stMainCROP.h = DISPLAY_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stMainVIEW.w = DISPLAY_WIDTH;
-			stMainVIEW.h = DISPLAY_HEIGHT;
-			stMainVIEW.x = 0;
-			stMainVIEW.y = 0;
-			break;
-
 		case DISPLAY_MODE_SPLIT_A:
-			stMainCROP.w = DISPLAY_WIDTH;
-			stMainCROP.h = DISPLAY_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stAuxCROP.w = DISPLAY_WIDTH;
-			stAuxCROP.h = DISPLAY_HEIGHT;
-			stAuxCROP.x = 0;
-			stAuxCROP.y = 0;
-
 			stMainVIEW.w = DISPLAY_HALF_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;
 			stMainVIEW.x = 0;
@@ -847,13 +859,13 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_SPLIT_B:
-			stMainCROP.w = DISPLAY_HALF_WIDTH;
-			stMainCROP.h = DISPLAY_HEIGHT;
+			stMainCROP.w = mainWidth/2;
+			stMainCROP.h = mainHeight;
 			stMainCROP.x = 0;
 			stMainCROP.y = 0;
 
-			stAuxCROP.w = DISPLAY_HALF_WIDTH;
-			stAuxCROP.h = DISPLAY_HEIGHT;
+			stAuxCROP.w = auxWidth/2;
+			stAuxCROP.h = auxHeight;
 			stAuxCROP.x = 0;
 			stAuxCROP.y = 0;
 
@@ -881,13 +893,13 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_SPLIT_D:
-			stMainCROP.w = DISPLAY_WIDTH;
-			stMainCROP.h = DISPLAY_HALF_HEIGHT;
+			stMainCROP.w = mainWidth;
+			stMainCROP.h = mainHeight/2;
 			stMainCROP.x = 0;
 			stMainCROP.y = 0;
 
-			stAuxCROP.w = DISPLAY_WIDTH;
-			stAuxCROP.h = DISPLAY_HALF_HEIGHT;
+			stAuxCROP.w = auxWidth;
+			stAuxCROP.h = auxHeight/2;
 			stAuxCROP.x = 0;
 			stAuxCROP.y = 0;
 
@@ -903,16 +915,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_SPLIT_E:
-			stMainCROP.w = DISPLAY_WIDTH;
-			stMainCROP.h = DISPLAY_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stAuxCROP.w = DISPLAY_WIDTH;
-			stAuxCROP.h = DISPLAY_HEIGHT;
-			stAuxCROP.x = 0;
-			stAuxCROP.y = 0;
-
 			stMainVIEW.w = DISPLAY_HALF_WIDTH;
 			stMainVIEW.h = DISPLAY_HALF_HEIGHT;
 			stMainVIEW.x = 0;
@@ -925,16 +927,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_PIP_A:
-			stMainCROP.w = DISPLAY_WIDTH;
-			stMainCROP.h = DISPLAY_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stAuxCROP.w = DISPLAY_WIDTH;
-			stAuxCROP.h = DISPLAY_HEIGHT;
-			stAuxCROP.x = 0;
-			stAuxCROP.y = 0;
-
 			stMainVIEW.w = DISPLAY_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;
 			stMainVIEW.x = 0;
@@ -947,16 +939,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_PIP_B:
-			stMainCROP.w = DISPLAY_WIDTH;
-			stMainCROP.h = DISPLAY_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stAuxCROP.w = DISPLAY_WIDTH;
-			stAuxCROP.h = DISPLAY_HEIGHT;
-			stAuxCROP.x = 0;
-			stAuxCROP.y = 0;
-
 			stMainVIEW.w = DISPLAY_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;
 			stMainVIEW.x = 0;
@@ -969,16 +951,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_PIP_C:
-			stMainCROP.w = DISPLAY_WIDTH;
-			stMainCROP.h = DISPLAY_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stAuxCROP.w = DISPLAY_WIDTH;
-			stAuxCROP.h = DISPLAY_HEIGHT;
-			stAuxCROP.x = 0;
-			stAuxCROP.y = 0;
-
 			stMainVIEW.w = DISPLAY_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;
 			stMainVIEW.x = 0;
@@ -991,16 +963,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_PIP_D:
-			stMainCROP.w = DISPLAY_WIDTH;
-			stMainCROP.h = DISPLAY_HEIGHT;
-			stMainCROP.x = 0;
-			stMainCROP.y = 0;
-
-			stAuxCROP.w = DISPLAY_WIDTH;
-			stAuxCROP.h = DISPLAY_HEIGHT;
-			stAuxCROP.x = 0;
-			stAuxCROP.y = 0;
-
 			stMainVIEW.w = DISPLAY_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;
 			stMainVIEW.x = 0;

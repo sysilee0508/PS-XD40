@@ -606,11 +606,15 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 		case TVI_HD_60P:
 		case TVI_HD_30P:
 		case TVI_HD_30P_EX:
+		case TVI_HD_B_30P:
+		case TVI_HD_B_30P_EX:
 			inStr = (u8 *)osdStr_Format_In_TVI_720p30;
 			break;
 		case TVI_HD_50P:
 		case TVI_HD_25P:
 		case TVI_HD_25P_EX:
+		case TVI_HD_B_25P:
+		case TVI_HD_B_25P_EX:
 			inStr = (u8 *)osdStr_Format_In_TVI_720p25;
 			break;
 		case CVI_HD_60P:
