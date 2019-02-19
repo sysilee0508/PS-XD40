@@ -843,7 +843,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	}
 	else
 	{
-		auxWidth = DISPLAY_WIDTH_1920X1080;
+		auxWidth = DISPLAY_WIDTH_1280x720;
 		auxHeight = DISPLAY_HEIGHT_1280x720;
 	}
 	
@@ -998,6 +998,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 	}
 }
+
 #endif	/* defined(SYSTEM_USE_MDIN380) */
 
 /*  FILE_END_HERE */

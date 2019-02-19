@@ -560,7 +560,14 @@ static void OSD_DisplayNoVideo(void)
 //-----------------------------------------------------------------------------
 static u8* GetOutVideoFormatString(void)
 {
-	return (u8 *)osdStr_Format_Out_1080p60;
+	u8* outStr;
+	
+	if((OutMainFrmt == VIDOUT_1920x1080p60) || (OutMainFrmt == VIDOUT_1920x1080p30))
+		outStr = (u8 *)osdStr_Format_Out_1080p60;
+	else
+		outStr = (u8 *)osdStr_Format_Out_1080p50;
+	
+	return outStr;
 }
 
 static u8* GetInVideoFormatString(eChannel_t channel)
