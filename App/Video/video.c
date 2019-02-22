@@ -43,7 +43,6 @@ static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
 
 MDIN_VIDEO_INFO		stVideo;
 MDIN_INTER_WINDOW	stInterWND;
-//MDIN_VIDEO_WINDOW	stZOOM, stCROP;
 
 BYTE AdjInterWND,  InputSelect, InputSelOld,  SrcSyncInfo;
 BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;
@@ -90,7 +89,10 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
 
 	switch(inputFormat)
 	{
-		case AHD20_SD_SH720_NT:
+		case AHD20_SD_H960_NT:
+		case AHD20_SD_H960_EX_NT:
+		case AHD20_SD_H960_2EX_NT:
+		case AHD20_SD_H960_2EX_Btype_NT:
 		case AHD20_1080P_60P:
 		case AHD20_1080P_30P:
 		case AHD20_720P_60P:
@@ -117,7 +119,10 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
 			}
 			break;
 
-		case AHD20_SD_SH720_PAL:
+		case AHD20_SD_H960_PAL:
+		case AHD20_SD_H960_EX_PAL:
+		case AHD20_SD_H960_2EX_PAL:
+		case AHD20_SD_H960_2EX_Btype_PAL:
 		case AHD20_1080P_50P:
 		case AHD20_1080P_25P:
 		case AHD20_720P_50P:
@@ -177,25 +182,18 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 	switch(GetInputVideoFormat(channel))
 	{
 		case AHD20_SD_H960_NT:
-		case AHD20_SD_SH720_NT:
-		case AHD20_SD_H1280_NT:
-		case AHD20_SD_H1440_NT:
 		case AHD20_SD_H960_EX_NT:
 		case AHD20_SD_H960_2EX_NT:
 		case AHD20_SD_H960_2EX_Btype_NT:
-			format = VIDSRC_720x480p60;	//720x480p 60hz
+			format = VIDSRC_960x480i60;	//720x480p 60hz
 			break;
 
 		case AHD20_SD_H960_PAL:
-		case AHD20_SD_SH720_PAL:
-		case AHD20_SD_H1280_PAL:
-		case AHD20_SD_H1440_PAL:
 		case AHD20_SD_H960_EX_PAL:
 		case AHD20_SD_H960_2EX_PAL:
 		case AHD20_SD_H960_2EX_Btype_PAL:
-			format = VIDSRC_720x576p50;	//720x576p 50hz
+			format = VIDSRC_960x576i50;	//720x576p 50hz
 			break;
-
 		case AHD20_1080P_60P:
 		case AHD20_1080P_30P:
 		case TVI_FHD_30P:
@@ -373,22 +371,8 @@ static void MDIN3xx_SetRegInitial(void)
 
 	MDINHTX_SetHDMIBlock(&stVideo);		// initialize HDMI block
 
-#if 0		// temporary blocked by kukuri
-	// define video format of 4CH-display
-	stVideo.st4CH_x.chID  = MDIN_4CHID_IN_SYNC;	 // set CH-ID extract
-	stVideo.st4CH_x.order = MDIN_4CHID_A1A2B1B2; // set CH-ID mapping
-	stVideo.st4CH_x.view  = MDIN_4CHVIEW_ALL;	 // set 4CH view mode
-#endif
 	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
-	MDIN3xx_VideoProcess(&stVideo);			// mdin3xx main video process
-
-	// define window for inter-area (PIP window? kukuri)
-	stInterWND.lx = 315;
-	stInterWND.rx = 405;
-	stInterWND.ly = 90;
-	stInterWND.ry = 150;
-	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
-	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
+	MDIN3xx_VideoProcess(&stVideo);		// mdin3xx main video process
 
 	// define variable for EDK application
 	InputSelOld = 0xff;
@@ -420,12 +404,6 @@ static void SetInVideoPath(BYTE src)
 {
 	switch (src)
 	{
-		case VIDEO_DIGITAL_NVP6158_2CH: //VIDEO_ADCNV_2HD_IN:
-			stVideo.srcPATH = PATH_MAIN_A_AUX_B;
-			stVideo.dacPATH = DAC_PATH_MAIN_PIP;
-			stVideo.encPATH = VENC_PATH_PORT_B;
-			break;
-
 		case VIDEO_DIGITAL_NVP6158_A:
 			stVideo.srcPATH = PATH_MAIN_A_AUX_M;
 			stVideo.dacPATH = DAC_PATH_MAIN_OUT;
@@ -436,6 +414,12 @@ static void SetInVideoPath(BYTE src)
 			stVideo.srcPATH = PATH_MAIN_B_AUX_M;
 			stVideo.dacPATH = DAC_PATH_MAIN_OUT;
 			stVideo.encPATH = VENC_PATH_PORT_X;
+			break;
+			
+		case VIDEO_DIGITAL_NVP6158_2CH:
+			stVideo.srcPATH = PATH_MAIN_A_AUX_B;
+			stVideo.dacPATH = DAC_PATH_MAIN_PIP;
+			stVideo.encPATH = VENC_PATH_PORT_B;
 			break;
 	}
 }
@@ -764,8 +748,14 @@ static void VideoFrameProcess(BYTE src)
 		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
 		MDIN3xx_EnableMainDisplay(ON);
 
-		// Do we need below line? by kukuri
-		SetOSDMenuRefresh();	// for framebuffer map bug
+		if((src == VIDEO_DIGITAL_NVP6158_A) ||(src == VIDEO_DIGITAL_NVP6158_B))
+		{
+			MDIN3xx_EnableAuxWithMainOSD(&stVideo, ON);
+		}
+		else
+		{
+			MDIN3xx_EnableAuxWithMainOSD(&stVideo, OFF);
+		}
 
 		PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
 		PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
@@ -825,28 +815,52 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	memset(&stMainCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 	memset(&stAuxCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 
-	if(SrcMainFrmt == VIDSRC_1920x1080p60)
+	if((SrcMainFrmt == VIDSRC_1920x1080p60) || (SrcMainFrmt == VIDSRC_1920x1080p50))	//1080p
 	{
 		mainWidth = DISPLAY_WIDTH_1920X1080;
 		mainHeight = DISPLAY_HEIGHT_1920x1080;
 	}
-	else
+	else if((SrcMainFrmt == VIDSRC_1280x720p60) ||(SrcMainFrmt == VIDSRC_1280x720p50))	//720p
 	{
-		mainWidth = DISPLAY_WIDTH_1920X1080;//DISPLAY_WIDTH_1280x720;
+		mainWidth = DISPLAY_WIDTH_1280x720*2;
 		mainHeight = DISPLAY_HEIGHT_1280x720;
 	}
+	else //cvbs
+	{
+		mainWidth = DISPLAY_WIDTH_960 * 4;
+		if(SrcMainFrmt == VIDSRC_960x480i60) 
+		{
+			mainHeight = DISPLAY_HEIGHT_480/2;
+		}
+		else
+		{
+			mainHeight = DISPLAY_HEIGHT_576/2;
+		}
+	}
 
-	if(SrcAuxFrmt == VIDSRC_1920x1080p60)
+	if((SrcAuxFrmt == VIDSRC_1920x1080p60) || (SrcAuxFrmt == VIDSRC_1920x1080p50))
 	{
 		auxWidth = DISPLAY_WIDTH_1920X1080;
 		auxHeight = DISPLAY_HEIGHT_1920x1080;
 	}
-	else
+	else if((SrcAuxFrmt == VIDSRC_1280x720p60) ||(SrcAuxFrmt == VIDSRC_1280x720p50))
 	{
-		auxWidth = DISPLAY_WIDTH_1280x720;
+		auxWidth = DISPLAY_WIDTH_1280x720 * 2;
 		auxHeight = DISPLAY_HEIGHT_1280x720;
 	}
-	
+	else 
+	{
+		auxWidth = DISPLAY_WIDTH_960 * 4;
+		if(SrcAuxFrmt == VIDSRC_960x480i60) 
+		{
+			auxHeight = DISPLAY_HEIGHT_480/2;
+		}
+		else
+		{
+			auxHeight = DISPLAY_HEIGHT_576/2;
+		}
+	}
+
 	stMainCROP.w = mainWidth;
 	stMainCROP.h = mainHeight;
 	stMainCROP.x = 0;
@@ -859,14 +873,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 	switch(displayMode)
 	{	
-		case DISPLAY_MODE_FULL_CH1:
-			//stMainCROP.w = 720;
-			//stMainCROP.h = 480;
-			//stMainCROP.x = 0;
-			//stMainCROP.y = 0;
-
-			break;
-			
 		case DISPLAY_MODE_SPLIT_A:
 			stMainVIEW.w = DISPLAY_HALF_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;

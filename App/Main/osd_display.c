@@ -654,9 +654,9 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 			break;
 
 		case AHD20_SD_H960_NT:
-		case AHD20_SD_SH720_NT:
-		case AHD20_SD_H1280_NT:
-		case AHD20_SD_H1440_NT:
+		//case AHD20_SD_SH720_NT:
+		//case AHD20_SD_H1280_NT:
+		//case AHD20_SD_H1440_NT:
 		case AHD20_SD_H960_EX_NT:
 		case AHD20_SD_H960_2EX_NT:
 		case AHD20_SD_H960_2EX_Btype_NT:
@@ -664,9 +664,9 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 			break;
 
 		case AHD20_SD_H960_PAL:
-		case AHD20_SD_SH720_PAL:
-		case AHD20_SD_H1280_PAL:
-		case AHD20_SD_H1440_PAL:
+		//case AHD20_SD_SH720_PAL:
+		//case AHD20_SD_H1280_PAL:
+		//case AHD20_SD_H1440_PAL:
 		case AHD20_SD_H960_EX_PAL:
 		case AHD20_SD_H960_2EX_PAL:
 		case AHD20_SD_H960_2EX_Btype_PAL:
