@@ -182,7 +182,11 @@ MDIN_ERROR_t MDIN3xx_SetSrcVideoPort(PMDIN_VIDEO_INFO pINFO, WORD nID)
 	// set Quality, System
 	pSRC->stATTB.attb &= ~(MDIN_QUALITY_HD|MDIN_VIDEO_SYSTEM);
 	switch (pSRC->frmt) {
+#if defined (IN_960H_MODE)
+		case VIDSRC_960x480i60:		case VIDSRC_960x576i50:
+#else
 		case VIDSRC_720x480i60:		case VIDSRC_720x576i50:
+#endif
 		case VIDSRC_720x480p60:		case VIDSRC_720x576p50:
 			pSRC->stATTB.attb |= (MDIN_QUALITY_SD|MDIN_VIDEO_SYSTEM); break;
 		case VIDSRC_1280x720p60:	case VIDSRC_1280x720p50:
@@ -932,7 +936,11 @@ static MDIN_ERROR_t MDIN3xx_SetIPCCtrlFlags(PMDIN_VIDEO_INFO pINFO)
 	else pIPC->attb |=  MDIN_DEINT_IPC_PROC;
 
 	// set pal-ccs flag, if input is interlace and 50Hz
+#if defined (IN_960H_MODE)
+	if (pSRC->frmt==VIDSRC_960x576i50||pSRC->frmt==VIDSRC_1920x1080i50)
+#else
 	if (pSRC->frmt==VIDSRC_720x576i50||pSRC->frmt==VIDSRC_1920x1080i50)
+#endif
 		 pIPC->attb |=  MDIN_DEINT_PAL_CCS;
 	else pIPC->attb &= ~MDIN_DEINT_PAL_CCS;
 
@@ -974,10 +982,11 @@ static MDIN_ERROR_t MDIN3xx_SetIPCCtrlFlags(PMDIN_VIDEO_INFO pINFO)
 	else pIPC->attb &= ~MDIN_DEINT_PROG_IPC;
 	
 	// set frc down flag, if output is 720p30,25,1080p30 // 05Apr2012
-/*	if (pOUT->frmt==VIDOUT_1280x720p30||pOUT->frmt==VIDOUT_1280x720p25||//pOUT->frmt==VIDOUT_1280x720p24||	  //by hungry 2012.05.14
+	if (pOUT->frmt==VIDOUT_1280x720p30||pOUT->frmt==VIDOUT_1280x720p25||//pOUT->frmt==VIDOUT_1280x720p24||	  //by hungry 2012.05.14
 	  pOUT->frmt==VIDOUT_1920x1080p30||pOUT->frmt==VIDOUT_1920x1080p25||pOUT->frmt==VIDOUT_1920x1080p24)
 	   pIPC->fine |= MDIN_DEINT_FRC_DOWN;
-	else */pIPC->fine &= ~MDIN_DEINT_FRC_DOWN;
+	else 
+		pIPC->fine &= ~MDIN_DEINT_FRC_DOWN;
 		
 	return MDIN_NO_ERROR;
 }

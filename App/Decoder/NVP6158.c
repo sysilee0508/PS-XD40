@@ -234,7 +234,7 @@ void NC_VD_VO_Mode_Set_New( unsigned char ch, unsigned char devnum, unsigned cha
 	{
 		VOutClk.port = port;	// PORT_A, PORTB, PORTC, PORTD
 		VOutClk.devnum = devnum;
-    	VOutClk.clk_sel = pPortFmt->vo_clk;	//[7:4] Port Clock SEL, [3:0] Port Clock Delay
+    		VOutClk.clk_sel = pPortFmt->vo_clk;	//[7:4] Port Clock SEL, [3:0] Port Clock Delay
 		video_out_auto_vclk_set(&VOutClk);
     }
 	else// BT1120

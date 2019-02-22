@@ -185,6 +185,7 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 		case AHD20_SD_H960_EX_NT:
 		case AHD20_SD_H960_2EX_NT:
 		case AHD20_SD_H960_2EX_Btype_NT:
+			//format = VIDSRC_720x480i60;
 			format = VIDSRC_960x480i60;	//720x480p 60hz
 			break;
 
@@ -192,6 +193,7 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 		case AHD20_SD_H960_EX_PAL:
 		case AHD20_SD_H960_2EX_PAL:
 		case AHD20_SD_H960_2EX_Btype_PAL:
+			//format = VIDSRC_720x576i50;
 			format = VIDSRC_960x576i50;	//720x576p 50hz
 			break;
 		case AHD20_1080P_60P:
@@ -371,8 +373,24 @@ static void MDIN3xx_SetRegInitial(void)
 
 	MDINHTX_SetHDMIBlock(&stVideo);		// initialize HDMI block
 
+#if 0		// temporary blocked by kukuri
+	// define video format of 4CH-display
+	stVideo.st4CH_x.chID  = MDIN_4CHID_IN_SYNC;	 // set CH-ID extract
+	stVideo.st4CH_x.order = MDIN_4CHID_A1A2B1B2; // set CH-ID mapping
+	stVideo.st4CH_x.view  = MDIN_4CHVIEW_ALL;	 // set 4CH view mode
+#endif
 	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
-	MDIN3xx_VideoProcess(&stVideo);		// mdin3xx main video process
+	MDIN3xx_VideoProcess(&stVideo);			// mdin3xx main video process
+
+/*
+	// define window for inter-area (PIP window? kukuri)
+	stInterWND.lx = 315;
+	stInterWND.rx = 405;
+	stInterWND.ly = 90;
+	stInterWND.ry = 150;
+	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
+	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
+*/
 
 	// define variable for EDK application
 	InputSelOld = 0xff;
@@ -815,17 +833,17 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	memset(&stMainCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 	memset(&stAuxCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 
-	if((SrcMainFrmt == VIDSRC_1920x1080p60) || (SrcMainFrmt == VIDSRC_1920x1080p50))	//1080p
+	if((SrcMainFrmt == VIDSRC_1920x1080p60) || (SrcMainFrmt == VIDSRC_1920x1080p50))
 	{
 		mainWidth = DISPLAY_WIDTH_1920X1080;
 		mainHeight = DISPLAY_HEIGHT_1920x1080;
 	}
-	else if((SrcMainFrmt == VIDSRC_1280x720p60) ||(SrcMainFrmt == VIDSRC_1280x720p50))	//720p
+	else if((SrcMainFrmt == VIDSRC_1280x720p60) ||(SrcMainFrmt == VIDSRC_1280x720p50))
 	{
 		mainWidth = DISPLAY_WIDTH_1280x720*2;
 		mainHeight = DISPLAY_HEIGHT_1280x720;
 	}
-	else //cvbs
+	else 
 	{
 		mainWidth = DISPLAY_WIDTH_960 * 4;
 		if(SrcMainFrmt == VIDSRC_960x480i60) 

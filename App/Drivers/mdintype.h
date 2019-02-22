@@ -91,6 +91,7 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 */
 #endif
 
+#define 	IN_960H_MODE	// added by kukuri s
 #ifdef		SYSTEM_USE_MDIN380
 //#define 	SYSTEM_USE_BUS_HIF			// for use BUS-IF & I2C-IF
 //#define 	SYSTEM_USE_PCI_HIF			// for use PCI-IF & I2C-IF
