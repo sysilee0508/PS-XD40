@@ -766,15 +766,8 @@ static void VideoFrameProcess(BYTE src)
 		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
 		MDIN3xx_EnableMainDisplay(ON);
 
-		if((src == VIDEO_DIGITAL_NVP6158_A) ||(src == VIDEO_DIGITAL_NVP6158_B))
-		{
-			MDIN3xx_EnableAuxWithMainOSD(&stVideo, ON);
-		}
-		else
-		{
-			MDIN3xx_EnableAuxWithMainOSD(&stVideo, OFF);
-		}
-
+		SetOSDMenuRefresh();
+		
 		PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
 		PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
 
