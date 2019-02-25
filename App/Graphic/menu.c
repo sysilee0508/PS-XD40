@@ -213,6 +213,7 @@ WORD GetOSDMenuID(void)
 }
 
 //--------------------------------------------------------------------------------------------------
+#if 0
 WORD GetMenuStatus(BYTE nID, BYTE sID)
 {
 	if (nID==1) return demoIPCMode[sID-1];
@@ -226,7 +227,7 @@ WORD GetMenuStatus(BYTE nID, BYTE sID)
 	if (nID==8) return demoAudio[sID-1];		 //by hungry 2012.03.14
 	return 0;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------------
 void SetMenuStatus(BYTE nID, BYTE sID, BYTE val)
 {

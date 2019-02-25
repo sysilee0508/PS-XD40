@@ -18,7 +18,8 @@ typedef enum
 	CHANNEL3,
 	CHANNEL4,
 	NUM_OF_CHANNEL,
-	CHANNEL_SPLIT
+	CHANNEL_SPLIT,
+	CHANNEL_NONE = 0xFF
 } eChannel_t;
 
 extern s8 Video1_In_Res_Val;

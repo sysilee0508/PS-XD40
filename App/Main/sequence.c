@@ -1,13 +1,13 @@
 #include "common.h"
 
-#define SKIP_CHANNEL				0xFF
+//#define SKIP_CHANNEL				CHANNEL_NONE
 #define NO_SKIP_CHANNEL				0x00
 #define DEFAULT_DISPLAY_TIME		3
 
 static eAutoSeqType_t autoSeqStatus = AUTO_SEQ_NONE;
 static u8 autoSeqOn = CLEAR;
-static u8 displayTime[NUM_OF_CHANNEL] = 0;
-static eChannel_t displayChannel = 0xFF;
+static u8 displayTime[NUM_OF_CHANNEL] = {0,};
+static eChannel_t displayChannel = CHANNEL_NONE;
 static u8 oldSkipChannels = NO_SKIP_CHANNEL;
 
 //-----------------------------------------------------------------------------
@@ -17,7 +17,7 @@ static u8 oldSkipChannels = NO_SKIP_CHANNEL;
 static void InitializeAutoSeq_Normal(void)
 {
 	BOOL skipOn;
-	u8 videoLossChannel;
+	//u8 videoLossChannel;
 	eChannel_t iChannel;
 	eDisplayMode_t displayMode;
 
@@ -31,12 +31,12 @@ static void InitializeAutoSeq_Normal(void)
 	//Find video loss channels
 	if(ON == skipOn)
 	{
-		videoLossChannel = GetVideoLossChannels();
+		//videoLossChannel = GetVideoLossChannels();
 		for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
 		{
 			if(IsVideoLossChannel(iChannel) == TRUE)
 			{
-				displayTime[iChannel] = SKIP_CHANNEL;
+				displayTime[iChannel] = CHANNEL_NONE;
 			}
 		}
 	}
@@ -60,7 +60,7 @@ static void InitializeAutoSeq_Normal(void)
 	}
 	
 	// check displayChannel is valuable. If not, move to next channel
-	while((displayTime[displayChannel] == 0) || ((displayTime[displayChannel] == SKIP_CHANNEL) && (ON == skipOn)))
+	while((displayTime[displayChannel] == 0) || ((displayTime[displayChannel] == CHANNEL_NONE) && (ON == skipOn)))
 	{
 		// move to next channel
 		displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
@@ -77,8 +77,6 @@ static void InitializeAutoSeq_Normal(void)
 
 static void InitializeAutoSeq_Alarm(void)
 {
-	eChannel_t channel;
-
 	memset(displayTime, 0x00, sizeof(displayTime));
 	if(GetLastAlarmChannel() < NUM_OF_CHANNEL)
 	{
@@ -90,11 +88,6 @@ static void InitializeAutoSeq_Alarm(void)
 		DisplayMode_FullScreen(displayChannel);
 	}
 }
-
-//static void InitializeAutoSeq_Motion(void)
-//{
-//	autoSeqStatus = AUTO_SEQ_MOTION;
-//}
 
 //-----------------------------------------------------------------------------
 void InitializeAutoSeq(eAutoSeqType_t type)
@@ -143,7 +136,7 @@ void UpdateAutoSeqDisplayTime(void)
 			{
 				if(IsVideoLossChannel(iChannel) == TRUE)
 				{
-					displayTime[iChannel] = SKIP_CHANNEL;
+					displayTime[iChannel] = CHANNEL_NONE;
 				}
 				else
 				{
@@ -167,7 +160,7 @@ void UpdateAutoSeqCount(void)
 
 	if(TIME_AFTER(currentSystemTime->tickCount_1s,previousSystemTimeIn1s,1))
 	{
-		if(((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)) && (displayTime[displayChannel] != SKIP_CHANNEL))
+		if(((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)) && (displayTime[displayChannel] != CHANNEL_NONE))
 		{
 			if(displayTime[displayChannel] > 0)
 			{
@@ -183,7 +176,7 @@ void UpdateAutoSeqCount(void)
 					do
 					{
 						displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
-					} while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == SKIP_CHANNEL));
+					} while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == CHANNEL_NONE));
 				}
 				else if(autoSeqStatus == AUTO_SEQ_ALARM)
 				{

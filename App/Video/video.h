@@ -163,7 +163,7 @@ void VideoSetIPCNoiseRobust2(BOOL OnOff);
 void VideoSetIPCSlowMotion(BOOL OnOff);
 void VideoSDITXCtrlHandler(void);	   	//by hungry 2012.02.23
 void SetVideoOutputfrmt(BYTE frmt);
-
+void SetSrcMainFrmt(BYTE frmt);
 
 void UpdateVideoResolution(eResolution_t resolution);
 //void Change_Main_Aux_Input(BYTE sel);

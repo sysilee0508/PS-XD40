@@ -2,6 +2,8 @@
 // Include files
 // ----------------------------------------------------------------------
 #include "common.h"
+
+#if 1
 void VS4210_Input720P_Output720P_Mode1_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -973,7 +975,8 @@ void VS4210_Input720P_Output720P_Mode1_w3(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+#endif
+/*
 void VS4210_Input720P_Output720P_Mode4_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -1216,7 +1219,7 @@ void VS4210_Input720P_Output720P_Mode4_w0(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+*/
 void VS4210_Input720P_Output720P_Mode4_w0_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -2185,7 +2188,7 @@ void VS4210_Input720P_Output720P_Mode4_w3(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+/*
 void VS4210_Input720P_Output720P_Mode5_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -2428,7 +2431,7 @@ void VS4210_Input720P_Output720P_Mode5_w0(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+*/
 void VS4210_Input720P_Output720P_Mode5_w0_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -3400,7 +3403,7 @@ void VS4210_Input720P_Output720P_Mode5_w3(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+/*
 void VS4210_Input720P_Output720P_Mode6_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -3643,7 +3646,7 @@ void VS4210_Input720P_Output720P_Mode6_w0(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+*/
 void VS4210_Input720P_Output720P_Mode6_w0_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -4615,7 +4618,7 @@ void VS4210_Input720P_Output720P_Mode6_w3(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+/*
 void VS4210_Input720P_Output720P_Mode7_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -4858,7 +4861,7 @@ void VS4210_Input720P_Output720P_Mode7_w0(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+*/
 void VS4210_Input720P_Output720P_Mode7_w0_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -5830,7 +5833,7 @@ void VS4210_Input720P_Output720P_Mode7_w3(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+/*
 void VS4210_Input720P_Output720P_Mode8_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -6073,7 +6076,7 @@ void VS4210_Input720P_Output720P_Mode8_w0(void)
 	I2C_WRITE(0x40,0xFF,0x07);
 	I2C_WRITE(0x40,0xFE,0x70);
 }
-
+*/
 void VS4210_Input720P_Output720P_Mode8_w0_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -6802,7 +6805,7 @@ void VS4210_Input720P_Output720P_Mode8_w2(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+/*
 void VS4210_Input720P_Output720P_Mode9_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -7045,7 +7048,7 @@ void VS4210_Input720P_Output720P_Mode9_w0(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+*/
 void VS4210_Input720P_Output720P_Mode9_w0_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -7774,7 +7777,7 @@ void VS4210_Input720P_Output720P_Mode9_w2(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+/*
 void VS4210_Input720P_Output720P_Mode10_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -8017,7 +8020,7 @@ void VS4210_Input720P_Output720P_Mode10_w0(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+*/
 void VS4210_Input720P_Output720P_Mode10_w0_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -8747,7 +8750,7 @@ void VS4210_Input720P_Output720P_Mode10_w2(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+/*
 void VS4210_Input720P_Output720P_Mode11_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -8990,7 +8993,7 @@ void VS4210_Input720P_Output720P_Mode11_w0(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+*/
 void VS4210_Input720P_Output720P_Mode11_w0_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -9962,7 +9965,7 @@ void VS4210_Input720P_Output720P_Mode12_w0(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+/*
 void VS4210_Input720P_Output720P_Mode12_w0_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -10205,7 +10208,7 @@ void VS4210_Input720P_Output720P_Mode12_w0_cropping(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+*/
 void VS4210_Input720P_Output720P_Mode12_w1(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -10448,7 +10451,7 @@ void VS4210_Input720P_Output720P_Mode12_w1(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+/*
 void VS4210_Input720P_Output720P_Mode12_w1_cropping(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);
@@ -10691,7 +10694,7 @@ void VS4210_Input720P_Output720P_Mode12_w1_cropping(void)
 	I2C_WRITE(0x40,0xFE,0x70);
 	I2C_WRITE(0x40,0xFF,0x07);
 }
-
+*/
 void VS4210_Input720P_Output1080P_Mode0_w0(void)
 {
 	I2C_WRITE(0x40,0x01,0x00);

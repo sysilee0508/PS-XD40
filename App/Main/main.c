@@ -73,7 +73,7 @@ static void PlayBuzzer(void)
 //=============================================================================
 void main(void)
 {
-	eResolution_t videoOutResolution;
+	//eResolution_t videoOutResolution;
 
 	// initialize STM32F103x
 	MCU_init();

@@ -635,8 +635,8 @@ static void VideoFrameProcess(BYTE src)
 		//if(sys_status.current_split_mode != FULL_9) MDIN3xx_EnableMainDisplay(ON);
 
 		// if src is 2HD input or dual display, trigger soft-reset.
-		if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) 
-			MDIN3xx_SoftReset();
+		//if (src==VIDEO_ADCNV_2HD_IN||GetMenuStatus(4,4)) 
+		//	MDIN3xx_SoftReset();
 
 		// Do we need below line? by kukuri
 		SetOSDMenuRefresh();	// for framebuffer map bug

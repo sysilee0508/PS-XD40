@@ -954,9 +954,11 @@ static MDIN_ERROR_t MDIN3xx_SetIPCCtrlFlags(PMDIN_VIDEO_INFO pINFO)
 	else pIPC->attb &= ~MDIN_DEINT_DN_SCALE;
 
 	// set hd-1080i flag, if source is 1080i
-	if (pSRC->frmt==VIDSRC_1920x1080i60||pSRC->frmt==VIDSRC_1920x1080i50)
-		 pIPC->attb |=  MDIN_DEINT_HD_1080i;
-	else pIPC->attb &= ~MDIN_DEINT_HD_1080i;
+//	if (pSRC->frmt==VIDSRC_1920x1080i60||pSRC->frmt==VIDSRC_1920x1080i50)
+//		 pIPC->attb |=  MDIN_DEINT_HD_1080i;
+//	else pIPC->attb &= ~MDIN_DEINT_HD_1080i;
+	pIPC->attb &= ~MDIN_DEINT_HD_1080i;
+
 
 	// set hd-1080p flag, if source is 1080p
 	if (pSRC->frmt==VIDSRC_1920x1080p60||pSRC->frmt==VIDSRC_1920x1080p50)
