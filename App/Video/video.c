@@ -338,6 +338,11 @@ static BYTE GetSrcMainFrmt(BYTE src)
 	return SrcMainFrmt;
 }
 
+void SetSrcMainFrmt(BYTE frmt)
+{
+	SrcMainFrmt = frmt;
+}
+
 //--------------------------------------------------------------------------------------------------
 static BYTE GetSrcAuxMode(BYTE src)
 {
