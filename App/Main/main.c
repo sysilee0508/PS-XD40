@@ -130,7 +130,7 @@ void main(void)
 		NVP6158_VideoDetectionProc();
 		Delay_ms(1);
 		// check video loss
-//		ScanVideoLossChannels();
+		ScanVideoLossChannels();
 		UpdateDisplayMode();
 		// video process handler
 		VideoProcessHandler();

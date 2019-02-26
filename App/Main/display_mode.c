@@ -15,8 +15,8 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
-static eDisplayMode_t systemDisplayMode = DISPLAY_MODE_FULL_CH1;
-static eChannel_t systemDisplayChannel = CHANNEL1;
+//static eDisplayMode_t systemDisplayMode = DISPLAY_MODE_FULL_CH1;
+//static eChannel_t systemDisplayChannel = CHANNEL1;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -68,9 +68,11 @@ void UpdateDisplayMode(void)
 {
 	if(Check_VideoFormat_Change() == TRUE)
 	{
+		OSD_RefreshScreen();
+		SetInputChanged();
 		InitInputSource();
 		DisplayScreen(GetCurrentDisplayMode());
-		Delay_ms(500);
+//		Delay_ms(500);
 	}
 }
 

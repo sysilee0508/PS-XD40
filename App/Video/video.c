@@ -57,10 +57,6 @@ BOOL fInputChanged;
 MDIN_VIDEO_WINDOW stMainVIEW, stAuxVIEW;
 MDIN_VIDEO_WINDOW stMainCROP, stAuxCROP;
 
-#define PIP_WINDOW_WIDTH			DISPLAY_WIDTH/3
-#define PIP_WINDOW_HEIGHT			DISPLAY_HEIGHT/3
-#define PIP_POSITION_MARGIN		100
-
 
 // ----------------------------------------------------------------------
 // External Variable 
@@ -796,9 +792,13 @@ void InitInputSource(void)
 void SetInputSource(BYTE input)
 {
 	InputSelect = input;
-	fInputChanged = TRUE;
+//	fInputChanged = TRUE;
 }
 
+void SetInputChanged(void)
+{
+	fInputChanged = TRUE;
+}
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
 {
