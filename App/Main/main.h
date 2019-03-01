@@ -27,7 +27,7 @@ typedef enum
 	PIP_B,
 	PIP_C,
 	PIP_D,
-	NUM_OF_PIF
+	NUM_OF_PIP
 } ePip_t;
 extern s8 videoOutResolution;
 

@@ -897,7 +897,7 @@ void video_input_ahd_tvi_distinguish(decoder_dev_ch_info_s *decoder_info);
 void video_input_contrast_off(decoder_dev_ch_info_s *decoder_info);
 void video_input_vafe_control(decoder_dev_ch_info_s *decoder_info, int cmd);
 void video_input_vfc_read(video_input_vfc *vin_vfc);
-void video_output_colorbar_set( void );
+void video_output_colorbar_set( unsigned char on_off );
 void video_input_novid_read(video_input_novid *vin_novid);
 void video_input_onvideo_set(decoder_dev_ch_info_s *decoder_info);
 void video_input_h_timing_set(decoder_dev_ch_info_s *pDevChInfo);

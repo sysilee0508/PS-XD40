@@ -457,6 +457,9 @@ static BYTE GetSrcMainFrmt(BYTE src)
 			currentMainFrmt = GetInSourceFormat(CHANNEL1);//stVideo.stSRC_a.frmt;
 			break;
 
+		default:
+			currentMainFrmt = VIDSRC_1920x1080p60;
+			break;
 	}
 
 	return currentMainFrmt;
@@ -741,8 +744,8 @@ static void VideoFrameProcess(BYTE src)
 
 		//MDIN3xx_SetScaleProcess(&stVideo);
 
-		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-		MDIN3xx_EnableMainDisplay(OFF);
+//		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
+//		MDIN3xx_EnableMainDisplay(OFF);
 
 		SetOffChipFrmt(src);		// set InA offchip format
 		SetSrcMainFine(src);		// set source video fine (fldid, offset)
@@ -762,7 +765,7 @@ static void VideoFrameProcess(BYTE src)
 		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
 		MDIN3xx_EnableMainDisplay(ON);
 
-		SetOSDMenuRefresh();
+		//SetOSDMenuRefresh();
 		
 		PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
 		PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
@@ -807,6 +810,7 @@ void VideoProcessHandler(void)
 //	InputSyncHandler_A(InputSelect);
 //	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
 	VideoFrameProcess(InputSelect);
+	SetOSDMenuRefresh();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1012,7 +1016,18 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stAuxVIEW.y = PIP_POSITION_MARGIN;
 			break;
 
+		default:
+			stMainVIEW.w = DISPLAY_WIDTH;
+			stMainVIEW.h = DISPLAY_HEIGHT;
+			stMainVIEW.x = 0;
+			stMainVIEW.y = 0;
 
+			stAuxVIEW.w = DISPLAY_WIDTH;
+			stAuxVIEW.h = DISPLAY_HEIGHT;
+			stAuxVIEW.x = 0;
+			stAuxVIEW.y = 0;
+
+			break;
 	}
 }
 

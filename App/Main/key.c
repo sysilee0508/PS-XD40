@@ -230,6 +230,7 @@ void Key_Proc(void)
 					OSD_EraseAllText();
 					OSD_RefreshScreen();
 					DisplayScreen((eChannel_t)(key - 1));
+					SetInputChanged();
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -248,10 +249,11 @@ void Key_Proc(void)
 				}
 				else
 				{
-					split = ++split % (NUM_OF_SPLIT+NUM_OF_PIF);
+					split = ++split % (NUM_OF_SPLIT+NUM_OF_PIP);
 				}
 				OSD_RefreshScreen();
 				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
+				SetInputChanged();
 				OSD_DrawBorderLine();
 				break;
 /*

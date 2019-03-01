@@ -468,7 +468,7 @@ void NVP6158_init(void)
 	}
 
 	/* set black screen */
-	video_output_colorbar_set();
+	video_output_colorbar_set(FUNC_ON);
 
 	/* set initialization value  */
 	for(ch = 0; ch < 4; ch++)
