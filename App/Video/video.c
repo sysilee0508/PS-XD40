@@ -9,6 +9,7 @@
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
 #define GPIO_JUMP				GPIO_Pin_1	//PC1
+#define COMPENSATION_MARGIN	10
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -51,7 +52,7 @@ BYTE SrcAuxFrmt, PrevSrcAuxFrmt, SrcAuxMode, PrevSrcAuxMode;
 BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
 BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 BYTE TempOutMainMode;		// 28Dec2011
-BOOL fSyncParsed;
+//BOOL fSyncParsed;
 BOOL fInputChanged;
 
 MDIN_VIDEO_WINDOW stMainVIEW, stAuxVIEW;
@@ -173,7 +174,7 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutAuxFormat(MDIN_OUTVIDEO_FORMAT_t videoOut)
 
 static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 {
-	MDIN_SRCVIDEO_FORMAT_t format = VIDSRC_1920x1080p60;
+	static MDIN_SRCVIDEO_FORMAT_t format[NUM_OF_CHANNEL] = {VIDSRC_1280x720p60, VIDSRC_1280x720p60};
 
 	switch(GetInputVideoFormat(channel))
 	{
@@ -181,29 +182,27 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 		case AHD20_SD_H960_EX_NT:
 		case AHD20_SD_H960_2EX_NT:
 		case AHD20_SD_H960_2EX_Btype_NT:
-			//format = VIDSRC_720x480i60;
-			format = VIDSRC_960x480i60;	//720x480p 60hz
+			format[channel] = VIDSRC_960x480i60;	//720x480p 60hz
 			break;
 
 		case AHD20_SD_H960_PAL:
 		case AHD20_SD_H960_EX_PAL:
 		case AHD20_SD_H960_2EX_PAL:
 		case AHD20_SD_H960_2EX_Btype_PAL:
-			//format = VIDSRC_720x576i50;
-			format = VIDSRC_960x576i50;	//720x576p 50hz
+			format[channel] = VIDSRC_960x576i50;	//720x576p 50hz
 			break;
 		case AHD20_1080P_60P:
 		case AHD20_1080P_30P:
 		case TVI_FHD_30P:
 		case CVI_FHD_30P:
-			format = VIDSRC_1920x1080p60;	//1080p60
+			format[channel] = VIDSRC_1920x1080p60;	//1080p60
 			break;
 
 		case AHD20_1080P_50P:
 		case AHD20_1080P_25P:
 		case TVI_FHD_25P:
 		case CVI_FHD_25P:
-			format = VIDSRC_1920x1080p50;	//1080p50
+			format[channel] = VIDSRC_1920x1080p50;	//1080p50
 			break;
 
 		case AHD20_720P_60P:
@@ -218,7 +217,7 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 		case CVI_HD_60P:
 		case CVI_HD_30P:
 		case CVI_HD_30P_EX:
-			format = VIDSRC_1280x720p60;	//720p60
+			format[channel] = VIDSRC_1280x720p60;	//720p60
 			break;
 
 		case AHD20_720P_50P:
@@ -233,10 +232,15 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 		case CVI_HD_50P:
 		case CVI_HD_25P:
 		case CVI_HD_25P_EX:
-			format = VIDSRC_1280x720p50;	//720p50
+			format[channel] = VIDSRC_1280x720p50;	//720p50
+			break;
+
+		default:
+			format[channel] = VIDSRC_1280x720p60;
 			break;
 	}
-	return format;
+
+	return format[channel];
 }
 
 static void MDIN3xx_SetRegInitial(void)
@@ -293,16 +297,18 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
 	// define video format of PORTA-INPUT
-	stVideo.stSRC_a.frmt = VIDSRC_1920x1080p60;
+	stVideo.stSRC_a.frmt = VIDSRC_1280x720p60;
 	stVideo.stSRC_a.mode = MDIN_SRC_MUX656_8;
-	stVideo.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	//stVideo.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	stVideo.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
 	stVideo.stSRC_a.offH = 0;
 	stVideo.stSRC_a.offV = 0;
 
 	// define video format of PORTB-INPUT
-	stVideo.stSRC_b.frmt = VIDSRC_1920x1080p60;
+	stVideo.stSRC_b.frmt = VIDSRC_1280x720p60;
 	stVideo.stSRC_b.mode = MDIN_SRC_MUX656_8;
-	stVideo.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	//stVideo.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	stVideo.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
 	stVideo.stSRC_b.offH = 0;
 	stVideo.stSRC_b.offV = 0;
 
@@ -389,7 +395,7 @@ static void MDIN3xx_SetRegInitial(void)
 */
 
 	// define variable for EDK application
-	InputSelOld = 0xff;
+//	InputSelOld = 0xff;
 	InputSelect = VIDEO_DIGITAL_NVP6158_A;
 
 	PrevSrcMainFrmt = 0xff;
@@ -458,7 +464,7 @@ static BYTE GetSrcMainFrmt(BYTE src)
 			break;
 
 		default:
-			currentMainFrmt = VIDSRC_1920x1080p60;
+			currentMainFrmt = VIDSRC_1280x720p60;
 			break;
 	}
 
@@ -532,9 +538,8 @@ static void InputSourceHandler(BYTE src)
 {
 	if(fInputChanged != TRUE)  return;
 
-	fInputChanged = FALSE;
 	SetInVideoPath(src);
-	
+
 	// source : main
 	SrcMainMode = MDIN_SRC_MUX656_8; // this is fixed (never changed)
 	SrcMainFrmt = GetSrcMainFrmt(src);
@@ -547,15 +552,9 @@ static void InputSourceHandler(BYTE src)
 	OutAuxFrmt = GetOutAuxFormat(OutMainFrmt);	// get out-aux format
 	OutAuxMode = GetOutAuxMode(src);
 
-	if((SrcMainFrmt != 0xFF) && (SrcMainFrmt != 0xFE))
-	{
-		fSyncParsed = TRUE;
-	}
-	else
-	{
-		fSyncParsed = FALSE;
-	}
+	Set_DisplayWindow(GetCurrentDisplayMode());
 	InputSelOld = src;
+
 	PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;
 }
 
@@ -698,7 +697,8 @@ static void SetOSDMenuRefresh(void)
 //--------------------------------------------------------------------------------------------------
 static void VideoFrameProcess(BYTE src)
 {
-	if (fSyncParsed==FALSE) return;		// wait for sync detection
+	//if (fSyncParsed==FALSE) return;		// wait for sync detection
+	if(fInputChanged == FALSE) return;
 
 	if (EncVideoFrmt!=PrevEncFrmt)
 	{
@@ -744,11 +744,11 @@ static void VideoFrameProcess(BYTE src)
 
 		//MDIN3xx_SetScaleProcess(&stVideo);
 
-//		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
-//		MDIN3xx_EnableMainDisplay(OFF);
+		MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
+		MDIN3xx_EnableMainDisplay(OFF);
 
-		SetOffChipFrmt(src);		// set InA offchip format
-		SetSrcMainFine(src);		// set source video fine (fldid, offset)
+		//SetOffChipFrmt(src);		// set InA offchip format
+		//SetSrcMainFine(src);		// set source video fine (fldid, offset)
 
 		if (OutMainFrmt!=PrevOutMainFrmt) {
 			stVideo.pHY_m		= 	NULL;		// restore MFCHY from API
@@ -806,11 +806,11 @@ void SetInputChanged(void)
 void VideoProcessHandler(void)
 {
 	InputSourceHandler(InputSelect);
-	Set_DisplayWindow(GetCurrentDisplayMode());
 //	InputSyncHandler_A(InputSelect);
 //	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
 	VideoFrameProcess(InputSelect);
 	SetOSDMenuRefresh();
+	fInputChanged = FALSE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -830,49 +830,76 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	memset(&stMainCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 	memset(&stAuxCROP, 0x00, sizeof(MDIN_VIDEO_WINDOW));
 
-	if((SrcMainFrmt == VIDSRC_1920x1080p60) || (SrcMainFrmt == VIDSRC_1920x1080p50))
+	switch(SrcMainFrmt)
 	{
-		mainWidth = DISPLAY_WIDTH_1920X1080;
-		mainHeight = DISPLAY_HEIGHT_1920x1080;
-	}
-	else if((SrcMainFrmt == VIDSRC_1280x720p60) ||(SrcMainFrmt == VIDSRC_1280x720p50))
-	{
-		mainWidth = DISPLAY_WIDTH_1280x720*2;
-		mainHeight = DISPLAY_HEIGHT_1280x720;
-	}
-	else 
-	{
-		mainWidth = DISPLAY_WIDTH_960 * 4;
-		if(SrcMainFrmt == VIDSRC_960x480i60) 
-		{
+		case VIDSRC_1920x1080p60:
+		case VIDSRC_1920x1080p50:
+			mainWidth = DISPLAY_WIDTH_1920X1080 - COMPENSATION_MARGIN;
+			mainHeight = DISPLAY_HEIGHT_1920x1080;
+			break;
+
+		case VIDSRC_1280x720p60:
+		case VIDSRC_1280x720p50:
+			mainWidth = DISPLAY_WIDTH_1280x720*2 - COMPENSATION_MARGIN;
+			mainHeight = DISPLAY_HEIGHT_1280x720;
+			break;
+
+		case VIDSRC_960x480i60:
+			mainWidth = DISPLAY_WIDTH_960*4;
 			mainHeight = DISPLAY_HEIGHT_480/2;
-		}
-		else
-		{
+			break;
+
+		case VIDSRC_960x576i50:
+			mainWidth = DISPLAY_WIDTH_960*4;
 			mainHeight = DISPLAY_HEIGHT_576/2;
-		}
+			break;
 	}
 
-	if((SrcAuxFrmt == VIDSRC_1920x1080p60) || (SrcAuxFrmt == VIDSRC_1920x1080p50))
+	switch(SrcAuxFrmt)
 	{
-		auxWidth = DISPLAY_WIDTH_1920X1080;
-		auxHeight = DISPLAY_HEIGHT_1920x1080;
-	}
-	else if((SrcAuxFrmt == VIDSRC_1280x720p60) ||(SrcAuxFrmt == VIDSRC_1280x720p50))
-	{
-		auxWidth = DISPLAY_WIDTH_1280x720 * 2;
-		auxHeight = DISPLAY_HEIGHT_1280x720;
-	}
-	else 
-	{
-		auxWidth = DISPLAY_WIDTH_960 * 4;
-		if(SrcAuxFrmt == VIDSRC_960x480i60) 
-		{
+		case VIDSRC_1920x1080p60:
+		case VIDSRC_1920x1080p50:
+			auxWidth = DISPLAY_WIDTH_1920X1080 - COMPENSATION_MARGIN;
+			auxHeight = DISPLAY_HEIGHT_1920x1080;
+			break;
+
+		case VIDSRC_1280x720p60:
+		case VIDSRC_1280x720p50:
+			auxWidth = DISPLAY_WIDTH_1280x720 - COMPENSATION_MARGIN;
+			auxHeight = DISPLAY_HEIGHT_1280x720;
+			break;
+
+		case VIDSRC_960x480i60:
+			auxWidth = DISPLAY_WIDTH_960 * 4;
 			auxHeight = DISPLAY_HEIGHT_480/2;
+			break;
+
+		case VIDSRC_960x576i50:
+			auxWidth = DISPLAY_WIDTH_960 * 4;
+			auxHeight = DISPLAY_HEIGHT_576/2;
+			break;
+	}
+
+	//Check video loss channel
+	if(IsVideoLossChannel(CHANNEL1) == TRUE)
+	{
+		// channel 1 is always main
+		mainWidth = DISPLAY_WIDTH_1280x720;
+		mainHeight = DISPLAY_HEIGHT_1280x720;
+	}
+
+	if(IsVideoLossChannel(CHANNEL2) == TRUE)
+	{
+		// channel2 is main or aux?
+		if(displayMode == DISPLAY_MODE_FULL_CH2)
+		{
+			mainWidth = DISPLAY_WIDTH_1280x720*2;
+			mainHeight = DISPLAY_HEIGHT_1280x720;
 		}
 		else
 		{
-			auxHeight = DISPLAY_HEIGHT_576/2;
+			auxWidth = DISPLAY_WIDTH_1280x720;
+			auxHeight = DISPLAY_HEIGHT_1280x720;
 		}
 	}
 

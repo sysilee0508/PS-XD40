@@ -70,6 +70,9 @@
 //=============================================================================
 //  main function
 //=============================================================================
+
+
+
 void main(void)
 {
 	eDisplayMode_t displayMode;
@@ -128,14 +131,16 @@ void main(void)
 		RTC_CheckTime();
 		Key_Proc();
 		NVP6158_VideoDetectionProc();
-		Delay_ms(1);
+		Delay_ms(5);
 		// check video loss
 		ScanVideoLossChannels();
+		Delay_ms(1);
+		
 		UpdateDisplayMode();
 		// video process handler
 		VideoProcessHandler();
 		// delay for HDMI-Tx register !!
-		MDINDLY_mSec(1);
+		Delay_ms(1);
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.
 		VideoHTXCtrlHandler();
 		OSD_Display();

@@ -12,36 +12,23 @@ static BOOL videoLossEvent = CLEAR;
 //-----------------------------------------------------------------------------
 void ScanVideoLossChannels(void)
 {
-	sSystemTick_t* currentSystemTime = GetSystemTime();
-	static u32 previousSystemTimeIn100ms = 0;
+	//sSystemTick_t* currentSystemTime = GetSystemTime();
+	//static u32 previousSystemTimeIn100ms = 0;
 	static u8 previousLossChannels = (u8)VIDEO_LOSS_CHANNEL_ALL;
 	u8 lossChannels = 0x00;
 	u8 changedChannels = 0x0F;
 
-    if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
-    {
+    //if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
+    //{
     	videoLossChannels = VIDEO_LOSS_CHANNEL_NONE;
     	NVP6158_Video_Loss_Check(&videoLossChannels);
     	lossChannels = (u8)videoLossChannels & 0x0F;
-		changedChannels = previousLossChannels ^ lossChannels;
+	changedChannels = previousLossChannels ^ lossChannels;
     	if(changedChannels != 0)
     	{
     		SetVideoLossEvent(SET);
-    		if((changedChannels & lossChannels) != (u8)VIDEO_LOSS_CHANNEL_NONE)
-    		{
-    			// There is new loss channel..
-    			// Should reset the buzzer count for video loss
-//    			Read_NvItem_VideoLossBuzzerTime((u8*)&videoLossBuzzerCount);
-//    			videoLossBuzzerCount *= 2;
-    		}
-//    		if(GetCurrentAutoSeq() == AUTO_SEQ_NORMAL)
-//    		{
-//    			UpdateAutoSeqDisplayTime();
-//    		}
-    	}
-    	previousLossChannels = lossChannels;
-    	previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
-    }
+  //  	previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
+   	}
 }
 //-----------------------------------------------------------------------------
 BOOL IsVideoLossChannel(eChannel_t channel)

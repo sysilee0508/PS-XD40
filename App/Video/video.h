@@ -90,7 +90,7 @@ extern BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 // Exported function Prototype
 // -----------------------------------------------------------------------------
 void CreateVideoInstance(void);
-void InitInputSource(void);
+//void InitInputSource(void);
 void SetInputSource(BYTE input);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
