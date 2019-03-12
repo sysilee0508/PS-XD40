@@ -726,18 +726,6 @@ static void VideoFrameProcess(BYTE src)
 	{
 		stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
 
-		if(stVideo.srcPATH == PATH_MAIN_B_AUX_M)
-		{
-			stVideo.stSRC_b.frmt = SrcMainFrmt; stVideo.stSRC_b.mode = SrcMainMode;
-			stVideo.stSRC_x.frmt = SrcAuxFrmt; stVideo.stSRC_x.mode = SrcAuxMode;
-		}
-		else if((stVideo.srcPATH == PATH_MAIN_A_AUX_M) ||(stVideo.srcPATH == PATH_MAIN_A_AUX_B))
-		{
-			stVideo.stSRC_a.frmt = SrcMainFrmt; stVideo.stSRC_a.mode = SrcMainMode;
-			stVideo.stSRC_x.frmt = SrcAuxFrmt; stVideo.stSRC_x.mode = SrcAuxMode;
-		}
-
-		/*
 		if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
 		{
 			stVideo.stSRC_b.frmt = SrcMainFrmt; stVideo.stSRC_b.mode = SrcMainMode;
@@ -748,7 +736,7 @@ static void VideoFrameProcess(BYTE src)
 			stVideo.stSRC_a.frmt = SrcMainFrmt; stVideo.stSRC_a.mode = SrcMainMode;
 			stVideo.stSRC_b.frmt = SrcAuxFrmt; stVideo.stSRC_b.mode = SrcAuxMode;
 		}
-		*/
+
 		stVideo.stOUT_m.frmt = OutMainFrmt; stVideo.stOUT_m.mode = OutMainMode;
 		stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
 
@@ -1064,18 +1052,19 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stAuxVIEW.x = PIP_POSITION_MARGIN;
 			stAuxVIEW.y = PIP_POSITION_MARGIN;
 			break;
-
+/*
 		default:
 			stMainVIEW.w = DISPLAY_WIDTH;
 			stMainVIEW.h = DISPLAY_HEIGHT;
 			stMainVIEW.x = 0;
 			stMainVIEW.y = 0;
 
-			stAuxVIEW.w = DISPLAY_WIDTH;
-			stAuxVIEW.h = DISPLAY_HEIGHT;
-			stAuxVIEW.x = 0;
-			stAuxVIEW.y = 0;
+			//stAuxVIEW.w = DISPLAY_WIDTH;
+			//stAuxVIEW.h = DISPLAY_HEIGHT;
+			//stAuxVIEW.x = 0;
+			//stAuxVIEW.y = 0;
 			break;
+*/
 	}
 	MDIN3xx_SetVideoWindowCROP(&stVideo, stMainCROP);
 	MDIN3xx_SetVideoWindowVIEW(&stVideo, stMainVIEW);
