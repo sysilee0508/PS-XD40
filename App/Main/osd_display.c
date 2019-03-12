@@ -473,6 +473,7 @@ static void OSD_DisplayNoVideo(void)
 			}
 		}
 		requestRefreshScreen &= ~REQUEST_OSD_REFRESH_NOVIDEO;
+		SetVideoLossEvent(CLEAR);
 	}
 }
 

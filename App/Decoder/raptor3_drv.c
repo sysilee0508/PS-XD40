@@ -30,8 +30,8 @@ void video_output_colorbar_set( unsigned char on_off )
 	else
 	{
 		// colorbar on
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x78, 0x00);//0xab);
-		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x79, 0x00);//0xcd);
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x78, 0x00);//blue screen 
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x79, 0x00);//blue screen
 	}
 
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x68, 0x00);

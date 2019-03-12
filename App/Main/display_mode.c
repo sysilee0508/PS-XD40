@@ -29,17 +29,37 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 static BYTE Check_VideoFormat_Change(void)
 {
 	eChannel_t channel;
-	BYTE oCurVideofmt;
+	//BYTE oCurVideofmt;
 	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0,};
-	BYTE videoFormatChanged;
+	BYTE videoFormatChanged = FALSE;
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
-	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
+	if(displayMode == DISPLAY_MODE_FULL_CH1)
 	{
-		oCurVideofmt = NVP6158_Current_Video_Format_Check(channel);
-		if(oCurVideofmt != oPreVideofmt[channel])
+		if(NVP6158_Current_Video_Format_Check(CHANNEL1) != oPreVideofmt[CHANNEL1])
 		{
-			oPreVideofmt[channel] = oCurVideofmt;
+			oPreVideofmt[CHANNEL1] = NVP6158_Current_Video_Format_Check(CHANNEL1);
 			videoFormatChanged = TRUE;
+		}
+	}
+	else if(displayMode == DISPLAY_MODE_FULL_CH2)
+	{
+		if(NVP6158_Current_Video_Format_Check(CHANNEL2) != oPreVideofmt[CHANNEL2])
+		{
+			oPreVideofmt[CHANNEL2] = NVP6158_Current_Video_Format_Check(CHANNEL2);
+			videoFormatChanged = TRUE;
+		}
+	}
+	else
+	{
+		for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
+		{
+			if(NVP6158_Current_Video_Format_Check(channel) != oPreVideofmt[channel])
+			{
+				oPreVideofmt[channel] = NVP6158_Current_Video_Format_Check(channel);
+				videoFormatChanged = TRUE;
+				break;
+			}
 		}
 	}
 
@@ -60,7 +80,6 @@ void DisplayScreen(eDisplayMode_t mode)
 	{
 		SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);
 	}
-	//Set_DisplayWindow(mode);
 	Write_NvItem_DisplayMode(mode);
 }
 
@@ -72,7 +91,6 @@ void UpdateDisplayMode(void)
 		SetInputChanged();
 		InitInputSource();
 		DisplayScreen(GetCurrentDisplayMode());
-//		Delay_ms(500);
 	}
 }
 

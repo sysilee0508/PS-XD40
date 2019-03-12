@@ -12,14 +12,10 @@ static BOOL videoLossEvent = CLEAR;
 //-----------------------------------------------------------------------------
 void ScanVideoLossChannels(void)
 {
-	//sSystemTick_t* currentSystemTime = GetSystemTime();
-	//static u32 previousSystemTimeIn100ms = 0;
 	static u8 previousLossChannels = (u8)VIDEO_LOSS_CHANNEL_ALL;
 	u8 lossChannels = 0x00;
 	u8 changedChannels = 0x0F;
 
-    //if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
-    //{
     	videoLossChannels = VIDEO_LOSS_CHANNEL_NONE;
     	NVP6158_Video_Loss_Check(&videoLossChannels);
     	lossChannels = (u8)videoLossChannels & 0x0F;
@@ -27,7 +23,6 @@ void ScanVideoLossChannels(void)
     	if(changedChannels != 0)
     	{
     		SetVideoLossEvent(SET);
-  //  	previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
    	}
 }
 //-----------------------------------------------------------------------------

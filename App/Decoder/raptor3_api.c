@@ -224,7 +224,7 @@ int RAPTOR3_SAL_NoVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	AutoNoVidDet.devnum = devnum;
 	video_input_no_video_set(&AutoNoVidDet);
 
-	pPortFmt = (NC_VO_PORT_FMT_S *)NC_HI_VO_Get_PortFormat( CVI_HD_30P_EX );
+	pPortFmt = (NC_VO_PORT_FMT_S *)NC_HI_VO_Get_PortFormat(CVI_HD_30P_EX );
 	//NC_VD_VO_Mode_Set( devnum, iPort, pPortFmt, oMux, oInterface, oClkEdge, ch%4, ch%4, ch%4, ch%4 );
 	NC_VD_VO_Mode_Set_New( oChannel, devnum, iPort, pPortFmt, oMux, oInterface, oClkEdge, ch%4, ch%4, ch%4, ch%4 );
 

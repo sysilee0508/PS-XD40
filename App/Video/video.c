@@ -9,7 +9,7 @@
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
 #define GPIO_JUMP				GPIO_Pin_1	//PC1
-#define COMPENSATION_MARGIN	10
+#define COMPENSATION_MARGIN	40
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -75,13 +75,17 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
 	BYTE inputFormat = NC_VIVO_CH_FORMATDEF_UNKNOWN;
 	static MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p60;
 
-	if(IsVideoLossChannel(CHANNEL1) == FALSE)
+	if(GetInputVideoFormat(CHANNEL1) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
 	{
 		inputFormat = GetInputVideoFormat(CHANNEL1);
 	}
-	else if(IsVideoLossChannel(CHANNEL2) == FALSE)
+	else if(GetInputVideoFormat(CHANNEL1) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
 	{
 		inputFormat = GetInputVideoFormat(CHANNEL2);
+	}
+	else
+	{
+		inputFormat = CVI_HD_30P;
 	}
 
 	switch(inputFormat)
@@ -236,7 +240,8 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 			break;
 
 		default:
-			format[channel] = VIDSRC_1280x720p60;
+			//if(format[channel] 
+			//format[channel] = VIDSRC_1280x720p60;
 			break;
 	}
 
@@ -384,7 +389,6 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
 	MDIN3xx_VideoProcess(&stVideo);			// mdin3xx main video process
 
-/*
 	// define window for inter-area (PIP window? kukuri)
 	stInterWND.lx = 315;
 	stInterWND.rx = 405;
@@ -392,7 +396,6 @@ static void MDIN3xx_SetRegInitial(void)
 	stInterWND.ry = 150;
 	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
 	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
-*/
 
 	// define variable for EDK application
 //	InputSelOld = 0xff;
@@ -555,7 +558,7 @@ static void InputSourceHandler(BYTE src)
 	Set_DisplayWindow(GetCurrentDisplayMode());
 	InputSelOld = src;
 
-	PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;
+	//PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;
 }
 
 #if 0
@@ -723,6 +726,18 @@ static void VideoFrameProcess(BYTE src)
 	{
 		stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
 
+		if(stVideo.srcPATH == PATH_MAIN_B_AUX_M)
+		{
+			stVideo.stSRC_b.frmt = SrcMainFrmt; stVideo.stSRC_b.mode = SrcMainMode;
+			stVideo.stSRC_x.frmt = SrcAuxFrmt; stVideo.stSRC_x.mode = SrcAuxMode;
+		}
+		else if((stVideo.srcPATH == PATH_MAIN_A_AUX_M) ||(stVideo.srcPATH == PATH_MAIN_A_AUX_B))
+		{
+			stVideo.stSRC_a.frmt = SrcMainFrmt; stVideo.stSRC_a.mode = SrcMainMode;
+			stVideo.stSRC_x.frmt = SrcAuxFrmt; stVideo.stSRC_x.mode = SrcAuxMode;
+		}
+
+		/*
 		if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
 		{
 			stVideo.stSRC_b.frmt = SrcMainFrmt; stVideo.stSRC_b.mode = SrcMainMode;
@@ -733,14 +748,15 @@ static void VideoFrameProcess(BYTE src)
 			stVideo.stSRC_a.frmt = SrcMainFrmt; stVideo.stSRC_a.mode = SrcMainMode;
 			stVideo.stSRC_b.frmt = SrcAuxFrmt; stVideo.stSRC_b.mode = SrcAuxMode;
 		}
+		*/
 		stVideo.stOUT_m.frmt = OutMainFrmt; stVideo.stOUT_m.mode = OutMainMode;
 		stVideo.stOUT_x.frmt = OutAuxFrmt; stVideo.stOUT_x.mode = OutAuxMode;
 
 		//Set main & aux window scale, crop, zoom
-		memcpy(&stVideo.stCROP_m, &stMainCROP, sizeof(MDIN_VIDEO_WINDOW));
-		memcpy(&stVideo.stCROP_x, &stAuxCROP, sizeof(MDIN_VIDEO_WINDOW));
-		memcpy(&stVideo.stVIEW_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
-		memcpy(&stVideo.stVIEW_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(&stVideo.stCROP_m, &stMainCROP, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(&stVideo.stCROP_x, &stAuxCROP, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(&stVideo.stVIEW_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(&stVideo.stVIEW_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
 
 		//MDIN3xx_SetScaleProcess(&stVideo);
 
@@ -760,7 +776,7 @@ static void VideoFrameProcess(BYTE src)
 		//MDINAUX_VideoProcess(&stVideo);
 
 		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
-		SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
+		//SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
 
 		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
 		MDIN3xx_EnableMainDisplay(ON);
@@ -819,10 +835,16 @@ void VideoHTXCtrlHandler(void)
 	MDINHTX_CtrlHandler(&stVideo);
 }
 
+void Request2VideoProcess(void)
+{
+	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT | MDIN_UPDATE_AUXFMT;
+}
+
 void Set_DisplayWindow(eDisplayMode_t displayMode)
 {
 	WORD mainWidth, mainHeight;
 	WORD auxWidth, auxHeight;
+	static BYTE errorCnt = 0;
 	
 	// initialize each object
 	memset(&stMainVIEW, 0x00, sizeof(MDIN_VIDEO_WINDOW));
@@ -840,7 +862,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 		case VIDSRC_1280x720p60:
 		case VIDSRC_1280x720p50:
-			mainWidth = DISPLAY_WIDTH_1280x720*2 - COMPENSATION_MARGIN;
+			mainWidth = DISPLAY_WIDTH_1280x720*2;
 			mainHeight = DISPLAY_HEIGHT_1280x720;
 			break;
 
@@ -865,7 +887,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 		case VIDSRC_1280x720p60:
 		case VIDSRC_1280x720p50:
-			auxWidth = DISPLAY_WIDTH_1280x720 - COMPENSATION_MARGIN;
+			auxWidth = DISPLAY_WIDTH_1280x720*2;// - COMPENSATION_MARGIN;
 			auxHeight = DISPLAY_HEIGHT_1280x720;
 			break;
 
@@ -881,19 +903,19 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	}
 
 	//Check video loss channel
-	if(IsVideoLossChannel(CHANNEL1) == TRUE)
+	if((GetInputVideoFormat(CHANNEL1) == NC_VIVO_CH_FORMATDEF_UNKNOWN) && (displayMode != DISPLAY_MODE_FULL_CH2))
 	{
 		// channel 1 is always main
 		mainWidth = DISPLAY_WIDTH_1280x720;
 		mainHeight = DISPLAY_HEIGHT_1280x720;
 	}
 
-	if(IsVideoLossChannel(CHANNEL2) == TRUE)
+	if((GetInputVideoFormat(CHANNEL2) == NC_VIVO_CH_FORMATDEF_UNKNOWN) && (displayMode != DISPLAY_MODE_FULL_CH1))
 	{
 		// channel2 is main or aux?
 		if(displayMode == DISPLAY_MODE_FULL_CH2)
 		{
-			mainWidth = DISPLAY_WIDTH_1280x720*2;
+			mainWidth = DISPLAY_WIDTH_1280x720;
 			mainHeight = DISPLAY_HEIGHT_1280x720;
 		}
 		else
@@ -1053,9 +1075,12 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			stAuxVIEW.h = DISPLAY_HEIGHT;
 			stAuxVIEW.x = 0;
 			stAuxVIEW.y = 0;
-
 			break;
 	}
+	MDIN3xx_SetVideoWindowCROP(&stVideo, stMainCROP);
+	MDIN3xx_SetVideoWindowVIEW(&stVideo, stMainVIEW);
+	MDINAUX_SetVideoWindowCROP(&stVideo, stAuxCROP);
+	MDINAUX_SetVideoWindowVIEW(&stVideo, stAuxVIEW);
 }
 
 #endif	/* defined(SYSTEM_USE_MDIN380) */

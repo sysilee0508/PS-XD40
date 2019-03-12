@@ -131,7 +131,7 @@ void main(void)
 		RTC_CheckTime();
 		Key_Proc();
 		NVP6158_VideoDetectionProc();
-		Delay_ms(5);
+		Delay_ms(10);
 		// check video loss
 		ScanVideoLossChannels();
 		Delay_ms(1);

@@ -231,6 +231,7 @@ void Key_Proc(void)
 					OSD_RefreshScreen();
 					DisplayScreen((eChannel_t)(key - 1));
 					SetInputChanged();
+					Request2VideoProcess();
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -254,6 +255,7 @@ void Key_Proc(void)
 				OSD_RefreshScreen();
 				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
 				SetInputChanged();
+				//Request2VideoProcess();
 				OSD_DrawBorderLine();
 				break;
 /*

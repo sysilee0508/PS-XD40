@@ -94,6 +94,7 @@ void CreateVideoInstance(void);
 void SetInputSource(BYTE input);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
+void Request2VideoProcess(void);
 void Set_DisplayWindow(eDisplayMode_t displayMode);
 
 #endif	/* __VIDEO_H__ */
