@@ -247,15 +247,15 @@ void video_input_auto_detect_set(video_input_auto_detect *vin_auto_det)
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x84 + vin_auto_det->ch, 0x00);
     NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8c + vin_auto_det->ch, 0x55);
 
-//	NVP6158_I2C_WRITE(raptor3_i2c_addr[vin_auto_det->devnum], 0xFF, 0xa + (vin_auto_det->ch / 2));
-//	NVP6158_I2C_WRITE(raptor3_i2c_addr[vin_auto_det->devnum], 0x74 + ((vin_auto_det->ch) * 0x80), 0x02); // y_slope_input_sel
-//	NVP6158_I2C_WRITE(raptor3_i2c_addr[vin_auto_det->devnum], 0x75 + ((vin_auto_det->ch % 2) * 0x80), 0x03); // frame starting point 3
+//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0xa + (vin_auto_det->ch / 2));
+//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x74 + ((vin_auto_det->ch) * 0x80), 0x02); // y_slope_input_sel
+//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x75 + ((vin_auto_det->ch % 2) * 0x80), 0x03); // frame starting point 3
 //
-//	NVP6158_I2C_WRITE(raptor3_i2c_addr[vin_auto_det->devnum], 0xFF, 0x05 + vin_auto_det->ch);
-//	NVP6158_I2C_WRITE(raptor3_i2c_addr[vin_auto_det->devnum], 0xc0, 0x16);	// get slope data start v count
-//	NVP6158_I2C_WRITE(raptor3_i2c_addr[vin_auto_det->devnum], 0xc1, 0x05);	// get slope data width v count
+//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + vin_auto_det->ch);
+//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc0, 0x16);	// get slope data start v count
+//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc1, 0x05);	// get slope data width v count
 //															// Check video signal 6 line
-//	NVP6158_I2C_WRITE(raptor3_i2c_addr[vin_auto_det->devnum], 0xc8, 0x04);	// get slope avg 1 frame
+//	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc8, 0x04);	// get slope avg 1 frame
 }
 
 void video_input_vfc_read(video_input_vfc *vin_vfc)

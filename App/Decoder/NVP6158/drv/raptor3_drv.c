@@ -62,7 +62,7 @@
 
 struct semaphore raptor3_lock;
 
-unsigned int raptor3_i2c_addr[4] = {0x60, 0x62, 0x64, 0x66};
+unsigned int NVP6158_ADDR[4] = {0x60, 0x62, 0x64, 0x66};
 static unsigned int raptor3_cnt = 0;
 
 int chip_id[4];
@@ -89,8 +89,8 @@ decoder_get_information_str decoder_inform;
 int check_id(unsigned int dec)
 {
 	int ret;
-	gpio_i2c_write(dec, 0xFF, 0x00);
-	ret = gpio_i2c_read(dec, 0xf4);
+	NVP6158_I2C_WRITE(dec, 0xFF, 0x00);
+	ret = NVP6158_I2C_READ(dec, 0xf4);
 	return ret;
 }
 
@@ -104,8 +104,8 @@ int check_id(unsigned int dec)
 int check_rev(unsigned int dec)
 {
 	int ret;
-	gpio_i2c_write(dec, 0xFF, 0x00);
-	ret = gpio_i2c_read(dec, 0xf5);
+	NVP6158_I2C_WRITE(dec, 0xFF, 0x00);
+	ret = NVP6158_I2C_READ(dec, 0xf5);
 	return ret;
 }
 
@@ -638,7 +638,7 @@ static struct miscdevice raptor3_dev = {
 	.name		= "raptor3",
 	.fops  		= &raptor3_fops,
 };
-
+int
 /*******************************************************************************
 *	Description		: It is called when "insmod nvp61XX_ex.ko" command run
 *	Argurments		: void
@@ -646,7 +646,8 @@ static struct miscdevice raptor3_dev = {
 *	Modify			:
 *	warning			:
 *******************************************************************************/
-static int __init raptor3_module_init(void)
+//static int __init raptor3_module_init(void)
+static int raptor3_module_init(void)
 {
 	unsigned char ch;
 	unsigned char port;
@@ -679,8 +680,8 @@ static int __init raptor3_module_init(void)
 
 	for(chip=0;chip<4;chip++)
 	{
-		chip_id[chip] = check_id(raptor3_i2c_addr[chip]);
-		rev_id[chip]  = check_rev(raptor3_i2c_addr[chip]);
+		chip_id[chip] = check_id(NVP6158_ADDR[chip]);
+		rev_id[chip]  = check_rev(NVP6158_ADDR[chip]);
 		if( (chip_id[chip] != RAPTOR3_4PORT_R0_ID )  	&&
 			(chip_id[chip] != RAPTOR3_2PORT_R0_ID) 		&&
 			(chip_id[chip] != RAPTOR3_1PORT_R0_ID)		&&
@@ -688,18 +689,18 @@ static int __init raptor3_module_init(void)
 		)
 		{
 			printk("Device ID Error... %x, Chip Count:[%d]\n", chip_id[chip], chip);
-			raptor3_i2c_addr[chip] = 0xFF;
+			NVP6158_ADDR[chip] = 0xFF;
 			chip_id[chip] = 0xFF;
 		}
 		else
 		{
-			printk("Device (0x%x) ID OK... %x , Chip Count:[%d]\n", raptor3_i2c_addr[chip], chip_id[chip], chip);
-			printk("Device (0x%x) REV %x\n", raptor3_i2c_addr[chip], rev_id[chip]);
-			raptor3_i2c_addr[raptor3_cnt] = raptor3_i2c_addr[chip];
+			printk("Device (0x%x) ID OK... %x , Chip Count:[%d]\n", NVP6158_ADDR[chip], chip_id[chip], chip);
+			printk("Device (0x%x) REV %x\n", NVP6158_ADDR[chip], rev_id[chip]);
+			NVP6158_ADDR[raptor3_cnt] = NVP6158_ADDR[chip];
 
 			if(raptor3_cnt<chip)
 			{
-				raptor3_i2c_addr[chip] = 0xFF;
+				NVP6158_ADDR[chip] = 0xFF;
 			}
 
 			chip_id[raptor3_cnt] = chip_id[chip];
@@ -719,7 +720,7 @@ static int __init raptor3_module_init(void)
 	}
 
 	printk("Chip Count = %d\n", raptor3_cnt);
-	printk("Address [0x%x][0x%x][0x%x][0x%x]\n",raptor3_i2c_addr[0],raptor3_i2c_addr[1],raptor3_i2c_addr[2],raptor3_i2c_addr[3]);
+	printk("Address [0x%x][0x%x][0x%x][0x%x]\n",NVP6158_ADDR[0],NVP6158_ADDR[1],NVP6158_ADDR[2],NVP6158_ADDR[3]);
 	printk("Chip Id [0x%x][0x%x][0x%x][0x%x]\n",chip_id[0],chip_id[1],chip_id[2],chip_id[3]);
 	printk("Rev Id [0x%x][0x%x][0x%x][0x%x]\n",rev_id[0],rev_id[1],rev_id[2],rev_id[3]);
 
@@ -727,7 +728,7 @@ static int __init raptor3_module_init(void)
 	{
 		decoder_inform.chip_id[i] = chip_id[i];
 		decoder_inform.chip_rev[i] = rev_id[i];
-		decoder_inform.chip_addr[i] = raptor3_i2c_addr[i];
+		decoder_inform.chip_addr[i] = NVP6158_ADDR[i];
 	}
 	decoder_inform.Total_Chip_Cnt = raptor3_cnt;
 
@@ -744,64 +745,64 @@ static int __init raptor3_module_init(void)
     	/* set initialization value  */
     	for(ch = 0; ch < 4; ch++)
     	{
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xFF, 0x05+ch);
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xD5, 0x80);
-			gpio_i2c_write(raptor3_i2c_addr[i], 0x00, 0xD0); //clamp speed
-			gpio_i2c_write(raptor3_i2c_addr[i], 0x76, 0x00);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05+ch);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xD5, 0x80);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x00, 0xD0); //clamp speed
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x76, 0x00);
     	}
 
     	/* set NOVIDEO */
     	for(ch = 0; ch < 4; ch++)
     	{
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0xFF, 0x09);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0x80 + (ch * 0x20), 0x00);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0x81 + (ch * 0x20), 0x00);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x09);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x80 + (ch * 0x20), 0x00);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x81 + (ch * 0x20), 0x00);
 
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0xFF, 0x05 + ch);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0x2C, 0x00);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0xB8, 0xB8);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0xB9, 0xB2);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0x25, 0xDC);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + ch);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x2C, 0x00);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xB8, 0xB8);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xB9, 0xB2);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x25, 0xDC);
 
 
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0xFF, 0x09);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0x50 + (ch*4) , 0x30);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0x51 + (ch*4) , 0x6F);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0x52 + (ch*4) , 0x67);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0x53 + (ch*4) , 0x48);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x09);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x50 + (ch*4) , 0x30);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x51 + (ch*4) , 0x6F);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x52 + (ch*4) , 0x67);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x53 + (ch*4) , 0x48);
 
-    		val_9x44 = gpio_i2c_read(raptor3_i2c_addr[i], 0x44);
+    		val_9x44 = NVP6158_I2C_READ(NVP6158_ADDR, 0x44);
     		val_9x44 &= ~(1 << ch);
     		val_9x44 |= (1 << ch);
-    		gpio_i2c_write(raptor3_i2c_addr[i], 0x44 , val_9x44);
+    		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x44 , val_9x44);
     	}
 
     	if(chip_id[i] == RAPTOR3_4PORT_R0_ID)
     	{
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xff, 0x01);
+			NVP6158_I2C_WRITE(NVP6158_ADDR[i], 0xff, 0x01);
 			/* set Port setting */
 			for(port = 0; port < 4; port++)
 			{
 				/* port channel sequence set */
-				gpio_i2c_write(raptor3_i2c_addr[i], 0xc0 + (port * 2), (port | (port << 4)));
-				gpio_i2c_write(raptor3_i2c_addr[i], 0xc1 + (port * 2), (port | (port << 4)));
+				NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc0 + (port * 2), (port | (port << 4)));
+				NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc1 + (port * 2), (port | (port << 4)));
 			}
 
 			/* port 1mux set */
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xc8, 0x00);
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xc9, 0x00);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc8, 0x00);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc9, 0x00);
 
 			/* all port enable */
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xca, 0xff);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xca, 0xff);
 
 			/* mux chid set */
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xff, 0x00);
-			gpio_i2c_write(raptor3_i2c_addr[i], 0x55, 0x10);
-			gpio_i2c_write(raptor3_i2c_addr[i], 0x56, 0x32);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x55, 0x10);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x56, 0x32);
     	}
     	else if (chip_id[i] == RAPTOR3_2PORT_R0_ID)
     	{
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xff, 0x01);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x01);
 			/* set Port setting */
 			for(port = 1; port < 3; port++)
 			{
@@ -809,81 +810,81 @@ static int __init raptor3_module_init(void)
 #ifdef	SUPPORT_3520D_6158C
 				if(port == 1)
 				{
-					gpio_i2c_write(raptor3_i2c_addr[i], 0xc0 + ((port+1) * 2), 0x10);
-					gpio_i2c_write(raptor3_i2c_addr[i], 0xc1 + ((port+1) * 2), 0x10);
+					NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc0 + ((port+1) * 2), 0x10);
+					NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc1 + ((port+1) * 2), 0x10);
 				}
 				else if(port == 2)
 				{
-					gpio_i2c_write(raptor3_i2c_addr[i], 0xc0 + ((port-1) * 2), 0x32);
-					gpio_i2c_write(raptor3_i2c_addr[i], 0xc1 + ((port-1) * 2), 0x32);
+					NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc0 + ((port-1) * 2), 0x32);
+					NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc1 + ((port-1) * 2), 0x32);
 				}
 
 #else
 				if(port == 1)
 				{
-					gpio_i2c_write(raptor3_i2c_addr[i], 0xc0 + (port * 2), 0x10);
-					gpio_i2c_write(raptor3_i2c_addr[i], 0xc1 + (port * 2), 0x10);
+					NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc0 + (port * 2), 0x10);
+					NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc1 + (port * 2), 0x10);
 				}
 				else if(port == 2)
 				{
-					gpio_i2c_write(raptor3_i2c_addr[i], 0xc0 + (port * 2), 0x32);
-					gpio_i2c_write(raptor3_i2c_addr[i], 0xc1 + (port * 2), 0x32);
+					NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc0 + (port * 2), 0x32);
+					NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc1 + (port * 2), 0x32);
 				}
 #endif
 			}
 			/* port 1mux set */
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xc8, 0x20);
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xc9, 0x02);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc8, 0x20);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xc9, 0x02);
 
 			/* all port enable */
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xca, 0x66);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xca, 0x66);
 
 			/* mux chid set */
-			gpio_i2c_write(raptor3_i2c_addr[i], 0xff, 0x00);
-			gpio_i2c_write(raptor3_i2c_addr[i], 0x55, 0x10);
-			gpio_i2c_write(raptor3_i2c_addr[i], 0x56, 0x10);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x55, 0x10);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x56, 0x10);
     	}
 
     	 // for image enhancement 3M RT upper format when cable distance 300M over
     	for(ch = 0; ch < 4; ch++)
     	{
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0xff, 0x05 + ch );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x50, 0xc6 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x05 + ch );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x50, 0xc6 );
 
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0xff, 0x0a + (ch / 2));
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x0a + (ch / 2));
 
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x00 + ( 0x80 * (ch % 2)), 0x80 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x01 + ( 0x80 * (ch % 2)), 0x02 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x02 + ( 0x80 * (ch % 2)), 0x04 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x03 + ( 0x80 * (ch % 2)), 0x80 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x04 + ( 0x80 * (ch % 2)), 0x06 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x05 + ( 0x80 * (ch % 2)), 0x07 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x06 + ( 0x80 * (ch % 2)), 0x80 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x07 + ( 0x80 * (ch % 2)), 0x07 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x08 + ( 0x80 * (ch % 2)), 0x03 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x09 + ( 0x80 * (ch % 2)), 0x08 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x0a + ( 0x80 * (ch % 2)), 0x04 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x0b + ( 0x80 * (ch % 2)), 0x10 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x0c + ( 0x80 * (ch % 2)), 0x08 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x0d + ( 0x80 * (ch % 2)), 0x1f );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x0e + ( 0x80 * (ch % 2)), 0x2e );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x0f + ( 0x80 * (ch % 2)), 0x08 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x10 + ( 0x80 * (ch % 2)), 0x38 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x11 + ( 0x80 * (ch % 2)), 0x35 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x12 + ( 0x80 * (ch % 2)), 0x00 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x13 + ( 0x80 * (ch % 2)), 0x20 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x14 + ( 0x80 * (ch % 2)), 0x0d );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x15 + ( 0x80 * (ch % 2)), 0x80 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x16 + ( 0x80 * (ch % 2)), 0x54 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x17 + ( 0x80 * (ch % 2)), 0xb1 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x18 + ( 0x80 * (ch % 2)), 0x91 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x19 + ( 0x80 * (ch % 2)), 0x1c );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x1a + ( 0x80 * (ch % 2)), 0x87 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x1b + ( 0x80 * (ch % 2)), 0x92 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x1c + ( 0x80 * (ch % 2)), 0xe2 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x1d + ( 0x80 * (ch % 2)), 0x20 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x1e + ( 0x80 * (ch % 2)), 0xd0 );
-    		 gpio_i2c_write(raptor3_i2c_addr[i], 0x1f + ( 0x80 * (ch % 2)), 0xcc );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x00 + ( 0x80 * (ch % 2)), 0x80 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x01 + ( 0x80 * (ch % 2)), 0x02 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x02 + ( 0x80 * (ch % 2)), 0x04 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x03 + ( 0x80 * (ch % 2)), 0x80 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x04 + ( 0x80 * (ch % 2)), 0x06 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x05 + ( 0x80 * (ch % 2)), 0x07 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x06 + ( 0x80 * (ch % 2)), 0x80 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x07 + ( 0x80 * (ch % 2)), 0x07 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x08 + ( 0x80 * (ch % 2)), 0x03 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x09 + ( 0x80 * (ch % 2)), 0x08 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0a + ( 0x80 * (ch % 2)), 0x04 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0b + ( 0x80 * (ch % 2)), 0x10 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ( 0x80 * (ch % 2)), 0x08 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0d + ( 0x80 * (ch % 2)), 0x1f );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0e + ( 0x80 * (ch % 2)), 0x2e );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0f + ( 0x80 * (ch % 2)), 0x08 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x10 + ( 0x80 * (ch % 2)), 0x38 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x11 + ( 0x80 * (ch % 2)), 0x35 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x12 + ( 0x80 * (ch % 2)), 0x00 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x13 + ( 0x80 * (ch % 2)), 0x20 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x14 + ( 0x80 * (ch % 2)), 0x0d );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x15 + ( 0x80 * (ch % 2)), 0x80 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x16 + ( 0x80 * (ch % 2)), 0x54 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x17 + ( 0x80 * (ch % 2)), 0xb1 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x18 + ( 0x80 * (ch % 2)), 0x91 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x19 + ( 0x80 * (ch % 2)), 0x1c );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1a + ( 0x80 * (ch % 2)), 0x87 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1b + ( 0x80 * (ch % 2)), 0x92 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1c + ( 0x80 * (ch % 2)), 0xe2 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1d + ( 0x80 * (ch % 2)), 0x20 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1e + ( 0x80 * (ch % 2)), 0xd0 );
+    		 NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1f + ( 0x80 * (ch % 2)), 0xcc );
          }
     }
 

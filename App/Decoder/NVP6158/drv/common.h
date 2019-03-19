@@ -15,10 +15,10 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-unsigned char __I2CReadByte8(unsigned char devaddress, unsigned char address);
-void __I2CWriteByte8(unsigned char devaddress, unsigned char address, unsigned char data);
-#define  gpio_i2c_read   __I2CReadByte8
-#define  gpio_i2c_write  __I2CWriteByte8
+//unsigned char __I2CReadByte8(unsigned char devaddress, unsigned char address);
+//void __I2CWriteByte8(unsigned char devaddress, unsigned char address, unsigned char data);
+//#define  NVP6158_I2C_READ   __I2CReadByte8
+//#define  NVP6158_I2C_WRITE  __I2CWriteByte8
 
 #define DRIVER_VER "17.0.xx.00"
 
