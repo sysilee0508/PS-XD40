@@ -34,6 +34,7 @@
 #define FUNC_ON		0x01
 #define FUNC_OFF	0x00
 
+#define MAX_DEBOUNCE_CNT      10
 // Auto Detection
 typedef struct 
 {

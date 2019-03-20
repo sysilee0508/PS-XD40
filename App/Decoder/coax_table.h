@@ -1,6 +1,7 @@
 #ifndef _COAX_TABLE_
 #define _COAX_TABLE_
 
+#if 0
 #include "NVP6158.h"
 
 #define EOD (-1)
@@ -2925,6 +2926,7 @@ NC_VD_ACP_CMDDEF_STR coax_cmd_lists[]=
 	},
 
 };
+#endif
 
 /********************************************************************
  *  End of file

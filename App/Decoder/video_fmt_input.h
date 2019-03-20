@@ -1,10 +1,127 @@
+/********************************************************************************
+*
+*  Copyright (C) 2017 	NEXTCHIP Inc. All rights reserved.
+*  Module		: The decoder's video format module
+*  Description	: Video Format Input Information
+*  Author		:
+*  Date         :
+*  Version		: Version 1.0
+*
+********************************************************************************
+*  History      :
+*
+*
+********************************************************************************/
+
 #ifndef _VIDEO_FMT_INPUT_H_
 #define _VIDEO_FMT_INPUT_H_
 
 #include "NVP6158.h"
+#include "video_fmt_info.h"
+
 
 NC_VI_CH_FMT_S VD_VI_ChannelFormatDefs[ NC_VIVO_CH_FORMATDEF_MAX ] =
 {
+		[ AHD20_SD_SH720_NT ] = {
+		    .name = "AHD20_SD_SH720_NT",
+		    .width = 720,
+		    .height = 480,
+		    .format_fps = FMT_NT,
+		    .format_standard = FMT_SD,
+		    .format_resolution = FMT_SH720,
+		    .sw_reset = 0x40,
+		    .each_set = 0x00,
+		    .no_video = 0x40,
+		    .video_format = 0xa0,
+		    .sd_ahd_mode = 0xe0,
+		    .spl_mode = 0x00,
+		    .pal_cm_off = 0x82,
+		    .s_point =  0x90,
+		    .fsc_lock_mode = 0xdc,
+		    .hue = 0x00,
+		    .comb_mode = 0x01,
+		    .burst_delay = 0x00,
+		    .sync_rs = 0x04,
+		    .h_delay_lsb = 0x93,
+		    .h_mask_on = 0x00,
+		    .h_maks_sel = 0x00,
+		    .mem_rdp = 0x00,
+		    .h_down_scaler = 0x10,
+		    .h_scaler_mode = 0x20,
+		    .ref_base_lsb = 0x00,
+		    .ref_base_msb = 0x00,
+		    .line_mem_mode = 0x01,
+		    .hpll_mask_on = 0x84,
+		    .hzoom_on = 0x00,
+		    .zoom_dto =  0x00,
+		    .agc = 0x20,
+		    .comb_th_a =  0x20,
+		    .y_lpf =  0xa,
+		    .sync_en_lsb =  0x14,
+		    .sync_en_msb =  0x00,
+		    .vblk_end_lsb =  0x00,
+		    .vblk_end_msb =  0x00,
+
+			.df_ydelay = 0x05,
+
+			.clk_adc = 0x00,
+			.clk_pre = 0x40,
+			.clk_post = 0x0,
+
+			.op_md = 0xB8,
+		},
+
+
+
+		[ AHD20_SD_SH720_PAL ] = {
+		    .name = "AHD20_SD_SH720_PAL",
+		    .width = 720,
+		    .height = 576,
+		    .format_fps = FMT_PAL,
+		    .format_standard = FMT_SD,
+		    .format_resolution = FMT_SH720,
+		    .sw_reset = 0x40,
+		    .each_set = 0x00,
+		    .no_video = 0x40,
+		    .video_format = 0xa0,
+		    .sd_ahd_mode = 0xe0,
+		    .spl_mode = 0x00,
+		    .pal_cm_off = 0x82,
+		    .s_point =  0x90,
+		    .fsc_lock_mode = 0xdc,
+		    .hue = 0x00,
+		    .comb_mode = 0x01,
+		    .burst_delay = 0x00,
+		    .sync_rs = 0x04,
+		    .h_delay_lsb = 0x93,
+		    .h_mask_on = 0x00,
+		    .h_maks_sel = 0x00,
+		    .mem_rdp = 0x00,
+		    .h_down_scaler = 0x10,
+		    .h_scaler_mode = 0x20,
+		    .ref_base_lsb = 0x00,
+		    .ref_base_msb = 0x00,
+		    .line_mem_mode = 0x01,
+		    .hpll_mask_on = 0x84,
+		    .hzoom_on = 0x00,
+		    .zoom_dto =  0x00,
+		    .agc = 0x20,
+		    .comb_th_a =  0x20,
+		    .y_lpf =  0xa,
+		    .sync_en_lsb =  0x14,
+		    .sync_en_msb =  0x00,
+		    .vblk_end_lsb =  0x00,
+		    .vblk_end_msb =  0x00,
+
+			.df_ydelay = 0x05,
+
+			.clk_adc = 0x00,
+			.clk_pre = 0x40,
+			.clk_post = 0x0,
+
+			.op_md = 0xB8,
+		},
+
 		[ AHD20_SD_H960_2EX_Btype_NT ] = {
 		    .name = "AHD20_SD_H960_2EX_Btype_NT",
 		    .width = 3840,
@@ -1570,7 +1687,7 @@ NC_VI_CH_FMT_S VD_VI_ChannelFormatDefs[ NC_VIVO_CH_FORMATDEF_MAX ] =
 
 			.op_md = 0x38,
 		},
-#ifndef Customer_Support
+
 		[ AHD30_5_3M_20P ] = {
 		    .name = "AHD30_5_3M_20P",
 		    .width = 3072,
@@ -1962,7 +2079,7 @@ NC_VI_CH_FMT_S VD_VI_ChannelFormatDefs[ NC_VIVO_CH_FORMATDEF_MAX ] =
 
 			.op_md = 0x38,
 		},
-#endif
+
 		[ TVI_FHD_30P ] = {
 		    .name = "TVI_FHD_30P",
 		    .width = 1920,
@@ -2699,6 +2816,56 @@ NC_VI_CH_FMT_S VD_VI_ChannelFormatDefs[ NC_VIVO_CH_FORMATDEF_MAX ] =
 			.op_md = 0x38,
 		},
 
+		[ TVI_4M_15P ] = {		// For Testing ... 181210 by edward  Setting Value is Based TVI 3M 18P 
+		    .name = "TVI_4M_15P",
+		    .width = 2560,
+		    .height = 1440,
+		    .format_fps = FMT_15P,
+		    .format_standard = FMT_TVI,
+		    .format_resolution = FMT_4M,
+		    .sw_reset = 0x40,
+		    .each_set = 0x00,
+		    .no_video = 0x40,
+		    .video_format = 0x00,
+		    .sd_ahd_mode = 0x08,
+		    .spl_mode = 0x03,
+		    .pal_cm_off = 0x92,
+		    .s_point =  0x90,
+		    .fsc_lock_mode = 0xdc,
+		    .hue = 0x00,
+		    .comb_mode = 0x05,
+		    .burst_delay = 0x00,
+		    .sync_rs = 0xee,
+		    .h_delay_lsb = 0x93,
+		    .h_mask_on = 0x00,
+		    .h_maks_sel = 0x00,
+		    .mem_rdp = 0x00,
+		    .h_down_scaler = 0x01,
+		    .h_scaler_mode = 0x00,
+		    .ref_base_lsb = 0x00,
+		    .ref_base_msb = 0x00,
+		    .line_mem_mode = 0x00,
+		    .hpll_mask_on = 0xc6,
+		    .hzoom_on = 0x00,
+		    .zoom_dto =  0x00,
+		    .agc = 0x24,
+		    .comb_th_a =  0x08,
+		    .y_lpf =  0x00,
+		    .sync_en_lsb =  0x14,
+		    .sync_en_msb =  0xd0,
+		    .vblk_end_lsb =  0x00,
+		    .vblk_end_msb =  0x00,
+
+			.df_ydelay = 0x05,
+
+			.clk_adc = 0x04,
+			.clk_pre = 0x44,
+			.clk_post = 0x0,
+
+			.op_md = 0x38,
+
+		},
+
 		[ TVI_4M_30P ] = {
 		    .name = "TVI_4M_30P",
 		    .width = 2560,
@@ -3384,6 +3551,106 @@ NC_VI_CH_FMT_S VD_VI_ChannelFormatDefs[ NC_VIVO_CH_FORMATDEF_MAX ] =
 
 			.op_md = 0x38,
 		},
+
+
+		[ TVI_8M_15P ] = {
+		    .name = "TVI_8M_15P",
+		    .width = 3840,
+		    .height = 2160,
+		    .format_fps = FMT_15P,
+		    .format_standard = FMT_TVI,
+		    .format_resolution = FMT_8M,
+		    .sw_reset = 0x40,
+		    .each_set = 0x00,
+		    .no_video = 0x40,
+		    .video_format = 0x00,
+		    .sd_ahd_mode = 0x02,
+		    .spl_mode = 0xa,
+		    .pal_cm_off = 0x92,
+		    .s_point =  0x90,
+		    .fsc_lock_mode = 0xdc,
+		    .hue = 0x00,
+		    .comb_mode = 0x05,
+		    .burst_delay = 0x00,
+		    .sync_rs = 0xee,
+		    .h_delay_lsb = 0x93,
+		    .h_mask_on = 0x00,
+		    .h_maks_sel = 0x00,
+		    .mem_rdp = 0x00,
+		    .h_down_scaler = 0x00,
+		    .h_scaler_mode = 0x00,
+		    .ref_base_lsb = 0x00,
+		    .ref_base_msb = 0x00,
+		    .line_mem_mode = 0x00,
+		    .hpll_mask_on = 0xc6,
+		    .hzoom_on = 0x00,
+		    .zoom_dto =  0x00,
+		    .agc = 0x24,
+		    .comb_th_a =  0x08,
+		    .y_lpf =  0x00,
+		    .sync_en_lsb =  0x14,
+		    .sync_en_msb =  0x00,
+		    .vblk_end_lsb =  0x00,
+		    .vblk_end_msb =  0x00,
+
+			.df_ydelay = 0x05,
+
+			.clk_adc = 0x44,
+			.clk_pre = 0x44,
+			.clk_post = 0x0,
+
+			.op_md = 0x38,
+		},
+
+		[ TVI_8M_12_5P ] = {
+		    .name = "TVI_8M_12_5P",
+		    .width = 3840,
+		    .height = 2160,
+		    .format_fps = FMT_12_5P,
+		    .format_standard = FMT_TVI,
+		    .format_resolution = FMT_8M,
+		    .sw_reset = 0x40,
+		    .each_set = 0x00,
+		    .no_video = 0x40,
+		    .video_format = 0x00,
+		    .sd_ahd_mode = 0x01,
+		    .spl_mode = 0xa,
+		    .pal_cm_off = 0x92,
+		    .s_point =  0x90,
+		    .fsc_lock_mode = 0xdc,
+		    .hue = 0x00,
+		    .comb_mode = 0x05,
+		    .burst_delay = 0x00,
+		    .sync_rs = 0xee,
+		    .h_delay_lsb = 0x93,
+		    .h_mask_on = 0x00,
+		    .h_maks_sel = 0x00,
+		    .mem_rdp = 0x00,
+		    .h_down_scaler = 0x00,
+		    .h_scaler_mode = 0x00,
+		    .ref_base_lsb = 0x00,
+		    .ref_base_msb = 0x00,
+		    .line_mem_mode = 0x00,
+		    .hpll_mask_on = 0xc6,
+		    .hzoom_on = 0x00,
+		    .zoom_dto =  0x00,
+		    .agc = 0x24,
+		    .comb_th_a =  0x08,
+		    .y_lpf =  0x00,
+		    .sync_en_lsb =  0x14,
+		    .sync_en_msb =  0x00,
+		    .vblk_end_lsb =  0x00,
+		    .vblk_end_msb =  0x00,
+
+			.df_ydelay = 0x05,
+
+			.clk_adc = 0x44,
+				.clk_pre = 0x44,
+			.clk_post = 0x0,
+
+			.op_md = 0x38,
+		},
+
 
 //		[NC_VIVO_CH_FORMATDEF_UNKNOWN] =
 //		{

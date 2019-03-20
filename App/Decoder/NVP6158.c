@@ -21,7 +21,7 @@ NC_VIVO_CH_FORMATDEF arrVfcType[0x100] = {
 				0,
 	/*  0x25 */ TVI_HD_30P_EX, TVI_HD_25P_EX, TVI_HD_60P, TVI_HD_50P, TVI_HD_B_30P_EX, TVI_HD_B_25P_EX,
 	/*  0x2B */	CVI_HD_30P_EX, CVI_HD_25P_EX, CVI_HD_60P, CVI_HD_50P,
-				0,
+			0,
 	/*  0x30 */	AHD20_1080P_30P, AHD20_1080P_25P,
 				0,
 	/*	0x33 */ TVI_FHD_30P, TVI_FHD_25P,
@@ -41,8 +41,8 @@ NC_VIVO_CH_FORMATDEF arrVfcType[0x100] = {
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	/*  0x70 */	AHD30_5M_20P, AHD30_5M_12_5P, AHD30_5_3M_20P, TVI_5M_12_5P,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	/*  0x80 */	AHD30_8M_15P, AHD30_8M_7_5P, AHD30_8M_12_5P, CVI_8M_15P, CVI_8M_12_5P,
-				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	/*  0x80 */	AHD30_8M_15P, AHD30_8M_7_5P, AHD30_8M_12_5P, CVI_8M_15P, CVI_8M_12_5P, TVI_8M_15P, TVI_8M_12_5P,
+				0, 0, 0, 0, 0, 0, 0, 0, 0,
 	/*  0x90 */	AHD30_6M_18P, AHD30_6M_20P,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	/*  0xA0 */
@@ -57,6 +57,33 @@ unsigned char NVP6158_I2C_READ(unsigned char slaveaddr, unsigned char regaddr)
 void NVP6158_I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data)
 {
 	I2C_WRITE(slaveaddr, regaddr, write_data);		
+}
+
+unsigned char __IsOver3MRTVideoFormat( const char *poFmtName )
+{
+	unsigned char ret = 1; //
+
+	if((strcmp(poFmtName, "AHD30_3M_30P") == 0) ||
+	   (strcmp(poFmtName, "AHD30_3M_25P") == 0) ||
+	   (strcmp(poFmtName, "AHD30_4M_30P") == 0) ||
+	   (strcmp(poFmtName, "AHD30_4M_25P") == 0) ||
+	   (strcmp(poFmtName, "AHD30_5M_20P") == 0) ||
+	   (strcmp(poFmtName, "AHD30_5_3M_20P") == 0) ||
+	   (strcmp(poFmtName, "AHD30_6M_18P") == 0) ||
+	   (strcmp(poFmtName, "AHD30_6M_20P") == 0) ||
+	   (strcmp(poFmtName, "AHD30_8M_12_5P") == 0) ||
+	   (strcmp(poFmtName, "AHD30_8M_15P") == 0) ||
+	   (strcmp(poFmtName, "TVI_4M_30P") == 0) ||
+	   (strcmp(poFmtName, "TVI_4M_25P") == 0) ||
+	   (strcmp(poFmtName, "TVI_5M_20P") == 0) ||
+	   (strcmp(poFmtName, "CVI_4M_25P") == 0) ||
+	   (strcmp(poFmtName, "CVI_4M_30P") == 0) ||
+	   (strcmp(poFmtName, "CVI_8M_15P") == 0) ||
+	   (strcmp(poFmtName, "CVI_8M_12_5P") == 0))
+	{
+		ret = 0;
+	}
+	return ret; // 0:Over 3M RT, 1:other formation
 }
 
 NC_VIVO_CH_FORMATDEF NC_VD_AUTO_VFCtoFMTDEF(unsigned char VFC)
@@ -74,13 +101,6 @@ void NC_VD_AUTO_AutoMode_Set(unsigned char ch, unsigned char DevNum)
 	VinAutoDet.devnum = oDevNum;
 
 	video_input_auto_detect_set(&VinAutoDet);
-}
-
-NC_VO_PORT_FMT_S *NC_HI_VO_Get_PortFormat( NC_VIVO_CH_FORMATDEF def )
-{
-	NC_VO_PORT_FMT_S *pRet = &VD_VO_PortFormatDefs[ def ];
-
-	return  pRet;
 }
 
 void NC_VD_VO_Mode_Set_New( unsigned char ch, unsigned char devnum, unsigned char port, NC_VO_PORT_FMT_S *pPortFmt,
@@ -279,34 +299,40 @@ void NC_VD_VO_Mode_Set_New( unsigned char ch, unsigned char devnum, unsigned cha
 	video_out_port_enable(&sPortEnable);
 }
 
-NC_VI_CH_FMT_S *NC_HI_VI_Get_ChannelFormat( NC_VIVO_CH_FORMATDEF def )
-{
-
-	NC_VI_CH_FMT_S *pRet = &VD_VI_ChannelFormatDefs[ def ];
-
-	return  pRet;
-}
-
-NC_VIVO_CH_FORMATDEF NC_HI_VI_FindFormatDef( NC_FORMAT_STANDARD format_standard,
-		NC_FORMAT_RESOLUTION format_resolution, NC_FORMAT_FPS format_fps  )
-{
-	int ii;
-
-	if(format_standard == FMT_AUTO)
-		return NC_VIVO_CH_FORMATDEF_AUTO;
-
-	for(ii=0;ii<NC_VIVO_CH_FORMATDEF_MAX;ii++)
-	{
-		NC_VI_CH_FMT_S *pFmt = &VD_VI_ChannelFormatDefs[ ii ];
-
-		if( pFmt->format_standard == format_standard )
-		if( pFmt->format_resolution == format_resolution )
-		if( pFmt->format_fps == format_fps )
-			return ii;
-	}
-
-	return NC_VIVO_CH_FORMATDEF_UNKNOWN;
-}
+// move to video_fmt_info.c
+//NC_VI_CH_FMT_S *NC_HI_VI_Get_ChannelFormat( NC_VIVO_CH_FORMATDEF def )
+//{
+//	NC_VI_CH_FMT_S *pRet = &VD_VI_ChannelFormatDefs[ def ];
+//	return  pRet;
+//}
+//
+//NC_VO_PORT_FMT_S *NC_HI_VO_Get_PortFormat( NC_VIVO_CH_FORMATDEF def )
+//{
+//	NC_VO_PORT_FMT_S *pRet = &VD_VO_PortFormatDefs[ def ];
+//
+//	return  pRet;
+//}
+//
+//NC_VIVO_CH_FORMATDEF NC_HI_VI_FindFormatDef( NC_FORMAT_STANDARD format_standard,
+//		NC_FORMAT_RESOLUTION format_resolution, NC_FORMAT_FPS format_fps  )
+//{
+//	int ii;
+//
+//	if(format_standard == FMT_AUTO)
+//		return NC_VIVO_CH_FORMATDEF_AUTO;
+//
+//	for(ii=0;ii<NC_VIVO_CH_FORMATDEF_MAX;ii++)
+//	{
+//		NC_VI_CH_FMT_S *pFmt = &VD_VI_ChannelFormatDefs[ ii ];
+//
+//		if( pFmt->format_standard == format_standard )
+//		if( pFmt->format_resolution == format_resolution )
+//		if( pFmt->format_fps == format_fps )
+//			return ii;
+//	}
+//
+//	return NC_VIVO_CH_FORMATDEF_UNKNOWN;
+//}
 
 void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss)
 {
@@ -328,18 +354,26 @@ NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalCh
 	return s_raptor3_vfmts.curvideofmt[oLogicalChannel];
 }
 
+
+#define DISTINGUISH_MAX_NUM	5
+static unsigned int CVI_720P30[4]={0,};
+static unsigned int DISTINGUISH_CNT[4] = { 0, };
+static unsigned int CVI_1080P30[4] = {0, };
+static unsigned int __First_Boot_DetectResult_CVI1080P[4] = {0, };
+
 void NVP6158_VideoDetectionProc(void)
 {
-
+	int i;
 	int ret;
-	unsigned char		oDevNum = 0;
-	unsigned char 		oLogicalChannel = 0;
-	unsigned char 		oCurVideofmt = 0x00;
-	unsigned char 		oPreVideofmt = 0x00;
-	NC_VIVO_CH_FORMATDEF oFmtDef;
-	NC_VIVO_CH_FORMATDEF oFmtB5Def;
-	decoder_dev_ch_info_s sDevChInfo;
-	video_output_data_out_mode DataOutMode;
+	unsigned char			oDevNum = 0;
+	unsigned char 			oLogicalChannel = 0;
+	unsigned char 			oCurVideofmt = 0x00;
+	unsigned char 			oPreVideofmt = 0x00;
+	NC_VI_CH_FMT_S 			*pChFmt;
+	NC_VIVO_CH_FORMATDEF 	oFmtDef;
+	NC_VIVO_CH_FORMATDEF 	oFmtB5Def;
+	NC_VD_DEV_CH_INFO_STR 	sDevChInfo;
+//	video_output_data_out_mode DataOutMode;
 
 	s_raptor3_vfmts.motiondetect = 0; //initialize Motion Detection for each channel
 	
@@ -347,110 +381,217 @@ void NVP6158_VideoDetectionProc(void)
 	for( oLogicalChannel = 0; oLogicalChannel < 4; oLogicalChannel++ )
 	{
 		/*****************************************************************
-		*
-		* This is Auto mode
-		*
-		*****************************************************************/
+		 *
+		 * This is Auto mode
+		 *
+		 *****************************************************************/
+		oDevNum       = oLogicalChannel/4; //kukuri
+		sDevChInfo.Ch = oLogicalChannel;
+		sDevChInfo.Dev_Num = oDevNum;
+
 		/* get video format */
 		RAPTOR3_SAL_GetFormatEachCh( oLogicalChannel, &s_raptor3_vfmts );
 
-		oDevNum       = oLogicalChannel/4;
+		/* process video format on/off */
 		oCurVideofmt  = s_raptor3_vfmts.curvideofmt[oLogicalChannel];
 		oPreVideofmt  = s_raptor3_vfmts.prevideofmt[oLogicalChannel];
 
-		if( s_raptor3_vfmts.curvideoloss[oLogicalChannel] == VIDEO_LOSS_ON )
+		if( s_raptor3_vfmts.curvideoloss[oLogicalChannel] == VIDEO_LOSS_ON)
 		{
+			/* on video */
 			if( (oCurVideofmt != NC_VIVO_CH_FORMATDEF_UNKNOWN) && (oPreVideofmt == NC_VIVO_CH_FORMATDEF_UNKNOWN) )
 			{
 				oFmtDef = NC_VD_AUTO_VFCtoFMTDEF( s_raptor3_vfmts.vfc[oLogicalChannel] );
-				sDevChInfo.fmt_def = oFmtDef;
+				sDevChInfo.Fmt_Def = oFmtDef;
 
-				sDevChInfo.ch = oLogicalChannel;
-				sDevChInfo.devnum = oDevNum;
-				if(oFmtDef == AHD30_5M_20P || oFmtDef == AHD30_3M_30P )
-				{
-					/* Read Bank13 0xA4, 0xA5 ---> integral_status_ahd_vbi[7:0], integral_status_ahd_vbi[15:8]  */
-					/* integral_vbi level is Bank13 0x14 														*/
-					/* If integral_status_ahd_vbi < threshold ----> TVI_5M_20P
-					 * else AHD30_5M_20P Setting
-					 */
-					video_input_ahd_tvi_distinguish(&sDevChInfo);
-					oFmtDef = sDevChInfo.fmt_def;
+//					fprintf(stdout,"[CH:%d] >> Now Format Define Value : [%02x]\n", oLogicalChannel, oFmtDef);
 
-					if( oFmtDef == TVI_5M_20P )
+#ifdef SUPPORT_TVI_5M_20P
+				if(oFmtDef == AHD30_5M_20P )
 					{
-						s_raptor3_vfmts.curvideofmt[oLogicalChannel] = TVI_5M_20P;
+						NC_VD_VI_AHD_TVI_Ditinguish(&sDevChInfo);
+						oFmtDef = sDevChInfo.Fmt_Def;
+
+						if( oFmtDef == TVI_5M_20P )
+							s_raptor3_vfmts.curvideofmt[oLogicalChannel] = TVI_5M_20P;
+					}
+#endif
+#ifdef SUPPORT_TVI_8M
+				if( oFmtDef == CVI_8M_15P || oFmtDef == CVI_8M_12_5P || oFmtDef == CVI_4M_25P )
+				{
+					NC_VD_VI_CVI_TVI_Ditinguish(&sDevChInfo);
+					oFmtDef = sDevChInfo.Fmt_Def;
+					s_raptor3_vfmts.curvideofmt[oLogicalChannel] = sDevChInfo.Fmt_Def;
+				}
+#endif
+#ifdef SUPPORT_AHD_CVI_1M_ACCURACY_UP
+				if( oFmtDef == AHD20_720P_30P_EX_Btype )
+				{
+					if(CVI_720P30[oLogicalChannel] == 0)
+					{
+						oFmtDef = CVI_HD_30P_EX;
+						s_raptor3_vfmts.curvideofmt[oLogicalChannel] = CVI_HD_30P_EX;
+						CVI_720P30[oLogicalChannel] = 1;
 					}
 				}
+#endif
+#ifdef SUPPORT_TVI_1M_A_2_B
+				if(oFmtDef == TVI_HD_30P_EX || oFmtDef == TVI_HD_25P_EX)
+				{
+					NC_FORMAT_STANDARD   format_standard=FMT_TVI;
+					NC_FORMAT_RESOLUTION format_resolution=FMT_720P_EX;
+					NC_FORMAT_FPS        format_fps=FMT_30P;
 
+					switch( oFmtDef )
+					{
+						case TVI_HD_30P_EX : format_fps=FMT_30P; break;
+						case TVI_HD_25P_EX : format_fps=FMT_25P; break;
+						default : break;
+					}
+
+					NC_APP_VD_COAX_Tx_Init( oLogicalChannel/4, oLogicalChannel, format_standard, format_resolution, format_fps );
+					NC_APP_VD_COAX_Tx_Command_Send_Set( oLogicalChannel/4, oLogicalChannel, format_standard, format_resolution, format_fps, COAX_CMD_TVI_1M_A_B_TYPE_CHANGE_A );
+//						fprintf(stdout, "TVI HD A Type to B type Send COAX CMD!!!!\n");
+					continue;
+				}
+#endif
+#ifdef SUPPORT_AHD_CVI_2M_ACCURACY_UP
+				if( oFmtDef == CVI_FHD_30P )
+				{
+					DBG_INFO("[CH:%d] >>> First finding format CVI 2M 30P \n", oLogicalChannel );
+					NC_VD_VI_AHD_CVI_Distinguish( &sDevChInfo );
+					oFmtDef = sDevChInfo.Fmt_Def;
+					s_raptor3_vfmts.curvideofmt[oLogicalChannel] = oFmtDef;
+
+					CVI_1080P30[oLogicalChannel] = 1;
+				}
+#endif
 				/* set video format(DEC) */
 				RAPTOR3_SAL_OnVIdeoSetFormat( oLogicalChannel, &s_raptor3_vfmts );
 
-				video_input_manual_agc_stable_endi(&sDevChInfo,0);
+				/* EQ - get stage and set eq value and show decoder */
+//					NC_APP_VD_MANUAL_VIDEO_EQ_Set(oLogicalChannel, 0, oFmtDef);
+//
+//					NC_VD_AUTO_MANUAL_AGC_STABLE_DISABLE(&sDevChInfo);
+//
+//					CableDistance = NC_APP_VD_MANUAL_CABLE_DISTANCE_Get( oLogicalChannel, oFmtDef );
+//					NC_APP_VD_MANUAL_VIDEO_EQ_Set(oLogicalChannel, CableDistance, oFmtDef);
 
-				/* show decoder */
-				DataOutMode.ch = oLogicalChannel;
-				DataOutMode.set_val = 0x1;
-				video_output_data_out_mode_set( &DataOutMode /*1 is OUT_MODE_ON*/ );
+#ifdef SUPPORT_AHD_CVI_1M_ACCURACY_UP
+				if(oFmtDef == CVI_HD_30P_EX && CVI_720P30[oLogicalChannel] == 1)
+				{
+					/* hide decoder */
+					NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,	OUT_MODE_OFF );
+				//	usleep( 1500 * 1000 );
+				}
+				else
+					NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,  OUT_MODE_ON );
+#else
+				NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,  OUT_MODE_ON );
+#endif
 
-				/* save onvideo to prevideofmt */
+				/* set Coaxial */ // blocked by kukuri
+//					pChFmt = (NC_VI_CH_FMT_S *)NC_HI_VI_Get_ChannelFormat( oFmtDef );
+//					NC_APP_VD_COAX_Tx_Init( oDevNum, oLogicalChannel, pChFmt->format_standard, pChFmt->format_resolution, pChFmt->format_fps );
+//					NC_APP_VD_COAX_Rx_Init( oDevNum, oLogicalChannel, pChFmt->format_standard, pChFmt->format_resolution, pChFmt->format_fps );
+
+
 				s_raptor3_vfmts.prevideofmt[oLogicalChannel] = s_raptor3_vfmts.curvideofmt[oLogicalChannel];
 
+//					fprintf( stdout, ">>>>> CH[%d], Set, On video set : 0x%02X\n", oLogicalChannel, s_raptor3_vfmts.curvideofmt[oLogicalChannel] );
 			}
 			else
 			{
-				/* check debouce video format(-1:changed, 0:not checked) when you changed video format(Dahua-NVP2450). */
+				/* check debouce video format(-1:changed, 0:not checked) when you changed video format */
 				ret = RAPTOR3_SAL_AutoDebouceCheck( oLogicalChannel, &s_raptor3_vfmts );
+
+#ifdef SUPPORT_AHD_CVI_1M_ACCURACY_UP
+				if(s_raptor3_vfmts.curvideofmt[oLogicalChannel]==CVI_HD_30P_EX && CVI_720P30[oLogicalChannel] == 1)
+					{
+					NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,	OUT_MODE_ON );
+						//CVI_720P30[oLogicalChannel] = 0;
+					}
+#endif
+#ifdef SUPPORT_AHD_CVI_2M_ACCURACY_UP
+				if( CVI_1080P30[oLogicalChannel] &&  !__First_Boot_DetectResult_CVI1080P[oLogicalChannel] )
+				{
+					CVI_1080P30[oLogicalChannel] = 0;
+					__First_Boot_DetectResult_CVI1080P[oLogicalChannel] = 1;
+
+					ret = -1;
+				}
+#endif
+
 				if( ret == -1 )
 				{
-					sDevChInfo.ch = oLogicalChannel;
-					sDevChInfo.devnum = oDevNum;
-					sDevChInfo.fmt_def = oFmtB5Def;
+					sDevChInfo.Ch = oLogicalChannel % 4;
+					sDevChInfo.Dev_Num = oDevNum;
+					sDevChInfo.Fmt_Def = CVI_HD_30P_EX;
+					s_raptor3_vfmts.curvideofmt[oLogicalChannel] = CVI_HD_30P_EX;
+//                  CableDistance = 0;
 
 					/* hide decoder */
-					/* Commented out by Louis to fix color changing problem during reconnection. */
-					//video_input_contrast_off(&sDevChInfo);
-
-					DataOutMode.ch = oLogicalChannel;
-					DataOutMode.set_val = 0xF;
-					video_output_data_out_mode_set( &DataOutMode /*0xF is OUT_MODE_OFF*/ );
+					NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,  OUT_MODE_OFF );
 
 					/* decoder afe power down */
-					video_input_vafe_control(&sDevChInfo, 0);
+					video_input_vafe_control(&sDevChInfo, 0);//NC_VD_AUTO_AFE_DOWN(&sDevChInfo);
 					/* set no video- first(i:channel, raptor3_vfmts:information */
 					RAPTOR3_SAL_NoVIdeoSetFormat( oLogicalChannel, &s_raptor3_vfmts );
+
 					/* decoder afe power up */
-					video_input_vafe_control(&sDevChInfo, 1);
+					video_input_vafe_control(&sDevChInfo, 1);//NC_VD_AUTO_AFE_UP(&sDevChInfo);
 
 					/* for forced agc stable */
-					video_input_manual_agc_stable_endi(&sDevChInfo, 1);
+					video_input_manual_agc_stable_endi(&sDevChInfo, 1);//NC_VD_AUTO_MANUAL_AGC_STABLE_ENABLE(&sDevChInfo);
 					Delay_ms(500);
 
-					/* save onvideo to prevideofmt */
+					/* Auto Debounce Buffer Clear */
+					s_raptor3_vfmts.debounceidx[oLogicalChannel] = 0;
+					for(i  = 0; i < MAX_DEBOUNCE_CNT; i++)
+						s_raptor3_vfmts.debounce[oLogicalChannel][i] = 0xff;
+
+					/* clear prevideofmt */
 					s_raptor3_vfmts.prevideofmt[oLogicalChannel] = NC_VIVO_CH_FORMATDEF_UNKNOWN;
 
+//					fprintf( stdout, ">>>>> CH[%d], Reset, No video set: 0x%02X\n", oLogicalChannel, CVI_HD_30P_EX );
 				}
 			}
 		}
 		else
 		{
 			/* no video */
-			//if( oPreVideofmt !=  NC_VIVO_CH_FORMATDEF_UNKNOWN )
+			if( oPreVideofmt != NC_VIVO_CH_FORMATDEF_UNKNOWN )
 			{
-				/* hide decoder */
-				DataOutMode.ch = oLogicalChannel;
-				DataOutMode.set_val = 0xF;
-				video_output_data_out_mode_set( &DataOutMode /*OUT_MODE_OFF*/);
+				NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,  OUT_MODE_OFF );
+
+				s_raptor3_vfmts.curvideofmt[oLogicalChannel] = CVI_HD_30P_EX;
+//                    CableDistance = 0;
 
 				/* set no video- first(i:channel, raptor3_vfmts:information */
 				RAPTOR3_SAL_NoVIdeoSetFormat( oLogicalChannel, &s_raptor3_vfmts );
 
-				/* save novideo to prevideofmt */
+#ifdef				SUPPORT_AHD_CVI_1M_ACCURACY_UP
+				CVI_720P30[oLogicalChannel] = 0;
+#endif
+#ifdef				SUPPORT_AHD_CVI_2M_ACCURACY_UP
+				CVI_1080P30[oLogicalChannel] = 0;
+#endif
+
+				/* Auto Debounce Buffer Clear */
+				s_raptor3_vfmts.debounceidx[oLogicalChannel] = 0;
+				for(i  = 0; i < MAX_DEBOUNCE_CNT; i++)
+					s_raptor3_vfmts.debounce[oLogicalChannel][i] = 0xff;
+
+				/* clear prevideofmt */
 				s_raptor3_vfmts.prevideofmt[oLogicalChannel] = NC_VIVO_CH_FORMATDEF_UNKNOWN;
 
+//				fprintf( stdout, ">>>>> CH[%d], Set, No video set : 0x%02X\n", oLogicalChannel, CVI_HD_30P_EX );
 			}
+
 		}
 	}
+
+	/* sleep */
 	//Delay_ms(200);
 }
 
@@ -528,6 +669,51 @@ void NVP6158_init(void)
 		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x55, 0x10);
 		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x56, 0x32);
 	}
+
+	// for image enhancement 3M RT upper format when cable distance 300M over
+	for(ch = 0; ch < 4; ch++)
+	{
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x05 + ch );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x50, 0xc6 );
+
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x0a + (ch / 2));
+
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x00 + ( 0x80 * (ch % 2)), 0x80 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x01 + ( 0x80 * (ch % 2)), 0x02 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x02 + ( 0x80 * (ch % 2)), 0x04 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x03 + ( 0x80 * (ch % 2)), 0x80 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x04 + ( 0x80 * (ch % 2)), 0x06 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x05 + ( 0x80 * (ch % 2)), 0x07 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x06 + ( 0x80 * (ch % 2)), 0x80 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x07 + ( 0x80 * (ch % 2)), 0x07 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x08 + ( 0x80 * (ch % 2)), 0x03 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x09 + ( 0x80 * (ch % 2)), 0x08 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0a + ( 0x80 * (ch % 2)), 0x04 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0b + ( 0x80 * (ch % 2)), 0x10 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + ( 0x80 * (ch % 2)), 0x08 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0d + ( 0x80 * (ch % 2)), 0x1f );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0e + ( 0x80 * (ch % 2)), 0x2e );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0f + ( 0x80 * (ch % 2)), 0x08 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x10 + ( 0x80 * (ch % 2)), 0x38 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x11 + ( 0x80 * (ch % 2)), 0x35 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x12 + ( 0x80 * (ch % 2)), 0x00 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x13 + ( 0x80 * (ch % 2)), 0x20 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x14 + ( 0x80 * (ch % 2)), 0x0d );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x15 + ( 0x80 * (ch % 2)), 0x80 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x16 + ( 0x80 * (ch % 2)), 0x54 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x17 + ( 0x80 * (ch % 2)), 0xb1 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x18 + ( 0x80 * (ch % 2)), 0x91 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x19 + ( 0x80 * (ch % 2)), 0x1c );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1a + ( 0x80 * (ch % 2)), 0x87 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1b + ( 0x80 * (ch % 2)), 0x92 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1c + ( 0x80 * (ch % 2)), 0xe2 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1d + ( 0x80 * (ch % 2)), 0x20 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1e + ( 0x80 * (ch % 2)), 0xd0 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x1f + ( 0x80 * (ch % 2)), 0xcc );
+	}
+
+ 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x13 );
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x12, 0xff );
 
 /* set auto mode, but if you want to change mode from auto to manual mode, check this!(2017-07-30) */
 	for( ch = 0; ch < 4; ch++ )
