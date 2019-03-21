@@ -75,6 +75,18 @@ unsigned char __video_fmt_bank5_debounce( unsigned char ch, unsigned char value 
 	}
 }
 
+
+void NC_VD_VO_Auto_Data_Mode_Set(unsigned char ch, unsigned char devnum, unsigned char SetVal)
+{
+	NC_VD_AUTO_DATA_OUT_MODE_STR DataOutMode;
+
+	DataOutMode.Ch = ch%4;
+	DataOutMode.devnum = devnum;
+	DataOutMode.SetVal = SetVal;
+
+	video_output_data_out_mode_set(&DataOutMode);//NC_VD_AT_DAT_OUT_MODE_Set(&DataOutMode);
+}
+
 /*******************************************************************************
 *	Description		: Get video format(each ch)
 *	Argurments		: pVFmtSet(raptor3 information)

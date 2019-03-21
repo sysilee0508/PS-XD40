@@ -719,6 +719,13 @@ typedef enum _NC_VIDEO_ONOFF
 
 } NC_VIDEO_ONOFF;
 
+typedef enum
+{
+	OUT_MODE_ON = 0x01,
+	OUT_MODE_OFF = 0x0F
+}DATA_OUT_MODE_NUM;
+
+
 typedef struct _NC_VD_DEV_CH_INFO_STR{
 	unsigned char Ch;
 	unsigned char Dev_Num;
