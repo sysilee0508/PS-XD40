@@ -124,6 +124,11 @@ typedef enum NC_VIVO_CH_FORMATDEF
 	AHD20_SD_H960_2EX_Btype_NT,
 	AHD20_SD_H960_2EX_Btype_PAL,
 
+	// added by kukuri -->
+	AHD20_1080P_60P, // For Test
+	AHD20_1080P_50P, // For Test
+	// <--
+	
 	AHD20_1080P_30P,
 	AHD20_1080P_25P,
 

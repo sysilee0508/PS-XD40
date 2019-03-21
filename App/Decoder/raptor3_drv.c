@@ -326,24 +326,24 @@ void video_input_onvideo_set(decoder_dev_ch_info_s *decoder_info)
 	unsigned char devnum = decoder_info->devnum;
 	unsigned char val_9x44;
 
-	NVP6158_I2C_WRITE(raptor3_i2c_addr[devnum], 0xFF,0x09);
-	val_9x44 = NVP6158_I2C_READ(raptor3_i2c_addr[devnum], 0x44);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF,0x09);
+	val_9x44 = NVP6158_I2C_READ(NVP6158_ADDR, 0x44);
 	val_9x44 &= ~(1 << ch);
-	NVP6158_I2C_WRITE(raptor3_i2c_addr[devnum], 0x44, val_9x44);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x44, val_9x44);
 
 	/* CVI HD 30P PN Value Set */
-	NVP6158_I2C_WRITE(raptor3_i2c_addr[devnum], 0x50 + (ch*4) , 0x30);
-	NVP6158_I2C_WRITE(raptor3_i2c_addr[devnum], 0x51 + (ch*4) , 0x6F);
-	NVP6158_I2C_WRITE(raptor3_i2c_addr[devnum], 0x52 + (ch*4) , 0x67);
-	NVP6158_I2C_WRITE(raptor3_i2c_addr[devnum], 0x53 + (ch*4) , 0x48);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x50 + (ch*4) , 0x30);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x51 + (ch*4) , 0x6F);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x52 + (ch*4) , 0x67);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x53 + (ch*4) , 0x48);
 
-	NVP6158_I2C_WRITE(raptor3_i2c_addr[devnum], 0xFF, 0x11);
-	NVP6158_I2C_WRITE(raptor3_i2c_addr[devnum], 0x00 + (ch*0x20), 0x00);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x11);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x00 + (ch*0x20), 0x00);
 
 	/* after 09/12 */
 	format_3M_RT = __IsOver3MRTVideoFormat_auto_detect(decoder_info);
 
-	NVP6158_I2C_WRITE(raptor3_i2c_addr[devnum], 0xFF, 0x05 + ch);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + ch);
 
 	if(format_3M_RT)
 	{
@@ -575,7 +575,7 @@ void video_input_cvi_tvi_distinguish(decoder_dev_ch_info_s *decoder_info)
 
 	for(ii = 0; ii < check_time; ii++)
 	{
-		msleep(10);
+		Delay_ms(10);
 		B13xAB[ii] = NVP6158_I2C_READ(NVP6158_ADDR, 0xAB);
 	}
 
@@ -597,7 +597,7 @@ void video_input_cvi_tvi_distinguish(decoder_dev_ch_info_s *decoder_info)
 
 		for(ii = 0; ii < check_time; ii++)
 		{
-			msleep(10);
+			Delay_ms(10);
 			B5xF5_F4[ii] = ( NVP6158_I2C_READ(NVP6158_ADDR, 0xF5) << 8 ) | NVP6158_I2C_READ(NVP6158_ADDR, 0xF4);
 		}
 

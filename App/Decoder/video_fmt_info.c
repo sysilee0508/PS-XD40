@@ -17,7 +17,7 @@
 #include "video_fmt_info.h"
 #include "video_fmt_input.h"
 #include "video_fmt_output.h"
-#include "clock.h"
+//#include "clock.h"
 
 NC_VI_CH_FMT_S *NC_HI_VI_Get_ChannelFormat( NC_VIVO_CH_FORMATDEF def )
 {

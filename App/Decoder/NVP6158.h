@@ -1,5 +1,8 @@
-#ifndef __NVP6158__h
-#define __NVP6158__h
+#ifndef __NVP6158_H__
+#define __NVP6158_H__
+
+#include "raptor3_fmt.h"
+#include "video_fmt_info.h"
 
 /* value define --------------------------------------------------------------*/
 #define NVP6158_ADDR	0x60
@@ -438,6 +441,7 @@ typedef struct _decoder_dev_ch_info_s
 	unsigned char fmt_def;
 }decoder_dev_ch_info_s;
 
+#if 0
 typedef struct _motion_mode{
 	unsigned char ch;
 	unsigned char devnum;
@@ -453,6 +457,7 @@ typedef enum NC_CH
 	CH3,
 	CH4
 } NC_CH;
+
 
 
 ///////////////////////////////// VIDEO_FORMAT_DETECT /////////////////////////////////
@@ -705,6 +710,7 @@ typedef struct _NC_VO_PORT_FMT_S
 	unsigned char devnum;
 
 }NC_VO_PORT_FMT_S;
+#endif
 
 typedef enum _NC_VIDEO_ONOFF
 {
@@ -907,11 +913,11 @@ void video_input_vafe_init(decoder_dev_ch_info_s *decoder_info);
 void video_input_new_format_set(decoder_dev_ch_info_s *decoder_info);
 void video_input_onvideo_check_data(video_input_vfc *vin_vfc);
 void video_input_no_video_set(video_input_novid_set *auto_novid);
-void motion_detection_get(motion_mode *motion_set);
-void motion_onoff_set(motion_mode *motion_set);
-void motion_pixel_all_onoff_set(motion_mode *motion_set);
-void motion_pixel_onoff_set(motion_mode *motion_set);
-void motion_tsen_set(motion_mode *motion_set);
+//void motion_detection_get(motion_mode *motion_set);
+//void motion_onoff_set(motion_mode *motion_set);
+//void motion_pixel_all_onoff_set(motion_mode *motion_set);
+//void motion_pixel_onoff_set(motion_mode *motion_set);
+//void motion_tsen_set(motion_mode *motion_set);
 
 int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInformation );
 int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInformation );
