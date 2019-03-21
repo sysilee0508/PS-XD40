@@ -2377,6 +2377,12 @@
                 <name>$PROJ_DIR$\..\App\Decoder\coax_table.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\App\Decoder\motion.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\Decoder\motion.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\App\Decoder\NVP6158.c</name>
             </file>
             <file>
@@ -2389,7 +2395,16 @@
                 <name>$PROJ_DIR$\..\App\Decoder\raptor3_drv.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\App\Decoder\raptor3_fmt.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\App\Decoder\video_eq_table.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\Decoder\video_fmt_info.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\Decoder\video_fmt_info.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\App\Decoder\video_fmt_input.h</name>

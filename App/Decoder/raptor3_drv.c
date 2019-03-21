@@ -683,7 +683,7 @@ void video_input_vafe_init(decoder_dev_ch_info_s *decoder_info)
 	unsigned char val_5678x5B;
 	unsigned char val_5678x5C;
 
-	video_input_vafe_init_s afe = (video_input_vafe_init_s) decoder_afe_fmtdef [decoder_info->fmt_def];
+	video_input_vafe_init_s afe = decoder_afe_fmtdef [decoder_info->fmt_def];
 
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00);
 
@@ -733,7 +733,7 @@ void video_input_color_set(decoder_dev_ch_info_s *decoder_info)
 	   || decoder_info->fmt_def == TVI_5M_20P
 	)
 	{
-		video_input_color_init_s color_init = (video_input_color_init_s)decoder_color_fmtdef[decoder_info->fmt_def];
+		video_input_color_init_s color_init = decoder_color_fmtdef[decoder_info->fmt_def];
 
 		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
 		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x0c + decoder_info->ch, color_init.brightnees);

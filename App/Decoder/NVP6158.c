@@ -3,8 +3,8 @@
 #include "NVP6158.h"
 #include "i2c.h"
 #include "delay.h"
-#include "video_fmt_input.h"
-#include "video_fmt_output.h"
+//#include "video_fmt_input.h"
+//#include "video_fmt_output.h"
 
 
 RAPTOR3_INFORMATION_S	s_raptor3_vfmts;
@@ -534,15 +534,15 @@ void NVP6158_VideoDetectionProc(void)
 					NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,  OUT_MODE_OFF );
 
 					/* decoder afe power down */
-					video_input_vafe_control(&sDevChInfo, 0);//NC_VD_AUTO_AFE_DOWN(&sDevChInfo);
+					video_input_vafe_control((decoder_dev_ch_info_s *)&sDevChInfo, 0);//NC_VD_AUTO_AFE_DOWN(&sDevChInfo);
 					/* set no video- first(i:channel, raptor3_vfmts:information */
 					RAPTOR3_SAL_NoVIdeoSetFormat( oLogicalChannel, &s_raptor3_vfmts );
 
 					/* decoder afe power up */
-					video_input_vafe_control(&sDevChInfo, 1);//NC_VD_AUTO_AFE_UP(&sDevChInfo);
+					video_input_vafe_control((decoder_dev_ch_info_s *)&sDevChInfo, 1);//NC_VD_AUTO_AFE_UP(&sDevChInfo);
 
 					/* for forced agc stable */
-					video_input_manual_agc_stable_endi(&sDevChInfo, 1);//NC_VD_AUTO_MANUAL_AGC_STABLE_ENABLE(&sDevChInfo);
+					video_input_manual_agc_stable_endi((decoder_dev_ch_info_s *)&sDevChInfo, 1);//NC_VD_AUTO_MANUAL_AGC_STABLE_ENABLE(&sDevChInfo);
 					Delay_ms(500);
 
 					/* Auto Debounce Buffer Clear */
@@ -724,5 +724,4 @@ void NVP6158_init(void)
 
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;
 }
-
 

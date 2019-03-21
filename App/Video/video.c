@@ -615,6 +615,7 @@ static void InputSyncHandler_B(BYTE src)
 }
 #endif
 
+#if 0
 //--------------------------------------------------------------------------------------------------
 static void SetOffChipFrmt(BYTE src)
 {
@@ -655,6 +656,7 @@ static void SetSrcMainFine(BYTE src)
 			break;
 	}
 }
+#endif
 //--------------------------------------------------------------------------------------------------
 static void SetIPCVideoFine(BYTE src)
 {
@@ -680,6 +682,7 @@ static PMDIN_AUXFILT_COEF GetAUXFilterCoef(void)
 	}
 }
 
+#if 0
 //--------------------------------------------------------------------------------------------------
 static void SetAUXVideoFilter(void)
 {
@@ -688,6 +691,7 @@ static void SetAUXVideoFilter(void)
 	MDINAUX_EnableFrontNRFilter(&stVideo, (pCoef==NULL)? OFF : ON);
 	if (pCoef!=NULL) MDINAUX_SetFrontNRFilterCoef(pCoef);
 }
+#endif 
 
 //--------------------------------------------------------------------------------------------------
 static void SetOSDMenuRefresh(void)
@@ -832,7 +836,6 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 {
 	WORD mainWidth, mainHeight;
 	WORD auxWidth, auxHeight;
-	static BYTE errorCnt = 0;
 	
 	// initialize each object
 	memset(&stMainVIEW, 0x00, sizeof(MDIN_VIDEO_WINDOW));
@@ -850,7 +853,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 		case VIDSRC_1280x720p60:
 		case VIDSRC_1280x720p50:
-			mainWidth = DISPLAY_WIDTH_1280x720*2;
+			mainWidth = DISPLAY_WIDTH_1280x720*2 - COMPENSATION_MARGIN;
 			mainHeight = DISPLAY_HEIGHT_1280x720;
 			break;
 
@@ -875,7 +878,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 		case VIDSRC_1280x720p60:
 		case VIDSRC_1280x720p50:
-			auxWidth = DISPLAY_WIDTH_1280x720*2;// - COMPENSATION_MARGIN;
+			auxWidth = DISPLAY_WIDTH_1280x720*2 - COMPENSATION_MARGIN;
 			auxHeight = DISPLAY_HEIGHT_1280x720;
 			break;
 

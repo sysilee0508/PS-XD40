@@ -38,6 +38,18 @@
 #define FUNC_OFF	0x00
 
 #define MAX_DEBOUNCE_CNT      10
+
+typedef enum _VI_WORK_MODE_E
+{
+    VI_WORK_MODE_1Multiplex = 0,    /* 1 Multiplex mode */
+    VI_WORK_MODE_2Multiplex,        /* 2 Multiplex mode */
+    VI_WORK_MODE_4Multiplex,        /* 4 Multiplex mode */
+    
+
+    VI_WORK_MODE_BUTT
+} VI_WORK_MODE_E;
+
+
 // Auto Detection
 typedef struct 
 {
@@ -164,6 +176,37 @@ typedef struct _video_input_color_init_s{
 
 }video_input_color_init_s;
 
+typedef struct _video_input_basic_vfmt_init_s{
+	unsigned char	video_format;	//B0		0x08/0x09/0x0a/0x0b
+	unsigned char	sd_ahd_mode;	//B0 		0x81/0x82/0x83/0x84
+	unsigned char	spl_mode;		//B0		0x85/0x86/0x87/0x88
+	unsigned char	sd_freq_sel;    //B5/6/7/8	0x69[0]
+
+	unsigned char reserved1;
+	unsigned char reserved2;
+	unsigned char reserved3;
+	unsigned char reserved4;
+	unsigned char reserved5;
+	unsigned char reserved6;
+
+}video_input_basic_vfmt_init_s;
+
+typedef struct _video_input_basic_chroma_init_s{
+	unsigned char	pal_cm_off;		//B0		0x21/0x25/0x29/0x2d
+	unsigned char	s_point;		//B5/6/7/8 	0x28
+	unsigned char	fsc_lock_mode;	//B5/6/7/8	0x25
+	unsigned char	comb_mode;    	//B5/6/7/8	0x90
+
+	unsigned char reserved1;
+	unsigned char reserved2;
+	unsigned char reserved3;
+	unsigned char reserved4;
+	unsigned char reserved5;
+	unsigned char reserved6;
+
+}video_input_basic_chroma_init_s;
+
+
 typedef struct _video_input_basic_timing_init_s{
 	unsigned char	sync_rs;		//B5/6/7/8	0x47
 	unsigned char	h_delay_lsb;	//B0 		0x58/0x59/0x5a/0x5b
@@ -183,6 +226,37 @@ typedef struct _video_input_basic_timing_init_s{
 	unsigned char reserved6;
 
 }video_input_basic_timing_init_s;
+
+typedef struct _video_input_basic_hscaler_mode_init_s{
+	unsigned char	h_down_scaler;	//B9		0x96/0xb6/0xd6/0xf6
+	unsigned char	h_scaler_mode;	//B9	 	0x97/0xb7/0xd7/0xf7
+	unsigned char	ref_base_lsb;	//B9		0x98/0xb8/0xd8/0xf8
+	unsigned char	ref_base_msb;  	//B9		0x99/0xb9/0xd9/0xf9
+	unsigned char	line_mem_mode;	//B0		0x34/0x35/0x36/0x37
+
+	unsigned char reserved1;
+	unsigned char reserved2;
+	unsigned char reserved3;
+	unsigned char reserved4;
+	unsigned char reserved5;
+	unsigned char reserved6;
+
+}video_input_basic_hscaler_mode_init_s;
+
+typedef struct _video_input_basic_hpll_init_s{
+	unsigned char	hpll_mask_on;	//B5/6/7/8		0x50
+	unsigned char	hafc_byp_th_e;	//B5/6/7/8	 	0xbb
+	unsigned char	hafc_byp_th_s;	//B5/6/7/8		0xb7
+	unsigned char	hafc_op_md;  	//B5/6/7/8		0xb8
+
+	unsigned char reserved1;
+	unsigned char reserved2;
+	unsigned char reserved3;
+	unsigned char reserved4;
+	unsigned char reserved5;
+	unsigned char reserved6;
+
+}video_input_basic_hpll_init_s;
 
 typedef struct _video_input_sam_val{
 	unsigned char ch;
@@ -257,6 +331,7 @@ typedef struct _video_output_sequence_reg{
 	unsigned char b1c4;
 	unsigned char b1c5;
 	unsigned char b1c6;
+	unsigned char b1c7;
 	unsigned char devnum;
 }video_output_sequence_reg;
 
@@ -313,11 +388,11 @@ typedef struct _video_output_port_enable_s{
 }video_output_port_enable_s;
 
 typedef struct _video_equalizer_hsync_stage_s{
-	unsigned int hsync_stage[6];
+	unsigned int hsync_stage[9];
 }video_equalizer_hsync_stage_s;
 
 typedef struct _video_equalizer_agc_stage_s{
-	unsigned int agc_stage[6];
+	unsigned int agc_stage[9];
 }video_equalizer_agc_stage_s;
 
 typedef struct _video_equalizer_distance_table_s{
@@ -457,7 +532,7 @@ typedef enum NC_CH
 	CH3,
 	CH4
 } NC_CH;
-
+#endif
 
 
 ///////////////////////////////// VIDEO_FORMAT_DETECT /////////////////////////////////
@@ -474,6 +549,19 @@ typedef struct _NC_VD_AUTO_NOVIDEO_STR{
  unsigned char Dev_Num;
 }NC_VD_AUTO_NOVIDEO_STR;
 
+typedef struct _NC_VD_AUTO_DATA_OUT_MODE_STR{	// 170329
+	unsigned char Ch;
+	unsigned char devnum;
+	unsigned char SetVal;
+}NC_VD_AUTO_DATA_OUT_MODE_STR;
+
+typedef struct _NC_VD_AUTO_NOVIDEO_REG_STR{
+	unsigned char Ch;
+	unsigned char devnum;	
+}NC_VD_AUTO_NOVIDEO_REG_STR;
+
+
+#if 0
 typedef enum NC_VIVO_CH_FORMATDEF
 {
 	NC_VIVO_CH_FORMATDEF_UNKNOWN = 0,
@@ -892,6 +980,7 @@ unsigned char NVP6158_I2C_READ(unsigned char slaveaddr, unsigned char regaddr);
 void NVP6158_I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data);
 void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss);
 NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel);
+void NC_VD_VO_Auto_Data_Mode_Set(unsigned char ch, unsigned char devnum, unsigned char SetVal);
 
 int check_id(unsigned char dec);
 void video_input_auto_detect_set(video_input_auto_detect *vin_auto_det);

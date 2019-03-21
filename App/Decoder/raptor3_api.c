@@ -1,6 +1,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "NVP6158.h"
+#include "delay.h"
 
+#if 1
 /*******************************************************************************
  *	Description		: debounce function
  *	Argurments		: ch(channel), value(current translated video format)
@@ -22,7 +24,7 @@ unsigned char __video_fmt_debounce( unsigned char ch, unsigned char value )
 		NC_VD_AUTO_VFC_Get(&sVFC);
 		debouncebuf[i] = NC_VD_AUTO_VFCtoFMTDEF(sVFC.VFC);
 
-		usleep(30 * 1000);
+		Delay_ms(30);
 	}
 
 	/* if The value of three buffers are same, return retfmt */
@@ -53,7 +55,7 @@ unsigned char __video_fmt_bank5_debounce( unsigned char ch, unsigned char value 
 		NC_VD_AUTO_ONVIDEO_CHECK(&sVFC);
 		debouncebuf[i] = NC_VD_AUTO_VFCtoFMTDEF(sVFC.VFC);
 
-		usleep(30 * 1000);
+		Delay_ms(30);
 	}
 
 	/* if The value of three buffers are same, return retfmt */
@@ -74,7 +76,7 @@ unsigned char __video_fmt_bank5_debounce( unsigned char ch, unsigned char value 
 		return 0xFF /*N/A*/ ;
 	}
 }
-
+#endif
 
 void NC_VD_VO_Auto_Data_Mode_Set(unsigned char ch, unsigned char devnum, unsigned char SetVal)
 {
@@ -84,8 +86,18 @@ void NC_VD_VO_Auto_Data_Mode_Set(unsigned char ch, unsigned char devnum, unsigne
 	DataOutMode.devnum = devnum;
 	DataOutMode.SetVal = SetVal;
 
-	video_output_data_out_mode_set(&DataOutMode);//NC_VD_AT_DAT_OUT_MODE_Set(&DataOutMode);
+	video_output_data_out_mode_set((video_output_data_out_mode *)&DataOutMode);//NC_VD_AT_DAT_OUT_MODE_Set(&DataOutMode);
 }
+
+void NC_VD_AUTO_NoVideo_Set(unsigned char ch, unsigned char devnum)
+{	
+	NC_VD_AUTO_NOVIDEO_REG_STR AutoNoVidDet;
+
+	AutoNoVidDet.Ch = ch%4;
+	AutoNoVidDet.devnum = devnum;
+	video_input_no_video_set((video_input_novid_set *)&AutoNoVidDet);
+};
+
 
 /*******************************************************************************
 *	Description		: Get video format(each ch)
@@ -114,8 +126,8 @@ int RAPTOR3_SAL_GetFormatEachCh( unsigned char ch, RAPTOR3_INFORMATION_S *pInfor
 	sNoVideo.Dev_Num = ch/4;
 
 	/* get vfc and videoloss */
-	video_input_vfc_read(&sVFC);
-	video_input_novid_read(&sNoVideo);
+	video_input_vfc_read((video_input_vfc *)&sVFC);
+	video_input_novid_read((video_input_novid *)&sNoVideo);
 
 	/* check vfc&videoloss and run debounce  */
 	if(((((sVFC.VFC >> 4 ) & 0xF) != 0xF) && ((sVFC.VFC & 0x0F) != 0xF)) && !sNoVideo.NoVid) // OnVideo
@@ -219,7 +231,7 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	{
 		if(oMux == VI_WORK_MODE_2Multiplex)
 		{
-			fprintf(stdout, " Not Support This Format .. High/RT Fmt:[%d]\n", FmtDef);
+			//fprintf(stdout, " Not Support This Format .. High/RT Fmt:[%d]\n", FmtDef);
 		}
 		else
 		{
@@ -243,14 +255,14 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	DEV_CH_INFO.Ch = oChannel;
 	DEV_CH_INFO.Dev_Num = oDevNum;
 	DEV_CH_INFO.Fmt_Def = FmtDef;
-	video_input_onvideo_set(&DEV_CH_INFO);//NC_VD_AUTO_ONVIDEO_SET(&DEV_CH_INFO);
+	video_input_onvideo_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);//NC_VD_AUTO_ONVIDEO_SET(&DEV_CH_INFO);
 
       /* This Part is enough EQ Setting */
-	video_input_h_timing_set(&DEV_CH_INFO);
-	video_input_color_set(&DEV_CH_INFO);
-    video_input_vafe_init(&DEV_CH_INFO);
+	video_input_h_timing_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
+	video_input_color_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
+    	video_input_vafe_init((decoder_dev_ch_info_s *)&DEV_CH_INFO);
 	
-    NC_VD_VO_Mode_Set_New( oChannel, oDevNum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, ch%4, ch%4, ch%4, ch%4 );
+    	NC_VD_VO_Mode_Set_New( oChannel, oDevNum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, ch%4, ch%4, ch%4, ch%4 );
 
 	return 0;
 }
@@ -325,7 +337,7 @@ int RAPTOR3_SAL_AutoDebouceCheck( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 
 	sVFC.Ch = ch % 4;
 	sVFC.Dev_Num = ch / 4;
-	video_input_onvideo_check_data(&sVFC);//NC_VD_AUTO_ONVIDEO_CHECK(&sVFC);
+	video_input_onvideo_check_data((video_input_vfc *)&sVFC);//NC_VD_AUTO_ONVIDEO_CHECK(&sVFC);
 
 	oDebncIdx = pInformation->debounceidx[ch];
 	pInformation->debounce[ch][oDebncIdx%MAX_DEBOUNCE_CNT] = sVFC.VFC;
@@ -413,9 +425,9 @@ int RAPTOR3_SAL_NoVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	DEV_CH_INFO.Fmt_Def = oFmtDef;
 
 	/* This Part is enough EQ Setting */
-	NC_VD_VI_H_Timing_Set(&DEV_CH_INFO);
-	NC_VD_VI_COLOR_Set(&DEV_CH_INFO);
-	NC_VD_VI_VAFE_Init(&DEV_CH_INFO);
+	video_input_h_timing_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
+	video_input_color_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
+    	video_input_vafe_init((decoder_dev_ch_info_s *)&DEV_CH_INFO);
 
 	NC_VD_AUTO_NoVideo_Set(oChannel, devnum);
 
