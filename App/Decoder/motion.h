@@ -15,7 +15,7 @@
 #ifndef _MOTION_H_
 #define _MOTION_H_
 
-#include "common.h"
+//#include "common.h"
 
 typedef struct _motion_mode{
 	unsigned char ch;
