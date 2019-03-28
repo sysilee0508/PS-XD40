@@ -3709,6 +3709,7 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 	/*B0 0x64*/ .v_delay[0]     = 0x21, .v_delay[1]     = 0x21, .v_delay[2]     = 0x21, .v_delay[3]     = 0x21, .v_delay[4]     = 0x21, .v_delay[5]     = 0x21, .v_delay[6]     = 0x21, .v_delay[7]     = 0x21, .v_delay[8]     = 0x21, .v_delay[9]     = 0x21, .v_delay[10]     = 0x21,
 			},
 		},
+		
 		[ AHD20_720P_30P ] = /* o */
 		{
 			/* base */

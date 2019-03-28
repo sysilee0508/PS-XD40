@@ -2,7 +2,8 @@
 #include "NVP6158.h"
 #include "delay.h"
 #include "video_input_table.h"
-#include "video_eq_table.h"
+//#include "video_eq_table.h"
+
 
 //--------------------------------------------------------------------------------
 // video_auto_detect functions
@@ -173,7 +174,9 @@ void video_input_auto_detect_set(video_input_auto_detect *vin_auto_det)
 	/* clock set */
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x1);
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x84 + vin_auto_det->ch, 0x00);
-    NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8c + vin_auto_det->ch, 0x55);
+	//kukuri
+       NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8c + vin_auto_det->ch, 0x40);
+	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8c + vin_auto_det->ch, 0x55);
 }
 
 void video_input_vfc_read(video_input_vfc *vin_vfc)
@@ -759,6 +762,26 @@ void video_input_color_set(decoder_dev_ch_info_s *decoder_info)
 	}
 }
 
+// kukuri
+void video_input_vfmt_set(decoder_dev_ch_info_s *decoder_info)
+{
+	video_input_basic_vfmt_init_s vfmt_init = decoder_basic_vfmt_fmtdef[decoder_info->fmt_def];
+
+
+//	unsigned char	video_format;	//B0		0x08/0x09/0x0a/0x0b
+//	unsigned char	sd_ahd_mode;	//B0 		0x81/0x82/0x83/0x84
+//	unsigned char	spl_mode;		//B0		0x85/0x86/0x87/0x88
+//	unsigned char	sd_freq_sel;    //B5/6/7/8	0x69[0]
+
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00 );
+	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0x08 + decoder_info->ch, vfmt_init.video_format);
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x81 + decoder_info->ch, vfmt_init.sd_ahd_mode );
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x85 + decoder_info->ch, vfmt_init.spl_mode );
+
+	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x05 + decoder_info->ch);
+	//NVP6158_I2C_WRITE(NVP6158_ADDR, 0x69, vfmt_init.sd_freq_sel);
+}
+
 
 //--------------------------------------------------------------------------------
 // video_output functions
@@ -972,6 +995,19 @@ void video_out_auto_vclk_set(clock_video_output *clk_vout)
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xCC + clk_vout->port, clk_vout->clk_sel);
 }
 
+#if 0
+// kukuri
+void video_eq_clk_set_value(video_equalizer_info_s *eq_info)
+{
+	unsigned char ch = eq_info->Ch;
+	unsigned char dist = eq_info->distance;
+	video_equalizer_value_table_s eq_value = equalizer_value_fmtdef[eq_info->FmtDef];
+	
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x01 );
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x84 + ch, eq_value.eq_clk.clk_adc[dist] );
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8C + ch, eq_value.eq_clk.clk_dec[dist] );
+}
+#endif
 
 //-------------------------------------------------------------------------------------
 // motion
