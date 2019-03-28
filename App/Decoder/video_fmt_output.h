@@ -1,10 +1,50 @@
+/********************************************************************************
+ *
+ *  Copyright (C) 2017 	NEXTCHIP Inc. All rights reserved.
+ *  Module		: The decoder's video format module
+ *  Description	: Video Format Information
+ *  Author		:
+ *  Date         :
+ *  Version		: Version 1.0
+ *
+ ********************************************************************************
+ *  History      :
+ *
+ *
+ ********************************************************************************/
 #ifndef _VIDEO_FMT_OUTPUT_H_
 #define _VIDEO_FMT_OUTPUT_H_
 
 #include "NVP6158.h"
+#include "video_fmt_info.h"
+
 
 NC_VO_PORT_FMT_S VD_VO_PortFormatDefs[ NC_VIVO_CH_FORMATDEF_MAX ] =
 {
+	[ AHD20_SD_SH720_NT ] = {
+		    .name = "AHD20_SD_SH720_NT",
+		    .width = 720,
+		    .height = 480,
+		    .vo_clk = 0xa0,
+		    .merge = 0x00,
+		    .mux_mode = 0x00,
+		    .seq_ch01 = 0x00,
+		    .seq_ch23 =  0x00,
+		    .chid_vin01 = 0x00,
+		    .chid_vin23 = 0x00,
+		},
+		[ AHD20_SD_SH720_PAL ] = {
+		    .name = "AHD20_SD_SH720_PAL",
+		    .width = 720,
+		    .height = 576,
+		    .vo_clk = 0xa0,
+		    .merge = 0x00,
+		    .mux_mode = 0x00,
+		    .seq_ch01 = 0x00,
+		    .seq_ch23 =  0x00,
+		    .chid_vin01 = 0x00,
+		    .chid_vin23 = 0x00,
+		},
 		[ AHD20_SD_H960_2EX_Btype_NT ] = {
 		    .name = "AHD20_SD_H960_2EX_Btype_NT",
 		    .width = 1920,
@@ -587,7 +627,7 @@ NC_VO_PORT_FMT_S VD_VO_PortFormatDefs[ NC_VIVO_CH_FORMATDEF_MAX ] =
 		    .name = "TVI_HD_B_30P",
 		    .width = 1920,
 		    .height = 1080,
-		    .vo_clk = 0x58,
+		    .vo_clk = 0x00,
 		    .merge = 0x00,
 		    .mux_mode = 0x00,
 		    .seq_ch01 = 0x00,
@@ -599,7 +639,7 @@ NC_VO_PORT_FMT_S VD_VO_PortFormatDefs[ NC_VIVO_CH_FORMATDEF_MAX ] =
 		    .name = "TVI_HD_B_25P",
 		    .width = 1920,
 		    .height = 1080,
-		    .vo_clk = 0x58,
+		    .vo_clk = 0x00,
 		    .merge = 0x00,
 		    .mux_mode = 0x00,
 		    .seq_ch01 = 0x00,
@@ -841,6 +881,30 @@ NC_VO_PORT_FMT_S VD_VO_PortFormatDefs[ NC_VIVO_CH_FORMATDEF_MAX ] =
 		    .width = 3840,
 		    .height = 2160,
 			.vo_clk = 0x58,
+		    .merge = 0x01,
+		    .mux_mode = 0x00,
+		    .seq_ch01 = 0x00,
+		    .seq_ch23 =  0x00,
+		    .chid_vin01 = 0x00,
+		    .chid_vin23 = 0x00,
+		},
+		[ TVI_8M_15P ] = {
+		    .name = "TVI_8M_15P",
+		    .width = 3840,
+		    .height = 2160,
+			.vo_clk = 0x47,
+		    .merge = 0x01,
+		    .mux_mode = 0x00,
+		    .seq_ch01 = 0x00,
+		    .seq_ch23 =  0x00,
+		    .chid_vin01 = 0x00,
+		    .chid_vin23 = 0x00,
+		},
+		[ TVI_8M_12_5P ] = {
+		    .name = "TVI_8M_12_5P",
+		    .width = 3840,
+		    .height = 2160,
+			.vo_clk = 0x47,
 		    .merge = 0x01,
 		    .mux_mode = 0x00,
 		    .seq_ch01 = 0x00,

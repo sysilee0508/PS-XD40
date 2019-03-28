@@ -1,3 +1,17 @@
+/********************************************************************************
+*
+*  Copyright (C) 2017 	NEXTCHIP Inc. All rights reserved.
+*  Module		: video_input_table.c
+*  Description	:
+*  Author		:
+*  Date         :
+*  Version		: Version 1.0
+*
+********************************************************************************
+*  History      :
+*
+*
+********************************************************************************/
 #ifndef _VIDEO_INPUT_TABLE_H_
 #define _VIDEO_INPUT_TABLE_H_
 
@@ -41,6 +55,46 @@ video_input_vafe_init_s decoder_afe_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 		.b_lpf_bypass 	= 0x00,	//B5/6/7/8 0x59       [0]
 		.duty 			= 0x04,	//B5/6/7/8 0x5B    	  [6:4]
 		.ref_vol 		= 0x03,	//B5/6/7/8 0x5B       [1:0]
+		.lpf_back_band 	= 0x07,	//B5/6/7/8 0x5C       [6:4]
+		.clk_sel 		= 0x01,	//B5/6/7/8 0x5C       [3]
+		.eq_gainsel 	= 0x00,	//B5/6/7/8 0x5C       [2:0]
+		},
+        [ AHD20_SD_H960_NT ] = {
+		.powerdown 		= 0x00, //B0       0x00/1/2/3 [0]
+		.gain 			= 0x01,	//B0       0x00/1/2/3 [4]
+		.spd 			= 0x0D,	//B5/6/7/8 0x00       [5:4]
+		.ctrlreg 		= 0x01,	//B5/6/7/8 0x01       [6]
+		.ctrlibs 		= 0x02,	//B5/6/7/8 0x01       [5:4]
+		.adcspd 		= 0x00,	//B5/6/7/8 0x01       [2]
+		.clplevel 		= 0x02,	//B5/6/7/8 0x01       [1:0]
+		.eq_band 		= 0x00,	//B5/6/7/8 0x58       [6:4]
+		.lpf_front_band = 0x07,	//B5/6/7/8 0x58       [1:0]
+		.clpmode 		= 0x00,	//B5/6/7/8 0x59       [7]
+		.f_lpf_bypass 	= 0x00,	//B5/6/7/8 0x59       [4]
+		.clproff 		= 0x00,	//B5/6/7/8 0x59       [3]
+		.b_lpf_bypass 	= 0x00,	//B5/6/7/8 0x59       [0]
+		.duty 			= 0x04,	//B5/6/7/8 0x5B    	  [6:4]
+		.ref_vol 		= 0x01,	//B5/6/7/8 0x5B       [1:0]
+		.lpf_back_band 	= 0x07,	//B5/6/7/8 0x5C       [6:4]
+		.clk_sel 		= 0x01,	//B5/6/7/8 0x5C       [3]
+		.eq_gainsel 	= 0x00,	//B5/6/7/8 0x5C       [2:0]
+		},
+		[ AHD20_SD_H960_PAL ] = {
+		.powerdown 		= 0x00, //B0       0x00/1/2/3 [0]
+		.gain 			= 0x01,	//B0       0x00/1/2/3 [4]
+		.spd 			= 0x0D,	//B5/6/7/8 0x00       [5:4]
+		.ctrlreg 		= 0x01,	//B5/6/7/8 0x01       [6]
+		.ctrlibs 		= 0x02,	//B5/6/7/8 0x01       [5:4]
+		.adcspd 		= 0x00,	//B5/6/7/8 0x01       [2]
+		.clplevel 		= 0x02,	//B5/6/7/8 0x01       [1:0]
+		.eq_band 		= 0x00,	//B5/6/7/8 0x58       [6:4]
+		.lpf_front_band = 0x07,	//B5/6/7/8 0x58       [1:0]
+		.clpmode 		= 0x00,	//B5/6/7/8 0x59       [7]
+		.f_lpf_bypass 	= 0x00,	//B5/6/7/8 0x59       [4]
+		.clproff 		= 0x00,	//B5/6/7/8 0x59       [3]
+		.b_lpf_bypass 	= 0x00,	//B5/6/7/8 0x59       [0]
+		.duty 			= 0x04,	//B5/6/7/8 0x5B    	  [6:4]
+		.ref_vol 		= 0x01,	//B5/6/7/8 0x5B       [1:0]
 		.lpf_back_band 	= 0x07,	//B5/6/7/8 0x5C       [6:4]
 		.clk_sel 		= 0x01,	//B5/6/7/8 0x5C       [3]
 		.eq_gainsel 	= 0x00,	//B5/6/7/8 0x5C       [2:0]
@@ -1185,6 +1239,47 @@ video_input_vafe_init_s decoder_afe_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 		.clk_sel 		= 0x01,	//B5/6/7/8 0x5C       [3]
 		.eq_gainsel 	= 0x00,	//B5/6/7/8 0x5C       [2:0]
 		},
+		[ TVI_8M_15P ] = {
+		.powerdown 		= 0x00, //B0       0x00/1/2/3 [0]
+		.gain 			= 0x01,	//B0       0x00/1/2/3 [4]
+		.spd 			= 0x0D,	//B5/6/7/8 0x00       [5:4]
+		.ctrlreg 		= 0x01,	//B5/6/7/8 0x01       [6]
+		.ctrlibs 		= 0x02,	//B5/6/7/8 0x01       [5:4]
+		.adcspd 		= 0x00,	//B5/6/7/8 0x01       [2]
+		.clplevel 		= 0x02,	//B5/6/7/8 0x01       [1:0]
+		.eq_band 		= 0x00,	//B5/6/7/8 0x58       [6:4]
+		.lpf_front_band = 0x07,	//B5/6/7/8 0x58       [1:0]
+		.clpmode 		= 0x00,	//B5/6/7/8 0x59       [7]
+		.f_lpf_bypass 	= 0x00,	//B5/6/7/8 0x59       [4]
+		.clproff 		= 0x00,	//B5/6/7/8 0x59       [3]
+		.b_lpf_bypass 	= 0x00,	//B5/6/7/8 0x59       [0]
+		.duty 			= 0x04,	//B5/6/7/8 0x5B    	  [6:4]
+		.ref_vol 		= 0x03,	//B5/6/7/8 0x5B       [1:0]
+		.lpf_back_band 	= 0x07,	//B5/6/7/8 0x5C       [6:4]
+		.clk_sel 		= 0x01,	//B5/6/7/8 0x5C       [3]
+		.eq_gainsel 	= 0x00,	//B5/6/7/8 0x5C       [2:0]
+		},
+		[ TVI_8M_12_5P ] = {
+		.powerdown 		= 0x00, //B0       0x00/1/2/3 [0]
+		.gain 			= 0x01,	//B0       0x00/1/2/3 [4]
+		.spd 			= 0x0D,	//B5/6/7/8 0x00       [5:4]
+		.ctrlreg 		= 0x01,	//B5/6/7/8 0x01       [6]
+		.ctrlibs 		= 0x02,	//B5/6/7/8 0x01       [5:4]
+		.adcspd 		= 0x00,	//B5/6/7/8 0x01       [2]
+		.clplevel 		= 0x02,	//B5/6/7/8 0x01       [1:0]
+		.eq_band 		= 0x00,	//B5/6/7/8 0x58       [6:4]
+		.lpf_front_band = 0x07,	//B5/6/7/8 0x58       [1:0]
+		.clpmode 		= 0x00,	//B5/6/7/8 0x59       [7]
+		.f_lpf_bypass 	= 0x00,	//B5/6/7/8 0x59       [4]
+		.clproff 		= 0x00,	//B5/6/7/8 0x59       [3]
+		.b_lpf_bypass 	= 0x00,	//B5/6/7/8 0x59       [0]
+		.duty 			= 0x04,	//B5/6/7/8 0x5B    	  [6:4]
+		.ref_vol 		= 0x03,	//B5/6/7/8 0x5B       [1:0]
+		.lpf_back_band 	= 0x07,	//B5/6/7/8 0x5C       [6:4]
+		.clk_sel 		= 0x01,	//B5/6/7/8 0x5C       [3]
+		.eq_gainsel 	= 0x00,	//B5/6/7/8 0x5C       [2:0]
+		},
+
 };
 
 video_input_color_init_s decoder_color_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
@@ -1203,7 +1298,7 @@ video_input_color_init_s decoder_color_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 			    .saturation_b = 0xA8,
 			    .burst_dec_a = 0x2A,
 			    .burst_dec_b = 0,
-			    .burst_dec_c = 30,
+			    .burst_dec_c = 0x30,
 		},
 		[ AHD20_1080P_25P ] = {
 			    .new_wpd_sel = 0,
@@ -1306,43 +1401,7 @@ video_input_color_init_s decoder_color_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 			    .burst_dec_b = 0,
 			    .burst_dec_c = 0x40,
 		},
-#ifdef __FOR_IDIS_TVI_2M
-		[ TVI_FHD_30P ] = {
-		.new_wpd_sel = 0,
-		.brightnees = 0x12,
-		.contrast= 0x76,
-		.black_level = 0x84,
-		.hue = 0x3,
-		.u_gain = 0xC,
-		.v_gain = 0x1A,
-		.u_offset = 0xFA,
-		.v_offset = 0xFA,
-		.saturation_a = 0x80,
-		.saturation_b = 0xA8,
-		.burst_dec_a = 0x2A,
-		.burst_dec_b = 0,
-		.burst_dec_c = 0x30,
 
-		},
-
-		[ TVI_FHD_25P ] = {
-		.new_wpd_sel = 0,
-		.brightnees = 0x12,
-		.contrast= 0x75,
-		.black_level = 0x84,
-		.hue = 0x3,
-		.u_gain = 0xC,
-		.v_gain = 0x1A,
-		.u_offset = 0xFA,
-		.v_offset = 0xFA,
-		.saturation_a = 0x80,
-		.saturation_b = 0xA8,
-		.burst_dec_a = 0x2A,
-		.burst_dec_b = 0,
-		.burst_dec_c = 0x30,
-
-		},
-#else
 		[ TVI_FHD_30P ] = {
 		.new_wpd_sel = 0,
 		.brightnees = 0,
@@ -1378,7 +1437,7 @@ video_input_color_init_s decoder_color_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 		.burst_dec_c = 0x30,
 
 		},
-#endif
+
 		[ TVI_5M_20P ] = {
 			.new_wpd_sel = 0x0,
 			.brightnees = 0x0,
@@ -1507,10 +1566,8 @@ video_input_color_init_s decoder_color_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 		},
 };
 
-#if 0
 video_input_basic_vfmt_init_s decoder_basic_vfmt_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 {
-
 		[ AHD20_SD_H960_2EX_Btype_NT ] = {
 		    .video_format = 0xA0,
 		    .sd_ahd_mode = 0xE0,
@@ -2000,7 +2057,6 @@ video_input_basic_vfmt_init_s decoder_basic_vfmt_fmtdef[ NC_VIVO_CH_FORMATDEF_MA
 
 video_input_basic_chroma_init_s decoder_basic_chroma_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 {
-
 		[ AHD20_SD_H960_2EX_Btype_NT ] = {
 		    .pal_cm_off = 0x82,
 		    .s_point = 0x90,
@@ -2486,11 +2542,10 @@ video_input_basic_chroma_init_s decoder_basic_chroma_fmtdef[ NC_VIVO_CH_FORMATDE
 
 
 };
-#endif
+
 
 video_input_basic_timing_init_s decoder_basic_timing_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 {
-
 		[ AHD20_SD_H960_2EX_Btype_NT ] = {
 		    .sync_rs = 0x4,
 		    .h_delay_lsb = 0x80,
@@ -2686,11 +2741,11 @@ video_input_basic_timing_init_s decoder_basic_timing_fmtdef[ NC_VIVO_CH_FORMATDE
 
 		[ AHD20_720P_60P ] = {
 		    .sync_rs = 0xEE,
-		    .h_delay_lsb = 0x80,
+		    .h_delay_lsb = 0x88,
 		    .h_mask_on = 0x0,
 		    .h_mask_sel = 0x0,
 		    .mem_rdp = 0x0,
-		    .v_blk_end_b = 0x0,
+		    .v_blk_end_b = 0x21,
 		    .y_delay = 0x5,
 		    .fld_inv = 0x0,
 		    .v_blk_end_a = 0x80,
@@ -2698,11 +2753,11 @@ video_input_basic_timing_init_s decoder_basic_timing_fmtdef[ NC_VIVO_CH_FORMATDE
 
 		[ AHD20_720P_50P ] = {
 		    .sync_rs = 0xEE,
-		    .h_delay_lsb = 0x80,
+		    .h_delay_lsb = 0x88,
 		    .h_mask_on = 0x0,
 		    .h_mask_sel = 0x0,
 		    .mem_rdp = 0x0,
-		    .v_blk_end_b = 0x0,
+		    .v_blk_end_b = 0x21,
 		    .y_delay = 0x5,
 		    .fld_inv = 0x0,
 		    .v_blk_end_a = 0x80,
@@ -3319,13 +3374,35 @@ video_input_basic_timing_init_s decoder_basic_timing_fmtdef[ NC_VIVO_CH_FORMATDE
 		    .fld_inv = 0x0,
 		    .v_blk_end_a = 0x80,
 		},
+		[ TVI_8M_12_5P ] = {
+		    .sync_rs = 0xEE,
+		    .h_delay_lsb = 0x80,
+		    .h_mask_on = 0x1,
+		    .h_mask_sel = 0x2,
+		    .mem_rdp = 0x0,
+		    .v_blk_end_b = 0x0,
+		    .y_delay = 0x5,
+		    .fld_inv = 0x0,
+		    .v_blk_end_a = 0x80,
+		},
+
+		[ TVI_8M_15P ] = {
+		    .sync_rs = 0xEE,
+		    .h_delay_lsb = 0x80,
+		    .h_mask_on = 0x1,
+		    .h_mask_sel = 0x2,
+		    .mem_rdp = 0x0,
+		    .v_blk_end_b = 0x0,
+		    .y_delay = 0x5,
+		    .fld_inv = 0x0,
+		    .v_blk_end_a = 0x80,
+		},
 
 };
 
-#if 0
+
 video_input_basic_hscaler_mode_init_s decoder_basic_hscaler_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 {
-
 		[ AHD20_SD_H960_2EX_Btype_NT ] = {
 		    .h_down_scaler = 0x10,
 		    .h_scaler_mode = 0x10,
@@ -3882,7 +3959,6 @@ video_input_basic_hscaler_mode_init_s decoder_basic_hscaler_fmtdef[ NC_VIVO_CH_F
 
 video_input_basic_hpll_init_s decoder_basic_hpll_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] =
 {
-
 		[ AHD20_SD_H960_2EX_Btype_NT ] = {
 		    .hpll_mask_on = 0x84,
 		    .hafc_byp_th_e = 0xF,
@@ -4306,7 +4382,7 @@ video_input_basic_hpll_init_s decoder_basic_hpll_fmtdef[ NC_VIVO_CH_FORMATDEF_MA
 
 
 };
-#endif
+
 
 
 
