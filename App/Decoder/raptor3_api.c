@@ -2,8 +2,6 @@
 #include "NVP6158.h"
 #include "delay.h"
 
-
-void AHD720P_WriteReg(void);
 #if 1
 /*******************************************************************************
  *	Description		: debounce function
@@ -181,7 +179,6 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	unsigned char oMux;
 	unsigned char oInterface;
 	unsigned char oClkEdge;
-	NC_VD_EQ_STR sEQInfo;
 
 	NC_VO_PORT_FMT_S *pPortFmt;		// output
 	NC_VD_DEV_CH_INFO_STR DEV_CH_INFO;
@@ -264,26 +261,12 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	video_input_h_timing_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
 	video_input_color_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
     	video_input_vafe_init((decoder_dev_ch_info_s *)&DEV_CH_INFO);
-    	video_input_vfmt_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);	//kukuri
-
-    	sEQInfo.Ch = oChannel;
-	sEQInfo.Dev_Num = oDevNum;
-	sEQInfo.distance = SHORT_2M;
-	sEQInfo.FmtDef = FmtDef;
-    	video_input_eq_val_set((video_equalizer_info_s *)&sEQInfo);	//kukuri
-
-
+	
     	NC_VD_VO_Mode_Set_New( oChannel, oDevNum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, ch%4, ch%4, ch%4, ch%4 );
-
-//    	if(FmtDef == AHD20_720P_30P)
- //   	{
- //   		AHD720P_WriteReg();
- //   	}
 
 	return 0;
 }
 
-#if 0
 /*******************************************************************************
  *	Description		: Get video format bank13(each ch)
  *	Argurments		: pVFmtSet(raptor3 information)
@@ -332,7 +315,6 @@ int RAPTOR3_SAL_GetFormat_Bank5_EachCh( unsigned char ch, RAPTOR3_INFORMATION_S 
 
 	return 0;
 }
-#endif
 
 /*******************************************************************************
  *	Description		: check Auto Debouce
@@ -413,7 +395,6 @@ int RAPTOR3_SAL_NoVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	unsigned char oInterface;
 	unsigned char oClkEdge;
 	NC_VD_DEV_CH_INFO_STR DEV_CH_INFO;
-	NC_VD_EQ_STR sEQInfo;
 
 	NC_VIVO_CH_FORMATDEF oFmtDef = pInformation->curvideofmt[ch];
 	//video_input_novid_set AutoNoVidDet;
@@ -447,13 +428,6 @@ int RAPTOR3_SAL_NoVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	video_input_h_timing_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
 	video_input_color_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
     	video_input_vafe_init((decoder_dev_ch_info_s *)&DEV_CH_INFO);
-    	video_input_vfmt_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);	//kukuri
-
-    	sEQInfo.Ch = oChannel;
-	sEQInfo.Dev_Num = devnum;
-	sEQInfo.distance = SHORT_2M;
-	sEQInfo.FmtDef = oFmtDef;
-    	video_input_eq_val_set((video_equalizer_info_s *)&sEQInfo);	//kukuri
 
 	NC_VD_AUTO_NoVideo_Set(oChannel, devnum);
 
