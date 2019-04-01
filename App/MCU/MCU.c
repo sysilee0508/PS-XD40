@@ -64,9 +64,9 @@ void MCU_init(void)
 //	2 : BUX_OUT
 //	3 : K_ROW0 (active low)
 //	4 : K_ROW1 (active low)
-//	5 : MDIN_CE (active low)
-//	6 : I2C_SCL (active low) /I2C1
-//	7 : I2C_SDA (active low) /I2C1
+//	5 : I2C_SCL_M (active low)	/I2C_M clock
+//	6 : I2C_SCL (active low) /I2C clock
+//	7 : I2C_SDA (active low) /I2C data (shared)
 //	8 : K_LED_R0 (active high)
 //	9 : K_LED_R1 (active high)
 //	10: TXD(UART3)

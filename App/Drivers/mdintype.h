@@ -77,7 +77,8 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 
 
 #define 	SYSTEM_USE_MDIN380			// for use MDIN380
-
+#define 	SYSTEM_USE_MDIN325
+#define 	SYSTEM_USE_MDIN345A
 //#define		SYSTEM_USE_4D1_IN		// by hungry 2012.02.08
 
 #ifdef		SYSTEM_USE_4D1_IN

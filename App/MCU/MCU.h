@@ -10,8 +10,16 @@
 #define MDIN3XX_RST_HIGH			GPIOC->BSRR |= GPIO_Pin_12	//PC12
 #define MDIN3XX_RST_LOW				GPIOC->BRR |= GPIO_Pin_12
 
-#define I2C_SCL_HIGH				GPIOB->BSRR |= GPIO_Pin_6 	//PB6
-#define I2C_SCL_LOW 				GPIOB->BRR  |= GPIO_Pin_6
+#define I2C_SCL_MAIN_HIGH				GPIOB->BSRR |= GPIO_Pin_6 	//PB6
+#define I2C_SCL_MAIN_LOW 				GPIOB->BRR  |= GPIO_Pin_6
+
+#define I2C_SCL_SUB_HIGH				GPIOB->BSRR |= GPIO_Pin_5 	//PB5
+#define I2C_SCL_SUB_LOW 				GPIOB->BRR  |= GPIO_Pin_5
+
+#define I2C_SCL_HIGH(ch)	\
+	(ch == I2C_MAIN)?I2C_SCL_MAIN_HIGH:I2C_SCL_SUB_HIGH
+#define I2C_SCL_LOW(ch) 	\
+	(ch == I2C_MAIN)?I2C_SCL_MAIN_LOW:I2C_SCL_SUB_LOW
 
 #define I2C_SDA_HIGH				GPIOB->BSRR = 0x00000080 	//PB7
 #define I2C_SDA_LOW 				GPIOB->BRR  = 0x00000080

@@ -14,14 +14,14 @@ void I2C_Delay(unsigned int num)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void I2C_Start(void)
+void I2C_Start(I2C_CH ch)
 {
 	I2C_SDA_HIGH;
-	I2C_SCL_HIGH;       // Serial Clock & Serial Data is High
+	I2C_SCL_HIGH(ch);       // Serial Clock & Serial Data is High
 	I2C_Delay(I2C_DELAY);
 	I2C_SDA_LOW;
 	I2C_Delay(I2C_DELAY);
-	I2C_SCL_LOW;
+	I2C_SCL_LOW(ch);
 	I2C_Delay(I2C_DELAY);
 }
 
@@ -29,11 +29,11 @@ void I2C_Start(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void I2C_Stop(void)
+void I2C_Stop(I2C_CH ch)
 {
 	I2C_SDA_LOW; 
 	I2C_Delay(I2C_DELAY);
-	I2C_SCL_HIGH;
+	I2C_SCL_HIGH(ch);
 	I2C_Delay(I2C_DELAY);
 	I2C_SDA_HIGH;
 }    
@@ -42,13 +42,13 @@ void I2C_Stop(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void I2C_P2S(BYTE Data)
+void I2C_P2S(I2C_CH ch,BYTE Data)
 {
    	BYTE i;
 
 	for(i=0;i<8;i++)
 	{
-   		I2C_SCL_LOW;			//SCLK is Low
+   		I2C_SCL_LOW(ch);			//SCLK is Low
 
    		I2C_Delay(I2C_DELAY);
 
@@ -62,10 +62,10 @@ void I2C_P2S(BYTE Data)
        	}
 
        	I2C_Delay(I2C_DELAY); 
-       	I2C_SCL_HIGH;			//SCLK is High
+       	I2C_SCL_HIGH(ch);			//SCLK is High
 
        	I2C_Delay(I2C_DELAY); 
-       	I2C_SCL_LOW;			//SCLK is Low
+       	I2C_SCL_LOW(ch);			//SCLK is Low
 		Data <<= 1;
 	}
 
@@ -76,7 +76,7 @@ void I2C_P2S(BYTE Data)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void AckDetect(void)
+void AckDetect(I2C_CH ch)
 {
 	unsigned int i = 0;
 
@@ -92,9 +92,9 @@ void AckDetect(void)
 
     I2C_SDA_LOW;
 
-    I2C_SCL_HIGH;
+    I2C_SCL_HIGH(ch);
     I2C_Delay(I2C_DELAY);
-    I2C_SCL_LOW;
+    I2C_SCL_LOW(ch);
     I2C_Delay(I2C_DELAY/2);
 }
 
@@ -102,14 +102,14 @@ void AckDetect(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void AckSend(void)
+void AckSend(I2C_CH ch)
 {
     I2C_SDA_LOW;
     I2C_Delay(I2C_DELAY);
 
-    I2C_SCL_HIGH;
+    I2C_SCL_HIGH(ch);
     I2C_Delay(I2C_DELAY);
-    I2C_SCL_LOW;
+    I2C_SCL_LOW(ch);
     I2C_Delay(I2C_DELAY);
 
     I2C_SDA_HIGH;
@@ -119,13 +119,13 @@ void AckSend(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void NotAck(void)          
+void NotAck(I2C_CH ch)
 {
 	I2C_SDA_HIGH;
     I2C_Delay(I2C_DELAY);
-    I2C_SCL_HIGH;
+    I2C_SCL_HIGH(ch);
     I2C_Delay(I2C_DELAY);
-    I2C_SCL_LOW;
+    I2C_SCL_LOW(ch);
     I2C_Delay(I2C_DELAY);    
 }
 
@@ -133,7 +133,7 @@ void NotAck(void)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-unsigned char I2C_S2P(void)
+unsigned char I2C_S2P(I2C_CH ch)
 {
 	BYTE i, data_d, data;
 	data_d = 0;
@@ -147,7 +147,7 @@ unsigned char I2C_S2P(void)
 
 	for(i=0; i<8; i++)
 	{
-		I2C_SCL_HIGH;
+		I2C_SCL_HIGH(ch);
 		I2C_Delay(I2C_DELAY);
 		if(I2C_SDA_INPUT)
 		{
@@ -156,7 +156,7 @@ unsigned char I2C_S2P(void)
 			data |= data_d;
 		}
 		I2C_Delay(I2C_DELAY);
-		I2C_SCL_LOW;
+		I2C_SCL_LOW(ch);
 		I2C_Delay(I2C_DELAY);
 	}
 
@@ -166,7 +166,7 @@ unsigned char I2C_S2P(void)
 	return data;
 }
 
-unsigned char I2C_READ(unsigned char slaveaddr,unsigned char regaddr)
+unsigned char I2C_READ(I2C_CH ch, unsigned char slaveaddr,unsigned char regaddr)
 {
 	unsigned char receive_data;
 
@@ -193,7 +193,7 @@ unsigned char I2C_READ(unsigned char slaveaddr,unsigned char regaddr)
 
 } 
 
-void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data)
+void I2C_WRITE(I2C_CH ch, unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data)
 {
 	I2C_Start();
 
