@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------------
 // Include files
 // -----------------------------------------------------------------------------
-
+#define MDIN_MULTI_DEVICE	//kukuri - using multi mdin
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
@@ -122,7 +122,12 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 #define		SOURCE_CSC_STD_RANGE	1	// "1" for standard range, "0" for full range
 #define		OUTPUT_CSC_STD_RANGE	0	// "1" for standard range, "0" for full range
 
+#ifdef MDIN_MULTI_DEVICE
+#define		I2C_MDIN3xx_ADDR_AC		0xBA
+#define 	I2C_MDIN3xx_ADDR_BD		0xBC
+#else
 #define 	I2C_MDIN3xx_ADDR	0xDC	// MDIN3xx I2C slave address
+#endif
 
 #define		DIFF(a,b)			((a)>(b)? (a-b):(b-a))
 #define		MBIT(a,b)			(((a)&(b))? ON : OFF)
@@ -187,6 +192,16 @@ typedef	enum {
 	MDIN_SDRAM_ID	= 0xc6		// sdram block ID
 
 }	MDIN_BLOCK_ID_t;
+
+#ifdef MDIN_MULTI_DEVICE	//kukuri
+typedef enum {
+	MDIN_CHIP_ID_A = 0x01,
+	MDIN_CHIP_ID_B,
+	MDIN_CHIP_ID_C,
+	MDIN_CHIP_ID_D,
+	MDIN_CHIP_ID_MAX
+}	MDIN_CHIP_ID_t;
+#endif
 
 #if			defined(SYSTEM_USE_MDIN380)&&defined(SYSTEM_USE_BUS_HIF)
 	#if		CPU_MEM_XFER_USE_DMA == 1

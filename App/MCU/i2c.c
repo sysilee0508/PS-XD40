@@ -14,7 +14,7 @@ void I2C_Delay(unsigned int num)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void I2C_Start(I2C_CH ch)
+void I2C_Start(eI2C_CH_t ch)
 {
 	I2C_SDA_HIGH;
 	I2C_SCL_HIGH(ch);       // Serial Clock & Serial Data is High
@@ -29,7 +29,7 @@ void I2C_Start(I2C_CH ch)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void I2C_Stop(I2C_CH ch)
+void I2C_Stop(eI2C_CH_t ch)
 {
 	I2C_SDA_LOW; 
 	I2C_Delay(I2C_DELAY);
@@ -42,7 +42,7 @@ void I2C_Stop(I2C_CH ch)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void I2C_P2S(I2C_CH ch,BYTE Data)
+void I2C_P2S(eI2C_CH_t ch,BYTE Data)
 {
    	BYTE i;
 
@@ -76,7 +76,7 @@ void I2C_P2S(I2C_CH ch,BYTE Data)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void AckDetect(I2C_CH ch)
+void AckDetect(eI2C_CH_t ch)
 {
 	unsigned int i = 0;
 
@@ -102,7 +102,7 @@ void AckDetect(I2C_CH ch)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void AckSend(I2C_CH ch)
+void AckSend(eI2C_CH_t ch)
 {
     I2C_SDA_LOW;
     I2C_Delay(I2C_DELAY);
@@ -119,7 +119,7 @@ void AckSend(I2C_CH ch)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-void NotAck(I2C_CH ch)
+void NotAck(eI2C_CH_t ch)
 {
 	I2C_SDA_HIGH;
     I2C_Delay(I2C_DELAY);
@@ -133,7 +133,7 @@ void NotAck(I2C_CH ch)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-unsigned char I2C_S2P(I2C_CH ch)
+unsigned char I2C_S2P(eI2C_CH_t ch)
 {
 	BYTE i, data_d, data;
 	data_d = 0;
@@ -166,46 +166,46 @@ unsigned char I2C_S2P(I2C_CH ch)
 	return data;
 }
 
-unsigned char I2C_READ(I2C_CH ch, unsigned char slaveaddr,unsigned char regaddr)
+unsigned char I2C_READ(eI2C_CH_t ch, unsigned char slaveaddr,unsigned char regaddr)
 {
 	unsigned char receive_data;
 
-	I2C_Start();
+	I2C_Start(ch);
 
-	I2C_P2S(slaveaddr & 0xFE);
-	AckDetect();
+	I2C_P2S(ch, slaveaddr & 0xFE);
+	AckDetect(ch);
 
-	I2C_P2S(regaddr);
-	AckDetect();
+	I2C_P2S(ch, regaddr);
+	AckDetect(ch);
 
-	I2C_Stop();
+	I2C_Stop(ch);
 
-	I2C_Start(); 
-	I2C_P2S(slaveaddr | 0x01);
-	AckDetect();
+	I2C_Start(ch);
+	I2C_P2S(ch, slaveaddr | 0x01);
+	AckDetect(ch);
 
-	receive_data = I2C_S2P();
-	NotAck();
+	receive_data = I2C_S2P(ch);
+	NotAck(ch);
 
-	I2C_Stop();
+	I2C_Stop(ch);
 
 	return receive_data;
 
 } 
 
-void I2C_WRITE(I2C_CH ch, unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data)
+void I2C_WRITE(eI2C_CH_t ch, unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data)
 {
-	I2C_Start();
+	I2C_Start(ch);
 
-	I2C_P2S(slaveaddr & 0xFE);
-	AckDetect();
+	I2C_P2S(ch, slaveaddr & 0xFE);
+	AckDetect(ch);
 
 	I2C_P2S(regaddr);
-	AckDetect();
+	AckDetect(ch);
 
 	I2C_P2S(write_data);
-	AckDetect();
+	AckDetect(ch);
 	
-	I2C_Stop();	
+	I2C_Stop(ch);
 }
 
