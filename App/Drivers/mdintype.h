@@ -236,13 +236,13 @@ typedef enum {
 	#endif	// CPU_MEM_XFER_USE_DMA 
 
 #else
-#define		MDINHIF_MultiWrite(id,addr,pBuf,bytes)		MDINI2C_MultiWrite(id,addr,pBuf,bytes)
-#define		MDINHIF_RegWrite(id,addr,data)				MDINI2C_RegWrite(id,addr,data)
-#define		MDINHIF_MultiRead(id,addr,pBuf,bytes)		MDINI2C_MultiRead(id,addr,pBuf,bytes)
-#define		MDINHIF_RegRead(id,addr,pBuf)				MDINI2C_RegRead(id,addr,pBuf)
-#define		MDINHIF_RegField(id,addr,pos,cnt,data)		MDINI2C_RegField(id,addr,pos,cnt,data)
-#define		MDINHIF_DMAWrite(id,addr,pBuf,bytes)		MDINI2C_MultiWrite(id,addr,pBuf,bytes)
-#define		MDINHIF_DMARead(id,addr,pBuf,bytes)			MDINI2C_MultiRead(id,addr,pBuf,bytes)
+#define		MDINHIF_MultiWrite(chip, id,addr,pBuf,bytes)		MDINI2C_MultiWrite(chip, id,addr,pBuf,bytes)
+#define		MDINHIF_RegWrite(chip, id,addr,data)				MDINI2C_RegWrite(chip, id,addr,data)
+#define		MDINHIF_MultiRead(chip, id,addr,pBuf,bytes)		MDINI2C_MultiRead(chip, id,addr,pBuf,bytes)
+#define		MDINHIF_RegRead(chip, id,addr,pBuf)				MDINI2C_RegRead(chip, id,addr,pBuf)
+#define		MDINHIF_RegField(chip, id,addr,pos,cnt,data)		MDINI2C_RegField(chip, id,addr,pos,cnt,data)
+#define		MDINHIF_DMAWrite(chip, id,addr,pBuf,bytes)		MDINI2C_MultiWrite(chip, id,addr,pBuf,bytes)
+#define		MDINHIF_DMARead(chip, id,addr,pBuf,bytes)			MDINI2C_MultiRead(chip, id,addr,pBuf,bytes)
 #endif
 
 

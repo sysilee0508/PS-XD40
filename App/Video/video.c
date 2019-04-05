@@ -42,7 +42,7 @@ static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
 	{0x0072, 0x0047}  },						// VC
 };
 
-MDIN_VIDEO_INFO		stVideo;
+MDIN_VIDEO_INFO		stVideo[MDIN_CHIP_ID_MAX];
 MDIN_INTER_WINDOW	stInterWND;
 
 BYTE AdjInterWND,  InputSelect, InputSelOld,  SrcSyncInfo;
@@ -248,11 +248,11 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 	return format[channel];
 }
 
-static void MDIN3xx_SetRegInitial3(void)
+static void MDIN3xx_SetRegInitial(MDIN_VIDEO_INFO* pInfo)
 {
 	WORD nID = 0;
 	
-	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
+	while (nID!=0x85) MDIN3xx_GetChipID(pInfo->chipId, &nID);	// get chip-id
 
 	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
 	MDIN3xx_SetMemoryConfig();			// initialize DDR memory
@@ -790,10 +790,13 @@ static void VideoFrameProcess(BYTE src)
 //--------------------------------------------------------------------------------------------------
 void CreateVideoInstance(void)
 {
-	MDIN3xx_SetRegInitial1();	// MDIN325A #1 (CH1,2)
-	MDIN3xx_SetRegInitial2();	// MDIN325A #2 (CH3,4)
-	MDIN3xx_SetRegInitial3();	// MDIN380 #3, initialize MDIN-3xx
-	MDIN3xx_SetRegInitial4();	// MDIN325 #4	(output CVBS)
+	MDIN_CHIP_ID_t id;
+
+	for(id = MDIN_CHIP_ID_A; id < MDIN_CHIP_ID_MAX; id++)
+	{
+		stVideo[id].chipId = id;
+		MDIN3xx_SetRegInitial(&stVideo[id]);
+	}
 }
 
 void InitInputSource(void)
