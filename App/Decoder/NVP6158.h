@@ -961,6 +961,13 @@ typedef enum DISTANCE
 	LONG_500M,
 }CABLE_DISTANCE;
 
+typedef struct _NC_VD_EQ_STR{
+	unsigned char Ch;
+	unsigned char Dev_Num;
+	unsigned char distance;
+	unsigned char FmtDef;
+} NC_VD_EQ_STR;
+
 typedef struct _RAPTOR3_INFORMATION_S
 {
 	unsigned char			oMux;	/* 0:1mux,  */

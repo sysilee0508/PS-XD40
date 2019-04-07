@@ -2,7 +2,6 @@
 #include "NVP6158.h"
 #include "delay.h"
 #include "video_input_table.h"
-#include "video_eq_table.h"
 
 //--------------------------------------------------------------------------------
 // video_auto_detect functions
@@ -173,7 +172,11 @@ void video_input_auto_detect_set(video_input_auto_detect *vin_auto_det)
 	/* clock set */
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x1);
 	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x84 + vin_auto_det->ch, 0x00);
-    NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8c + vin_auto_det->ch, 0x55);
+#ifdef USE_EXTENDED_RESOLUTION
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8c + vin_auto_det->ch, 0x55);
+#else
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8c + vin_auto_det->ch, 0x40);
+#endif
 }
 
 void video_input_vfc_read(video_input_vfc *vin_vfc)

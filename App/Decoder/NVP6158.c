@@ -6,7 +6,6 @@
 //#include "video_fmt_input.h"
 //#include "video_fmt_output.h"
 
-
 RAPTOR3_INFORMATION_S	s_raptor3_vfmts;
 
 static char g_MergeEn;

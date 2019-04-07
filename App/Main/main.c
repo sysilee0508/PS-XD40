@@ -70,9 +70,6 @@
 //=============================================================================
 //  main function
 //=============================================================================
-
-
-
 void main(void)
 {
 	eDisplayMode_t displayMode;
@@ -131,9 +128,10 @@ void main(void)
 		RTC_CheckTime();
 		Key_Proc();
 		NVP6158_VideoDetectionProc();
+
 		Delay_ms(10);
 		// check video loss
-		ScanVideoLossChannels();
+		//ScanVideoLossChannels();
 		Delay_ms(1);
 		
 		UpdateDisplayMode();

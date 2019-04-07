@@ -240,7 +240,6 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 			break;
 
 		default:
-			//if(format[channel] 
 			//format[channel] = VIDSRC_1280x720p60;
 			break;
 	}
@@ -853,17 +852,17 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 		case VIDSRC_1280x720p60:
 		case VIDSRC_1280x720p50:
-			mainWidth = DISPLAY_WIDTH_1280x720*2 - COMPENSATION_MARGIN;
+			mainWidth = DISPLAY_WIDTH_1280x720 - COMPENSATION_MARGIN;
 			mainHeight = DISPLAY_HEIGHT_1280x720;
 			break;
 
 		case VIDSRC_960x480i60:
-			mainWidth = DISPLAY_WIDTH_960*4;
+			mainWidth = DISPLAY_WIDTH_960*2;
 			mainHeight = DISPLAY_HEIGHT_480/2;
 			break;
 
 		case VIDSRC_960x576i50:
-			mainWidth = DISPLAY_WIDTH_960*4;
+			mainWidth = DISPLAY_WIDTH_960*2;
 			mainHeight = DISPLAY_HEIGHT_576/2;
 			break;
 	}
@@ -878,19 +877,20 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 		case VIDSRC_1280x720p60:
 		case VIDSRC_1280x720p50:
-			auxWidth = DISPLAY_WIDTH_1280x720*2 - COMPENSATION_MARGIN;
+			auxWidth = DISPLAY_WIDTH_1280x720 - COMPENSATION_MARGIN;
 			auxHeight = DISPLAY_HEIGHT_1280x720;
 			break;
-
+			
 		case VIDSRC_960x480i60:
-			auxWidth = DISPLAY_WIDTH_960 * 4;
+			auxWidth = DISPLAY_WIDTH_960*2 - COMPENSATION_MARGIN;
 			auxHeight = DISPLAY_HEIGHT_480/2;
 			break;
 
 		case VIDSRC_960x576i50:
-			auxWidth = DISPLAY_WIDTH_960 * 4;
+			auxWidth = DISPLAY_WIDTH_960*2 - COMPENSATION_MARGIN;
 			auxHeight = DISPLAY_HEIGHT_576/2;
 			break;
+
 	}
 
 	//Check video loss channel
