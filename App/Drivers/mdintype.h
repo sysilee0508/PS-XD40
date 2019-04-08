@@ -195,12 +195,15 @@ typedef	enum {
 
 #ifdef MDIN_MULTI_DEVICE	//kukuri
 typedef enum {
-	MDIN_CHIP_ID_A = 0x01,
-	MDIN_CHIP_ID_B,
-	MDIN_CHIP_ID_C,
-	MDIN_CHIP_ID_D,
+	MDIN_CHIP_ID_A = 0x01,	//325A (ch1,2)
+	MDIN_CHIP_ID_B,			//325A (ch3,4)
+	MDIN_CHIP_ID_C,			//380
+	MDIN_CHIP_ID_D,			//325 (cvbs output)
 	MDIN_CHIP_ID_MAX
 }	MDIN_CHIP_ID_t;
+
+#define MDINOSD_DEFAULT_CHIPID			MDIN_CHIP_ID_C
+
 #endif
 
 #if			defined(SYSTEM_USE_MDIN380)&&defined(SYSTEM_USE_BUS_HIF)

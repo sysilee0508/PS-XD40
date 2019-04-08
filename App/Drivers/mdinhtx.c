@@ -33,6 +33,8 @@
 static BOOL SetPAGE, GetHDMI = 0;
 static BYTE GetEDID, GetPLUG, GetMDDC;
 
+static MDIN_CHIP_ID_t mdinhtx_ChipId;
+
 #if __MDINHTX_DBGPRT__ == 1
 static BYTE OldPROC = 0xff;
 #endif
@@ -74,7 +76,7 @@ static MDIN_ERROR_t MDINHTX_GetMDDCProcDone(void)
 	WORD rVal = 0x10, count = 100;
 
 	while (count&&(rVal==0x10)) {
-		if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x0f2, &rVal)) return MDIN_I2C_ERROR;
+		if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0f2, &rVal)) return MDIN_I2C_ERROR;
 		rVal &= 0x10;	count--;	MDINDLY_10uSec(10);		// delay 100us
 	}
 
@@ -88,11 +90,11 @@ static MDIN_ERROR_t MDINHTX_GetMDDCProcDone(void)
 //--------------------------------------------------------------------------------------------------------------------------
 static MDIN_ERROR_t MDINHTX_SetMDDCCmd(PMDIN_HDMIMDDC_INFO pMDDC)
 {
-	if (MDINHIF_MultiWrite(MDIN_HDMI_ID, 0x0ec, (PBYTE)pMDDC, 6)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x0f2, 0x0900)) return MDIN_I2C_ERROR;	// clear FIFO
+	if (MDINHIF_MultiWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0ec, (PBYTE)pMDDC, 6)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0f2, 0x0900)) return MDIN_I2C_ERROR;	// clear FIFO
 
 	if (pMDDC->cmd==0x06) return MDIN_NO_ERROR;		// sequential write commnad
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x0f2, MAKEWORD(pMDDC->cmd,0))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0f2, MAKEWORD(pMDDC->cmd,0))) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -101,7 +103,7 @@ static MDIN_ERROR_t MDINHTX_GetMDDCStatus(void)
 {
 	WORD rVal;
 
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x0f2, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0f2, &rVal)) return MDIN_I2C_ERROR;
 
 	// check BUS_LOW, NO_ACK, IN_PROG, FIFO_FULL
 	if ((rVal&0x78)==0) return MDIN_NO_ERROR;
@@ -109,8 +111,8 @@ static MDIN_ERROR_t MDINHTX_GetMDDCStatus(void)
 	// can happen if Rx is clock stretching the SCL line. DDC bus unusable
 	if ((rVal&0x20)!=0) return MDIN_DDC_ACK_ERROR;
 
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x0f2, 0x0f00)) return MDIN_I2C_ERROR;	// ABORT
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x0f2, 0x0a00)) return MDIN_I2C_ERROR;	// CLOCK
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0f2, 0x0f00)) return MDIN_I2C_ERROR;	// ABORT
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0f2, 0x0a00)) return MDIN_I2C_ERROR;	// CLOCK
 	return MDIN_NO_ERROR;
 }
 
@@ -214,7 +216,7 @@ static MDIN_ERROR_t MDINHTX_GetMDDCBuff(PMDIN_HDMIMDDC_INFO pMDDC)
 	WORD i, rVal;
 
 	for (i=0; i<pMDDC->bytes; i++) {
-		if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x0f4, &rVal)) return MDIN_I2C_ERROR;
+		if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0f4, &rVal)) return MDIN_I2C_ERROR;
 		pMDDC->pBuff[i] = LOBYTE(rVal);
 	}
 	return MDIN_NO_ERROR;
@@ -232,7 +234,7 @@ static MDIN_ERROR_t MDINHTX_ReadMDDC(PMDIN_HDMIMDDC_INFO pMDDC)
 	err = MDINHTX_GetMDDCProcDone(); if (err==MDIN_I2C_ERROR) return err;
 
 	// Abort Master DCC operation and Clear FIFO pointer
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x0f2, 0x0900)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0f2, 0x0900)) return MDIN_I2C_ERROR;
 
 	if (MDINHTX_SetMDDCCmd(pMDDC)) return MDIN_I2C_ERROR;
 	err = MDINHTX_GetMDDCProcDone(); if (err==MDIN_I2C_ERROR) return err;
@@ -260,7 +262,7 @@ static MDIN_ERROR_t MDINHTX_ReadEDID(BYTE rAddr, PBYTE pBuff, WORD bytes)
 {
 	MDIN_HDMIMDDC_INFO stMDDC; WORD rVal;
 
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x0ee, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x0ee, &rVal)) return MDIN_I2C_ERROR;
 	rVal = LOBYTE(rVal);
 
 	stMDDC.sAddr	= MAKEWORD(0xa0, 0);
@@ -870,7 +872,7 @@ static MDIN_ERROR_t MDINHTX_ParseEDID(PMDIN_HDMICTRL_INFO pCTL)
 	if (pCTL->err) return MDIN_NO_ERROR;
 
 	while (rNum--) {	rAddr++;
-		if (MDINHIF_RegField(MDIN_HDMI_ID, 0xee, 0, 8, rAddr)) return MDIN_I2C_ERROR;
+		if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0xee, 0, 8, rAddr)) return MDIN_I2C_ERROR;
 
 		if (MDINHTX_ReadEDID(0x00, &rVal, 1)) return MDIN_I2C_ERROR;
 		if ((rVal&0x02)==0) continue;
@@ -895,7 +897,7 @@ static MDIN_ERROR_t MDINHTX_ParseEDID(PMDIN_HDMICTRL_INFO pCTL)
 		if (pCTL->type==HTX_DISPLAY_HDMI) break;
 	}
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0xee, 0, 8, 0x00)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0xee, 0, 8, 0x00)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -945,7 +947,7 @@ static MDIN_ERROR_t MDINHTX_GetControlPKTOff(void)
 	WORD rVal = 0x0800, count = 100;
 
 	while (count&&(rVal==0x0800)) {
-		if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
+		if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
 //		rVal &= 0x0800; count--;	MDINDLY_10uSec(5);	// delay 50us
 		rVal &= 0x0800; count--;	MDINDLY_mSec(1);	// delay 1ms
 	}
@@ -964,20 +966,20 @@ static MDIN_ERROR_t MDINHTX_EnableControlPKT(BOOL OnOff)
 
 	if (GetHDMI==FALSE) return MDIN_NO_ERROR;	// check sink is HDMI
 
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x1de, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x1de, &rVal)) return MDIN_I2C_ERROR;
 	if ( OnOff&&(HIBYTE(rVal)==0x01)) return MDIN_NO_ERROR;	// already mute set
 	if (!OnOff&&(HIBYTE(rVal)==0x10)) return MDIN_NO_ERROR;	// already mute clear
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x13e, 10, 2, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x13e, 10, 2, 0)) return MDIN_I2C_ERROR;
 
 	err = MDINHTX_GetControlPKTOff(); if (err==MDIN_I2C_ERROR) return err;
 	if (err==MDIN_TIMEOUT_ERROR) return MDIN_NO_ERROR;
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x1de, 8, 8, (OnOff)? 0x01 : 0x10)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x1de, 8, 8, (OnOff)? 0x01 : 0x10)) return MDIN_I2C_ERROR;
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x13e, 10, 2, 3)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x13e, 10, 2, 3)) return MDIN_I2C_ERROR;
 
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -987,7 +989,7 @@ static MDIN_ERROR_t MDINHTX_GetInfoFrameOff(BYTE mask)
 	WORD rVal = mask, count = 100;
 
 	while (count&&(rVal==mask)) {
-		if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
+		if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
 		rVal &= mask; count--;	MDINDLY_mSec(1);	// delay 1ms
 	}
 
@@ -1005,7 +1007,7 @@ static MDIN_ERROR_t MDINHTX_SetInfoFrameAVI(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	BYTE i, mode, len, CRC;	WORD rBuff[7];
 
 	if (OnOff==OFF) return MDIN_NO_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x13e, 0, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x13e, 0, 1, 0)) return MDIN_I2C_ERROR;
 	if (MDINHTX_GetInfoFrameOff(0x02)) return MDIN_I2C_ERROR;
 
 	memset(rBuff, 0, sizeof(rBuff));	// clear infoframe buff
@@ -1042,11 +1044,11 @@ static MDIN_ERROR_t MDINHTX_SetInfoFrameAVI(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	len = sizeof(rBuff)-1;	CRC = 0x82 + 0x02 + len;	// because 1-byte dummy
 	for (i=0; i<sizeof(rBuff); i++) CRC += ((PBYTE)rBuff)[i];
 
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x140, MAKEWORD(0x02,0x82))) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x142, MAKEWORD(0x100-CRC,len))) return MDIN_I2C_ERROR;
-	if (MDINHIF_MultiWrite(MDIN_HDMI_ID, 0x144, (PBYTE)rBuff, len+1)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x140, MAKEWORD(0x02,0x82))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x142, MAKEWORD(0x100-CRC,len))) return MDIN_I2C_ERROR;
+	if (MDINHIF_MultiWrite(pINFO->chipId, MDIN_HDMI_ID, 0x144, (PBYTE)rBuff, len+1)) return MDIN_I2C_ERROR;
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x13e, 0, 2, 3)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x13e, 0, 2, 3)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -1056,9 +1058,9 @@ static MDIN_ERROR_t MDINHTX_EnableInfoFrmAVI(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	WORD rVal;
 
 	if (MDINHTX_SetInfoFrameAVI(pINFO, OnOff)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x13e, 0, 2, (OnOff)? 3 : 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x13e, 0, 2, (OnOff)? 3 : 0)) return MDIN_I2C_ERROR;
 
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(pINFO->chipId, MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -1068,7 +1070,7 @@ static MDIN_ERROR_t MDINHTX_SetInfoFrameAUD(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	BYTE i, len, CRC;	WORD rBuff[5];
 
 	if (OnOff==OFF) return MDIN_NO_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x13e, 4, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x13e, 4, 1, 0)) return MDIN_I2C_ERROR;
 	if (MDINHTX_GetInfoFrameOff(0x20)) return MDIN_I2C_ERROR;
 
 	memset(rBuff, 0, sizeof(rBuff));	// clear infoframe buff
@@ -1079,11 +1081,11 @@ static MDIN_ERROR_t MDINHTX_SetInfoFrameAUD(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	len = sizeof(rBuff);	CRC = 0x84 + 0x01 + len;
 	for (i=0; i<sizeof(rBuff); i++) CRC += ((PBYTE)rBuff)[i];
 
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x180, MAKEWORD(0x01,0x84))) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x182, MAKEWORD(0x100-CRC,len))) return MDIN_I2C_ERROR;
-	if (MDINHIF_MultiWrite(MDIN_HDMI_ID, 0x184, (PBYTE)rBuff, len+0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x180, MAKEWORD(0x01,0x84))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x182, MAKEWORD(0x100-CRC,len))) return MDIN_I2C_ERROR;
+	if (MDINHIF_MultiWrite(pINFO->chipId, MDIN_HDMI_ID, 0x184, (PBYTE)rBuff, len+0)) return MDIN_I2C_ERROR;
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x13e, 4, 2, 3)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x13e, 4, 2, 3)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -1093,9 +1095,9 @@ static MDIN_ERROR_t MDINHTX_EnableInfoFrmAUD(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	WORD rVal;
 
 	if (MDINHTX_SetInfoFrameAUD(pINFO, OnOff)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x13e, 4, 2, (OnOff)? 3 : 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x13e, 4, 2, (OnOff)? 3 : 0)) return MDIN_I2C_ERROR;
 
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(pINFO->chipId, MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 /*
@@ -1811,7 +1813,7 @@ static MDIN_ERROR_t MDINHTX_HDCPSHAHandler(PMDIN_VIDEO_INFO pINFO)
 //--------------------------------------------------------------------------------------------------------------------------
 static MDIN_ERROR_t MDINHTX_SetModeHDMI(BOOL OnOff)
 {
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x12e, 8, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x12e, 8, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 	GetHDMI = MBIT(OnOff,1);
 	return MDIN_NO_ERROR;
 }
@@ -1827,34 +1829,34 @@ static MDIN_ERROR_t MDINHTX_Set656Mode(BYTE mode)
 {
 	WORD rVal = defMDINHTXVideo[mode].stB656.i_adj;
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x03e, 0, 8, LOBYTE(rVal))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x03e, 0, 8, LOBYTE(rVal))) return MDIN_I2C_ERROR;
 
 	rVal = defMDINHTXVideo[mode].stB656.h_syn;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x040, rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x040, rVal)) return MDIN_I2C_ERROR;
 
 	rVal = defMDINHTXVideo[mode].stB656.o_fid;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x042, rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x042, rVal)) return MDIN_I2C_ERROR;
 
 	rVal = defMDINHTXVideo[mode].stB656.h_len;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x044, rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x044, rVal)) return MDIN_I2C_ERROR;
 
 	rVal = defMDINHTXVideo[mode].stB656.v_syn;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x046, 0, 8, LOBYTE(rVal))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x046, 0, 8, LOBYTE(rVal))) return MDIN_I2C_ERROR;
 
 	rVal = defMDINHTXVideo[mode].stB656.v_len;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x046, 8, 8, LOBYTE(rVal))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x046, 8, 8, LOBYTE(rVal))) return MDIN_I2C_ERROR;
 
 	rVal = defMDINHTXVideo[mode].stWIND.x;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x032, 0, 12, rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x032, 0, 12, rVal)) return MDIN_I2C_ERROR;
 
 	rVal = defMDINHTXVideo[mode].stWIND.y;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x034, rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x034, rVal)) return MDIN_I2C_ERROR;
 
 	rVal = defMDINHTXVideo[mode].stWIND.w;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x036, rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x036, rVal)) return MDIN_I2C_ERROR;
 
 	rVal = defMDINHTXVideo[mode].stWIND.h;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x038, rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x038, rVal)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -1864,19 +1866,19 @@ static MDIN_ERROR_t MDINHTX_EnableAllPWR(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	PMDIN_HDMICTRL_INFO pCTL = (PMDIN_HDMICTRL_INFO)&pINFO->stCTL_h;
 
 	// set power down total
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x13c, 8, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x13c, 8, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 
 	// disable Ri check
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x076, 12, 2, 0)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x076, 15, 1, 0)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x026,  8, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x076, 12, 2, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x076, 15, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x026,  8, 1, 0)) return MDIN_I2C_ERROR;
 
 	// disable KSV ready
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x076, 7, 1, 0)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x026, 9, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x076, 7, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x026, 9, 1, 0)) return MDIN_I2C_ERROR;
 
 	// disable encryption
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x00e, 8, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x00e, 8, 1, 0)) return MDIN_I2C_ERROR;
 
 	if (OnOff==OFF) pCTL->proc = HTX_CABLE_PLUG_OUT;
 	if (OnOff==OFF) pCTL->auth = HDCP_AUTHEN_BGN;
@@ -1894,19 +1896,19 @@ static MDIN_ERROR_t MDINHTX_EnablePhyPWR(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	PMDIN_HDMICTRL_INFO pCTL = (PMDIN_HDMICTRL_INFO)&pINFO->stCTL_h;
 
 	// disable Ri check
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x076, 12, 2, 0)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x076, 15, 1, 0)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x026,  8, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x076, 12, 2, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x076, 15, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x026,  8, 1, 0)) return MDIN_I2C_ERROR;
 
 	// disable KSV ready
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x076, 7, 1, 0)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x026, 9, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x076, 7, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x026, 9, 1, 0)) return MDIN_I2C_ERROR;
 
 	// disable encryption
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x00e, 8, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x00e, 8, 1, 0)) return MDIN_I2C_ERROR;
 
 	// set power down mode
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x008, 0, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x008, 0, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 
 	if (OnOff==OFF) pCTL->auth = HDCP_AUTHEN_BGN;
 
@@ -1923,9 +1925,9 @@ static MDIN_ERROR_t MDINHTX_SoftReset(PMDIN_VIDEO_INFO pINFO)
 {
 	if (MDINHTX_EnableControlPKT(ON)) return MDIN_I2C_ERROR;
 	if (MDINHTX_EnablePhyPWR(pINFO, OFF)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x004, 8, 8, 3)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x004, 8, 8, 3)) return MDIN_I2C_ERROR;
 	MDINDLY_mSec(1);
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x004, 8, 8, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x004, 8, 8, 0)) return MDIN_I2C_ERROR;
 	if (MDINHTX_EnablePhyPWR(pINFO, ON)) return MDIN_I2C_ERROR;
 	if (MDINHTX_EnableControlPKT(OFF)) return MDIN_I2C_ERROR;
 	MDINDLY_mSec(64);          // allow TCLK (sent to Rx across the HDMS link) to stabilize
@@ -1967,9 +1969,9 @@ static MDIN_ERROR_t MDINHTX_SetVideoMode(PMDIN_VIDEO_INFO pINFO)
 		}
 	}
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x04a, 0, 6, mode)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x048, 8, 3, acen)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x048, 0, 8, 0x00)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x04a, 0, 6, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x048, 8, 3, acen)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x048, 0, 8, 0x00)) return MDIN_I2C_ERROR;
 /*
 	if (pINFO->dacPATH!=DAC_PATH_AUX_4CH&&pINFO->dacPATH!=DAC_PATH_AUX_2HD) return MDIN_NO_ERROR;
 
@@ -1980,7 +1982,7 @@ static MDIN_ERROR_t MDINHTX_SetVideoMode(PMDIN_VIDEO_INFO pINFO)
 	mode  = (pINFO->stOUT_m.stATTB.attb&MDIN_SCANTYPE_PROG)?  (0<<2) : (1<<2);
 	mode |= (pINFO->stOUT_m.stATTB.attb&MDIN_POSITIVE_VSYNC)? (0<<1) : (1<<1);
 	mode |= (pINFO->stOUT_m.stATTB.attb&MDIN_POSITIVE_HSYNC)? (0<<0) : (1<<0);
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x032, 12, 3, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x032, 12, 3, mode)) return MDIN_I2C_ERROR;
 
 	// set embedded sync decoding & de generator registers
 	if (pINFO->dacPATH==DAC_PATH_AUX_4CH||pINFO->dacPATH==DAC_PATH_AUX_2HD)
@@ -1992,7 +1994,7 @@ static MDIN_ERROR_t MDINHTX_SetVideoMode(PMDIN_VIDEO_INFO pINFO)
 	// vid_mode - syncext for hdmi-bug
 //	mode = (pCTL->proc==HTX_CABLE_HDMI_OUT||pCTL->proc==HTX_CABLE_DVI_OUT)? 1 : 0;
 //	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x04a, 0, 1, mode)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x04a, 0, 1, 1)) return MDIN_I2C_ERROR;	// fix syncext
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x04a, 0, 1, 1)) return MDIN_I2C_ERROR;	// fix syncext
 	return MDIN_NO_ERROR;
 }
 
@@ -2001,7 +2003,7 @@ static MDIN_ERROR_t MDINHTX_SetClockEdge(PMDIN_VIDEO_INFO pINFO)
 {
 	BOOL OnOff = MBIT(pINFO->stVID_h.fine, HDMI_CLK_EDGE_RISE);
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x008, 1, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x008, 1, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -2010,13 +2012,13 @@ static MDIN_ERROR_t MDINHTX_SetDeepColor(PMDIN_VIDEO_INFO pINFO)
 {
 	BOOL OnOff = MBIT(pINFO->stVID_h.fine, HDMI_DEEP_COLOR_ON);
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x048, 14, 2, (OnOff)? 2 : 1)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x048, 14, 2, (OnOff)? 2 : 1)) return MDIN_I2C_ERROR;
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x04a,  6, 2, (OnOff)? 2 : 0)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x04a,  5, 1, (OnOff)? 1 : 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x04a,  6, 2, (OnOff)? 2 : 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x04a,  5, 1, (OnOff)? 1 : 0)) return MDIN_I2C_ERROR;
 
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x12e, 11, 3, (OnOff)? 6 : 4)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x12e, 14, 1, (OnOff)? 1 : 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x12e, 11, 3, (OnOff)? 6 : 4)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x12e, 14, 1, (OnOff)? 1 : 0)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -2030,19 +2032,20 @@ static MDIN_ERROR_t MDINHTX_SetVideoPath(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHTX_SetDeepColor(pINFO)) return MDIN_I2C_ERROR;
 
 	// save packet buffer control registers
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(pINFO->chipId, MDIN_HDMI_ID, 0x13e, &rVal)) return MDIN_I2C_ERROR;
 
 	// Reset internal state machines and allow TCLK to Rx to stabilize
 	if (MDINHTX_SoftReset(pINFO)) return MDIN_I2C_ERROR;
 
 	// Retrieve packet buffer control registers
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x13e, rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x13e, rVal)) return MDIN_I2C_ERROR;
 
 	// set ICLK to not replicated
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x048, 0, 2, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x048, 0, 2, 0)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
+#ifdef MDIN_ENABLE_AUDIO
 //--------------------------------------------------------------------------------------------------------------------------
 static MDIN_ERROR_t MDINHTX_SetSoftNVAL(PMDIN_HTXAUDIO_INFO pAUD)
 {
@@ -2173,7 +2176,7 @@ static MDIN_ERROR_t MDINHTX_SetAudioPath(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x102, 0, 8, HI4BIT(pAUD->freq))) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------------------------------------
 static MDIN_ERROR_t MDINHTX_InitModeDVI(PMDIN_VIDEO_INFO pINFO)
 {
@@ -2182,12 +2185,12 @@ static MDIN_ERROR_t MDINHTX_InitModeDVI(PMDIN_VIDEO_INFO pINFO)
 #endif
 
 	//	FPLL is 1.0*IDCK.
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x082, 0, 8, 0x20)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x082, 0, 8, 0x20)) return MDIN_I2C_ERROR;
 	if (MDINHTX_SetModeHDMI(OFF)) return MDIN_I2C_ERROR;
 
 	// set wake-up
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x008, 0, 1, 1)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x078, 8, 8, 2)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x008, 0, 1, 1)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x078, 8, 8, 2)) return MDIN_I2C_ERROR;
 
 	if (MDINHTX_SoftReset(pINFO)) return MDIN_I2C_ERROR;
 
@@ -2201,18 +2204,18 @@ static MDIN_ERROR_t MDINHTX_InitModeDVI(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHTX_SoftReset(pINFO)) return MDIN_I2C_ERROR;
 
 	// disable encryption
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x00c, 9, 2, 0)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x00e, 8, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x00c, 9, 2, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x00e, 8, 1, 0)) return MDIN_I2C_ERROR;
 
 	// AVI Mute clear, in DVI this must be used to clear mute
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x1de, 8, 8, 0x10)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x1de, 8, 8, 0x10)) return MDIN_I2C_ERROR;
 
 	// Clear packet enable/repeat controls as they will not sent in DVI mode
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x13e, 0x0000)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x13e, 0x0000)) return MDIN_I2C_ERROR;
 
 	// set DVI interrupt mask
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x070, 0x4000)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x074, 0x4000)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x070, 0x4000)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x074, 0x4000)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -2228,17 +2231,18 @@ static MDIN_ERROR_t MDINHTX_InitModeHDMI(PMDIN_VIDEO_INFO pINFO)
 //	if (MDINHTX_Set656Mode(pINFO->stOUT_m.frmt)) return MDIN_I2C_ERROR;
 
 	//	FPLL is 1.0*IDCK.
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x082, 0, 8, 0x20)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x082, 0, 8, 0x20)) return MDIN_I2C_ERROR;
 	if (MDINHTX_SetModeHDMI(ON)) return MDIN_I2C_ERROR;
 
 	// set wake-up
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x008, 0, 1, 1)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x078, 8, 8, 2)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x008, 0, 1, 1)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x078, 8, 8, 2)) return MDIN_I2C_ERROR;
 
-	if (MDINHTX_SetAudioInit(pINFO)) return MDIN_I2C_ERROR;
 	if (MDINHTX_SetVideoPath(pINFO)) return MDIN_I2C_ERROR;
+#ifdef MDIN_ENABLE_AUDIO
+	if (MDINHTX_SetAudioInit(pINFO)) return MDIN_I2C_ERROR;
 	if (MDINHTX_SetAudioPath(pINFO)) return MDIN_I2C_ERROR;
-
+#endif
 	// Must be done AFTER setting up audio and video paths and BEFORE starting to send InfoFrames
 	if (MDINHTX_SoftReset(pINFO)) return MDIN_I2C_ERROR;
 
@@ -2246,15 +2250,15 @@ static MDIN_ERROR_t MDINHTX_InitModeHDMI(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHTX_EnableInfoFrmAVI(pINFO, ON)) return MDIN_I2C_ERROR;
 
 	// disable encryption
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x00e, 8, 1, OFF)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x00e, 8, 1, OFF)) return MDIN_I2C_ERROR;
 
 	// enable AUD info-frame
 	if (MDINHTX_EnableInfoFrmAUD(pINFO, ON)) return MDIN_I2C_ERROR;
 
 	// Enable Interrupts: VSync, Ri check, HotPlug
 	// CLR_MASK is BIT_INT_HOT_PLUG|BIT_BIPHASE_ERROR|BIT_DROP_SAMPLE
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x070, 0x5800)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x074, 0x5800)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x070, 0x5800)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x074, 0x5800)) return MDIN_I2C_ERROR;
 	
 	pCTL->proc = HTX_CABLE_PLUG_OUT;
 	pCTL->auth = HDCP_AUTHEN_BGN;
@@ -2293,13 +2297,13 @@ static MDIN_ERROR_t MDINHTX_IRQHandler(PMDIN_HDMICTRL_INFO pCTL)
 {
 	WORD rVal, rBuff[2];
 
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x070, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x070, &rVal)) return MDIN_I2C_ERROR;
 	if ((rVal&0x01)==0) return MDIN_NO_ERROR;
 
-	if (MDINHIF_MultiRead(MDIN_HDMI_ID, 0x070, (PBYTE)rBuff, 4)) return MDIN_I2C_ERROR;
-	if (MDINHIF_MultiWrite(MDIN_HDMI_ID, 0x070, (PBYTE)rBuff, 4)) return MDIN_I2C_ERROR;
+	if (MDINHIF_MultiRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x070, (PBYTE)rBuff, 4)) return MDIN_I2C_ERROR;
+	if (MDINHIF_MultiWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x070, (PBYTE)rBuff, 4)) return MDIN_I2C_ERROR;
 
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x008, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x008, &rVal)) return MDIN_I2C_ERROR;
 
 	// in order not to fail bouncing detection
 	if ((rBuff[0]&0x4000)&&(rVal&0x0200)==0) pCTL->proc = HTX_CABLE_PLUG_OUT;
@@ -2310,7 +2314,7 @@ static MDIN_ERROR_t MDINHTX_IRQHandler(PMDIN_HDMICTRL_INFO pCTL)
 #endif
 
 	// Now clear all other interrupts
-	if (MDINHIF_MultiWrite(MDIN_HDMI_ID, 0x070, (PBYTE)rBuff, 4)) return MDIN_I2C_ERROR;
+	if (MDINHIF_MultiWrite(mdinhtx_ChipId, MDIN_HDMI_ID, 0x070, (PBYTE)rBuff, 4)) return MDIN_I2C_ERROR;
 
 #if SYSTEM_USE_HTX_HDCP == 1
 	if (MDINHTX_KSVReadyHandler(pCTL, LOBYTE(rBuff[1]))) return MDIN_I2C_ERROR;
@@ -2325,7 +2329,7 @@ static MDIN_ERROR_t MDINHTX_HPDHandler(PMDIN_HDMICTRL_INFO pCTL)
 {
 	WORD rVal;
 
-	if (MDINHIF_RegRead(MDIN_HDMI_ID, 0x008, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(mdinhtx_ChipId, MDIN_HDMI_ID, 0x008, &rVal)) return MDIN_I2C_ERROR;
 	
 	if (rVal&0x0200) {
 		if (pCTL->proc!=HTX_CABLE_PLUG_OUT) return MDIN_NO_ERROR;
@@ -2349,8 +2353,8 @@ static MDIN_ERROR_t MDINHTX_HPDHandler(PMDIN_HDMICTRL_INFO pCTL)
 static MDIN_ERROR_t MDINHTX_PWRHandler(PMDIN_HDMICTRL_INFO pCTL)
 {
 	switch (pCTL->proc) {
-		case HTX_CABLE_EDID_CHK: return MDINHIF_RegField(MDIN_HDMI_ID, 0x13c, 8, 1, 1);	 
-		case HTX_CABLE_PLUG_OUT: return MDINHIF_RegField(MDIN_HDMI_ID, 0x13c, 8, 1, 0);	 
+		case HTX_CABLE_EDID_CHK: return MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x13c, 8, 1, 1);
+		case HTX_CABLE_PLUG_OUT: return MDINHIF_RegField(mdinhtx_ChipId, MDIN_HDMI_ID, 0x13c, 8, 1, 0);
 	}
 	return MDIN_NO_ERROR;
 }
@@ -2465,13 +2469,13 @@ MDIN_ERROR_t MDINHTX_SetHDMIBlock(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHTX_EnableAllPWR(pINFO, ON)) return MDIN_I2C_ERROR;	// PowerOn
 
 	// initialize MDDC
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x0f2, 0x0f00)) return MDIN_I2C_ERROR;	// ABORT
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x0f2, 0x0f00)) return MDIN_I2C_ERROR;	// ABORT
 	MDINDLY_mSec(1);
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x0f2, 0x0900)) return MDIN_I2C_ERROR;	// CLEAR FIFO
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x0f2, 0x0900)) return MDIN_I2C_ERROR;	// CLEAR FIFO
 	MDINDLY_mSec(1);
-	if (MDINHIF_RegWrite(MDIN_HDMI_ID, 0x0f2, 0x0a00)) return MDIN_I2C_ERROR;	// CLOCK
+	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_HDMI_ID, 0x0f2, 0x0a00)) return MDIN_I2C_ERROR;	// CLOCK
 	MDINDLY_mSec(1);
-	if (MDINHIF_RegField(MDIN_HDMI_ID, 0x026, 8, 8, 0)) return MDIN_I2C_ERROR;	// disable Ri
+	if (MDINHIF_RegField(pINFO->chipId, MDIN_HDMI_ID, 0x026, 8, 8, 0)) return MDIN_I2C_ERROR;	// disable Ri
 
 //	if (MDINHTX_InitModeDVI(pINFO)) return MDIN_I2C_ERROR;
 	if (MDINHTX_InitModeHDMI(pINFO)) return MDIN_I2C_ERROR;
@@ -2480,6 +2484,11 @@ MDIN_ERROR_t MDINHTX_SetHDMIBlock(PMDIN_VIDEO_INFO pINFO)
 	return MDIN_NO_ERROR;
 }
 
+
+void MDINHTX_SetChipId(MDIN_CHIP_ID_t chipId)
+{
+	mdinhtx_ChipId = chipId;
+}
 #endif	/* defined(SYSTEM_USE_MDIN340)||defined(SYSTEM_USE_MDIN380) */
 
 /*  FILE_END_HERE */

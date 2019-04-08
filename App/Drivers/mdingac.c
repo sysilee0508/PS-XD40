@@ -71,40 +71,40 @@ MDIN_ERROR_t MDINGAC_SetFontMode(PGACMAP_FONT_INFO pGAC, PSPRITE_CTL_INFO pSPT)
 	}
 
 	// gac_pixel_precision - precision
-	if (MDINHIF_RegField(MDIN_HOST_ID, 0x058, 0, 8, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x058, 0, 8, mode)) return MDIN_I2C_ERROR;
 
 	// gac_src_start_rb
-	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x05a, pGAC->r)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x05a, pGAC->r)) return MDIN_I2C_ERROR;
 
 	// gac_dst_start_rb
-	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x05c, pSPT->stBMP.r)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x05c, pSPT->stBMP.r)) return MDIN_I2C_ERROR;
 
 	// gac_start_col
 	mode = MAKEWORD(pGAC->c, pSPT->stBMP.c);
-	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x05e, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x05e, mode)) return MDIN_I2C_ERROR;
 
 	// gac_char_size
 	mode = MAKEWORD(pGAC->w, pGAC->h);
-	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x06a, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x06a, mode)) return MDIN_I2C_ERROR;
 
 	// gac_src_byte_pitch
 	mode = bpp*((pGAC->w<=16)? 2 : 4);
-	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x06b, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x06b, mode)) return MDIN_I2C_ERROR;
 
 	// gac_dst_byte_pitch
 	bpp = (bpp==1)? 4 : bpp;	mode = (pSPT->stBMP.w)*bpp/8;	mode = (mode+7)/8*8;
-	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x067, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x067, mode)) return MDIN_I2C_ERROR;
 
 	// gac_process_ctrl
 	gridGAC = (pGAC->attb&MDIN_GAC_32Hx16V_GRID);	// set ch-grid
 	autoGAC = (pGAC->attb&MDIN_GAC_BOTH_AUTOINC);	// set xy-auto
 
 	mode = ((autoGAC|gridGAC)<<6)|((pGAC->mode&MDIN_GAC_DRAW_XYMODE)? 0x32 : 0x22);
-	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x064, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x064, mode)) return MDIN_I2C_ERROR;
 
 	// gac_dst_start_pos
-	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x068, 0x0000)) return MDIN_I2C_ERROR;	// fix 0
-	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x069, 0x0000)) return MDIN_I2C_ERROR;	// fix 0
+	if (MDINHIF_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x068, 0x0000)) return MDIN_I2C_ERROR;	// fix 0
+	if (MDINHIF_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x069, 0x0000)) return MDIN_I2C_ERROR;	// fix 0
 
 	// set sprite information
 	pSPT->ctrl &= ~SPRITE_COLORMODE_MASK;
@@ -126,7 +126,7 @@ MDIN_ERROR_t MDINGAC_SetDrawCHMode(BYTE y, BYTE x, PBYTE pBuff, BYTE len, BYTE a
 
 	for (i=0; i<len; i++) pChar[i] = MAKEWORD(attb, pBuff[i]);
 
-	if (MDINI2C_MultiWrite(MDIN_HOST_ID, 0x200|addr, (PBYTE)pChar, len*2)) return MDIN_I2C_ERROR;
+	if (MDINI2C_MultiWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x200|addr, (PBYTE)pChar, len*2)) return MDIN_I2C_ERROR;
 
 	return MDIN_NO_ERROR;
 }
@@ -143,14 +143,14 @@ MDIN_ERROR_t MDINGAC_SetDrawXYMode(WORD y, WORD x, PBYTE pBuff, WORD len, BYTE a
 	posix = x;// * stFONT.w;
 	posiy = y;// * stFONT.h;
 
-	if (MDINI2C_RegWrite(MDIN_HOST_ID, 0x068, posix)) return MDIN_I2C_ERROR;
-	if (MDINI2C_RegWrite(MDIN_HOST_ID, 0x069, posiy)) return MDIN_I2C_ERROR;
+	if (MDINI2C_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x068, posix)) return MDIN_I2C_ERROR;
+	if (MDINI2C_RegWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x069, posiy)) return MDIN_I2C_ERROR;
 
 	//for (i=0; i<len; i++) pChar[i] = MAKEWORD(attb, pBuff[i]);
 //	for (i=0; i<len; i++) pChar[i] = MAKEWORD(attb, pBuff[i]-0x20);
 	for (i=0; i<len; i++) pChar[i] = pBuff[i]-0x20;
 
-	if (MDINI2C_MultiWrite(MDIN_HOST_ID, 0x200, (PBYTE)pChar, len*2)) return MDIN_I2C_ERROR;
+	if (MDINI2C_MultiWrite(MDINOSD_DEFAULT_CHIPID, MDIN_HOST_ID, 0x200, (PBYTE)pChar, len*2)) return MDIN_I2C_ERROR;
 
 	return MDIN_NO_ERROR;
 }
