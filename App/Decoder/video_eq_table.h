@@ -3489,7 +3489,8 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 		},
 		/* timing_a */
 		{
-			.h_delay_a[0] = 0xA0, .h_delay_a[1] = 0xa0, .h_delay_a[2] = 0x9e, .h_delay_a[3] = 0x9b, .h_delay_a[4] = 0x99, .h_delay_a[5] = 0x99, .h_delay_a[6] = 0x9b, .h_delay_a[7] = 0x98, .h_delay_a[8] = 0x98, .h_delay_a[9] = 0x98, .h_delay_a[10] = 0x98,
+//			.h_delay_a[0] = 0xA0, .h_delay_a[1] = 0xa0, .h_delay_a[2] = 0x9e, .h_delay_a[3] = 0x9b, .h_delay_a[4] = 0x99, .h_delay_a[5] = 0x99, .h_delay_a[6] = 0x9b, .h_delay_a[7] = 0x98, .h_delay_a[8] = 0x98, .h_delay_a[9] = 0x98, .h_delay_a[10] = 0x98,
+			.h_delay_a[0] = 0xc0, .h_delay_a[1] = 0xa0, .h_delay_a[2] = 0x9e, .h_delay_a[3] = 0x9b, .h_delay_a[4] = 0x99, .h_delay_a[5] = 0x99, .h_delay_a[6] = 0x9b, .h_delay_a[7] = 0x98, .h_delay_a[8] = 0x98, .h_delay_a[9] = 0x98, .h_delay_a[10] = 0x98,
 			.h_delay_b[0] = 0x00, .h_delay_b[1] = 0x00, .h_delay_b[2] = 0x00, .h_delay_b[3] = 0x00, .h_delay_b[4] = 0x00, .h_delay_b[5] = 0x00, .h_delay_b[6] = 0x00, .h_delay_b[7] = 0x00, .h_delay_b[8] = 0x00, .h_delay_b[9] = 0x00, .h_delay_b[10] = 0x00,
 			.h_delay_c[0] = 0x00, .h_delay_c[1] = 0x00, .h_delay_c[2] = 0x00, .h_delay_c[3] = 0x00, .h_delay_c[4] = 0x00, .h_delay_c[5] = 0x00, .h_delay_c[6] = 0x00, .h_delay_c[7] = 0x00, .h_delay_c[8] = 0x00, .h_delay_c[9] = 0x00, .h_delay_c[10] = 0x00,
 			.y_delay[0]   = 0x05, .y_delay[1]   = 0x05, .y_delay[2]   = 0x05, .y_delay[3]   = 0x05, .y_delay[4]   = 0x05, .y_delay[5] =   0x05, .y_delay[6] =   0x05, .y_delay[7] =   0x05, .y_delay[8] =   0x05, .y_delay[9] =   0x05, .y_delay[10] =   0x05,
@@ -3580,7 +3581,8 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 		},
 		/* timing_a */
 		{
-			.h_delay_a[0] = 0xa0, .h_delay_a[1] = 0xa0, .h_delay_a[2] = 0x9e, .h_delay_a[3] = 0x9b, .h_delay_a[4] = 0x99, .h_delay_a[5] = 0x99, .h_delay_a[6] = 0x9b, .h_delay_a[7] = 0x98, .h_delay_a[8] = 0x98, .h_delay_a[9] = 0x98, .h_delay_a[10] = 0x98,
+			//.h_delay_a[0] = 0xa0, .h_delay_a[1] = 0xa0, .h_delay_a[2] = 0x9e, .h_delay_a[3] = 0x9b, .h_delay_a[4] = 0x99, .h_delay_a[5] = 0x99, .h_delay_a[6] = 0x9b, .h_delay_a[7] = 0x98, .h_delay_a[8] = 0x98, .h_delay_a[9] = 0x98, .h_delay_a[10] = 0x98,
+			.h_delay_a[0] = 0xc0, .h_delay_a[1] = 0xa0, .h_delay_a[2] = 0x9e, .h_delay_a[3] = 0x9b, .h_delay_a[4] = 0x99, .h_delay_a[5] = 0x99, .h_delay_a[6] = 0x9b, .h_delay_a[7] = 0x98, .h_delay_a[8] = 0x98, .h_delay_a[9] = 0x98, .h_delay_a[10] = 0x98,
 			.h_delay_b[0] = 0x00, .h_delay_b[1] = 0x00, .h_delay_b[2] = 0x00, .h_delay_b[3] = 0x00, .h_delay_b[4] = 0x00, .h_delay_b[5] = 0x00, .h_delay_b[6] = 0x00, .h_delay_b[7] = 0x00, .h_delay_b[8] = 0x00, .h_delay_b[9] = 0x00, .h_delay_b[10] = 0x00,
 			.h_delay_c[0] = 0x00, .h_delay_c[1] = 0x00, .h_delay_c[2] = 0x00, .h_delay_c[3] = 0x00, .h_delay_c[4] = 0x00, .h_delay_c[5] = 0x00, .h_delay_c[6] = 0x00, .h_delay_c[7] = 0x00, .h_delay_c[8] = 0x00, .h_delay_c[9] = 0x00, .h_delay_c[10] = 0x00,
 			.y_delay[0]   = 0x05, .y_delay[1]   = 0x05, .y_delay[2]   = 0x05, .y_delay[3]   = 0x05, .y_delay[4]   = 0x05, .y_delay[5] =   0x05, .y_delay[6] =   0x05, .y_delay[7] =   0x05, .y_delay[8] =   0x05, .y_delay[9] =   0x05, .y_delay[10] =   0x05,
@@ -4035,7 +4037,8 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 		},
 		/* timing_a */
 		{
-			.h_delay_a[0] = 0x7b, .h_delay_a[1] = 0x7b, .h_delay_a[2] = 0x7a, .h_delay_a[3] = 0x79, .h_delay_a[4] = 0x79, .h_delay_a[5] = 0x7a, .h_delay_a[6] = 0x7a, .h_delay_a[7] = 0x7a, .h_delay_a[8] = 0x7a, .h_delay_a[9] = 0x7a, .h_delay_a[10] = 0x7a,
+//			.h_delay_a[0] = 0x7b, .h_delay_a[1] = 0x7b, .h_delay_a[2] = 0x7a, .h_delay_a[3] = 0x79, .h_delay_a[4] = 0x79, .h_delay_a[5] = 0x7a, .h_delay_a[6] = 0x7a, .h_delay_a[7] = 0x7a, .h_delay_a[8] = 0x7a, .h_delay_a[9] = 0x7a, .h_delay_a[10] = 0x7a,
+			.h_delay_a[0] = 0xab, .h_delay_a[1] = 0x7b, .h_delay_a[2] = 0x7a, .h_delay_a[3] = 0x79, .h_delay_a[4] = 0x79, .h_delay_a[5] = 0x7a, .h_delay_a[6] = 0x7a, .h_delay_a[7] = 0x7a, .h_delay_a[8] = 0x7a, .h_delay_a[9] = 0x7a, .h_delay_a[10] = 0x7a,
 			.h_delay_b[0] = 0x10, .h_delay_b[1] = 0x10, .h_delay_b[2] = 0x10, .h_delay_b[3] = 0x10, .h_delay_b[4] = 0x10, .h_delay_b[5] = 0x10, .h_delay_b[6] = 0x10, .h_delay_b[7] = 0x10, .h_delay_b[8] = 0x10, .h_delay_b[9] = 0x10, .h_delay_b[10] = 0x10,
 			.h_delay_c[0] = 0x00, .h_delay_c[1] = 0x00, .h_delay_c[2] = 0x00, .h_delay_c[3] = 0x00, .h_delay_c[4] = 0x00, .h_delay_c[5] = 0x00, .h_delay_c[6] = 0x00, .h_delay_c[7] = 0x00, .h_delay_c[8] = 0x00, .h_delay_c[9] = 0x00, .h_delay_c[10] = 0x00,
 			.y_delay[0]   = 0x05, .y_delay[1]   = 0x05, .y_delay[2]   = 0x05, .y_delay[3]   = 0x05, .y_delay[4]   = 0x05, .y_delay[5] =   0x05, .y_delay[6] =   0x05, .y_delay[7] =   0x05, .y_delay[8] =   0x05, .y_delay[9] =   0x05, .y_delay[10] =   0x05,
@@ -4125,7 +4128,8 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 		},
 		/* timing_a */
 		{
-			.h_delay_a[0] = 0x7b, .h_delay_a[1] = 0x7b, .h_delay_a[2] = 0x7a, .h_delay_a[3] = 0x79, .h_delay_a[4] = 0x79, .h_delay_a[5] = 0x7a, .h_delay_a[6] = 0x7a, .h_delay_a[7] = 0x7a, .h_delay_a[8] = 0x7a, .h_delay_a[9] = 0x7a, .h_delay_a[10] = 0x7a,
+//			.h_delay_a[0] = 0x7b, .h_delay_a[1] = 0x7b, .h_delay_a[2] = 0x7a, .h_delay_a[3] = 0x79, .h_delay_a[4] = 0x79, .h_delay_a[5] = 0x7a, .h_delay_a[6] = 0x7a, .h_delay_a[7] = 0x7a, .h_delay_a[8] = 0x7a, .h_delay_a[9] = 0x7a, .h_delay_a[10] = 0x7a,
+			.h_delay_a[0] = 0xab, .h_delay_a[1] = 0x7b, .h_delay_a[2] = 0x7a, .h_delay_a[3] = 0x79, .h_delay_a[4] = 0x79, .h_delay_a[5] = 0x7a, .h_delay_a[6] = 0x7a, .h_delay_a[7] = 0x7a, .h_delay_a[8] = 0x7a, .h_delay_a[9] = 0x7a, .h_delay_a[10] = 0x7a,
 			.h_delay_b[0] = 0x10, .h_delay_b[1] = 0x10, .h_delay_b[2] = 0x10, .h_delay_b[3] = 0x10, .h_delay_b[4] = 0x10, .h_delay_b[5] = 0x10, .h_delay_b[6] = 0x10, .h_delay_b[7] = 0x10, .h_delay_b[8] = 0x10, .h_delay_b[9] = 0x10, .h_delay_b[10] = 0x10,
 			.h_delay_c[0] = 0x00, .h_delay_c[1] = 0x00, .h_delay_c[2] = 0x00, .h_delay_c[3] = 0x00, .h_delay_c[4] = 0x00, .h_delay_c[5] = 0x00, .h_delay_c[6] = 0x00, .h_delay_c[7] = 0x00, .h_delay_c[8] = 0x00, .h_delay_c[9] = 0x00, .h_delay_c[10] = 0x00,
 			.y_delay[0]   = 0x05, .y_delay[1]   = 0x05, .y_delay[2]   = 0x05, .y_delay[3]   = 0x05, .y_delay[4]   = 0x05, .y_delay[5] =   0x05, .y_delay[6] =   0x05, .y_delay[7] =   0x05, .y_delay[8] =   0x05, .y_delay[9] =   0x05, .y_delay[10] =   0x05,
@@ -4842,7 +4846,8 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 		},
 		/* timing_a */
 		{
-			.h_delay_a[0] = 0x80, .h_delay_a[1] = 0x7e, .h_delay_a[2] = 0x7d, .h_delay_a[3] = 0x7c, .h_delay_a[4] = 0x7c, .h_delay_a[5] = 0x7d, .h_delay_a[6] = 0x7d, .h_delay_a[7] = 0x7d, .h_delay_a[8] = 0x7d, .h_delay_a[9] = 0x7d, .h_delay_a[10] = 0x7d,
+//			.h_delay_a[0] = 0x80, .h_delay_a[1] = 0x7e, .h_delay_a[2] = 0x7d, .h_delay_a[3] = 0x7c, .h_delay_a[4] = 0x7c, .h_delay_a[5] = 0x7d, .h_delay_a[6] = 0x7d, .h_delay_a[7] = 0x7d, .h_delay_a[8] = 0x7d, .h_delay_a[9] = 0x7d, .h_delay_a[10] = 0x7d,
+			.h_delay_a[0] = 0xd0, .h_delay_a[1] = 0x7e, .h_delay_a[2] = 0x7d, .h_delay_a[3] = 0x7c, .h_delay_a[4] = 0x7c, .h_delay_a[5] = 0x7d, .h_delay_a[6] = 0x7d, .h_delay_a[7] = 0x7d, .h_delay_a[8] = 0x7d, .h_delay_a[9] = 0x7d, .h_delay_a[10] = 0x7d,
 			.h_delay_b[0] = 0x00, .h_delay_b[1] = 0x00, .h_delay_b[2] = 0x00, .h_delay_b[3] = 0x00, .h_delay_b[4] = 0x00, .h_delay_b[5] = 0x00, .h_delay_b[6] = 0x00, .h_delay_b[7] = 0x00, .h_delay_b[8] = 0x00, .h_delay_b[9] = 0x00, .h_delay_b[10] = 0x00,
 			.h_delay_c[0] = 0x00, .h_delay_c[1] = 0x00, .h_delay_c[2] = 0x00, .h_delay_c[3] = 0x00, .h_delay_c[4] = 0x00, .h_delay_c[5] = 0x00, .h_delay_c[6] = 0x00, .h_delay_c[7] = 0x00, .h_delay_c[8] = 0x00, .h_delay_c[9] = 0x00, .h_delay_c[10] = 0x00,
 			.y_delay[0]   = 0x05, .y_delay[1]   = 0x05, .y_delay[2]   = 0x05, .y_delay[3]   = 0x05, .y_delay[4]   = 0x05, .y_delay[5] =   0x05, .y_delay[6] =   0x05, .y_delay[7] =   0x05, .y_delay[8] =   0x05, .y_delay[9] =   0x05, .y_delay[10] =   0x05,
@@ -4934,7 +4939,8 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 			},
 			/* timing_a */
 			{
-				.h_delay_a[0] = 0x82, .h_delay_a[1] = 0x80, .h_delay_a[2] = 0x7f, .h_delay_a[3] = 0x7e, .h_delay_a[4] = 0x7e, .h_delay_a[5] = 0x7f, .h_delay_a[6] = 0x7f, .h_delay_a[7] = 0x7f, .h_delay_a[8] = 0x7f, .h_delay_a[9] = 0x7f, .h_delay_a[10] = 0x7f,
+				//.h_delay_a[0] = 0x82, .h_delay_a[1] = 0x80, .h_delay_a[2] = 0x7f, .h_delay_a[3] = 0x7e, .h_delay_a[4] = 0x7e, .h_delay_a[5] = 0x7f, .h_delay_a[6] = 0x7f, .h_delay_a[7] = 0x7f, .h_delay_a[8] = 0x7f, .h_delay_a[9] = 0x7f, .h_delay_a[10] = 0x7f,
+				.h_delay_a[0] = 0xd2, .h_delay_a[1] = 0x80, .h_delay_a[2] = 0x7f, .h_delay_a[3] = 0x7e, .h_delay_a[4] = 0x7e, .h_delay_a[5] = 0x7f, .h_delay_a[6] = 0x7f, .h_delay_a[7] = 0x7f, .h_delay_a[8] = 0x7f, .h_delay_a[9] = 0x7f, .h_delay_a[10] = 0x7f,
 				.h_delay_b[0] = 0x10, .h_delay_b[1] = 0x10, .h_delay_b[2] = 0x10, .h_delay_b[3] = 0x10, .h_delay_b[4] = 0x10, .h_delay_b[5] = 0x10, .h_delay_b[6] = 0x10, .h_delay_b[7] = 0x10, .h_delay_b[8] = 0x10, .h_delay_b[9] = 0x10, .h_delay_b[10] = 0x10,
 				.h_delay_c[0] = 0x01, .h_delay_c[1] = 0x01, .h_delay_c[2] = 0x01, .h_delay_c[3] = 0x01, .h_delay_c[4] = 0x01, .h_delay_c[5] = 0x01, .h_delay_c[6] = 0x01, .h_delay_c[7] = 0x01, .h_delay_c[8] = 0x01, .h_delay_c[9] = 0x01, .h_delay_c[10] = 0x01,
 				.y_delay[0]   = 0x05, .y_delay[1]   = 0x05, .y_delay[2]   = 0x05, .y_delay[3]   = 0x05, .y_delay[4]   = 0x05, .y_delay[5] =   0x05, .y_delay[6] =   0x05, .y_delay[7] =   0x05, .y_delay[8] =   0x05, .y_delay[9] =   0x05, .y_delay[10] =   0x05,
@@ -5569,7 +5575,7 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 		},
 		/* timing_a */
 		{
-			.h_delay_a[0] = 0x80,
+			.h_delay_a[0] = 0xf0, //0x80,	//kukuri
 			.h_delay_b[0] = 0x00,
 			.h_delay_c[0] = 0x00,
 			.y_delay[0]   = 0x00,
