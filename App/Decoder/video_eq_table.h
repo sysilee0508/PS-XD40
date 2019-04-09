@@ -5478,7 +5478,7 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 		},
 		/* timing_a */
 		{
-			.h_delay_a[0] = 0x80,
+			.h_delay_a[0] = 0xf0,//0x80,	//kukuri
 			.h_delay_b[0] = 0x00,
 			.h_delay_c[0] = 0x00,
 			.y_delay[0]   = 0x00,

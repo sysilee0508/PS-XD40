@@ -708,7 +708,7 @@ void video_input_eq_val_set(video_equalizer_info_s *pvin_eq_set)
 		//__eq_base_set_value( pvin_eq_set, &eq_value.eq_base );
 		//__eq_coeff_set_value( pvin_eq_set, &eq_value.eq_coeff );
 		//__eq_color_set_value( pvin_eq_set, &eq_value.eq_color);
-		//__eq_timing_a_set_value( pvin_eq_set, &eq_value.eq_timing_a );
+		__eq_timing_a_set_value( pvin_eq_set, &eq_value.eq_timing_a );
 		__eq_clk_set_value( pvin_eq_set, &eq_value.eq_clk );
 		__eq_timing_b_set_value( pvin_eq_set, &eq_value.eq_timing_b );
 
