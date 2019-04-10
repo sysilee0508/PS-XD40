@@ -857,12 +857,12 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case VIDSRC_960x480i60:
-			mainWidth = DISPLAY_WIDTH_960*2;
+			mainWidth = DISPLAY_WIDTH_960*4;
 			mainHeight = DISPLAY_HEIGHT_480/2;
 			break;
 
 		case VIDSRC_960x576i50:
-			mainWidth = DISPLAY_WIDTH_960*2;
+			mainWidth = DISPLAY_WIDTH_960*4;
 			mainHeight = DISPLAY_HEIGHT_576/2;
 			break;
 	}
@@ -882,12 +882,12 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 			
 		case VIDSRC_960x480i60:
-			auxWidth = DISPLAY_WIDTH_960*2 - COMPENSATION_MARGIN;
+			auxWidth = DISPLAY_WIDTH_960*2;
 			auxHeight = DISPLAY_HEIGHT_480/2;
 			break;
 
 		case VIDSRC_960x576i50:
-			auxWidth = DISPLAY_WIDTH_960*2 - COMPENSATION_MARGIN;
+			auxWidth = DISPLAY_WIDTH_960*2;
 			auxHeight = DISPLAY_HEIGHT_576/2;
 			break;
 
