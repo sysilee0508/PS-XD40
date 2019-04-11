@@ -752,8 +752,8 @@ void OSD_DisplayVideoFormat(void)
 			iChannel = (eChannel_t)displayMode;
 			if(IsVideoLossChannel(iChannel) == FALSE)
 			{
-				inVideo[displayMode] = GetInVideoFormatString((eChannel_t)displayMode);
-				OSD_PrintString(videoInFormatPosition_Full, inVideo[displayMode], strlen((const u8*)inVideo[displayMode]));
+				inVideo[displayMode] = GetInVideoFormatString(iChannel);
+				OSD_PrintString(videoInFormatPosition_Full, inVideo[iChannel], strlen((const u8*)inVideo[iChannel]));
 				OSD_PrintString(videoOutFormatPosition_Full, outVideo, strlen((const u8*)outVideo));
 			}
 			else
