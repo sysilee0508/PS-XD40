@@ -68,14 +68,14 @@ static BYTE Check_VideoFormat_Change(void)
 
 void DisplayScreen(eDisplayMode_t mode)
 {
-	if(mode == DISPLAY_MODE_FULL_CH1)
+	if((mode == DISPLAY_MODE_FULL_CH1) || (mode == DISPLAY_MODE_FULL_CH2))
 	{
 		SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 	}
-	else if(mode == DISPLAY_MODE_FULL_CH2)
-	{
-		SetInputSource(VIDEO_DIGITAL_NVP6158_B);
-	}
+//	else if(mode == DISPLAY_MODE_FULL_CH2)
+//	{
+//		SetInputSource(VIDEO_DIGITAL_NVP6158_B);
+//	}
 	else
 	{
 		SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);

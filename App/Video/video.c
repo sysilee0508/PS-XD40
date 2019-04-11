@@ -454,7 +454,14 @@ static BYTE GetSrcMainFrmt(BYTE src)
 	switch(src)
 	{
 		case VIDEO_DIGITAL_NVP6158_A:
-			currentMainFrmt = GetInSourceFormat(CHANNEL1);//stVideo.stSRC_a.frmt;
+			if(NVP6158_Get_VportMap() == VPORT_MAP0)
+			{
+				currentMainFrmt = GetInSourceFormat(CHANNEL1);//stVideo.stSRC_a.frmt;
+			}
+			else
+			{
+				currentMainFrmt = GetInSourceFormat(CHANNEL2);//stVideo.stSRC_a.frmt;
+			}
 			break;
 
 		case VIDEO_DIGITAL_NVP6158_B:

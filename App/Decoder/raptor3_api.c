@@ -2,7 +2,13 @@
 #include "NVP6158.h"
 #include "delay.h"
 
-#if 1
+static int vport[VPORT_MAP_MAX][4] = 
+{
+	//VPORT_MAP0
+	{PORT1, PORT2, PORT3, PORT4},
+	{PORT2, PORT1, PORT3, PORT4}
+};
+
 /*******************************************************************************
  *	Description		: debounce function
  *	Argurments		: ch(channel), value(current translated video format)
@@ -76,7 +82,6 @@ unsigned char __video_fmt_bank5_debounce( unsigned char ch, unsigned char value 
 		return 0xFF /*N/A*/ ;
 	}
 }
-#endif
 
 void NC_VD_VO_Auto_Data_Mode_Set(unsigned char ch, unsigned char devnum, unsigned char SetVal)
 {
@@ -199,7 +204,8 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	}
 	else
 	{
-		iPort = ch%4;
+		//iPort = ch%4;
+		iPort = vport[pInformation->vport_map][ch%4];	//kukuri
 		oChannel = ch%4;
 		oDevNum = ch/4;
 
@@ -441,7 +447,8 @@ int RAPTOR3_SAL_NoVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	{
 		oChannel = ch % 4;
 		devnum = ch / 4;
-		iPort = ch % 4;
+		//iPort = ch%4;
+		iPort = vport[pInformation->vport_map][ch%4];	//kukuri
 
 		oMux = VI_WORK_MODE_1Multiplex;
 		oInterface = VI_INPUT_MODE_BT656;

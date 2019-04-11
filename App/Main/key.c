@@ -3,6 +3,7 @@
 //=============================================================================
 #include <stdio.h>
 #include "common.h"
+#include "NVP6158.h"
 
 //=============================================================================
 //  Global Variable Declaration
@@ -218,6 +219,15 @@ void Key_Proc(void)
 	if(IsKeyReady()==TRUE)
 	{
 		ClearKeyReady();
+
+		if(key == KEY_FULL_CH2)
+		{
+			NVP6158_Set_VportMap(VPORT_MAP1);
+		}
+		else
+		{
+			NVP6158_Set_VportMap(VPORT_MAP0);
+		}
 		
 		switch(key)
 		{
@@ -231,7 +241,7 @@ void Key_Proc(void)
 					OSD_RefreshScreen();
 					DisplayScreen((eChannel_t)(key - 1));
 					SetInputChanged();
-					Request2VideoProcess();
+					//Request2VideoProcess();
 					OSD_DrawBorderLine();
 				}
 				break;
