@@ -131,7 +131,7 @@ void main(void)
 
 		Delay_ms(10);
 		// check video loss
-		//ScanVideoLossChannels();
+		ScanVideoLossChannels();
 		Delay_ms(1);
 		
 		UpdateDisplayMode();
