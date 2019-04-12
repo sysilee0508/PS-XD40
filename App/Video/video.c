@@ -390,13 +390,13 @@ static void MDIN3xx_SetRegInitial(MDIN_VIDEO_INFO* pInfo)
 	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
 	MDIN3xx_VideoProcess(pInfo);			// mdin3xx main video process
 
-	// define window for inter-area (PIP window? kukuri)
+	// define window for inter-area
 	stInterWND.lx = 315;
 	stInterWND.rx = 405;
 	stInterWND.ly = 90;
 	stInterWND.ry = 150;
-	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
-	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
+	MDIN3xx_SetDeintInterWND(chipId, &stInterWND, MDIN_INTER_BLOCK0);
+	MDIN3xx_EnableDeintInterWND(chipId, MDIN_INTER_BLOCK0, OFF);
 
 	// define variable for EDK application
 //	InputSelOld = 0xff;
