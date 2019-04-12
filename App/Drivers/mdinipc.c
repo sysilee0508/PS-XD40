@@ -40,21 +40,9 @@ static BYTE enInterWND = 0;
 // ----------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------------------------------
-MDIN_ERROR_t MDIN3xx_SetIPCBlock(void)
+MDIN_ERROR_t MDIN3xx_SetIPCBlock(MDIN_CHIP_ID_t chipId)
 {
-#ifdef MDIN_MULTI_DEVICE
-	// set IPC block with default value for all MDIN
-	MDIN_ERROR_t ret = MDIN_NO_ERROR;
-	MDIN_CHIP_ID_t chipId;
-
-	for(chipId = MDIN_CHIP_ID_A; chipId < MDIN_CHIP_ID_MAX; chipId++)
-	{
-		ret = MDINHIF_MultiWrite(chipId, MDIN_LOCAL_ID, 0x200, (PBYTE)MDIN_Deinter_Default, 256);
-	}
-	return ret;
-#else
-	return MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x200, (PBYTE)MDIN_Deinter_Default, 256);
-#endif
+	return MDINHIF_MultiWrite(chipId, MDIN_LOCAL_ID, 0x200, (PBYTE)MDIN_Deinter_Default, 256);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
