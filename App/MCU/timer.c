@@ -1,7 +1,7 @@
 #include "common.h"
 
 //global variables --> should be changed to static
-static sSystemTick_t systemTick;
+static sSystemTick_t systemTick = 0;
 
 //-----------------------------------------------------------------------------
 //	Process Timer interrupt with 1ms

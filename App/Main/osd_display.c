@@ -728,57 +728,120 @@ void OSD_RefreshScreen(void)
 
 void OSD_DisplayTitle(void)
 {
-	eDisplayMode_t displayMode;
-	u8* titleStr;
+	static eDisplayMode_t preDisplayMode = DISPLAY_MODE_MAX;
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
-	Read_NvItem_DisplayMode(&displayMode);
-	titleStr = (u8 *)osdStr_Title[displayMode];
-	OSD_PrintString(titlePosition, titleStr, TITLE_LENGTH);
-
+	if(preDisplayMode != displayMode)
+	{
+		OSD_PrintString(titlePosition, osdStr_Title[displayMode], strlen(osdStr_Title[displayMode]));
+	}
+	preDisplayMode = displayMode;
 	requestRefreshScreen &= ~ REQUEST_OSD_REFRESH_TITLE;
 }
 
+#define DEFAULT_DISPLAY_TIME		5
 void OSD_DisplayVideoFormat(void)
 {
+	static u8 formatDisplayTime[NUM_OF_CHANNEL] = {DEFAULT_DISPLAY_TIME*2, DEFAULT_DISPLAY_TIME*2};
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	eChannel_t iChannel;
 	u8* inVideo[NUM_OF_CHANNEL];
 	u8* outVideo = GetOutVideoFormatString();
+	static u8* preInVideo[NUM_OF_CHANNEL] = {NULL, NULL};
+	sSystemTick_t* pSystemTime = GetSystemTime();
+	//u32 currentTimeInSec;
+	static u32 preTimeInSec;
+	static eDisplayMode_t preDisplayMode = DISPLAY_MODE_MAX; 
 
+	//currentTimeInSec = pSystemTime->tickCount_1s;
 	//if(requestRefreshScreen & REQUEST_OSD_REFRESH_FORMAT)
 	{
-		if(displayMode < DISPLAY_MODE_SPLIT_A)
+		if((preDisplayMode != displayMode) && (preDisplayMode != DISPLAY_MODE_MAX))
+		{
+			for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
+			{
+				formatDisplayTime[iChannel] = DEFAULT_DISPLAY_TIME;
+				preInVideo[iChannel] = NULL;
+			}
+		}
+		preDisplayMode = displayMode;
+		
+		if(displayMode < DISPLAY_MODE_SPLIT_A)	// full mode 
 		{
 			iChannel = (eChannel_t)displayMode;
 			if(IsVideoLossChannel(iChannel) == FALSE)
 			{
-				inVideo[displayMode] = GetInVideoFormatString(iChannel);
-				OSD_PrintString(videoInFormatPosition_Full, inVideo[iChannel], strlen((const u8*)inVideo[iChannel]));
-				OSD_PrintString(videoOutFormatPosition_Full, outVideo, strlen((const u8*)outVideo));
+				if(formatDisplayTime[iChannel] > 0)
+				{
+					inVideo[iChannel] = GetInVideoFormatString(iChannel);
+					if(pSystemTime->tickCount_1s > preTimeInSec)
+					{
+						formatDisplayTime[iChannel] -= (pSystemTime->tickCount_1s - preTimeInSec);
+					}
+				}
+				else
+				{
+					inVideo[iChannel] = (u8 *)osdStr_Space20;
+					outVideo = (u8 *)osdStr_Space20;
+				}
+
+				if(inVideo[iChannel] != preInVideo[iChannel])
+				{
+					OSD_PrintString(videoInFormatPosition_Full, inVideo[iChannel], strlen((const u8*)inVideo[iChannel]));
+					OSD_PrintString(videoOutFormatPosition_Full, outVideo, strlen((const u8*)outVideo));
+					if(( formatDisplayTime[iChannel] < DEFAULT_DISPLAY_TIME) && (inVideo[iChannel] != osdStr_Space20))
+					{
+						formatDisplayTime[iChannel] = DEFAULT_DISPLAY_TIME;
+					}
+					preInVideo[iChannel] = inVideo[iChannel];
+				}
 			}
-			else
+			else// if(preInVideo[iChannel] != osdStr_Space20)
 			{
 				OSD_PrintString(videoInFormatPosition_Full, osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
 				OSD_PrintString(videoOutFormatPosition_Full, osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+				formatDisplayTime[iChannel] = DEFAULT_DISPLAY_TIME;
+				preInVideo[iChannel] = (u8 *)osdStr_Space20;
 			}
 		}
-		else if(displayMode < DISPLAY_MODE_PIP_A)
+		else if(displayMode < DISPLAY_MODE_PIP_A)	// split mode
 		{
 			for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
 			{
 				if(IsVideoLossChannel(iChannel) == FALSE)
 				{
-					inVideo[iChannel] = GetInVideoFormatString(iChannel);
-					OSD_PrintString(
-							videoInFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
-							inVideo[iChannel],
-							strlen((const u8*)inVideo[iChannel]));
-					OSD_PrintString(
-							videoOutFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
-							outVideo,
-							strlen((const u8*)outVideo));
+					if(formatDisplayTime[iChannel] > 0)
+					{
+						inVideo[iChannel] = GetInVideoFormatString(iChannel);
+						if(pSystemTime->tickCount_1s > preTimeInSec)
+						{
+							formatDisplayTime[iChannel] -= (pSystemTime->tickCount_1s - preTimeInSec);
+						}
+					}
+					else
+					{
+						inVideo[iChannel] = (u8 *)osdStr_Space20;
+						outVideo = (u8 *)osdStr_Space20;
+					}
+
+					if(inVideo[iChannel] != preInVideo[iChannel])
+					{
+						OSD_PrintString(
+								videoInFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
+								inVideo[iChannel],
+								strlen((const u8*)inVideo[iChannel]));
+						OSD_PrintString(
+								videoOutFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
+								outVideo,
+								strlen((const u8*)outVideo));
+						if(( formatDisplayTime[iChannel] < DEFAULT_DISPLAY_TIME) && (inVideo[iChannel] != osdStr_Space20))
+						{
+							formatDisplayTime[iChannel] = DEFAULT_DISPLAY_TIME;
+						}
+						preInVideo[iChannel] = inVideo[iChannel];
+					}
 				}
-				else
+				else// if(preInVideo[iChannel] != osdStr_Space20)
 				{
 					OSD_PrintString(
 							videoInFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
@@ -786,25 +849,51 @@ void OSD_DisplayVideoFormat(void)
 					OSD_PrintString(
 							videoOutFormatPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],
 							osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+					preInVideo[iChannel] = (u8 *)osdStr_Space20;
+					formatDisplayTime[iChannel] = DEFAULT_DISPLAY_TIME;
 				}
 			}
 		}
-		else
+		else		//pip mode
 		{
 			if(IsVideoLossChannel(CHANNEL1) == FALSE)
 			{
-				inVideo[CHANNEL1] = GetInVideoFormatString(CHANNEL1);
-				OSD_PrintString(videoInFormatPosition_Full, inVideo[CHANNEL1], strlen((const u8*)inVideo[CHANNEL1]));
-				OSD_PrintString(videoOutFormatPosition_Full, outVideo, strlen((const u8*)outVideo));
+				if(formatDisplayTime[CHANNEL1] > 0)
+				{
+					inVideo[CHANNEL1] = GetInVideoFormatString(CHANNEL1);
+					if(pSystemTime->tickCount_1s > preTimeInSec)
+					{
+						formatDisplayTime[CHANNEL1] -= (pSystemTime->tickCount_1s - preTimeInSec);
+					}
+				}
+				else
+				{
+					inVideo[CHANNEL1] = (u8 *)osdStr_Space20;
+					outVideo = (u8 *)osdStr_Space20;
+				}
+
+				if(inVideo[CHANNEL1] != preInVideo[CHANNEL1])
+				{
+					OSD_PrintString(videoInFormatPosition_Full, inVideo[CHANNEL1], strlen((const u8*)inVideo[CHANNEL1]));
+					OSD_PrintString(videoOutFormatPosition_Full, outVideo, strlen((const u8*)outVideo));
+					if(( formatDisplayTime[CHANNEL1] < DEFAULT_DISPLAY_TIME) && (inVideo[CHANNEL1] != osdStr_Space20))
+					{
+						formatDisplayTime[CHANNEL1] = DEFAULT_DISPLAY_TIME;
+					}
+					preInVideo[CHANNEL1] = inVideo[CHANNEL1];
+				}
 			}
-			else
+			else// if(preInVideo[CHANNEL1] != osdStr_Space20)
 			{
 				OSD_PrintString(videoInFormatPosition_Full, osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
 				OSD_PrintString(videoOutFormatPosition_Full, osdStr_Space20, VIDEO_FORMAT_LENGTH_MAX);
+				preInVideo[CHANNEL1] = (u8 *)osdStr_Space20;
+				formatDisplayTime[CHANNEL1] = DEFAULT_DISPLAY_TIME;
 			}
 		}
 		requestRefreshScreen &= ~REQUEST_OSD_REFRESH_FORMAT;
 	}
+	preTimeInSec = pSystemTime->tickCount_1s;
 }
 
 //-----------------------------------------------------------------------------

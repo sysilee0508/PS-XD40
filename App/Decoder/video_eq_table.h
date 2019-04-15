@@ -5518,7 +5518,7 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 	/*B0 0x81*/	.format_set1[0] = 0xe0,
 	/*B0 0x85*/	.format_set2[0] = 0x00,
 
-	/*B0 0x64*/ .v_delay[0]     = 0xc0,
+	/*B0 0x64*/ .v_delay[0]     = 0xE0,//0xc0,		//kukuri
 		},
 	},
 
@@ -5609,7 +5609,7 @@ video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ]
 	/*B0 0x81*/	.format_set1[0] = 0xf0,
 	/*B0 0x85*/	.format_set2[0] = 0x00,
 
-	/*B0 0x64*/ .v_delay[0]     = 0x80,
+	/*B0 0x64*/ .v_delay[0]     = 0xA1,//0x80,		//kukuri
 		},
 	},
 
