@@ -659,12 +659,12 @@ static void SetSrcMainFine(BYTE src)
 }
 #endif
 //--------------------------------------------------------------------------------------------------
-static void SetIPCVideoFine(BYTE src)
+static void SetIPCVideoFine(MDIN_CHIP_ID_t chipId, BYTE src)
 {
-	MDINHIF_RegField(MDIN_LOCAL_ID, 0x256, 0, 8, 12);
-	MDINHIF_RegField(MDIN_LOCAL_ID, 0x259, 0, 8,  4);
-	MDINHIF_RegField(MDIN_LOCAL_ID, 0x25a, 8, 8,  1);
-	MDINHIF_RegField(MDIN_LOCAL_ID, 0x25b, 0, 8,  8);
+	MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x256, 0, 8, 12);
+	MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x259, 0, 8,  4);
+	MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x25a, 8, 8,  1);
+	MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x25b, 0, 8,  8);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -767,7 +767,7 @@ static void VideoFrameProcess(BYTE src, MDIN_VIDEO_INFO* pInfo)
 		MDIN3xx_VideoProcess(pInfo);		// mdin3xx main video process
 		//MDINAUX_VideoProcess(pInfo);
 
-		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
+		SetIPCVideoFine(pInfo->chipId, src);	// tune IPC-register (CVBS or HDMI)
 		//SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
 
 		MDIN3xx_EnableAuxDisplay(pInfo, ON);

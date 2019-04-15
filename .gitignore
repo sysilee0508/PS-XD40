@@ -7,3 +7,13 @@ Project/Debug/Exe/PS-XD40.hex
 *.xcl
 *.pbi
 *.o
+Project/settings/PS-XD40_MDIN.dnx
+Project/settings/PS-XD40_MDIN.dbgdt
+Project/settings/PS-XD40_MDIN.crun
+Project/settings/PS-XD40_MDIN.Debug.cspy.ps1
+Project/settings/PS-XD40_MDIN.Debug.cspy.bat
+Project/settings/PS-XD40.dnx
+Project/settings/PS-XD40.crun
+Project/settings/PS-XD40.Debug.cspy.ps1
+Project/Debug/List/PS-XD40_MDIN.map
+Project/Debug/Exe/PS-XD40_MDIN.out

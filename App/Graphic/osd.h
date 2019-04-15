@@ -43,7 +43,7 @@ typedef	struct
 extern GACMAP_FONT_INFO stFONT;
 extern SPRITE_CTL_INFO stOSD[12];
 extern LAYER_CTL_INFO stLayer[3];
-extern CURSOR_CTL_INFO stCurCTL;
+//extern CURSOR_CTL_INFO stCurCTL;
 extern SBOX_CTL_INFO stSBOX[8];
 extern OSD_4CHVIEW_INFO st4CH;
 
