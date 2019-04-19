@@ -391,7 +391,7 @@ void NVP6158_VideoDetectionProc(void)
 	s_raptor3_vfmts.motiondetect = 0; //initialize Motion Detection for each channel
 	
 	/* process video format on/off */
-	for( oLogicalChannel = 0; oLogicalChannel < 2; oLogicalChannel++ )
+	for( oLogicalChannel = 0; oLogicalChannel < 4; oLogicalChannel++ )
 	{
 		/*****************************************************************
 		 *
@@ -490,11 +490,11 @@ void NVP6158_VideoDetectionProc(void)
 		else
 		{
 			/* no video */
-			if( oPreVideofmt != NC_VIVO_CH_FORMATDEF_UNKNOWN )
+			if(( oPreVideofmt != NC_VIVO_CH_FORMATDEF_UNKNOWN ) || (s_raptor3_vfmts.vport_map_changed == 1))
 			{
 				NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,  OUT_MODE_OFF );
 
-				s_raptor3_vfmts.curvideofmt[oLogicalChannel] = CVI_HD_30P_EX;
+				//s_raptor3_vfmts.curvideofmt[oLogicalChannel] = CVI_HD_30P_EX;
 //                    CableDistance = 0;
 
 				/* set no video- first(i:channel, raptor3_vfmts:information */
@@ -657,5 +657,6 @@ void NVP6158_init(void)
 	{
 		s_raptor3_vfmts.vport_map = VPORT_MAP0;
 	}
+	s_raptor3_vfmts.vport_map_changed = 1;
 }
 

@@ -445,7 +445,7 @@ static void OSD_DisplayNoVideo(void)
 		if(displayMode < DISPLAY_MODE_SPLIT_A)
 		{
 			iChannel = (eChannel_t)displayMode;
-			if(IsVideoLossChannel(iChannel) == TRUE)
+			if(GetInputVideoFormat(iChannel) == NC_VIVO_CH_FORMATDEF_UNKNOWN)//(IsVideoLossChannel(iChannel) == TRUE)
 			{
 				OSD_PrintString(videoLossPosition_Full, osdStr_NoVideo, VIDEO_LOSS_LENGTH);
 			}
@@ -458,7 +458,7 @@ static void OSD_DisplayNoVideo(void)
 		{
 			for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
 			{
-				if(IsVideoLossChannel(iChannel) == TRUE)
+				if(GetInputVideoFormat(iChannel) == NC_VIVO_CH_FORMATDEF_UNKNOWN)//(IsVideoLossChannel(iChannel) == TRUE)
 				{
 					OSD_PrintString(
 							videoLossPosition_Split[displayMode-DISPLAY_MODE_SPLIT_A][iChannel],

@@ -904,7 +904,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	if((GetInputVideoFormat(CHANNEL1) == NC_VIVO_CH_FORMATDEF_UNKNOWN) && (displayMode != DISPLAY_MODE_FULL_CH2))
 	{
 		// channel 1 is always main
-		mainWidth = DISPLAY_WIDTH_1280x720;
+		mainWidth = DISPLAY_WIDTH_1280x720/2;
 		mainHeight = DISPLAY_HEIGHT_1280x720;
 	}
 
@@ -913,12 +913,12 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 		// channel2 is main or aux?
 		if(displayMode == DISPLAY_MODE_FULL_CH2)
 		{
-			mainWidth = DISPLAY_WIDTH_1280x720;
+			mainWidth = DISPLAY_WIDTH_1280x720/2;
 			mainHeight = DISPLAY_HEIGHT_1280x720;
 		}
 		else
 		{
-			auxWidth = DISPLAY_WIDTH_1280x720;
+			auxWidth = DISPLAY_WIDTH_1280x720/2;
 			auxHeight = DISPLAY_HEIGHT_1280x720;
 		}
 	}

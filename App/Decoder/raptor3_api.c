@@ -430,7 +430,8 @@ int RAPTOR3_SAL_NoVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	NC_VD_DEV_CH_INFO_STR DEV_CH_INFO;
 	NC_VD_EQ_STR sEQInfo;
 
-	NC_VIVO_CH_FORMATDEF oFmtDef = pInformation->curvideofmt[ch];
+	//NC_VIVO_CH_FORMATDEF oFmtDef = pInformation->curvideofmt[ch];
+	NC_VIVO_CH_FORMATDEF oFmtDef = CVI_HD_30P_EX;	//kukuri
 	//video_input_novid_set AutoNoVidDet;
 
 	if(pInformation->oMux == VI_WORK_MODE_2Multiplex)
