@@ -367,13 +367,6 @@ NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalCh
 	return s_raptor3_vfmts.curvideofmt[oLogicalChannel];
 }
 
-
-#define DISTINGUISH_MAX_NUM	5
-static unsigned int CVI_720P30[4]={0,};
-static unsigned int DISTINGUISH_CNT[4] = { 0, };
-static unsigned int CVI_1080P30[4] = {0, };
-static unsigned int __First_Boot_DetectResult_CVI1080P[4] = {0, };
-
 void NVP6158_VideoDetectionProc(void)
 {
 	int i;
@@ -391,7 +384,7 @@ void NVP6158_VideoDetectionProc(void)
 	s_raptor3_vfmts.motiondetect = 0; //initialize Motion Detection for each channel
 	
 	/* process video format on/off */
-	for( oLogicalChannel = 0; oLogicalChannel < 4; oLogicalChannel++ )
+	for( oLogicalChannel = 0; oLogicalChannel < 2; oLogicalChannel++ )
 	{
 		/*****************************************************************
 		 *

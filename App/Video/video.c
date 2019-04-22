@@ -4,7 +4,6 @@
 #include "common.h"
 #include "NVP6158.h"        
 
-#if defined(SYSTEM_USE_MDIN380)
 // ----------------------------------------------------------------------
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
@@ -789,7 +788,6 @@ static void VideoFrameProcess(BYTE src)
 	}
 }
 
-
 // ----------------------------------------------------------------------
 // Exported functions
 // ----------------------------------------------------------------------
@@ -919,7 +917,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 		else
 		{
 			auxWidth = DISPLAY_WIDTH_1280x720/2;
-			auxHeight = DISPLAY_HEIGHT_1280x720;
+			auxHeight = DISPLAY_HEIGHT_480/2;
 		}
 	}
 
@@ -1082,6 +1080,5 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	MDINAUX_SetVideoWindowVIEW(&stVideo, stAuxVIEW);
 }
 
-#endif	/* defined(SYSTEM_USE_MDIN380) */
 
 /*  FILE_END_HERE */

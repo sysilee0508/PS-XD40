@@ -746,7 +746,7 @@ void OSD_DisplayVideoFormat(void)
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	eChannel_t iChannel;
 	u8* inVideo[NUM_OF_CHANNEL];
-	u8* outVideo = GetOutVideoFormatString();
+	u8* outVideo;
 	static u8* preInVideo[NUM_OF_CHANNEL] = {NULL, NULL};
 	sSystemTick_t* pSystemTime = GetSystemTime();
 	//u32 currentTimeInSec;
@@ -769,11 +769,12 @@ void OSD_DisplayVideoFormat(void)
 		if(displayMode < DISPLAY_MODE_SPLIT_A)	// full mode 
 		{
 			iChannel = (eChannel_t)displayMode;
-			if(IsVideoLossChannel(iChannel) == FALSE)
+			if(GetInputVideoFormat(iChannel) != NC_VIVO_CH_FORMATDEF_UNKNOWN)//(IsVideoLossChannel(iChannel) == FALSE)
 			{
 				if(formatDisplayTime[iChannel] > 0)
 				{
 					inVideo[iChannel] = GetInVideoFormatString(iChannel);
+					outVideo = outVideo = GetOutVideoFormatString();
 					if(pSystemTime->tickCount_1s > preTimeInSec)
 					{
 						formatDisplayTime[iChannel] -= (pSystemTime->tickCount_1s - preTimeInSec);
@@ -808,11 +809,12 @@ void OSD_DisplayVideoFormat(void)
 		{
 			for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
 			{
-				if(IsVideoLossChannel(iChannel) == FALSE)
+				if(GetInputVideoFormat(iChannel) != NC_VIVO_CH_FORMATDEF_UNKNOWN)//(IsVideoLossChannel(iChannel) == FALSE)
 				{
 					if(formatDisplayTime[iChannel] > 0)
 					{
 						inVideo[iChannel] = GetInVideoFormatString(iChannel);
+						outVideo = outVideo = GetOutVideoFormatString();
 						if(pSystemTime->tickCount_1s > preTimeInSec)
 						{
 							formatDisplayTime[iChannel] -= (pSystemTime->tickCount_1s - preTimeInSec);
@@ -856,7 +858,7 @@ void OSD_DisplayVideoFormat(void)
 		}
 		else		//pip mode
 		{
-			if(IsVideoLossChannel(CHANNEL1) == FALSE)
+			if(GetInputVideoFormat(iChannel) != NC_VIVO_CH_FORMATDEF_UNKNOWN)//(IsVideoLossChannel(CHANNEL1) == FALSE)
 			{
 				if(formatDisplayTime[CHANNEL1] > 0)
 				{
