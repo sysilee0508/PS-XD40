@@ -21,14 +21,28 @@ typedef enum
 	CHANNEL_SPLIT
 } eChannel_t;
 
-extern s8 Video1_In_Res_Val;
-extern s8 Video2_In_Res_Val;
-extern s8 Video_Out_Res_Val;
+typedef enum
+{
+	SPLIT_A = 0,
+	SPLIT_B,
+	SPLIT_C,
+	SPLIT_D,
+	SPLIT_E,
+	NUM_OF_SPLIT
+} eSplit_t;
+
+typedef enum
+{
+	PIP_A = 0,
+	PIP_B,
+	PIP_C,
+	PIP_D,
+	NUM_OF_PIP
+} ePip_t;
+extern s8 videoOutResolution;
 
 extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);
-
-extern void vs4210_system_init(void);
 
 extern void TurnOnAlarmOut(u8 requester);
 extern void TurnOffAlarmOut(u8 requester);

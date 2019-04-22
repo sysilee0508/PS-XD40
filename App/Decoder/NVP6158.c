@@ -3,9 +3,8 @@
 #include "NVP6158.h"
 #include "i2c.h"
 #include "delay.h"
-//#include "video_fmt_input.h"
-//#include "video_fmt_output.h"
 
+extern unsigned char GetCurrentDisplayMode(void);
 
 RAPTOR3_INFORMATION_S	s_raptor3_vfmts;
 
@@ -51,12 +50,26 @@ NC_VIVO_CH_FORMATDEF arrVfcType[0x100] = {
 unsigned char NVP6158_I2C_READ(unsigned char slaveaddr, unsigned char regaddr)
 {
 
-    return I2C_READ(slaveaddr, regaddr);
+    return I2C_READ(I2C_MAIN, NVP6158_ADDR, regaddr);
 }
 
 void NVP6158_I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data)
 {
-	I2C_WRITE(slaveaddr, regaddr, write_data);		
+	I2C_WRITE(I2C_MAIN, NVP6158_ADDR, regaddr, write_data);		
+}
+
+void NVP6158_Set_VportMap(eVPORT_MAP_t map)
+{
+	if(map != s_raptor3_vfmts.vport_map)
+	{
+		s_raptor3_vfmts.vport_map = map;
+		s_raptor3_vfmts.vport_map_changed = 1;
+	}
+}
+
+eVPORT_MAP_t NVP6158_Get_VportMap(void)
+{
+	return s_raptor3_vfmts.vport_map;
 }
 
 unsigned char __IsOver3MRTVideoFormat( const char *poFmtName )
@@ -398,6 +411,11 @@ void NVP6158_VideoDetectionProc(void)
 
 		if( s_raptor3_vfmts.curvideoloss[oLogicalChannel] == VIDEO_LOSS_ON)
 		{
+			if(s_raptor3_vfmts.vport_map_changed == 1)
+			{
+				oPreVideofmt  = NC_VIVO_CH_FORMATDEF_UNKNOWN;
+			}
+			
 			/* on video */
 			if( (oCurVideofmt != NC_VIVO_CH_FORMATDEF_UNKNOWN) && (oPreVideofmt == NC_VIVO_CH_FORMATDEF_UNKNOWN) )
 			{
@@ -406,66 +424,6 @@ void NVP6158_VideoDetectionProc(void)
 
 //					fprintf(stdout,"[CH:%d] >> Now Format Define Value : [%02x]\n", oLogicalChannel, oFmtDef);
 
-#ifdef SUPPORT_TVI_5M_20P
-				if(oFmtDef == AHD30_5M_20P )
-					{
-						NC_VD_VI_AHD_TVI_Ditinguish(&sDevChInfo);
-						oFmtDef = sDevChInfo.Fmt_Def;
-
-						if( oFmtDef == TVI_5M_20P )
-							s_raptor3_vfmts.curvideofmt[oLogicalChannel] = TVI_5M_20P;
-					}
-#endif
-#ifdef SUPPORT_TVI_8M
-				if( oFmtDef == CVI_8M_15P || oFmtDef == CVI_8M_12_5P || oFmtDef == CVI_4M_25P )
-				{
-					NC_VD_VI_CVI_TVI_Ditinguish(&sDevChInfo);
-					oFmtDef = sDevChInfo.Fmt_Def;
-					s_raptor3_vfmts.curvideofmt[oLogicalChannel] = sDevChInfo.Fmt_Def;
-				}
-#endif
-#ifdef SUPPORT_AHD_CVI_1M_ACCURACY_UP
-				if( oFmtDef == AHD20_720P_30P_EX_Btype )
-				{
-					if(CVI_720P30[oLogicalChannel] == 0)
-					{
-						oFmtDef = CVI_HD_30P_EX;
-						s_raptor3_vfmts.curvideofmt[oLogicalChannel] = CVI_HD_30P_EX;
-						CVI_720P30[oLogicalChannel] = 1;
-					}
-				}
-#endif
-#ifdef SUPPORT_TVI_1M_A_2_B
-				if(oFmtDef == TVI_HD_30P_EX || oFmtDef == TVI_HD_25P_EX)
-				{
-					NC_FORMAT_STANDARD   format_standard=FMT_TVI;
-					NC_FORMAT_RESOLUTION format_resolution=FMT_720P_EX;
-					NC_FORMAT_FPS        format_fps=FMT_30P;
-
-					switch( oFmtDef )
-					{
-						case TVI_HD_30P_EX : format_fps=FMT_30P; break;
-						case TVI_HD_25P_EX : format_fps=FMT_25P; break;
-						default : break;
-					}
-
-					NC_APP_VD_COAX_Tx_Init( oLogicalChannel/4, oLogicalChannel, format_standard, format_resolution, format_fps );
-					NC_APP_VD_COAX_Tx_Command_Send_Set( oLogicalChannel/4, oLogicalChannel, format_standard, format_resolution, format_fps, COAX_CMD_TVI_1M_A_B_TYPE_CHANGE_A );
-//						fprintf(stdout, "TVI HD A Type to B type Send COAX CMD!!!!\n");
-					continue;
-				}
-#endif
-#ifdef SUPPORT_AHD_CVI_2M_ACCURACY_UP
-				if( oFmtDef == CVI_FHD_30P )
-				{
-					DBG_INFO("[CH:%d] >>> First finding format CVI 2M 30P \n", oLogicalChannel );
-					NC_VD_VI_AHD_CVI_Distinguish( &sDevChInfo );
-					oFmtDef = sDevChInfo.Fmt_Def;
-					s_raptor3_vfmts.curvideofmt[oLogicalChannel] = oFmtDef;
-
-					CVI_1080P30[oLogicalChannel] = 1;
-				}
-#endif
 				/* set video format(DEC) */
 				RAPTOR3_SAL_OnVIdeoSetFormat( oLogicalChannel, &s_raptor3_vfmts );
 
@@ -477,18 +435,7 @@ void NVP6158_VideoDetectionProc(void)
 //					CableDistance = NC_APP_VD_MANUAL_CABLE_DISTANCE_Get( oLogicalChannel, oFmtDef );
 //					NC_APP_VD_MANUAL_VIDEO_EQ_Set(oLogicalChannel, CableDistance, oFmtDef);
 
-#ifdef SUPPORT_AHD_CVI_1M_ACCURACY_UP
-				if(oFmtDef == CVI_HD_30P_EX && CVI_720P30[oLogicalChannel] == 1)
-				{
-					/* hide decoder */
-					NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,	OUT_MODE_OFF );
-				//	usleep( 1500 * 1000 );
-				}
-				else
-					NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,  OUT_MODE_ON );
-#else
 				NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,  OUT_MODE_ON );
-#endif
 
 				/* set Coaxial */ // blocked by kukuri
 //					pChFmt = (NC_VI_CH_FMT_S *)NC_HI_VI_Get_ChannelFormat( oFmtDef );
@@ -504,23 +451,6 @@ void NVP6158_VideoDetectionProc(void)
 			{
 				/* check debouce video format(-1:changed, 0:not checked) when you changed video format */
 				ret = RAPTOR3_SAL_AutoDebouceCheck( oLogicalChannel, &s_raptor3_vfmts );
-
-#ifdef SUPPORT_AHD_CVI_1M_ACCURACY_UP
-				if(s_raptor3_vfmts.curvideofmt[oLogicalChannel]==CVI_HD_30P_EX && CVI_720P30[oLogicalChannel] == 1)
-					{
-					NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,	OUT_MODE_ON );
-						//CVI_720P30[oLogicalChannel] = 0;
-					}
-#endif
-#ifdef SUPPORT_AHD_CVI_2M_ACCURACY_UP
-				if( CVI_1080P30[oLogicalChannel] &&  !__First_Boot_DetectResult_CVI1080P[oLogicalChannel] )
-				{
-					CVI_1080P30[oLogicalChannel] = 0;
-					__First_Boot_DetectResult_CVI1080P[oLogicalChannel] = 1;
-
-					ret = -1;
-				}
-#endif
 
 				if( ret == -1 )
 				{
@@ -560,22 +490,15 @@ void NVP6158_VideoDetectionProc(void)
 		else
 		{
 			/* no video */
-			if( oPreVideofmt != NC_VIVO_CH_FORMATDEF_UNKNOWN )
+			if(( oPreVideofmt != NC_VIVO_CH_FORMATDEF_UNKNOWN ) || (s_raptor3_vfmts.vport_map_changed == 1))
 			{
 				NC_VD_VO_Auto_Data_Mode_Set( oLogicalChannel, oDevNum,  OUT_MODE_OFF );
 
-				s_raptor3_vfmts.curvideofmt[oLogicalChannel] = CVI_HD_30P_EX;
+				//s_raptor3_vfmts.curvideofmt[oLogicalChannel] = CVI_HD_30P_EX;
 //                    CableDistance = 0;
 
 				/* set no video- first(i:channel, raptor3_vfmts:information */
 				RAPTOR3_SAL_NoVIdeoSetFormat( oLogicalChannel, &s_raptor3_vfmts );
-
-#ifdef				SUPPORT_AHD_CVI_1M_ACCURACY_UP
-				CVI_720P30[oLogicalChannel] = 0;
-#endif
-#ifdef				SUPPORT_AHD_CVI_2M_ACCURACY_UP
-				CVI_1080P30[oLogicalChannel] = 0;
-#endif
 
 				/* Auto Debounce Buffer Clear */
 				s_raptor3_vfmts.debounceidx[oLogicalChannel] = 0;
@@ -590,6 +513,7 @@ void NVP6158_VideoDetectionProc(void)
 
 		}
 	}
+	s_raptor3_vfmts.vport_map_changed = 0;
 
 	/* sleep */
 	//Delay_ms(200);
@@ -601,6 +525,7 @@ void NVP6158_init(void)
 	unsigned char ch;
 	unsigned char port;
 	unsigned char val_9x44;
+	unsigned char displayMode = GetCurrentDisplayMode();
 
 	chip_id = check_id(NVP6158_ADDR);
 	if(chip_id != RAPTOR3_4PORT_R0_ID )
@@ -609,7 +534,7 @@ void NVP6158_init(void)
 	}
 
 	/* set black screen */
-	video_output_colorbar_set(FUNC_ON);
+	video_output_colorbar_set(FUNC_OFF);
 
 	/* set initialization value  */
 	for(ch = 0; ch < 4; ch++)
@@ -723,5 +648,15 @@ void NVP6158_init(void)
 	}
 
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;
+
+	if(displayMode == CH2)
+	{
+		s_raptor3_vfmts.vport_map = VPORT_MAP1;
+	}
+	else
+	{
+		s_raptor3_vfmts.vport_map = VPORT_MAP0;
+	}
+	s_raptor3_vfmts.vport_map_changed = 1;
 }
 

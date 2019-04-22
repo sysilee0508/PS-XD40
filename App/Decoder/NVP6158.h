@@ -49,6 +49,12 @@ typedef enum _VI_WORK_MODE_E
     VI_WORK_MODE_BUTT
 } VI_WORK_MODE_E;
 
+typedef enum  
+{
+	VPORT_MAP0,
+	VPORT_MAP1,
+	VPORT_MAP_MAX
+} eVPORT_MAP_t;
 
 // Auto Detection
 typedef struct 
@@ -961,6 +967,13 @@ typedef enum DISTANCE
 	LONG_500M,
 }CABLE_DISTANCE;
 
+typedef struct _NC_VD_EQ_STR{
+	unsigned char Ch;
+	unsigned char Dev_Num;
+	unsigned char distance;
+	unsigned char FmtDef;
+} NC_VD_EQ_STR;
+
 typedef struct _RAPTOR3_INFORMATION_S
 {
 	unsigned char			oMux;	/* 0:1mux,  */
@@ -972,6 +985,9 @@ typedef struct _RAPTOR3_INFORMATION_S
 	unsigned char			debounceidx[4];
 	unsigned int 			videolosscheck[4]; /* 1:Loss 0:Video */
 	unsigned char 			motiondetect;
+	
+	eVPORT_MAP_t 		vport_map;		// added by kukuri
+	unsigned char 		vport_map_changed;
 } RAPTOR3_INFORMATION_S;
 
 void NVP6158_init(void);
@@ -1028,7 +1044,8 @@ void NC_VD_VO_Mode_Set_New( unsigned char ch, unsigned char devnum, unsigned cha
                             unsigned char edge,
                             unsigned char SEQ0, unsigned char SEQ1, unsigned char SEQ2, unsigned char SEQ3);
 
-
+void NVP6158_Set_VportMap(eVPORT_MAP_t map);
+eVPORT_MAP_t NVP6158_Get_VportMap(void);
 
 
 #endif

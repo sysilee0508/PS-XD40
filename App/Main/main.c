@@ -73,8 +73,8 @@ static void PlayBuzzer(void)
 //=============================================================================
 void main(void)
 {
-	eResolution_t videoOutResolution;
-
+	eDisplayMode_t displayMode;
+	
 	// initialize STM32F103x
 	MCU_init();
 	// initialize interrupt
@@ -133,10 +133,21 @@ void main(void)
 	InitVideoLossCheck();
 	InitializeMotionDetect();
 
-	InputSelect = VIDEO_DIGITAL_SDI;
-	DisplayMode_SplitScreen(Get_SystemSplitMode());
+	//InputSelect = VIDEO_DIGITAL_SDI;
+	Read_NvItem_DisplayMode(&displayMode);
+	if(displayMode == DISPLAY_MODE_FULL_CH1)
+	{
+		UpdateKeyData(KEY_FULL_CH1);
+	}
+	else if(displayMode == DISPLAY_MODE_FULL_CH2)
+	{
+		UpdateKeyData(KEY_FULL_CH2);
+	}
+	else
+	{
+		UpdateKeyData(KEY_SPLIT);
+	}
 
-	UpdateKeyData(KEY_SPLIT);
 	SetKeyReady();
 
 	OSD_DrawBorderLine();
@@ -144,6 +155,8 @@ void main(void)
 
 	while(TRUE)
 	{
+		RTC_CheckTime();
+		Key_Proc();
 		NVP6158_VideoDetectionProc();
 		Delay_ms(1);
 		Set_DisplayoutputMode_table();
@@ -156,8 +169,8 @@ void main(void)
 		UpdateAutoSeqCount();
 		DisplayAutoSeqChannel();
 
-		Key_Proc();
-		RTC_CheckTime();
+//		Key_Proc();
+//		RTC_CheckTime();
 		
 		// video process handler
 		VideoProcessHandler();

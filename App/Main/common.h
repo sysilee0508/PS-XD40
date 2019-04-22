@@ -31,34 +31,25 @@
 #include "main.h"
 #include "key.h"
 #include "Rtc.h"
-#include "osd_display.h"
 #include "Sequence.h"
 #include "MCU.h"
 #include "i2c.h"
 #include "delay.h"
-#include "video.h"
 #include "mfccoef.h"
+#include "timer.h"
 
 #include "osd.h"
-#include "osdmenu.h"
+//#include "osdmenu.h"
 #include "menu.h"
-#include "item.h"
+//#include "item.h"
 #include "video_loss.h"
 
-#include "timer.h"
 #include "MotionDetect.h"
 #include "alarm_remotekey.h"
 #include "display_mode.h"
 #include "nv_storage.h"
-
-// msg.c
-typedef enum {
-	MSG_KEY = 0, MSG_IR, MSG_UART, MSG_USB
-} 	MSG_CTRL_MODE;
-
-typedef enum {
-	MSG_LEVEL = 0, MSG_SHIFT, MSG_ZMOVE
-} 	MSG_EXE_SPEED;
+#include "video.h"
+#include "osd_display.h"
 
 #define NOP()	asm("NOP")
 

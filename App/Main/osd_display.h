@@ -7,18 +7,6 @@
 //-----------------------------------------------------------------
 // Define & Macro
 //-----------------------------------------------------------------
-#define DISPLAY_WIDTH_1920X1080				1920
-#define DISPLAY_HEIGHT_1920x1080			1080
-
-#define DISPLAY_WIDTH 						DISPLAY_WIDTH_1920X1080
-#define DISPLAY_HEIGHT						DISPLAY_HEIGHT_1920x1080
-
-#define DISPLAY_HALF_WIDTH 					(DISPLAY_WIDTH/2)	//960
-#define DISPLAY_HALF_HEIGHT					(DISPLAY_HEIGHT/2)	//540
-#define DISPLAY_QUAD_WIDTH					(DISPLAY_WIDTH/4)	//480
-#define DISPLAY_QUAD_HEIGHT					(DISPLAY_HEIGHT/4)	//270
-
-
 #define CHAR_WIDTH							12
 #define CHAR_HEIGHT							24
 

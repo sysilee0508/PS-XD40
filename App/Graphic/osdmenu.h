@@ -12,6 +12,9 @@
 // Ref. Docment		: 
 // Revision History 	:
 
+#if 0
+
+
 #ifndef		__OSDMENU_H__
 #define		__OSDMENU_H__
 
@@ -664,3 +667,6 @@ static ROMDATA BYTE defAudioSize[]		= {
 
 
 #endif	/* __OSDMENU_H__ */
+
+
+#endif

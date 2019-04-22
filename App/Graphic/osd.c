@@ -532,6 +532,10 @@ void OSD_SetFontGAC(SPRITE_INDEX_t index)
 	MDINGAC_SetFontMode(&stFONT, &stOSD[index]);
 }
 
+void OSD_EnableSprite(SPRITE_INDEX_t index, BOOL OnOff)
+{
+	MDINOSD_EnableSprite(&stOSD[index], OnOff);
+}
 //--------------------------------------------------------------------------------------------------------------------------
 void OSD_ModifyPalette_M(BOOL rgb)
 {

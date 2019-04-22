@@ -40,8 +40,9 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_MOTION_SENSITIVITY,		sizeof(uint8_t),							CLEAR},
 		{NV_ITEM_MOTION_DETECT_BLOCK,       sizeof(uint16_t)*NUM_OF_CHANNEL*ROWS_OF_BLOCKS, CLEAR},
 		{NV_ITEM_SERIAL_BAUDRATE,			sizeof(eBaudRate_t),						CLEAR},
-		{NV_ITEM_SPLIT_MODE,				sizeof(eDisplayMode_t),						CLEAR},
-		{NV_ITEM_DISPLAY_CHANNEL,			sizeof(eChannel_t),							CLEAR},
+		{NV_ITEM_DISPLAY_MODE, 				sizeof(eDisplayMode_t),							CLEAR},
+		//{NV_ITEM_SPLIT_MODE,				sizeof(eDisplayMode_t),						CLEAR},
+		//{NV_ITEM_DISPLAY_CHANNEL,			sizeof(eChannel_t),							CLEAR},
 		{NV_ITEM_END_CHECK,					sizeof(uint32_t),							CLEAR}
 };
 
@@ -156,8 +157,9 @@ static void LoadDefaultNvData(void)
 	memset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
 	nv_data.data.motionIndication = OFF;
 
-	nv_data.data.splitMode = DISPLAY_MODE_QUAD_A;
-	nv_data.data.currentChannel = (eChannel_t)CHANNEL_SPLIT;
+	nv_data.data.displayMode = DISPLAY_MODE_FULL_CH1;
+	//nv_data.data.splitMode = DISPLAY_MODE_QUAD_A;
+	//nv_data.data.currentChannel = (eChannel_t)CHANNEL_SPLIT;
 
 	// set anyone of nv items dirty in order to write nv data to flash
 	nvInfo[NV_ITEM_END_CHECK].dirty = SET;
@@ -275,6 +277,7 @@ void Read_NvItem_FwVersion(sVersion_t* pData)
        pData->minor = nv_data.data.fwVersion.minor;
 }
 
+/*
 void Read_NvItem_SplitMode(eSplitMode_t* pData)
 {
 	*pData = nv_data.data.splitMode;
@@ -296,6 +299,16 @@ void Write_NvItem_DisplayChannel(eChannel_t data)
 		nv_data.data.currentChannel = data;
 		nvInfo[NV_ITEM_DISPLAY_CHANNEL].dirty = SET;
 	}
+}
+*/
+void Read_NvItem_DisplayMode(eDisplayMode_t* pData)
+{
+	*pData = nv_data.data.displayMode;
+}
+void Write_NvItem_DisplayMode(eDisplayMode_t data)
+{
+	nv_data.data.displayMode = data;
+	nvInfo[NV_ITEM_DISPLAY_MODE].dirty = SET;
 }
 
 void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData)

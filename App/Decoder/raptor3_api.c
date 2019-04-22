@@ -2,7 +2,13 @@
 #include "NVP6158.h"
 #include "delay.h"
 
-#if 1
+static int vport[VPORT_MAP_MAX][4] = 
+{
+	//VPORT_MAP0
+	{PORT1, PORT2, PORT3, PORT4},
+	{PORT2, PORT1, PORT3, PORT4}
+};
+
 /*******************************************************************************
  *	Description		: debounce function
  *	Argurments		: ch(channel), value(current translated video format)
@@ -76,7 +82,6 @@ unsigned char __video_fmt_bank5_debounce( unsigned char ch, unsigned char value 
 		return 0xFF /*N/A*/ ;
 	}
 }
-#endif
 
 void NC_VD_VO_Auto_Data_Mode_Set(unsigned char ch, unsigned char devnum, unsigned char SetVal)
 {
@@ -179,6 +184,7 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	unsigned char oMux;
 	unsigned char oInterface;
 	unsigned char oClkEdge;
+	NC_VD_EQ_STR sEQInfo;
 
 	NC_VO_PORT_FMT_S *pPortFmt;		// output
 	NC_VD_DEV_CH_INFO_STR DEV_CH_INFO;
@@ -198,7 +204,8 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	}
 	else
 	{
-		iPort = ch%4;
+		//iPort = ch%4;
+		iPort = vport[pInformation->vport_map][ch%4];	//kukuri
 		oChannel = ch%4;
 		oDevNum = ch/4;
 
@@ -261,12 +268,37 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	video_input_h_timing_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
 	video_input_color_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
     	video_input_vafe_init((decoder_dev_ch_info_s *)&DEV_CH_INFO);
-	
-    	NC_VD_VO_Mode_Set_New( oChannel, oDevNum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, ch%4, ch%4, ch%4, ch%4 );
+#ifndef USE_EXTENDED_RESOLUTION
+    	sEQInfo.Ch = oChannel;
+	sEQInfo.Dev_Num = oDevNum;
+	sEQInfo.distance = SHORT_2M;
+	sEQInfo.FmtDef = FmtDef;
+    	video_input_eq_val_set((video_equalizer_info_s *)&sEQInfo);	//kukuri
+#endif
+
+	if(FmtDef == AHD20_SD_H960_2EX_Btype_NT || \
+			FmtDef == AHD20_SD_H960_2EX_Btype_PAL || \
+			FmtDef == AHD20_720P_30P_EX_Btype || \
+			FmtDef == AHD20_720P_25P_EX_Btype || \
+			FmtDef == TVI_HD_30P_EX || \
+			FmtDef == TVI_HD_25P_EX || \
+			FmtDef == TVI_HD_B_30P_EX || \
+			FmtDef == TVI_HD_B_25P_EX || \
+			FmtDef == CVI_HD_30P_EX || \
+			FmtDef == CVI_HD_25P_EX
+			)
+	{
+	    	NC_VD_VO_Mode_Set_New( oChannel, oDevNum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, (ch%4)+8, (ch%4)+8, (ch%4)+8, (ch%4)+8 );
+	}
+	else
+	{
+	    	NC_VD_VO_Mode_Set_New( oChannel, oDevNum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, ch%4, ch%4, ch%4, ch%4 );
+    	}
 
 	return 0;
 }
 
+#if 0
 /*******************************************************************************
  *	Description		: Get video format bank13(each ch)
  *	Argurments		: pVFmtSet(raptor3 information)
@@ -315,6 +347,7 @@ int RAPTOR3_SAL_GetFormat_Bank5_EachCh( unsigned char ch, RAPTOR3_INFORMATION_S 
 
 	return 0;
 }
+#endif
 
 /*******************************************************************************
  *	Description		: check Auto Debouce
@@ -395,8 +428,10 @@ int RAPTOR3_SAL_NoVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	unsigned char oInterface;
 	unsigned char oClkEdge;
 	NC_VD_DEV_CH_INFO_STR DEV_CH_INFO;
+	NC_VD_EQ_STR sEQInfo;
 
-	NC_VIVO_CH_FORMATDEF oFmtDef = pInformation->curvideofmt[ch];
+	//NC_VIVO_CH_FORMATDEF oFmtDef = pInformation->curvideofmt[ch];
+	NC_VIVO_CH_FORMATDEF oFmtDef = CVI_HD_30P_EX;	//kukuri
 	//video_input_novid_set AutoNoVidDet;
 
 	if(pInformation->oMux == VI_WORK_MODE_2Multiplex)
@@ -413,7 +448,8 @@ int RAPTOR3_SAL_NoVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	{
 		oChannel = ch % 4;
 		devnum = ch / 4;
-		iPort = ch % 4;
+		//iPort = ch%4;
+		iPort = vport[pInformation->vport_map][ch%4];	//kukuri
 
 		oMux = VI_WORK_MODE_1Multiplex;
 		oInterface = VI_INPUT_MODE_BT656;
@@ -428,12 +464,38 @@ int RAPTOR3_SAL_NoVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 	video_input_h_timing_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
 	video_input_color_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);
     	video_input_vafe_init((decoder_dev_ch_info_s *)&DEV_CH_INFO);
+#ifndef USE_EXTENDED_RESOLUTION
+    	//video_input_vfmt_set((decoder_dev_ch_info_s *)&DEV_CH_INFO);	//kukuri
 
+    	sEQInfo.Ch = oChannel;
+	sEQInfo.Dev_Num = devnum;
+	sEQInfo.distance = SHORT_2M;
+	sEQInfo.FmtDef = oFmtDef;
+    	video_input_eq_val_set((video_equalizer_info_s *)&sEQInfo);	//kukuri
+#endif
+	
 	NC_VD_AUTO_NoVideo_Set(oChannel, devnum);
 
 	pPortFmt = (NC_VO_PORT_FMT_S *)NC_HI_VO_Get_PortFormat( oFmtDef );
-	NC_VD_VO_Mode_Set_New( oChannel, devnum, iPort, pPortFmt, oMux, oInterface, oClkEdge, ch%4, ch%4, ch%4, ch%4 );
-
+	
+	if(oFmtDef == AHD20_SD_H960_2EX_Btype_NT || \
+		oFmtDef == AHD20_SD_H960_2EX_Btype_PAL || \
+		oFmtDef == AHD20_720P_30P_EX_Btype || \
+		oFmtDef == AHD20_720P_25P_EX_Btype || \
+		oFmtDef == TVI_HD_30P_EX || \
+		oFmtDef == TVI_HD_25P_EX || \
+		oFmtDef == TVI_HD_B_30P_EX || \
+		oFmtDef == TVI_HD_B_25P_EX || \
+		oFmtDef == CVI_HD_30P_EX || \
+		oFmtDef == CVI_HD_25P_EX
+		)
+	{
+	    	NC_VD_VO_Mode_Set_New( oChannel, devnum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, (ch%4)+8, (ch%4)+8, (ch%4)+8, (ch%4)+8 );
+	}
+	else
+	{
+	    	NC_VD_VO_Mode_Set_New( oChannel, devnum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, ch%4, ch%4, ch%4, ch%4 );
+    	}
 	return 0;
 }
 
