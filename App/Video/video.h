@@ -77,7 +77,7 @@
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
-extern MDIN_VIDEO_INFO		stVideo;
+extern MDIN_VIDEO_INFO		stVideo[MDIN_CHIP_ID_MAX];
 extern MDIN_INTER_WINDOW	stInterWND;
 extern MDIN_VIDEO_WINDOW	stZOOM, stCROP;
 

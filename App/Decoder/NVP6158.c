@@ -525,7 +525,7 @@ void NVP6158_init(void)
 	unsigned char ch;
 	unsigned char port;
 	unsigned char val_9x44;
-	unsigned char displayMode = GetCurrentDisplayMode();
+	//unsigned char displayMode = GetCurrentDisplayMode();
 
 	chip_id = check_id(NVP6158_ADDR);
 	if(chip_id != RAPTOR3_4PORT_R0_ID )
@@ -649,11 +649,11 @@ void NVP6158_init(void)
 
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;
 
-	if(displayMode == CH2)
+//	if(displayMode == CH2)
 	{
 		s_raptor3_vfmts.vport_map = VPORT_MAP1;
 	}
-	else
+//	else
 	{
 		s_raptor3_vfmts.vport_map = VPORT_MAP0;
 	}

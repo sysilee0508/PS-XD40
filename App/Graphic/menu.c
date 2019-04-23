@@ -181,7 +181,7 @@ const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklm
 // declare global variables
 //---------------------------------------------------------------
 
-#if 1
+#if 0	//blocked by kukuri
 //-----------------------------------------------------------------
 // constant variables
 //-----------------------------------------------------------------
@@ -1348,10 +1348,10 @@ const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 };
 static BOOL splitModeSelecting = FALSE;
 
-static u8* Get_String_SplitMode(splitMode)
+static u8* Get_String_SplitMode(void)//(splitMode)
 {
 	u8* pStr;
-
+/*
 	switch(splitMode)
 	{
 		case DISPLAY_MODE_QUAD_A:
@@ -1385,20 +1385,20 @@ static u8* Get_String_SplitMode(splitMode)
 			pStr = (u8*)menuStr_SplitMode_2Split;
 			break;
 	}
-
+*/
 	return pStr;
 }
 
 static void DisplayPage_DisplaySplitMode(const u8* pStr)
 {
-	eSplitMode_t splitMode = Get_SystemSplitMode();
+//	eSplitMode_t splitMode = Get_SystemSplitMode();
 	sPosition_t position;
 
 	Erase_AllMenuScreen();
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 	splitModeSelecting = TRUE;
 
-	DisplayMode_SplitScreen(splitMode);
+//	DisplayMode_SplitScreen(splitMode);
        OSD_DrawBorderLine();
 
 	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space8)*CHAR_WIDTH))/2;
@@ -1411,7 +1411,7 @@ static void DisplayPage_DisplaySplitMode(const u8* pStr)
 
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
-	eResolution_t resolution;
+//	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
 	u8* pStr_SplitMode;
@@ -1420,7 +1420,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 	switch(itemY)
 	{
 		case DISPLAY_ITEM_Y_RESOLUTION:
-			Read_NvItem_Resolution(&resolution);
+/*			Read_NvItem_Resolution(&resolution);
 			switch(resolution)
 			{
 				case RESOLUTION_1920_1080_60P:
@@ -1439,7 +1439,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 							attribute,
 							strlen(menuStr_Resolution1920X1080_50P));
 					break;
-			}
+			}	*/
 			break;
 
 		case DISPLAY_ITEM_Y_OSD_DISPLAY:
@@ -1459,7 +1459,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 			break;
 
 		case DISPLAY_ITEM_Y_SPLIT_MODE:
-			pStr_SplitMode = Get_String_SplitMode(Get_SystemSplitMode());
+			//pStr_SplitMode = Get_String_SplitMode(Get_SystemSplitMode());
 			if(requestEnterKeyProc == CLEAR)
 			{
 				Print_StringWithSelectedMark(
@@ -1541,10 +1541,10 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = DISPLAY_ITEM_Y_RESOLUTION;
 	u8 inc_dec = DECREASE;
-	eResolution_t resolution;
+//	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
-	eSplitMode_t splitMode;
+//	eSplitMode_t splitMode;
 
 	switch(key)
 	{
@@ -1556,9 +1556,9 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 				switch(itemY)
 				{
 					case DISPLAY_ITEM_Y_RESOLUTION:
-						Read_NvItem_Resolution(&resolution);
-						IncreaseDecreaseCount(RESOLUTION_MAX - 1, 0, inc_dec, &resolution, TRUE);
-						Write_NvItem_Resolution(resolution);
+						//Read_NvItem_Resolution(&resolution);
+						//IncreaseDecreaseCount(RESOLUTION_MAX - 1, 0, inc_dec, &resolution, TRUE);
+						//Write_NvItem_Resolution(resolution);
 						break;
 					case DISPLAY_ITEM_Y_OSD_DISPLAY:
 						Read_NvItem_OsdOn(&osdOn);
@@ -1571,9 +1571,9 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						Write_NvItem_BorderLineDisplay(borderLineOn);
 						break;
 					case DISPLAY_ITEM_Y_SPLIT_MODE:
-						splitMode = Get_SystemSplitMode();
-						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, 0, inc_dec, &splitMode, TRUE);
-						Set_SystemSplitMode(splitMode);
+						//splitMode = Get_SystemSplitMode();
+						//IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, 0, inc_dec, &splitMode, TRUE);
+						//Set_SystemSplitMode(splitMode);
 						break;
 				}
 				DisplayPage_UpdatePageOption(itemY);
@@ -2431,7 +2431,7 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			OSD_RefreshScreen();
 
 			// turn on button leds
-			TurnOnSelectedLed(Get_SystemDisplayChannel());
+			//TurnOnSelectedLed(Get_SystemDisplayChannel());
 			
 			break;
 	}

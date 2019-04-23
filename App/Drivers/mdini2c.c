@@ -418,11 +418,11 @@ static BYTE MDINI2C_Read(BYTE nID, WORD rAddr, PBYTE pBuff, WORD bytes)
 	I2C_Start(i2c_ch);
 	I2C_P2S(i2c_ch, slave_addr&0xFE); AckDetect(i2c_ch);
 
-	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect(i2c_ch);
-	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect(i2c_ch);
+	I2C_P2S(i2c_ch, (BYTE)(rAddr >> 8));   AckDetect(i2c_ch);
+	I2C_P2S(i2c_ch, (BYTE)(rAddr & 0xFF)); AckDetect(i2c_ch);
 
-	I2C_Start(); 
-	I2C_P2S(slave_addr|0x01); AckDetect(i2c_ch);
+	I2C_Start(i2c_ch); 
+	I2C_P2S(i2c_ch, slave_addr|0x01); AckDetect(i2c_ch);
 
 	for (i=0; i<bytes/2-1; i++) 
 	{

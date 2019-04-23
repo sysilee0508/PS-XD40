@@ -452,7 +452,7 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
@@ -468,12 +468,12 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
-					DisplayMode_SplitScreen(Get_SystemSplitMode());
+					//DisplayMode_SplitScreen(Get_SystemSplitMode());
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -483,12 +483,12 @@ void Key_Proc(void)
 				if(screenFreezeOn == CLEAR)
 				{
 					screenFreezeOn = SET;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
+					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
 				}
 				else
 				{
 					screenFreezeOn = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				break;
 
@@ -499,7 +499,7 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_RefreshScreen();
 					InitializeAutoSeq(AUTO_SEQ_NORMAL);
@@ -512,7 +512,7 @@ void Key_Proc(void)
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				Enter_MainMenu();
 				break;
@@ -522,7 +522,7 @@ void Key_Proc(void)
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				OSD_EraseAllText();
 				OSD_RefreshScreen();

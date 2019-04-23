@@ -239,7 +239,7 @@ typedef enum NC_CH
 	CH1 = 0,
 	CH2,
 	CH3,
-	CH4,
+	CH4
 } NC_CH;
 
 typedef enum NC_PORT

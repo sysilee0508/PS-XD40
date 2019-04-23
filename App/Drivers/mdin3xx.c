@@ -182,7 +182,11 @@ MDIN_ERROR_t MDIN3xx_SetSrcVideoPort(PMDIN_VIDEO_INFO pINFO, WORD nID)
 	// set Quality, System
 	pSRC->stATTB.attb &= ~(MDIN_QUALITY_HD|MDIN_VIDEO_SYSTEM);
 	switch (pSRC->frmt) {
+#if defined (IN_960H_MODE)
+		case VIDSRC_960x480i60:		case VIDSRC_960x576i50:
+#else
 		case VIDSRC_720x480i60:		case VIDSRC_720x576i50:
+#endif
 		case VIDSRC_720x480p60:		case VIDSRC_720x576p50:
 			pSRC->stATTB.attb |= (MDIN_QUALITY_SD|MDIN_VIDEO_SYSTEM); break;
 		case VIDSRC_1280x720p60:	case VIDSRC_1280x720p50:
@@ -639,7 +643,7 @@ static MDIN_ERROR_t MDIN3xx_SetOutVideoSYNC(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_LOCAL_ID, 0x09b, 0x8080)) return MDIN_I2C_ERROR;
 
 	// set main video clock
-	if (MDIN3xx_SetVideoPLL(stSYNC.vclkP, stSYNC.vclkM, stSYNC.vclkS)) return MDIN_I2C_ERROR;
+	if (MDIN3xx_SetVideoPLL(pINFO->chipId, stSYNC.vclkP, stSYNC.vclkM, stSYNC.vclkS)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -914,8 +918,8 @@ static MDIN_ERROR_t MDIN3xx_SetFFCNRProcess(PMDIN_VIDEO_INFO pINFO)
 	if (pMFC->stFFC.sw!=1920) nID = 0;
 
 	pCoef = (PMDIN_FNRFILT_COEF)&MDIN_FrontNRFilter_Default[nID];
-	if (MDIN3xx_SetFrontNRFilterCoef(pCoef)) return MDIN_I2C_ERROR;
-	return MDIN3xx_EnableFrontNRFilter((nID)? ON : OFF);
+	if (MDIN3xx_SetFrontNRFilterCoef(pINFO->chipId, pCoef)) return MDIN_I2C_ERROR;
+	return MDIN3xx_EnableFrontNRFilter(pINFO->chipId, ((nID)? ON : OFF));
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -932,7 +936,11 @@ static MDIN_ERROR_t MDIN3xx_SetIPCCtrlFlags(PMDIN_VIDEO_INFO pINFO)
 	else pIPC->attb |=  MDIN_DEINT_IPC_PROC;
 
 	// set pal-ccs flag, if input is interlace and 50Hz
+#if defined (IN_960H_MODE)
+	if (pSRC->frmt==VIDSRC_960x576i50||pSRC->frmt==VIDSRC_1920x1080i50)
+#else
 	if (pSRC->frmt==VIDSRC_720x576i50||pSRC->frmt==VIDSRC_1920x1080i50)
+#endif
 		 pIPC->attb |=  MDIN_DEINT_PAL_CCS;
 	else pIPC->attb &= ~MDIN_DEINT_PAL_CCS;
 
@@ -1424,8 +1432,8 @@ MDIN_ERROR_t MDIN3xx_VideoProcess(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHTX_VideoProcess(pINFO)) return MDIN_I2C_ERROR;			// set htx-video process
 #endif
 
-	if (MDIN3xx_SoftReset()) return MDIN_I2C_ERROR;					// soft reset
-	if (MDIN3xx_ResetOutSync(100)) return MDIN_I2C_ERROR;			// reset output sync
+	if (MDIN3xx_SoftReset(pINFO->chipId)) return MDIN_I2C_ERROR;					// soft reset
+	if (MDIN3xx_ResetOutSync(pINFO->chipId, 100)) return MDIN_I2C_ERROR;			// reset output sync
 	if (MDIN3xx_SetDeinterCtrl(pINFO)) return MDIN_I2C_ERROR;		// set deinterlace control	// move to here on 24May2012
 	if (MDIN3xx_EnableWriteFRMB(pINFO, 1)) return MDIN_I2C_ERROR;	// enable write FB
 
@@ -2207,7 +2215,7 @@ MDIN_ERROR_t MDIN3xx_SetMemoryConfig(MDIN_CHIP_ID_t chipId)
 
 	// clear variables
 	mdinERR = 0; GetIRQ = 0; vpll_P = 0, vpll_M = 0, vpll_S = 0; frez_M = 0;
-	if (MDINAUX_SetVideoPLL(0, 0, 0)) return MDIN_I2C_ERROR;
+	if (MDINAUX_SetVideoPLL(chipId, 0, 0, 0)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -2591,7 +2599,7 @@ MDIN_ERROR_t MDIN3xx_EnableMirrorH(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	pMFC->stMEM.w = (OnOff)? BuffSize : pMFC->stFFC.dw;	// adjust memory buffer size
 	
 	MDIN3xx_FrameMemoryReAlloc(pINFO);
-	MDIN3xx_EnableFrontNRFilter(ON); // correction for chroma delay
+	MDIN3xx_EnableFrontNRFilter(pINFO->chipId, ON); // correction for chroma delay
 	
 //	UARTprintf("UnitSize=%d, BuffSize=%d, RemainSize=%d\n", UnitSize, BuffSize, RemainSize);
 //	UARTprintf("pMFC->stSRC.w=%d, pMFC->stSRC.h=%d, pMFC->stSRC.x=%d, pMFC->stSRC.y=%d\n", pMFC->stSRC.w, pMFC->stSRC.h, pMFC->stSRC.x, pMFC->stSRC.y);

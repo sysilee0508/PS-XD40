@@ -200,10 +200,10 @@ void I2C_WRITE(eI2C_CH_t ch, unsigned char slaveaddr, unsigned char regaddr, uns
 	I2C_P2S(ch, slaveaddr & 0xFE);
 	AckDetect(ch);
 
-	I2C_P2S(regaddr);
+	I2C_P2S(ch, regaddr);
 	AckDetect(ch);
 
-	I2C_P2S(write_data);
+	I2C_P2S(ch, write_data);
 	AckDetect(ch);
 	
 	I2C_Stop(ch);

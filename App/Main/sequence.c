@@ -25,7 +25,7 @@ static void InitializeAutoSeq_Normal(void)
 
 	Read_NvItem_AutoSeqLossSkip(&skipOn);
 	Read_NvItem_AutoSeqTime(displayTime);
-	displayMode = Get_SystemDisplayMode();
+	//displayMode = Get_SystemDisplayMode();
 
 	UpdateAutoSeqDisplayTime();
 	//Find video loss channels
@@ -40,7 +40,7 @@ static void InitializeAutoSeq_Normal(void)
 			}
 		}
 	}
-
+/*
 	// Set auto sequence start channel
 	if(displayMode == DISPLAY_MODE_FULL)
 	{
@@ -54,7 +54,7 @@ static void InitializeAutoSeq_Normal(void)
 			displayChannel = Get_SystemDisplayChannel();
 		}
 	}
-	else //if(displayMode >= DISPLAY_MODE_QUAD_A)
+	else //if(displayMode >= DISPLAY_MODE_QUAD_A)	*/
 	{
 		displayChannel = CHANNEL1;
 	}
@@ -201,7 +201,7 @@ void UpdateAutoSeqCount(void)
 
 void DisplayAutoSeqChannel(void)
 {
-	eChannel_t currentChannel = Get_SystemDisplayChannel();
+	eChannel_t currentChannel;// = Get_SystemDisplayChannel();
 
 	if((currentChannel != displayChannel) &&
 			((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)))

@@ -70,10 +70,10 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 #define	NULL				0
 #endif
 
-#define CH1					0
-#define CH2					1	
-#define CH3					2
-#define CH4					3
+//#define CH1					0
+//#define CH2					1	
+//#define CH3					2
+//#define CH4					3
 
 
 #define 	SYSTEM_USE_MDIN380			// for use MDIN380
@@ -91,6 +91,8 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 //#define	IN_960H_MODE		// added on 29Feb2012
 */
 #endif
+
+#define 	IN_960H_MODE	// added by kukuri
 
 #ifdef		SYSTEM_USE_MDIN380
 //#define 	SYSTEM_USE_BUS_HIF			// for use BUS-IF & I2C-IF

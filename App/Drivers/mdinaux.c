@@ -389,7 +389,7 @@ static MDIN_ERROR_t MDINAUX_SetOutVideoSYNC(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_LOCAL_ID, 0x14d, 0x8080)) return MDIN_I2C_ERROR;
 
 	// set aux video clock
-	if (MDINAUX_SetVideoPLL(stSYNC.xclkS, stSYNC.xclkF, stSYNC.xclkT)) return MDIN_I2C_ERROR;
+	if (MDINAUX_SetVideoPLL(pINFO->chipId, stSYNC.xclkS, stSYNC.xclkF, stSYNC.xclkT)) return MDIN_I2C_ERROR;
 //	if (MDINAUX_SetVideoPLL(6, 1, 4)) return MDIN_I2C_ERROR;	// fix 65MHz for test purpose
 
 	// aux_cid_sel - aux_channel_sel ==> for 4-CH input mode, 2-HD input mode
@@ -1078,7 +1078,7 @@ MDIN_ERROR_t MDINAUX_EnableMirrorH(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	pMFC->stMEM.w = (OnOff)? BuffSize : pMFC->stFFC.dw;	// adjust memory buffer size
 	
 	MDIN3xx_FrameMemoryReAlloc(pINFO);
-	MDIN3xx_EnableFrontNRFilter(ON); // correction for chroma delay
+	MDIN3xx_EnableFrontNRFilter(pINFO->chipId, ON); // correction for chroma delay
 	return MDIN_NO_ERROR;
 }
 

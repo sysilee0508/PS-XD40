@@ -115,10 +115,11 @@ static u8 videoModeDisplayCount[NUM_OF_CHANNEL] =
 static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
 {
 	sPosition_t position;
-	eSplitMode_t splitMode = Get_SystemSplitMode();
+	//eSplitMode_t splitMode = Get_SystemSplitMode();
 
 	switch(displayMode)
 	{
+	/*
 		case DISPLAY_MODE_FULL:
 			position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH)) / 2;
 			position.pos_y = MARGIN_Y;
@@ -128,6 +129,9 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t di
 			position.pos_x = titlePositionTable_Split[splitMode][channel].pos_x - ((length * CHAR_WIDTH)/2);
 			position.pos_y = titlePositionTable_Split[splitMode][channel].pos_y + MARGIN_Y;
 			break;
+	*/
+		default:
+			break;
 	}
 
 	return position;
@@ -136,10 +140,11 @@ static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t di
 static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
 {
 	sPosition_t position;
-	eSplitMode_t splitMode = Get_SystemSplitMode();
+	//eSplitMode_t splitMode = Get_SystemSplitMode();
 
 	switch(displayMode)
 	{
+	/*
 		case DISPLAY_MODE_FULL:
 			position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH))/2;
 			position.pos_y = DISPLAY_HEIGHT - 2*CHAR_HEIGHT - MARGIN_Y;
@@ -149,6 +154,7 @@ static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_
 			position.pos_x = indicatorPositionTable_Split[splitMode][channel].pos_x;
 			position.pos_y = indicatorPositionTable_Split[splitMode][channel].pos_y;
 			break;
+	*/
 	}
 	return position;
 }
@@ -156,10 +162,11 @@ static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_
 static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
 {
 	sPosition_t position;
-	eSplitMode_t splitMode = Get_SystemSplitMode();
+	//eSplitMode_t splitMode = Get_SystemSplitMode();
 
 	switch(displayMode)
 	{
+	/*
 		case DISPLAY_MODE_FULL:
 			position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH))/2;
 			position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
@@ -169,6 +176,7 @@ static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_
 			position.pos_x = videoPositionTable_Split[splitMode][channel].pos_x - ((length * CHAR_WIDTH)/2);
 			position.pos_y = videoPositionTable_Split[splitMode][channel].pos_y - CHAR_HEIGHT/2;
 			break;
+	*/
 	}
 	return position;
 
@@ -177,7 +185,7 @@ static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_
 static u8 Get_NumOfDisplayChannels(void)
 {
 	u8 channels = NUM_OF_CHANNEL;
-
+/*
 	switch(Get_SystemSplitMode())
 	{
 		case DISPLAY_MODE_QUAD_A:
@@ -196,7 +204,7 @@ static u8 Get_NumOfDisplayChannels(void)
 		case DISPLAY_MODE_2SPLIT:
 			channels = 2;
 	}
-
+*/
 	return channels;
 }
 
@@ -331,7 +339,6 @@ static u8* GetVideoModeString(eChannel_t channel)
 static sPosition_t OSD_GetAutoPosition(u8 strLength)
 {
 	sPosition_t position;
-	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 	BOOL timeOn;
 	BOOL dateOn;
 	BOOL year4digit;
@@ -381,6 +388,7 @@ static void OSD_EraseChannelName(void)
 	eChannel_t max_channel = NUM_OF_CHANNEL;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX+1] = {0,};
 
+/*
 	displayMode = Get_SystemDisplayMode();
 
 	if(displayMode == DISPLAY_MODE_FULL)
@@ -390,7 +398,7 @@ static void OSD_EraseChannelName(void)
 		position =  OSD_TitleStringPosition(channel, displayMode, strlen(channel_name));
 		OSD_PrintString(position, osdStr_Space12, strlen(channel_name));
 	}
-	else
+	else  	*/
 	{
 		max_channel = Get_NumOfDisplayChannels();
 		for(channel = CHANNEL1; channel < max_channel; channel++)
@@ -405,7 +413,6 @@ static void OSD_EraseChannelName(void)
 static void OSD_EraseTimeDate(void)
 {
 	sPosition_t position;
-	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 	u8 strSpaces[DATE_TIME_LENGTH];
 
 	position.pos_x = (DISPLAY_WIDTH - (DATE_TIME_LENGTH*CHAR_WIDTH))/2 - 12;
@@ -420,8 +427,9 @@ static void OSD_EraseIndicator(void)
 {
 	eChannel_t channel;
 	sPosition_t position;
-	eDisplayMode_t displayMode = Get_SystemDisplayMode();
+//	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 
+/*
 	if(displayMode == DISPLAY_MODE_FULL)
 	{
 		position = OSD_IndicatorStringPosition(Get_SystemDisplayChannel(), displayMode, strlen(osdStr_Space10));
@@ -435,6 +443,7 @@ static void OSD_EraseIndicator(void)
 			OSD_PrintString(position, osdStr_Space1, strlen(osdStr_Space1));
 		}
 	}
+*/
 }
 
 static void OSD_EraseAuto(void)
@@ -456,7 +465,7 @@ static void OSD_EraseNoVideo(void)
 {
 	sPosition_t position;
 
-	if(DISPLAY_MODE_FULL == Get_SystemDisplayMode())
+//	if(DISPLAY_MODE_FULL == Get_SystemDisplayMode())
 	{
 		position.pos_x = (DISPLAY_WIDTH - (strlen(osdStr_Space10)*CHAR_WIDTH))/2;
 		position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
@@ -468,11 +477,12 @@ void OSD_DisplayVideoMode(void)
 {
 	eChannel_t channel;
 	sPosition_t position;
-	eDisplayMode_t displayMode = Get_SystemDisplayMode();
+//	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 	u8* pVideoModeStr = NULL;
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn1s = 0;
 
+/*
 	if(displayMode == DISPLAY_MODE_FULL)
 	{
 		channel = Get_SystemDisplayChannel();
@@ -529,6 +539,7 @@ void OSD_DisplayVideoMode(void)
 		}
 	}
 	previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -573,8 +584,7 @@ static void OSD_DisplayAuto(void)
 static void OSD_DisplayNoVideo(void)
 {
 	sPosition_t position;
-	eDisplayMode_t displayMode = Get_SystemDisplayMode();
-	eSplitMode_t splitMode;
+//	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 	BOOL videoLossDiplayOn;
 
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
@@ -582,7 +592,7 @@ static void OSD_DisplayNoVideo(void)
 	if((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET))
 	{
 		SetVideoLossEvent(CLEAR);
-
+/*
 		if(displayMode == DISPLAY_MODE_FULL)
 		{
 			position.pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideoFull)*CHAR_WIDTH))/2;
@@ -600,6 +610,7 @@ static void OSD_DisplayNoVideo(void)
 				OSD_PrintString(position, osdStr_Space10, strlen(osdStr_Space10));
 			}
 		}
+*/
 	}
 }
 
@@ -610,13 +621,13 @@ static void OSD_DisplayIndicator(void)
 {
 	sPosition_t position;
 	eChannel_t channel;
-	eDisplayMode_t displayMode = Get_SystemDisplayMode();
-	eSplitMode_t splitMode = Get_SystemSplitMode();
+	//eDisplayMode_t displayMode = Get_SystemDisplayMode();
+	//eSplitMode_t splitMode = Get_SystemSplitMode();
 	BOOL videoLossDiplayOn;
 	u8* pIndicator;
 
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
-
+/*
 	if(displayMode == DISPLAY_MODE_FULL)//Full
 	{
 		channel = Get_SystemDisplayChannel();
@@ -667,6 +678,7 @@ static void OSD_DisplayIndicator(void)
 			OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
 		}
 	}
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -677,7 +689,6 @@ static void OSD_DisplayDateTime(void)
 	BOOL timeDisplayOn;
 	BOOL dateDisplayOn;
 	sPosition_t position;
-	eDisplayMode_t displayMode = Get_SystemDisplayMode();
 	u8 dateTimeString[DATE_TIME_LENGTH+1];
 	u8* pStr;
 
@@ -738,11 +749,11 @@ void OSD_DisplayChannelName(void)
 	eChannel_t channel, max_channel = NUM_OF_CHANNEL;
 	sPosition_t positionValue;
 	BOOL titleDisplayOn;
-	eDisplayMode_t displayMode = Get_SystemDisplayMode();
+	//eDisplayMode_t displayMode = Get_SystemDisplayMode();
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX+1] = {0,};
 
 	Read_NvItem_TitleDispalyOn(&titleDisplayOn);
-
+/*
 	if(titleDisplayOn == ON)
 	{
 		if(displayMode == DISPLAY_MODE_FULL)
@@ -763,6 +774,7 @@ void OSD_DisplayChannelName(void)
 			}
 		}
 	}
+*/
 }
 
 
@@ -839,9 +851,10 @@ void OSD_Display(void)
 void OSD_DrawBorderLine(void)
 {
 	BOOL border_line;
-	eSplitMode_t splitMode = Get_SystemSplitMode();
+	//eSplitMode_t splitMode = Get_SystemSplitMode();
 
 	Read_NvItem_BorderLineDisplay(&border_line);
+/*
 	if((border_line == ON) && (Get_SystemDisplayMode() == DISPLAY_MODE_SPLIT))
 	{
 		MDINOSD_SetBGBoxColor(RGB(255,255,255));
@@ -1000,4 +1013,5 @@ void OSD_DrawBorderLine(void)
 		MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
 		MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
 	}
+*/
 }
