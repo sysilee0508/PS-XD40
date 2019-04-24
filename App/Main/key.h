@@ -25,8 +25,11 @@ typedef enum
 	KEY_NONE 			= 0x00,
 //----Short Keys-------------------------------------	
 	KEY_FULL_CH1		= 0x01,
-	KEY_FULL_CH2,
-	KEY_SPLIT,
+	KEY_FULL_CH2		= 0x02,
+	KEY_SPLIT			= 0x04,
+//----Multi Keys-------------------------------------
+	KEY_LEFT			= KEY_SPLIT | KEY_FULL_CH1,
+	KEY_RIGHT			= KEY_SPLIT | KEY_FULL_CH2,
 //----Long Keys--------------------------------------
 	KEY_SPLIT_LONG		= KEY_SPLIT | KEY_LONG,	//0x99
 	KEY_MAX				= 0xFF

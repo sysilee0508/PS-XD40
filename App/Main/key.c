@@ -26,6 +26,8 @@ static eKeyData_t scanKey = KEY_NONE;
 #define GPIO_KEY_SPLIT			GPIO_Pin_13	//SW2
 #define GPIO_KEY_CH2			GPIO_Pin_12	//SW1
 #define GPIO_KEY_CH1			GPIO_Pin_14	//SW3
+#define GPIO_KEY_LEFT			GPIO_KEY_SPLIT | GPIO_KEY_CH1
+#define	GPIO_KEY_RIGHT			GPIO_KEY_SPLIT | GPIO_KEY_CH2
 #define GPIO_ALL_KEYS			GPIO_KEY_CH1 | GPIO_KEY_CH2 | GPIO_KEY_SPLIT
 
 #define GPIO_LED_SPLIT			GPIO_Pin_15	//sw2
@@ -40,6 +42,7 @@ static eKeyData_t scanKey = KEY_NONE;
 
 #define VALID_LONG_KEY(key)		(key == KEY_SPLIT)?TRUE:FALSE
 
+#define	KEY_PRESSED				0
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -98,21 +101,30 @@ eKeyData_t GetCurrentKey(void)
 //-----------------------------------------------------------------------------
 void Key_Scan(void)
 {
-	if(RESET == GPIO_ReadInputDataBit(GPIOB, GPIO_KEY_CH1))	//KEY_CH1
+	u16 readData;
+
+	readData = (((GPIO_ReadInputData(GPIOB)) & ((u16)GPIO_ALL_KEYS)) ^ ((u16)GPIO_ALL_KEYS));
+	switch(readData)
 	{
-		scanKey = KEY_FULL_CH1;
-	}
-	else if(RESET == GPIO_ReadInputDataBit(GPIOB, GPIO_KEY_CH2))	//KEY_CH2
-	{
-		scanKey = KEY_FULL_CH2;
-	}
-	else if(RESET == GPIO_ReadInputDataBit(GPIOB, GPIO_KEY_SPLIT))	//KEY_SPLIT
-	{
-		scanKey = KEY_SPLIT;
-	}
-	else
-	{
-		scanKey = KEY_NONE;
+		case GPIO_KEY_CH1:
+			scanKey = KEY_FULL_CH1;
+			break;
+
+		case GPIO_KEY_CH2:
+			scanKey = KEY_FULL_CH2;
+			break;
+
+		case GPIO_KEY_SPLIT:
+			scanKey = KEY_SPLIT;
+			break;
+
+		case GPIO_KEY_LEFT:
+			scanKey = KEY_LEFT;
+			break;
+
+		case GPIO_KEY_RIGHT:
+			scanKey = KEY_RIGHT;
+			break;
 	}
 }
 
@@ -135,6 +147,13 @@ static void Key_Led_Ctrl(eKeyData_t key)
 			case KEY_SPLIT:
 				GPIO_SetBits(GPIOB, GPIO_LED_SPLIT);
 				break;
+			case KEY_LEFT:
+				GPIO_SetBits(GPIOB, GPIO_LED_CH1|GPIO_LED_SPLIT);
+				break;
+			case KEY_RIGHT:
+				GPIO_SetBits(GPIOB, GPIO_LED_CH2|GPIO_LED_SPLIT);
+				break;
+
 		}
 	}
 }
@@ -213,7 +232,7 @@ void Key_Check(void)
 void Key_Proc(void)
 {
 	static eKeyData_t previous_keydata = KEY_NONE;
-	static eSplit_t split = SPLIT_A;
+	static u8 split = (u8)SPLIT_A;
 	eKeyData_t key = GetCurrentKey();
 
 	if(IsKeyReady()==TRUE)
@@ -233,20 +252,29 @@ void Key_Proc(void)
 		{
 			case KEY_FULL_CH1 : 
 			case KEY_FULL_CH2 : 
+			case KEY_SPLIT :
 				// If key is changed...
 				if(previous_keydata != key)
 				{
 					Key_Led_Ctrl(key);
 					OSD_EraseAllText();
 					OSD_RefreshScreen();
-					DisplayScreen((eChannel_t)(key - 1));
+					if(key == KEY_SPLIT)
+					{
+						DisplayScreen(GetCurrentDisplayMode());
+					}
+					else
+					{
+						DisplayScreen((eChannel_t)(key - 1));
+					}
 					SetInputChanged();
 					//Request2VideoProcess();
 					OSD_DrawBorderLine();
 				}
 				break;
 				
-			case KEY_SPLIT : 
+			case KEY_LEFT:
+			case KEY_RIGHT:
 				OSD_EraseAllText();
 				// display current split mode
 				if(previous_keydata == KEY_NONE)
@@ -258,9 +286,20 @@ void Key_Proc(void)
 				{
 					Key_Led_Ctrl(key);
 				}
-				else
+				else if(key == KEY_RIGHT)
 				{
 					split = ++split % (NUM_OF_SPLIT+NUM_OF_PIP);
+				}
+				else if(key == KEY_LEFT)
+				{
+					if(split > SPLIT_A)
+					{
+						--split;
+					}
+					else
+					{
+						split = NUM_OF_SPLIT+NUM_OF_PIP-1;
+					}
 				}
 				OSD_RefreshScreen();
 				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
