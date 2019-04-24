@@ -101,7 +101,8 @@ void main(void)
 	Osd_ClearScreen();
 
 	// Set key mode as long key mode
-	SetKeyMode(KEY_MODE_LONG);
+	//SetKeyMode(KEY_MODE_LONG);
+	SetKeyMode(KEY_MODE_SHORT);
 	Read_NvItem_DisplayMode(&displayMode);
 	if(displayMode == DISPLAY_MODE_FULL_CH1)
 	{

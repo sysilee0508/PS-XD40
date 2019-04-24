@@ -814,7 +814,7 @@ void OSD_DisplayVideoFormat(void)
 					if(formatDisplayTime[iChannel] > 0)
 					{
 						inVideo[iChannel] = GetInVideoFormatString(iChannel);
-						outVideo = outVideo = GetOutVideoFormatString();
+						outVideo = GetOutVideoFormatString();
 						if(pSystemTime->tickCount_1s > preTimeInSec)
 						{
 							formatDisplayTime[iChannel] -= (pSystemTime->tickCount_1s - preTimeInSec);
@@ -858,11 +858,12 @@ void OSD_DisplayVideoFormat(void)
 		}
 		else		//pip mode
 		{
-			if(GetInputVideoFormat(iChannel) != NC_VIVO_CH_FORMATDEF_UNKNOWN)//(IsVideoLossChannel(CHANNEL1) == FALSE)
+			if(GetInputVideoFormat(CHANNEL1) != NC_VIVO_CH_FORMATDEF_UNKNOWN)//(IsVideoLossChannel(CHANNEL1) == FALSE)
 			{
 				if(formatDisplayTime[CHANNEL1] > 0)
 				{
 					inVideo[CHANNEL1] = GetInVideoFormatString(CHANNEL1);
+					outVideo = GetOutVideoFormatString();
 					if(pSystemTime->tickCount_1s > preTimeInSec)
 					{
 						formatDisplayTime[CHANNEL1] -= (pSystemTime->tickCount_1s - preTimeInSec);

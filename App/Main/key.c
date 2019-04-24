@@ -125,6 +125,10 @@ void Key_Scan(void)
 		case GPIO_KEY_RIGHT:
 			scanKey = KEY_RIGHT;
 			break;
+
+		default:
+			scanKey = KEY_NONE;
+			break;
 	}
 }
 
@@ -234,6 +238,7 @@ void Key_Proc(void)
 	static eKeyData_t previous_keydata = KEY_NONE;
 	static u8 split = (u8)SPLIT_A;
 	eKeyData_t key = GetCurrentKey();
+	BOOL requestOsd = FALSE;
 
 	if(IsKeyReady()==TRUE)
 	{
@@ -252,60 +257,53 @@ void Key_Proc(void)
 		{
 			case KEY_FULL_CH1 : 
 			case KEY_FULL_CH2 : 
+				// If key is changed...
+				if(previous_keydata != key)
+				{
+					DisplayScreen((eDisplayMode_t)(key - 1));
+					requestOsd = TRUE;
+				}
+				break;
 			case KEY_SPLIT :
 				// If key is changed...
 				if(previous_keydata != key)
 				{
-					Key_Led_Ctrl(key);
-					OSD_EraseAllText();
-					OSD_RefreshScreen();
-					if(key == KEY_SPLIT)
+					if((previous_keydata == KEY_FULL_CH1 ) ||(previous_keydata == KEY_FULL_CH2))
+					{
+						DisplayScreen((eDisplayMode_t)split+DISPLAY_MODE_SPLIT_A);
+						requestOsd = TRUE;
+					}
+					else if(previous_keydata == KEY_NONE)
 					{
 						DisplayScreen(GetCurrentDisplayMode());
+						split = GetCurrentDisplayMode() - DISPLAY_MODE_SPLIT_A;
+						requestOsd = TRUE;
 					}
-					else
-					{
-						DisplayScreen((eChannel_t)(key - 1));
-					}
-					SetInputChanged();
-					//Request2VideoProcess();
-					OSD_DrawBorderLine();
 				}
 				break;
 				
 			case KEY_LEFT:
 			case KEY_RIGHT:
-				OSD_EraseAllText();
-				// display current split mode
-				if(previous_keydata == KEY_NONE)
+				if((previous_keydata != KEY_FULL_CH1 ) &&(previous_keydata != KEY_FULL_CH2))
 				{
-					split = GetCurrentDisplayMode() - DISPLAY_MODE_SPLIT_A;
-				}
-				
-				if(previous_keydata != key)
-				{
-					Key_Led_Ctrl(key);
-				}
-				else if(key == KEY_RIGHT)
-				{
-					split = ++split % (NUM_OF_SPLIT+NUM_OF_PIP);
-				}
-				else if(key == KEY_LEFT)
-				{
-					if(split > SPLIT_A)
+					if(key == KEY_RIGHT)
 					{
-						--split;
+						split = ++split % (NUM_OF_SPLIT+NUM_OF_PIP);
 					}
-					else
+					else if(key == KEY_LEFT)
 					{
-						split = NUM_OF_SPLIT+NUM_OF_PIP-1;
+						if(split > SPLIT_A)
+						{
+							--split;
+						}
+						else
+						{
+							split = NUM_OF_SPLIT+NUM_OF_PIP-1;
+						}
 					}
 				}
-				OSD_RefreshScreen();
-				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
-				SetInputChanged();
-				//Request2VideoProcess();
-				OSD_DrawBorderLine();
+				DisplayScreen((eDisplayMode_t)split+DISPLAY_MODE_SPLIT_A);
+				requestOsd = TRUE;
 				break;
 /*
 			case KEY_SPLIT_LONG:
@@ -323,6 +321,15 @@ void Key_Proc(void)
 				OSD_DrawBorderLine();
 				break;
 */
+		}
+
+		if(requestOsd == TRUE)
+		{
+			Key_Led_Ctrl(key);
+			OSD_EraseAllText();
+			OSD_RefreshScreen();
+			SetInputChanged();
+			OSD_DrawBorderLine();
 		}
 		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark
 	}
