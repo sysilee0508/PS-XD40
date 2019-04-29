@@ -24,6 +24,29 @@
 // -----------------------------------------------------------------------------
 // video.c
 
+#ifdef MDIN_MULTI_DEVICE		// added by kukuri
+
+typedef enum {
+	VIDEO_INPUT_NONE = 0,
+	VIDEO_DIGITAL_NVP6158_A,
+//	VIDEO_DIGITAL_NVP6158_B,
+	VIDEO_DIGITAL_NVP6158_AB,
+	VIDEO_DIGITAL_NVP6158_C,
+//	VIDEO_DIGITAL_NVP6158_D,
+	VIDEO_DIGITAL_NVP6158_CD,
+	VIDEO_DIGITAL_NVP6158_ABCD
+//	VIDEO_DIGITAL_NVP6158_MAX
+} MDIN_VIDEO_INPUT_t;
+
+//#define		VIDEO_DIGITAL_NVP6158_A		0
+//#define		VIDEO_DIGITAL_NVP6158_B		1
+//#define		VIDEO_DIGITAL_NVP6158_AB	2
+//#define		VIDEO_DIGITAL_NVP6158_C		3
+//#define		VIDEO_DIGITAL_NVP6158_D		4
+//#define		VIDEO_DIGITAL_NVP6158_CD	5
+
+#else
+
 #if defined(SYSTEM_USE_MDIN340)
 #define		VIDEO_VDCNV_TVP5160			0
 #define		VIDEO_VDCNV_TW9910			1
@@ -44,7 +67,7 @@
 #define		VIDEO_VDCNV_4CH_IN			7					//by hungry 2012.02.15
 #endif
 
-#if 0//defined(SYSTEM_USE_MDIN380)
+#if defined(SYSTEM_USE_MDIN380)
 #define		VIDEO_VDCNV_TVP5160			0
 #define		VIDEO_VDCNV_TW2866			1
 #define		VIDEO_ADCNV_COMPONENT		2
@@ -57,36 +80,29 @@
 #define		VIDEO_SDI_2HD_POP			9
 #endif
 
-#ifdef MDIN_MULTI_DEVICE		// added by kukuri
-#define		VIDEO_DIGITAL_NVP6158_A		10
-#define		VIDEO_DIGITAL_NVP6158_B		11
-#define		VIDEO_DIGITAL_NVP6158_AB	12
-#define		VIDEO_DIGITAL_NVP6158_C		13
-#define		VIDEO_DIGITAL_NVP6158_D		14
-#define		VIDEO_DIGITAL_NVP6158_CD	15
-#endif
+#endif	//MDIN_MULTI_DEVICE kukuri
 
-#define VIDEO_CORP_NONE				0x00
-#define VIDEO_CROP_H				0x01
-#define VIDEO_CROP_V				0x02
-
-#define VIDEO_CORP_HALF				0x01
-#define VIDEO_CORP_QUAD				0x02
+//#define VIDEO_CORP_NONE				0x00
+//#define VIDEO_CROP_H				0x01
+//#define VIDEO_CROP_V				0x02
+//
+//#define VIDEO_CORP_HALF				0x01
+//#define VIDEO_CORP_QUAD				0x02
 
 
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
-extern MDIN_VIDEO_INFO		stVideo[MDIN_CHIP_ID_MAX];
-extern MDIN_INTER_WINDOW	stInterWND;
-extern MDIN_VIDEO_WINDOW	stZOOM, stCROP;
+//extern MDIN_VIDEO_INFO		stVideo[MDIN_CHIP_ID_MAX];
+//extern MDIN_INTER_WINDOW	stInterWND;
+//extern MDIN_VIDEO_WINDOW	stZOOM, stCROP;
 
-extern BYTE AdjInterWND,  InputSelect, InputSelOld,  SrcSyncInfo;
-extern BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;
-extern BYTE OutMainFrmt, PrevOutMainFrmt, OutMainMode, PrevOutMainMode;
-extern BYTE SrcAuxFrmt, PrevSrcAuxFrmt, SrcAuxMode, PrevSrcAuxMode;
-extern BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
-extern BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
+//extern BYTE AdjInterWND,  InputSelect, InputSelOld;//,  SrcSyncInfo;
+//extern BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;
+//extern BYTE OutMainFrmt, PrevOutMainFrmt, OutMainMode, PrevOutMainMode;
+//extern BYTE SrcAuxFrmt, PrevSrcAuxFrmt, SrcAuxMode, PrevSrcAuxMode;
+//extern BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
+//extern BYTE EncVideoFrmt, PrevEncFrmt; //AdcVideoFrmt, PrevAdcFrmt,
 
 // -----------------------------------------------------------------------------
 // Exported function Prototype
@@ -96,7 +112,7 @@ void CreateVideoInstance(void);
 void SetInputSource(BYTE input);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
-void Request2VideoProcess(void);
+//void Request2VideoProcess(void);
 void Set_DisplayWindow(eDisplayMode_t displayMode);
 
 #endif	/* __VIDEO_H__ */

@@ -105,6 +105,7 @@ typedef	enum {
 
 }	MDIN_DIG_OUT_MAP_t;
 
+//added by kukuri
 #if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN325A)
 #define MDIN325_DIG_OUT_M_MAP5			5	// output data map mode 5 for main video
 #define MDIN325_DIG_OUT_X_MAP5			21	// output data map mode 5 for aux video

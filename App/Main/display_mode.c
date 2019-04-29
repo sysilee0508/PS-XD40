@@ -15,8 +15,8 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
-//static eDisplayMode_t systemDisplayMode = DISPLAY_MODE_SPLIT;
-//static eChannel_t systemDisplayChannel = CHANNEL_SPLIT;
+//static eDisplayMode_t systemDisplayMode = DISPLAY_MODE_FULL_CH1;
+//static eChannel_t systemDisplayChannel = CHANNEL1;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -26,114 +26,82 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 //  Function Definition
 //=============================================================================
 
-
 static BYTE Check_VideoFormat_Change(void)
 {
 	eChannel_t channel;
-	BYTE oCurVideofmt;
+	//BYTE oCurVideofmt;
 	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0,};
-	BYTE videoFormatChanged;
+	BYTE videoFormatChanged = FALSE;
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
-	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
+	if(displayMode == DISPLAY_MODE_FULL_CH1)
 	{
-		oCurVideofmt = NVP6158_Current_Video_Format_Check(channel);
-		if(oCurVideofmt != oPreVideofmt[channel])
+		if(NVP6158_Current_Video_Format_Check(CHANNEL1) != oPreVideofmt[CHANNEL1])
 		{
-			oPreVideofmt[channel] = oCurVideofmt;
+			oPreVideofmt[CHANNEL1] = NVP6158_Current_Video_Format_Check(CHANNEL1);
 			videoFormatChanged = TRUE;
+		}
+	}
+	else if(displayMode == DISPLAY_MODE_FULL_CH2)
+	{
+		if(NVP6158_Current_Video_Format_Check(CHANNEL2) != oPreVideofmt[CHANNEL2])
+		{
+			oPreVideofmt[CHANNEL2] = NVP6158_Current_Video_Format_Check(CHANNEL2);
+			videoFormatChanged = TRUE;
+		}
+	}
+	else
+	{
+		for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
+		{
+			if(NVP6158_Current_Video_Format_Check(channel) != oPreVideofmt[channel])
+			{
+				oPreVideofmt[channel] = NVP6158_Current_Video_Format_Check(channel);
+				videoFormatChanged = TRUE;
+				break;
+			}
 		}
 	}
 
 	return videoFormatChanged;	
 }
 
-void Set_DisplayoutputMode_table(void)
+void DisplayScreen(eDisplayMode_t mode)
 {
-//	eDisplayMode_t displayMode = Get_SystemDisplayMode();
-
-//	if(Check_VideoFormat_Change() == TRUE)
-//	{
-//		if(displayMode == DISPLAY_MODE_FULL)
-//		{
-//			Display_FullMode(Get_SystemDisplayChannel());
-//		}
-//		else
-//		{
-//			Display_SplitMode(Get_SystemSplitMode());
-//		}
-//		Delay_ms(500);
-//	}
-}
-
-void DisplayMode_FullScreen(eChannel_t ch)
-{
-}
-
-//void DisplayMode_SplitScreen(eSplitMode_t splitMode)
-//{
-//}
-
-eInputVideoMode_t Get_InputVideoMode(eChannel_t channel)
-{
-	eInputVideoMode_t videoMode;
-
-	switch(NVP6158_Current_Video_Format_Check(channel))
+	if((mode == DISPLAY_MODE_FULL_CH1) || (mode == DISPLAY_MODE_FULL_CH2))
 	{
-		case AHD20_1080P_60P:
-		case AHD20_1080P_30P:
-		case TVI_FHD_30P:
-			videoMode = INPUT_VIDEO_1080P30;
-			break;
-
-		case AHD20_1080P_50P:
-		case AHD20_1080P_25P:
-		case TVI_FHD_25P:
-			videoMode = INPUT_VIDEO_1080P25;
-			break;
-
-		case AHD20_720P_60P:
-		case AHD20_720P_30P:
-		case AHD20_720P_30P_EX:
-		case AHD20_720P_30P_EX_Btype:
-		case TVI_HD_60P:
-		case TVI_HD_30P:
-		case TVI_HD_30P_EX:
-			videoMode = INPUT_VIDEO_720P30;
-			break;
-
-		case AHD20_720P_50P:
-		case AHD20_720P_25P:
-		case AHD20_720P_25P_EX:
-		case AHD20_720P_25P_EX_Btype:
-		case TVI_HD_50P:
-		case TVI_HD_25P:
-		case TVI_HD_25P_EX:
-			videoMode = INPUT_VIDEO_720P25;
-			break;
-
-		case AHD20_SD_H960_NT:
-		case AHD20_SD_SH720_NT:
-		case AHD20_SD_H1280_NT:
-		case AHD20_SD_H1440_NT:
-		case AHD20_SD_H960_EX_NT:
-		case AHD20_SD_H960_2EX_NT:
-		case AHD20_SD_H960_2EX_Btype_NT:
-			videoMode = INPUT_VIDEO_CVBS_NTSC;
-			break;
-			
-		case AHD20_SD_H960_PAL:
-		case AHD20_SD_SH720_PAL:
-		case AHD20_SD_H1280_PAL:
-		case AHD20_SD_H1440_PAL:
-		case AHD20_SD_H960_EX_PAL:
-		case AHD20_SD_H960_2EX_PAL:
-		case AHD20_SD_H960_2EX_Btype_PAL:
-			videoMode = INPUT_VIDEO_CVBS_PAL;
-			break;
-
-		default:
-			videoMode = INPUT_VIDEO_MAX;
-			break;
+		SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 	}
-	return videoMode;
+//	else if(mode == DISPLAY_MODE_FULL_CH2)
+//	{
+//		SetInputSource(VIDEO_DIGITAL_NVP6158_B);
+//	}
+	else
+	{
+		SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
+	}
+	Write_NvItem_DisplayMode(mode);
+}
+
+void UpdateDisplayMode(void)
+{
+	if(Check_VideoFormat_Change() == TRUE)
+	{
+		OSD_RefreshScreen();
+		SetInputChanged();
+		InitInputSource();
+		DisplayScreen(GetCurrentDisplayMode());
+	}
+}
+
+eDisplayMode_t GetCurrentDisplayMode(void)
+{
+	eDisplayMode_t displayMode;
+	Read_NvItem_DisplayMode(&displayMode);
+	return displayMode;
+}
+
+BYTE GetInputVideoFormat(eChannel_t channel)
+{
+	return NVP6158_Current_Video_Format_Check(channel);
 }

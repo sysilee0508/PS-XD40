@@ -11,33 +11,49 @@
 //-----------------------------------------------------------------------------
 //  ���� �ý��� ���� ����
 //-----------------------------------------------------------------------------
+#define NUM_OF_CHANNEL 				4
 typedef enum
 {
 	CHANNEL1 = 0,
 	CHANNEL2,
 	CHANNEL3,
 	CHANNEL4,
-	NUM_OF_CHANNEL,
 	CHANNEL_SPLIT
 } eChannel_t;
 
 typedef enum
 {
-	SPLIT_A = 0,
-	SPLIT_B,
-	SPLIT_C,
-	SPLIT_D,
-	SPLIT_E,
-	NUM_OF_SPLIT
+	SPLIT_2H_SCALE = 0,
+	SPLIT_2H_CROP,
+	SPLIT_2V_SCALE,
+	SPLIT_2V_CROP,
+	SPLIT_QUAD,
+	SPLIT_QUAD_R3_SCALE,
+	SPLIT_QUAD_R3_CROP,
+	SPLIT_QUAD_L3_SCALE,
+	SPLIT_QUAD_L3_CROP,
+	SPLIT_QUAD_D3_SCALE,
+	SPLIT_QUAD_D3_CROP,
+	SPLIT_QUAD_U3_SCALE,
+	SPLIT_QUAD_U3_CROP,
+	NUM_OF_SPLIT	//13
 } eSplit_t;
 
 typedef enum
 {
-	PIP_A = 0,
-	PIP_B,
-	PIP_C,
-	PIP_D,
-	NUM_OF_PIP
+	PIP_A2 = 0,
+	PIP_A3,
+	PIP_A4,
+	PIP_B2,
+	PIP_B3,
+	PIP_B4,
+	PIP_C2,
+	PIP_C3,
+	PIP_C4,
+	PIP_D2,
+	PIP_D3,
+	PIP_D4,
+	NUM_OF_PIP	//12
 } ePip_t;
 extern s8 videoOutResolution;
 

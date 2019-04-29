@@ -2441,7 +2441,8 @@ MDIN_ERROR_t MDIN3xx_SetInDataMapMode(MDIN_CHIP_ID_t chipId, MDIN_IN_DATA_MAP_t 
 MDIN_ERROR_t MDIN3xx_SetDIGOutMapMode(MDIN_CHIP_ID_t chipId, MDIN_DIG_OUT_MAP_t mode)
 {
 #if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN325A)
-	mode = (MDIN_DIG_OUT_MAP_t)((mode&0xf0)|MDIN_DIG_OUT_M_MAP5);	// fix map mode 5 for MDIN325
+	if(chipId != MDIN_CHIP_ID_C)	// kukuri chipId C is MDIN380
+		mode = (MDIN_DIG_OUT_MAP_t)((mode&0xf0)|MDIN_DIG_OUT_M_MAP5);	// fix map mode 5 for MDIN325
 #endif
 
 	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x0a5, 0, 4, LO4BIT(mode))) return MDIN_I2C_ERROR;	// main dig out mode
