@@ -51,8 +51,9 @@ typedef enum _VI_WORK_MODE_E
 
 typedef enum  
 {
-	VPORT_MAP0,
-	VPORT_MAP1,
+	VPORT_MAP0,		// A, C, AB, AC, CD, ABCD
+	VPORT_MAP1,		// B, D
+	VPORT_MAP2,		// AD
 	VPORT_MAP_MAX
 } eVPORT_MAP_t;
 

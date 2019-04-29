@@ -11,7 +11,7 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 //=============================================================================
 //  Define & MACRO
 //=============================================================================
-
+#define UpdatedChannel(a,b)				(a & (0x01 << b))?TRUE:FALSE
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
@@ -26,59 +26,148 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 //  Function Definition
 //=============================================================================
 
-static BYTE Check_VideoFormat_Change(void)
+static BOOL Check_VideoFormat_Change(void)
 {
 	eChannel_t channel;
-	//BYTE oCurVideofmt;
 	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0,};
-	BYTE videoFormatChanged = FALSE;
+	BYTE changedChannel = 0x00;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	BOOL changed = FALSE;
 
-	if(displayMode == DISPLAY_MODE_FULL_CH1)
+	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
 	{
-		if(NVP6158_Current_Video_Format_Check(CHANNEL1) != oPreVideofmt[CHANNEL1])
+		if(NVP6158_Current_Video_Format_Check(channel) != oPreVideofmt[channel])
 		{
-			oPreVideofmt[CHANNEL1] = NVP6158_Current_Video_Format_Check(CHANNEL1);
-			videoFormatChanged = TRUE;
+			changedChannel |= (0x01 << channel);
+			oPreVideofmt[channel] = NVP6158_Current_Video_Format_Check(channel);
 		}
 	}
-	else if(displayMode == DISPLAY_MODE_FULL_CH2)
+
+	// any channel is changed
+	if(changedChannel != 0x00)
 	{
-		if(NVP6158_Current_Video_Format_Check(CHANNEL2) != oPreVideofmt[CHANNEL2])
+		switch(displayMode)
 		{
-			oPreVideofmt[CHANNEL2] = NVP6158_Current_Video_Format_Check(CHANNEL2);
-			videoFormatChanged = TRUE;
-		}
-	}
-	else
-	{
-		for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
-		{
-			if(NVP6158_Current_Video_Format_Check(channel) != oPreVideofmt[channel])
-			{
-				oPreVideofmt[channel] = NVP6158_Current_Video_Format_Check(channel);
-				videoFormatChanged = TRUE;
+			case DISPLAY_MODE_FULL_CH1:
+				changed = UpdatedChannel(changedChannel, CHANNEL1);
 				break;
-			}
+
+			case DISPLAY_MODE_FULL_CH2:
+				changed = UpdatedChannel(changedChannel, CHANNEL2);
+				break;
+
+			case DISPLAY_MODE_FULL_CH3:
+				changed = UpdatedChannel(changedChannel, CHANNEL3);
+				break;
+
+			case DISPLAY_MODE_FULL_CH4:
+				changed = UpdatedChannel(changedChannel, CHANNEL4);
+				break;
+
+			case DISPLAY_MODE_2SPLIT_HSCALE_A:
+			case DISPLAY_MODE_2SPLIT_HCROP_A:
+			case DISPLAY_MODE_2SPLIT_VSCALE_A:
+			case DISPLAY_MODE_2SPLIT_VCROP_A:
+			case DISPLAY_MODE_PIP_A2:
+			case DISPLAY_MODE_PIP_B2:
+			case DISPLAY_MODE_PIP_C2:
+			case DISPLAY_MODE_PIP_D2:
+				changed = UpdatedChannel(changedChannel, CHANNEL1) | UpdatedChannel(changedChannel, CHANNEL2);
+				break;
+
+			case DISPLAY_MODE_2SPLIT_HSCALE_B:
+			case DISPLAY_MODE_2SPLIT_HCROP_B:
+			case DISPLAY_MODE_2SPLIT_VSCALE_B:
+			case DISPLAY_MODE_2SPLIT_VCROP_B:
+				changed = UpdatedChannel(changedChannel, CHANNEL3) | UpdatedChannel(changedChannel, CHANNEL4);
+				break;
+
+			case DISPLAY_MODE_4SPLIT_QUAD:
+			case DISPLAY_MODE_4SPLIT_R3SCALE:
+			case DISPLAY_MODE_4SPLIT_R3CROP:
+			case DISPLAY_MODE_4SPLIT_L3SCALE:
+			case DISPLAY_MODE_4SPLIT_L3CROP:
+			case DISPLAY_MODE_4SPLIT_D3SCALE:
+			case DISPLAY_MODE_4SPLIT_D3CROP:
+			case DISPLAY_MODE_4SPLIT_U3SCALE:
+			case DISPLAY_MODE_4SPLIT_U3CROP:
+				changed = UpdatedChannel(changedChannel, CHANNEL1) | 		\
+							UpdatedChannel(changedChannel, CHANNEL2) |		\
+							UpdatedChannel(changedChannel, CHANNEL3) | 		\
+							UpdatedChannel(changedChannel, CHANNEL4);
+				break;
+
+			case DISPLAY_MODE_PIP_A3:
+			case DISPLAY_MODE_PIP_B3:
+			case DISPLAY_MODE_PIP_C3:
+			case DISPLAY_MODE_PIP_D3:
+				changed = UpdatedChannel(changedChannel, CHANNEL1) | UpdatedChannel(changedChannel, CHANNEL3);
+				break;
+
+			case DISPLAY_MODE_PIP_A4:
+			case DISPLAY_MODE_PIP_B4:
+			case DISPLAY_MODE_PIP_C4:
+			case DISPLAY_MODE_PIP_D4:
+				changed = UpdatedChannel(changedChannel, CHANNEL1) | UpdatedChannel(changedChannel, CHANNEL4);
+				break;
+
 		}
 	}
 
-	return videoFormatChanged;	
+	return changed;
 }
+
 
 void DisplayScreen(eDisplayMode_t mode)
 {
-	if((mode == DISPLAY_MODE_FULL_CH1) || (mode == DISPLAY_MODE_FULL_CH2))
+	switch(mode)
 	{
-		SetInputSource(VIDEO_DIGITAL_NVP6158_A);
-	}
-//	else if(mode == DISPLAY_MODE_FULL_CH2)
-//	{
-//		SetInputSource(VIDEO_DIGITAL_NVP6158_B);
-//	}
-	else
-	{
-		SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
+		case DISPLAY_MODE_FULL_CH1:
+		case DISPLAY_MODE_FULL_CH2:
+			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
+			break;
+
+		case DISPLAY_MODE_FULL_CH3:
+		case DISPLAY_MODE_FULL_CH4:
+			SetInputSource(VIDEO_DIGITAL_NVP6158_C);
+			break;
+
+		case DISPLAY_MODE_2SPLIT_HSCALE_A:
+		case DISPLAY_MODE_2SPLIT_HCROP_A:
+		case DISPLAY_MODE_2SPLIT_VSCALE_A:
+		case DISPLAY_MODE_2SPLIT_VCROP_A:
+		case DISPLAY_MODE_PIP_A2:
+		case DISPLAY_MODE_PIP_B2:
+		case DISPLAY_MODE_PIP_C2:
+		case DISPLAY_MODE_PIP_D2:
+			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
+			break;
+
+		case DISPLAY_MODE_4SPLIT_QUAD:
+		case DISPLAY_MODE_4SPLIT_R3SCALE:
+		case DISPLAY_MODE_4SPLIT_R3CROP:
+		case DISPLAY_MODE_4SPLIT_L3SCALE:
+		case DISPLAY_MODE_4SPLIT_L3CROP:
+		case DISPLAY_MODE_4SPLIT_D3SCALE:
+		case DISPLAY_MODE_4SPLIT_D3CROP:
+		case DISPLAY_MODE_4SPLIT_U3SCALE:
+		case DISPLAY_MODE_4SPLIT_U3CROP:
+			SetInputSource(VIDEO_DIGITAL_NVP6158_ABCD);
+			break;
+
+		case DISPLAY_MODE_PIP_A3:
+		case DISPLAY_MODE_PIP_B3:
+		case DISPLAY_MODE_PIP_C3:
+		case DISPLAY_MODE_PIP_D3:
+			SetInputSource(VIDEO_DIGITAL_NVP6158_AC);
+			break;
+
+		case DISPLAY_MODE_PIP_A4:
+		case DISPLAY_MODE_PIP_B4:
+		case DISPLAY_MODE_PIP_C4:
+		case DISPLAY_MODE_PIP_D4:
+			SetInputSource(VIDEO_DIGITAL_NVP6158_AD);
+			break;
 	}
 	Write_NvItem_DisplayMode(mode);
 }

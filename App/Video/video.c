@@ -117,12 +117,6 @@ static void SetInVideoPath(MDIN_VIDEO_INPUT_t src)
 			stVideo[MDIN_CHIP_ID_C].encPATH = VENC_PATH_PORT_X;
 			break;
 
-//		case VIDEO_DIGITAL_NVP6158_B:
-//			stVideo.srcPATH = PATH_MAIN_B_AUX_M;
-//			stVideo.dacPATH = DAC_PATH_MAIN_OUT;
-//			stVideo.encPATH = VENC_PATH_PORT_X;
-//			break;
-
 		case VIDEO_DIGITAL_NVP6158_AB:
 			stVideo[MDIN_CHIP_ID_A].srcPATH = PATH_MAIN_A_AUX_B;
 			stVideo[MDIN_CHIP_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
@@ -143,12 +137,6 @@ static void SetInVideoPath(MDIN_VIDEO_INPUT_t src)
 			stVideo[MDIN_CHIP_ID_C].encPATH = VENC_PATH_PORT_X;
 			break;
 
-//		case VIDEO_DIGITAL_NVP6158_D:
-//			stVideo.srcPATH = PATH_MAIN_B_AUX_M;
-//			stVideo.dacPATH = DAC_PATH_MAIN_OUT;
-//			stVideo.encPATH = VENC_PATH_PORT_X;
-//			break;
-
 		case VIDEO_DIGITAL_NVP6158_CD:
 			stVideo[MDIN_CHIP_ID_B].srcPATH = PATH_MAIN_A_AUX_B;
 			stVideo[MDIN_CHIP_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
@@ -167,6 +155,21 @@ static void SetInVideoPath(MDIN_VIDEO_INPUT_t src)
 			stVideo[MDIN_CHIP_ID_B].srcPATH = PATH_MAIN_A_AUX_B;
 			stVideo[MDIN_CHIP_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
 			stVideo[MDIN_CHIP_ID_B].encPATH = VENC_PATH_PORT_B;
+
+			stVideo[MDIN_CHIP_ID_C].srcPATH = PATH_MAIN_A_AUX_B;
+			stVideo[MDIN_CHIP_ID_C].dacPATH = DAC_PATH_MAIN_PIP;
+			stVideo[MDIN_CHIP_ID_C].encPATH = VENC_PATH_PORT_B;
+			break;
+
+		case VIDEO_DIGITAL_NVP6158_AC:
+		case VIDEO_DIGITAL_NVP6158_AD:
+			stVideo[MDIN_CHIP_ID_A].srcPATH = PATH_MAIN_A_AUX_B;
+			stVideo[MDIN_CHIP_ID_A].dacPATH = DAC_PATH_MAIN_OUT;
+			stVideo[MDIN_CHIP_ID_A].encPATH = VENC_PATH_PORT_X;
+
+			stVideo[MDIN_CHIP_ID_B].srcPATH = PATH_MAIN_A_AUX_B;
+			stVideo[MDIN_CHIP_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
+			stVideo[MDIN_CHIP_ID_B].encPATH = VENC_PATH_PORT_X;
 
 			stVideo[MDIN_CHIP_ID_C].srcPATH = PATH_MAIN_A_AUX_B;
 			stVideo[MDIN_CHIP_ID_C].dacPATH = DAC_PATH_MAIN_PIP;
@@ -287,10 +290,18 @@ static BYTE GetSrcMainFrmt(MDIN_VIDEO_INPUT_t src, MDIN_CHIP_ID_t chipId)
 				break;
 
 			case VIDEO_DIGITAL_NVP6158_ABCD:
+			case VIDEO_DIGITAL_NVP6158_AC:
 				if(chipId == MDIN_CHIP_ID_A)
 					stVideo[chipId].stSRC_a.frmt = GetInSourceFormat(CHANNEL1);
 				else
 					stVideo[chipId].stSRC_a.frmt = GetInSourceFormat(CHANNEL3);
+				break;
+
+			case VIDEO_DIGITAL_NVP6158_AD:
+				if(chipId == MDIN_CHIP_ID_A)
+					stVideo[chipId].stSRC_a.frmt = GetInSourceFormat(CHANNEL1);
+				else
+					stVideo[chipId].stSRC_a.frmt = GetInSourceFormat(CHANNEL4);
 				break;
 
 			default:
@@ -305,6 +316,8 @@ static BYTE GetSrcMainFrmt(MDIN_VIDEO_INPUT_t src, MDIN_CHIP_ID_t chipId)
 		{
 			case VIDEO_DIGITAL_NVP6158_A:
 			case VIDEO_DIGITAL_NVP6158_AB:
+			case VIDEO_DIGITAL_NVP6158_AC:
+			case VIDEO_DIGITAL_NVP6158_AD:
 			case VIDEO_DIGITAL_NVP6158_ABCD:
 				if(GetOutVideoFrameRate_A() == VIDOUT_1920x1080p30)
 				{
@@ -1065,18 +1078,18 @@ void CreateVideoInstance(void)
 	}
 }
 //
-//void InitInputSource(void)
-//{
-//	prevVideoInput = 0xFF;
-//	videoInput = 0xFF;
-//}
+void InitInputSource(void)
+{
+	prevVideoInput = 0xFF;
+	videoInput = 0xFF;
+}
 
 //--------------------------------------------------------------------------------------------------
-//void SetInputSource(BYTE input)
-//{
-//	videoInput = input;
-////	fInputChanged = TRUE;
-//}
+void SetInputSource(BYTE input)
+{
+	videoInput = input;
+//	fInputChanged = TRUE;
+}
 
 void SetInputChanged(void)
 {
