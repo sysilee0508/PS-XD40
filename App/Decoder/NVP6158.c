@@ -650,9 +650,9 @@ void NVP6158_init(void)
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;
 
 //	if(displayMode == CH2)
-	{
-		s_raptor3_vfmts.vport_map = VPORT_MAP1;
-	}
+//	{
+//		s_raptor3_vfmts.vport_map = VPORT_MAP1;
+//	}
 //	else
 	{
 		s_raptor3_vfmts.vport_map = VPORT_MAP0;

@@ -44,7 +44,7 @@ static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
 };
 #endif
 
-static MDIN_VIDEO_INFO		stVideo[MDIN_CHIP_ID_MAX];
+MDIN_VIDEO_INFO		stVideo[MDIN_CHIP_ID_MAX];
 //MDIN_INTER_WINDOW	stInterWND;
 
 static MDIN_VIDEO_INPUT_t videoInput, prevVideoInput;//,  SrcSyncInfo;
@@ -250,6 +250,98 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 	return format[channel];
 }
 
+static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate_A(void)
+{
+	BYTE inputFormat = VIDSRC_1280x720p60;
+	MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p30;
+
+	if(GetInputVideoFormat(CHANNEL1) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
+	{
+		inputFormat = GetInSourceFormat(CHANNEL1);
+	}
+	else if(GetInputVideoFormat(CHANNEL1) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
+	{
+		inputFormat = GetInSourceFormat(CHANNEL2);
+	}
+
+	switch(inputFormat)
+	{
+		case VIDSRC_960x480i60:
+		case VIDSRC_1280x720p60:
+		case VIDSRC_1920x1080p60:
+			output = VIDOUT_1920x1080p60;
+			break;
+
+		case VIDSRC_960x576i50:
+		case VIDSRC_1280x720p50:
+		case VIDSRC_1920x1080p50:
+			output = VIDOUT_1920x1080p50;
+			break;
+	}
+	stVideo[MDIN_CHIP_ID_A].stOUT_m.frmt = output;
+
+	return output;
+}
+
+static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate_B(void)
+{
+	BYTE inputFormat = VIDSRC_1280x720p60;
+	MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p30;
+
+	if(GetInputVideoFormat(CHANNEL3) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
+	{
+		inputFormat = GetInSourceFormat(CHANNEL3);
+	}
+	else if(GetInputVideoFormat(CHANNEL4) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
+	{
+		inputFormat = GetInSourceFormat(CHANNEL4);
+	}
+
+	switch(inputFormat)
+	{
+		case VIDSRC_960x480i60:
+		case VIDSRC_1280x720p60:
+		case VIDSRC_1920x1080p60:
+			output = VIDOUT_1920x1080p30;
+			break;
+
+		case VIDSRC_960x576i50:
+		case VIDSRC_1280x720p50:
+		case VIDSRC_1920x1080p50:
+			output = VIDOUT_1920x1080p25;
+			break;
+	}
+	stVideo[MDIN_CHIP_ID_B].stOUT_m.frmt = output;
+
+	return output;
+}
+
+static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate_C(void)
+{
+	MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p60;
+
+	if(stVideo[MDIN_CHIP_ID_C].stSRC_m.frmt == VIDSRC_1920x1080p50)
+	{
+		output = VIDOUT_1920x1080p50;
+	}
+	stVideo[MDIN_CHIP_ID_C].stOUT_m.frmt = output;
+
+	return output;
+}
+
+static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate_D(void)
+{
+	MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p60;
+
+//	if(stVideo[MDIN_CHIP_ID_D].stSRC_m.frmt == VIDSRC_1920x1080p50)
+//	{
+//		output = VIDOUT_1920x1080p25;
+//	}
+	stVideo[MDIN_CHIP_ID_D].stOUT_m.frmt = output;
+
+	return output;
+}
+
 //--------------------------------------------------------------------------------------------------
 static BYTE GetSrcMainFrmt(MDIN_VIDEO_INPUT_t src, MDIN_CHIP_ID_t chipId)
 {
@@ -319,7 +411,7 @@ static BYTE GetSrcMainFrmt(MDIN_VIDEO_INPUT_t src, MDIN_CHIP_ID_t chipId)
 			case VIDEO_DIGITAL_NVP6158_AC:
 			case VIDEO_DIGITAL_NVP6158_AD:
 			case VIDEO_DIGITAL_NVP6158_ABCD:
-				if(GetOutVideoFrameRate_A() == VIDOUT_1920x1080p30)
+				if(GetOutVideoFrameRate_A() == VIDOUT_1920x1080p60)
 				{
 					stVideo[chipId].stSRC_a.frmt = VIDSRC_1920x1080p60;
 				}
@@ -331,7 +423,7 @@ static BYTE GetSrcMainFrmt(MDIN_VIDEO_INPUT_t src, MDIN_CHIP_ID_t chipId)
 
 			case VIDEO_DIGITAL_NVP6158_C:
 			case VIDEO_DIGITAL_NVP6158_CD:
-				if(GetOutVideoFrameRate_B() == VIDOUT_1920x1080p30)
+				if(GetOutVideoFrameRate_B() == VIDOUT_1920x1080p60)
 				{
 					stVideo[chipId].stSRC_a.frmt = VIDSRC_1920x1080p60;
 				}
@@ -374,7 +466,7 @@ static BYTE GetSrcAuxMode(MDIN_VIDEO_INPUT_t src)
 //--------------------------------------------------------------------------------------------------
 static BYTE GetSrcAuxFrmt(MDIN_VIDEO_INPUT_t src, MDIN_CHIP_ID_t chipId)
 {
-	BYTE frmt = 0xFF;
+	BYTE frmt = VIDSRC_1280x720p60;
 
 	if((chipId == MDIN_CHIP_ID_A) || (chipId == MDIN_CHIP_ID_B))
 	{
@@ -394,7 +486,14 @@ static BYTE GetSrcAuxFrmt(MDIN_VIDEO_INPUT_t src, MDIN_CHIP_ID_t chipId)
 				else
 					frmt = GetInSourceFormat(CHANNEL4);
 				break;
+
+			default :
+				frmt = VIDSRC_1280x720p60;
 		}
+	}
+	else if(chipId == MDIN_CHIP_ID_C)
+	{
+		frmt = VIDSRC_1920x1080p60;
 	}
 	stVideo[chipId].stSRC_b.frmt = frmt;
 
@@ -419,99 +518,6 @@ static BYTE GetOutAuxMode(MDIN_VIDEO_INPUT_t src)
 	return mode;
 }
 #endif
-
-static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate_A(void)
-{
-	BYTE inputFormat = VIDSRC_1280x720p60;
-	MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p30;
-
-	if(GetInputVideoFormat(CHANNEL1) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
-	{
-		inputFormat = GetInSourceFormat(CHANNEL1);
-	}
-	else if(GetInputVideoFormat(CHANNEL1) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
-	{
-		inputFormat = GetInSourceFormat(CHANNEL2);
-	}
-
-	switch(inputFormat)
-	{
-		case VIDSRC_960x480i60:
-		case VIDSRC_1280x720p60:
-		case VIDSRC_1920x1080p60:
-			output = VIDOUT_1920x1080p30;
-			break;
-
-		case VIDSRC_960x576i50:
-		case VIDSRC_1280x720p50:
-		case VIDSRC_1920x1080p50:
-			output = VIDOUT_1920x1080p25;
-			break;
-	}
-	stVideo[MDIN_CHIP_ID_A].stOUT_m.frmt = output;
-
-	return output;
-}
-
-static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate_B(void)
-{
-	BYTE inputFormat = VIDSRC_1280x720p60;
-	MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p30;
-
-	if(GetInputVideoFormat(CHANNEL3) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
-	{
-		inputFormat = GetInSourceFormat(CHANNEL3);
-	}
-	else if(GetInputVideoFormat(CHANNEL4) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
-	{
-		inputFormat = GetInSourceFormat(CHANNEL4);
-	}
-
-	switch(inputFormat)
-	{
-		case VIDSRC_960x480i60:
-		case VIDSRC_1280x720p60:
-		case VIDSRC_1920x1080p60:
-			output = VIDOUT_1920x1080p30;
-			break;
-
-		case VIDSRC_960x576i50:
-		case VIDSRC_1280x720p50:
-		case VIDSRC_1920x1080p50:
-			output = VIDOUT_1920x1080p25;
-			break;
-	}
-	stVideo[MDIN_CHIP_ID_B].stOUT_m.frmt = output;
-
-	return output;
-}
-
-static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate_C(void)
-{
-	MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p30;
-
-	if(stVideo[MDIN_CHIP_ID_C].stSRC_m.frmt == VIDSRC_1920x1080p50)
-	{
-		output = VIDOUT_1920x1080p25;
-	}
-	stVideo[MDIN_CHIP_ID_C].stOUT_m.frmt = output;
-
-	return output;
-}
-
-static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate_D(void)
-{
-	MDIN_OUTVIDEO_FORMAT_t output = VIDOUT_1920x1080p30;
-
-//	if(stVideo[MDIN_CHIP_ID_D].stSRC_m.frmt == VIDSRC_1920x1080p50)
-//	{
-//		output = VIDOUT_1920x1080p25;
-//	}
-	stVideo[MDIN_CHIP_ID_D].stOUT_m.frmt = output;
-
-	return output;
-}
-
 
 static MDIN_OUTVIDEO_FORMAT_t GetOutAuxFormat(MDIN_VIDEO_INPUT_t src, MDIN_CHIP_ID_t chipId)
 {
@@ -634,7 +640,7 @@ static void Video_DefaultSetup(void)
 	stVideo[MDIN_CHIP_ID_B].stSRC_a.mode = MDIN_SRC_MUX656_8;
 
 	stVideo[MDIN_CHIP_ID_C].stSRC_a.frmt = VIDSRC_1920x1080p60;
-	stVideo[MDIN_CHIP_ID_C].stSRC_a.mode = MDIN_SRC_MUX656_10;
+	stVideo[MDIN_CHIP_ID_C].stSRC_a.mode = MDIN_SRC_RGB444_8;
 
 //	stVideo[MDIN_CHIP_ID_D].stSRC_a.frmt = VIDSRC_1920x1080p60;
 //	stVideo[MDIN_CHIP_ID_D].stSRC_a.mode = MDIN_SRC_MUX656_10;
@@ -647,17 +653,17 @@ static void Video_DefaultSetup(void)
 	stVideo[MDIN_CHIP_ID_B].stSRC_b.mode = MDIN_SRC_MUX656_8;
 
 	stVideo[MDIN_CHIP_ID_C].stSRC_b.frmt = VIDSRC_1920x1080p60;
-	stVideo[MDIN_CHIP_ID_C].stSRC_b.mode = MDIN_SRC_MUX656_10;
+	stVideo[MDIN_CHIP_ID_C].stSRC_b.mode = MDIN_SRC_RGB444_8;//MDIN_SRC_MUX656_10;
 
 //	stVideo[MDIN_CHIP_ID_D].stSRC_b.frmt = VIDSRC_1280x720p60;
 //	stVideo[MDIN_CHIP_ID_D].stSRC_b.mode = MDIN_SRC_MUX656_8;
 
 	// define video format of MAIN-OUTPUT
-	stVideo[MDIN_CHIP_ID_A].stOUT_m.frmt = VIDOUT_1920x1080p30;
-	stVideo[MDIN_CHIP_ID_A].stOUT_m.mode = MDIN_OUT_MUX656_10;	//Chip A,B out : BT.656 10-bit
+	stVideo[MDIN_CHIP_ID_A].stOUT_m.frmt = VIDOUT_1920x1080p60;
+	stVideo[MDIN_CHIP_ID_A].stOUT_m.mode = MDIN_OUT_RGB444_8;	//Chip A,B out : BT.656 10-bit
 
-	stVideo[MDIN_CHIP_ID_B].stOUT_m.frmt = VIDOUT_1920x1080p30;
-	stVideo[MDIN_CHIP_ID_B].stOUT_m.mode = MDIN_OUT_MUX656_10;	//Chip A,B out : BT.656 10-bit
+	stVideo[MDIN_CHIP_ID_B].stOUT_m.frmt = VIDOUT_1920x1080p60;
+	stVideo[MDIN_CHIP_ID_B].stOUT_m.mode = MDIN_OUT_RGB444_8;//MDIN_OUT_MUX656_10;	//Chip A,B out : BT.656 10-bit
 
 	// MDIN C : out BT.1120 16-bit (or 20-bit) :
 	// Check configuration!!!!! 	kukuri
@@ -969,7 +975,7 @@ static void VideoFrameProcess(void)//(MDIN_VIDEO_INFO* pInfo)
 
 	if(fInputChanged == FALSE) return;
 
-	for(id = MDIN_CHIP_ID_A; id < MDIN_CHIP_ID_MAX; id++)
+	for(id = MDIN_CHIP_ID_A; id < MDIN_CHIP_ID_D; id++)
 	{
 		if(stVideo[id].encFRMT != PrevEncFrmt[id])
 		{
@@ -1048,6 +1054,8 @@ static void VideoFrameProcess(void)//(MDIN_VIDEO_INFO* pInfo)
 	//
 	//		PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
 	//		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
+
+			Delay_ms(1);
 		}
 	}
 }
@@ -1071,9 +1079,9 @@ void CreateVideoInstance(void)
 //	memset(PrevOutAuxMode, 0xFF, sizeof(PrevSrcMainFrmt));
 	memset(PrevEncFrmt, 0xFF, sizeof(PrevSrcMainFrmt));
 
-	for(id = MDIN_CHIP_ID_A; id < MDIN_CHIP_ID_MAX; id++)
+	Video_DefaultSetup();
+	for(id = MDIN_CHIP_ID_A; id < MDIN_CHIP_ID_D; id++)
 	{
-		Video_DefaultSetup();
 		MDIN3xx_SetRegInitial(&stVideo[id]);
 	}
 }
@@ -1110,6 +1118,8 @@ void VideoProcessHandler(void)
 //--------------------------------------------------------------------------------------------------
 void VideoHTXCtrlHandler(void)
 {
+	MDINHTX_CtrlHandler(&stVideo[MDIN_CHIP_ID_A]);
+
 	MDINHTX_CtrlHandler(&stVideo[MDIN_CHIP_ID_C]);
 }
 
@@ -1202,15 +1212,15 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 		}
 	}
 */
-	stMainCROP.w = mainWidth;
-	stMainCROP.h = mainHeight;
-	stMainCROP.x = 0;
-	stMainCROP.y = 0;
+//	stMainCROP.w = mainWidth;
+//	stMainCROP.h = mainHeight;
+//	stMainCROP.x = 0;
+//	stMainCROP.y = 0;
 
-	stAuxCROP.w = auxWidth;
-	stAuxCROP.h = auxHeight;
-	stAuxCROP.x = 0;
-	stAuxCROP.y = 0;
+//	stAuxCROP.w = auxWidth;
+//	stAuxCROP.h = auxHeight;
+//	stAuxCROP.x = 0;
+//	stAuxCROP.y = 0;
 /*
 	switch(displayMode)
 	{	

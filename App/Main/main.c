@@ -6,6 +6,8 @@
 #include "common.h"
 #include "video_loss.h"
 
+#define MDIN_TEST_PATTERN
+extern MDIN_VIDEO_INFO		stVideo[MDIN_CHIP_ID_MAX];
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -84,12 +86,12 @@ void main(void)
 	// initialize RTC
 	RTC_Configuration();
 
-	// Set key mode as short key mode in order to check reset key 
-	SetKeyMode(KEY_MODE_SHORT);
-
 	MDIN3XX_RST_LOW;
 	Delay_ms(500);
 	MDIN3XX_RST_HIGH;	
+
+	// Set key mode as short key mode in order to check reset key 
+	SetKeyMode(KEY_MODE_SHORT);
 
 	// Need additional 500us to check reset key
 	// Reset Key Function : Press and hold the menu button during turning on the power to initialize the EEPROM
@@ -121,17 +123,17 @@ void main(void)
 	// Load NV data from flash memory
 	LoadNvDataFromStorage();
 
+	//NVP6158 device initialization
+	NVP6158_init();
+//	InitVideoLossCheck();
+//	InitializeMotionDetect();
+
 	// initialize Debug Serial
 	USART3_Init();
 
 	CreateVideoInstance();
 	CreateOSDInstance();
 	Osd_ClearScreen();
-
-	//NVP6158 device initialization
-	NVP6158_init();
-	InitVideoLossCheck();
-	InitializeMotionDetect();
 
 	//InputSelect = VIDEO_DIGITAL_SDI;
 	Read_NvItem_DisplayMode(&displayMode);
@@ -150,8 +152,13 @@ void main(void)
 
 	SetKeyReady();
 
-	OSD_DrawBorderLine();
-	OSD_RefreshScreen();
+//	OSD_DrawBorderLine();
+//	OSD_RefreshScreen();
+
+#ifdef MDIN_TEST_PATTERN
+	MDIN3xx_SetSrcTestPattern(&stVideo[MDIN_CHIP_ID_C], MDIN_IN_TEST_V_COLOR);
+//	MDIN3xx_SetOutTestPattern(MDIN_CHIP_ID_A, MDIN_OUT_TEST_COLOR);
+#endif
 
 	while(TRUE)
 	{
@@ -159,19 +166,20 @@ void main(void)
 		Key_Proc();
 		NVP6158_VideoDetectionProc();
 		Delay_ms(1);
-		Set_DisplayoutputMode_table();
+		//Set_DisplayoutputMode_table();
 		
 		ScanVideoLossChannels();
-		CheckAlarmClearCondition();
-		MotionDetectCheck();
-		PlayBuzzer();
+//		CheckAlarmClearCondition();
+//		MotionDetectCheck();
+//		PlayBuzzer();
 
-		UpdateAutoSeqCount();
-		DisplayAutoSeqChannel();
+//		UpdateAutoSeqCount();
+//		DisplayAutoSeqChannel();
 
 //		Key_Proc();
 //		RTC_CheckTime();
-		
+
+		UpdateDisplayMode();
 		// video process handler
 		VideoProcessHandler();
 

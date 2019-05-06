@@ -457,7 +457,7 @@ void Key_Proc(void)
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
-					DisplayMode_FullScreen((eChannel_t)(key - 1));
+					//DisplayMode_FullScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
 				}
 				break;

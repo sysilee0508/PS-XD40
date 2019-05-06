@@ -68,7 +68,7 @@ static void InitializeAutoSeq_Normal(void)
 
 	OSD_EraseAllText();
 	// update display mode as full screen
-	DisplayMode_FullScreen(displayChannel);
+	//DisplayMode_FullScreen(displayChannel);
 	// set autoSeqOn
 	ChangeAutoSeqOn(SET);
 	OSD_DrawBorderLine();
@@ -87,7 +87,7 @@ static void InitializeAutoSeq_Alarm(void)
 		displayChannel = GetLastAlarmChannel();
 		displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
 
-		DisplayMode_FullScreen(displayChannel);
+		//DisplayMode_FullScreen(displayChannel);
 	}
 }
 
@@ -208,7 +208,7 @@ void DisplayAutoSeqChannel(void)
 	{
 		OSD_EraseAllText();
 		// update current channel
-		DisplayMode_FullScreen(displayChannel);
+		//DisplayMode_FullScreen(displayChannel);
 		// Update OSD
 		OSD_RefreshScreen();
 		OSD_Display();

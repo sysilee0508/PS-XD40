@@ -33,7 +33,7 @@
 static BOOL SetPAGE, GetHDMI = 0;
 static BYTE GetEDID, GetPLUG, GetMDDC;
 
-static MDIN_CHIP_ID_t mdinhtx_ChipId;
+static const MDIN_CHIP_ID_t mdinhtx_ChipId = MDIN_CHIP_ID_C;
 
 #if __MDINHTX_DBGPRT__ == 1
 static BYTE OldPROC = 0xff;
@@ -2198,8 +2198,9 @@ static MDIN_ERROR_t MDINHTX_InitModeDVI(PMDIN_VIDEO_INFO pINFO)
 
 	pINFO->stVID_h.mode = HDMI_OUT_RGB444_8;	// Output must be RGB
 	if (MDINHTX_SetVideoPath(pINFO)) return MDIN_I2C_ERROR;
+#ifdef MDIN_ENABLE_AUDIO
 	if (MDINHTX_SetAudioPath(pINFO)) return MDIN_I2C_ERROR;
-
+#endif
 	// Must be done AFTER setting up audio and video paths and BEFORE starting to send InfoFrames
 	if (MDINHTX_SoftReset(pINFO)) return MDIN_I2C_ERROR;
 
@@ -2484,11 +2485,6 @@ MDIN_ERROR_t MDINHTX_SetHDMIBlock(PMDIN_VIDEO_INFO pINFO)
 	return MDIN_NO_ERROR;
 }
 
-
-void MDINHTX_SetChipId(MDIN_CHIP_ID_t chipId)
-{
-	mdinhtx_ChipId = chipId;
-}
 #endif	/* defined(SYSTEM_USE_MDIN340)||defined(SYSTEM_USE_MDIN380) */
 
 /*  FILE_END_HERE */
