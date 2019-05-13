@@ -10,18 +10,33 @@
 #define MDIN3XX_RST_HIGH			GPIOC->BSRR |= GPIO_Pin_12	//PC12
 #define MDIN3XX_RST_LOW				GPIOC->BRR |= GPIO_Pin_12
 
-#define I2C_SCL_HIGH				GPIOB->BSRR |= GPIO_Pin_6 	//PB6
-#define I2C_SCL_LOW 				GPIOB->BRR  |= GPIO_Pin_6
+#if 0
+#define I2C_SCL_HIGH(x)				GPIOB->BSRR |= GPIO_Pin_6 	//PB6
+#define I2C_SCL_LOW(x)				GPIOB->BRR  |= GPIO_Pin_6
 
-#define I2C_SDA_HIGH				GPIOB->BSRR = 0x00000080 	//PB7
-#define I2C_SDA_LOW 				GPIOB->BRR  = 0x00000080
-#define I2C_SDA_INPUT 				(GPIOB->IDR & 0x00000080)
+#define I2C_SDA_HIGH(x)				GPIOB->BSRR = 0x00000080 	//PB7
+#define I2C_SDA_LOW(x) 				GPIOB->BRR  = 0x00000080
+#define I2C_SDA_INPUT(x) 				(GPIOB->IDR & 0x00000080)
 #define I2C_SDA_INPUT_MODE		\
-	GPIOB->CRL &= 0x0fffffff; 	\
-	GPIOB->CRL |= 0x80000000
+	GPIOB->CRL &= 0x0ffffff0; 	\
+	GPIOB->CRL |= 0x80000008
 #define I2C_SDA_OUTPUT_MODE 	\
-	GPIOB->CRL &= 0x0fffffff; 	\
-	GPIOB->CRL |= 0x30000000
+	GPIOB->CRL &= 0x0ffffff0; 	\
+	GPIOB->CRL |= 0x30000003
+#else
+#define I2C_SCL_HIGH(x)				(x==0)?(GPIOB->BSRR |= GPIO_Pin_6):(GPIOB->BSRR |= GPIO_Pin_5) 	//PB6
+#define I2C_SCL_LOW(x) 				(x==0)?(GPIOB->BRR |= GPIO_Pin_6):(GPIOB->BRR  |= GPIO_Pin_5)
+
+#define I2C_SDA_HIGH(x)				(x==0)?(GPIOB->BSRR = 0x00000080):(GPIOB->BSRR = 0x00000001) 	//PB7
+#define I2C_SDA_LOW(x) 				(x==0)?(GPIOB->BRR  = 0x00000080):(GPIOB->BRR  = 0x00000001)
+#define I2C_SDA_INPUT(x) 			(x==0)?(GPIOB->IDR & 0x00000080):(GPIOB->IDR & 0x00000001)
+#define I2C_SDA_INPUT_MODE		\
+	GPIOB->CRL &= 0x0ffffff0; 	\
+	GPIOB->CRL |= 0x80000008
+#define I2C_SDA_OUTPUT_MODE 	\
+	GPIOB->CRL &= 0x0ffffff0; 	\
+	GPIOB->CRL |= 0x30000003
+#endif
 
 //#define SW1_IN_DATA	//CH1
 //#define SW2_IN_DATA	//CH2

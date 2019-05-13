@@ -76,7 +76,8 @@ void MCU_init(void)
 //	14: SW_Split
 //	15: LED_CH1
 	GPIOB->CRH = 0x38883334;		//PB15 --> output/open-drain //PB10 uart_TX(alternate function), //GPIO11-uart_RX
-	GPIOB->CRL = 0x33343444; 		//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
+//	GPIOB->CRL = 0x33343444; 		//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
+	GPIOB->CRL = 0x33343443; 		//PB3,4 --> output/open-drain //PB6,7 --> alternative/push-pull
 	GPIOB->ODR = 0x00007DF7;		//GPIOB02(BUZ_OUT),GPIOB8(LED0),GPIOB9(LED1)to Low.
 
 //	[GPIO C]

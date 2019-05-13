@@ -67,6 +67,10 @@
 //	}
 //}
 //
+
+#define MDIN_TEST_PATTERN
+extern BYTE i2c_ch;
+
 //=============================================================================
 //  main function
 //=============================================================================
@@ -74,6 +78,7 @@ void main(void)
 {
 	eDisplayMode_t displayMode;
 	
+	i2c_ch = 0;
 	// initialize STM32F103x
 	MCU_init();
 	// initialize interrupt
@@ -96,6 +101,9 @@ void main(void)
 	InitVideoLossCheck();
 	Delay_ms(1);
 
+	CreateVideoInstance();
+	Delay_ms(1);
+	i2c_ch = 1;
 	CreateVideoInstance();
 	CreateOSDInstance();
 	Osd_ClearScreen();
@@ -120,8 +128,8 @@ void main(void)
 //	Key_Proc();
 
 #ifdef MDIN_TEST_PATTERN
-//	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
-	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
+	MDIN3xx_SetSrcTestPattern(&stVideo, MDIN_IN_TEST_H_COLOR);
+//	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
 #endif
 
 	while(TRUE)
