@@ -122,8 +122,6 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 #define		SOURCE_CSC_STD_RANGE	1	// "1" for standard range, "0" for full range
 #define		OUTPUT_CSC_STD_RANGE	0	// "1" for standard range, "0" for full range
 
-#define 	I2C_MDIN3xx_ADDR	0xDC	// MDIN3xx I2C slave address
-
 #define		DIFF(a,b)			((a)>(b)? (a-b):(b-a))
 #define		MBIT(a,b)			(((a)&(b))? ON : OFF)
 #define		RBIT(a,b)			(((a)&(b))? OFF : ON)

@@ -91,16 +91,20 @@ typedef enum {
 //#define VIDEO_CORP_HALF				0x01
 //#define VIDEO_CORP_QUAD				0x02
 
+#define 		MDIN_A				0
+#define 		MDIN_B				1
+#define 		SELECT_MDIN(x)		selectedMDIN = x		
 
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
-extern MDIN_VIDEO_INFO	 stVideo_A;
+extern MDIN_VIDEO_INFO	 stVideo_A, stVideo_B;
 extern MDIN_VIDEO_INFO stVideo_C;
 extern MDIN_VIDEO_INFO stVideo;
 //extern MDIN_VIDEO_INFO		stVideo_A, stVideo_C, stVideo;
 extern MDIN_INTER_WINDOW	stInterWND;
 extern MDIN_VIDEO_WINDOW	stZOOM, stCROP;
+
 
 extern BYTE AdjInterWND,  InputSelect, InputSelOld,  SrcSyncInfo;
 extern BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;

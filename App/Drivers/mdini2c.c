@@ -26,6 +26,10 @@
 #define		I2C_HOST_NACK		2
 #define		I2C_TIME_OUT		3
 
+#define		I2C_MDIN3xx_ADDR_A		0xDC	// MDIN3xx I2C slave address
+#define		I2C_MDIN3xx_ADDR_B		0xDE
+
+#define 		I2C_MDIN3xx_ADDR(x)		(x == MDIN_A)?(I2C_MDIN3xx_ADDR_A):(I2C_MDIN3xx_ADDR_B)
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -34,6 +38,7 @@ static WORD PageID = 0;
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
+BYTE selectedMDIN = MDIN_A;
 
 // ----------------------------------------------------------------------
 // Static Prototype Functions
@@ -332,17 +337,18 @@ MDIN_ERROR_t MDINI2C_RegField(BYTE nID, DWORD rAddr, WORD bPos, WORD bCnt, WORD 
 static BYTE MDINI2C_Write(BYTE nID, WORD rAddr, PBYTE pBuff, WORD bytes)
 {
 	WORD i;	
+	BYTE slaveAddr = I2C_MDIN3xx_ADDR(selectedMDIN);
 
 	//printf("[I2C_W] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr,  *((PWORD)pBuff), bytes);
 
 	I2C_Start();
-	I2C_P2S(I2C_MDIN3xx_ADDR&0xFE); AckDetect();
+	I2C_P2S(slaveAddr&0xFE); AckDetect();
 
 	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
 	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
 	
 	I2C_Start(); 
-	I2C_P2S(I2C_MDIN3xx_ADDR&0xFE); AckDetect();
+	I2C_P2S(slaveAddr&0xFE); AckDetect();
 	
 	for (i=0; i<bytes/2-1; i++) 
 	{
@@ -367,15 +373,16 @@ static BYTE MDINI2C_Write(BYTE nID, WORD rAddr, PBYTE pBuff, WORD bytes)
 static BYTE MDINI2C_Read(BYTE nID, WORD rAddr, PBYTE pBuff, WORD bytes)
 {
 	WORD i;	
+	BYTE slaveAddr = I2C_MDIN3xx_ADDR(selectedMDIN);
 
 	I2C_Start();
-	I2C_P2S(I2C_MDIN3xx_ADDR&0xFE); AckDetect();
+	I2C_P2S(slaveAddr&0xFE); AckDetect();
 
 	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
 	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
 
 	I2C_Start(); 
-	I2C_P2S(I2C_MDIN3xx_ADDR|0x01); AckDetect();
+	I2C_P2S(slaveAddr|0x01); AckDetect();
 
 	for (i=0; i<bytes/2-1; i++) 
 	{

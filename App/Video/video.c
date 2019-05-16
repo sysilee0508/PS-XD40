@@ -41,7 +41,7 @@ static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
 	{0x0072, 0x0047}  },						// VC
 };
 
-MDIN_VIDEO_INFO	 stVideo_A;
+MDIN_VIDEO_INFO	 stVideo_A, stVideo_B;
 MDIN_VIDEO_INFO stVideo_C;
 MDIN_VIDEO_INFO stVideo;
 MDIN_INTER_WINDOW	stInterWND;
@@ -248,10 +248,12 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 	return format[channel];
 }
 
-#if 1
 static void MDIN3xx_SetRegInitial_A(void)
 {
 	WORD nID = 0;
+
+	I2C_SET_CHANNEL(I2C_MAIN);
+	SELECT_MDIN(MDIN_A);
 	
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
@@ -420,10 +422,191 @@ static void MDIN3xx_SetRegInitial_A(void)
 	PrevEncFrmt = 0xff;
 	EncVideoFrmt = stVideo_A.encFRMT;
 }
+
+#if 1
+
+static void MDIN3xx_SetRegInitial_B(void)
+{
+	WORD nID = 0;
+
+	I2C_SET_CHANNEL(I2C_MAIN);
+	SELECT_MDIN(MDIN_B);
+	
+	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
+
+	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
+	MDIN3xx_SetMemoryConfig();			// initialize DDR memory
+
+	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
+	MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_ALL, ON);
+
+	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
+	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP5);		// disable digital out
+	MDINOSD_SetBGLayerColor(RGB(128,128,128));			// set BG-Layer color
+
+	MDINOSD_SetBGBoxColor(RGB(255,255,255));			// set BG-BOX color
+
+	// setup enhancement
+	MDIN3xx_SetFrontNRFilterCoef(NULL);		// set default frontNR filter coef
+	MDINAUX_SetFrontNRFilterCoef(NULL);		// set default frontNR filter coef
+	MDIN3xx_SetPeakingFilterCoef(NULL);		// set default peaking filter coef
+	MDIN3xx_SetColorEnFilterCoef(NULL);		// set default color enhancer coef
+	MDIN3xx_SetBlockNRFilterCoef(NULL);		// set default blockNR filter coef
+	MDIN3xx_SetMosquitFilterCoef(NULL);		// set default mosquit filter coef
+	MDIN3xx_SetColorTonFilterCoef(NULL);	// set default colorton filter coef
+
+	MDIN3xx_EnableLTI(OFF);					// set LTI off
+	MDIN3xx_EnableCTI(OFF);					// set CTI off
+	MDIN3xx_SetPeakingFilterLevel(0);		// set peaking gain
+	MDIN3xx_EnablePeakingFilter(ON);		// set peaking on
+	MDIN3xx_EnableColorEnFilter(ON);		// set color enhancement on, 29Mar2012
+
+	MDIN3xx_EnableFrontNRFilter(OFF);		// set frontNR off
+	MDIN3xx_EnableBWExtension(OFF);			// set B/W extension off
+
+	MDIN3xx_SetIPCBlock();		// initialize IPC block (3DNR gain is 37)
+
+	memset((PBYTE)&stVideo_B, 0, sizeof(MDIN_VIDEO_INFO));
+
+	MDIN3xx_SetMFCHYFilterCoef(&stVideo_B, NULL);	// set default MFC filters
+	MDIN3xx_SetMFCHCFilterCoef(&stVideo_B, NULL);
+	MDIN3xx_SetMFCVYFilterCoef(&stVideo_B, NULL);
+	MDIN3xx_SetMFCVCFilterCoef(&stVideo_B, NULL);
+
+	// set aux display ON
+	stVideo_B.dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
+
+	// set video path
+	stVideo_B.srcPATH = PATH_MAIN_A_AUX_M;	// set main is A, aux is main out
+	stVideo_B.dacPATH = DAC_PATH_MAIN_OUT;	// set main only
+	stVideo_B.encPATH = VENC_PATH_PORT_X;		// set venc is aux
+
+	// define video format of PORTA-INPUT
+	stVideo_B.stSRC_a.frmt = VIDSRC_1280x720p60;
+	stVideo_B.stSRC_a.mode = MDIN_SRC_MUX656_8;
+	//stVideo_B.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	stVideo_B.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
+	stVideo_B.stSRC_a.offH = 0;
+	stVideo_B.stSRC_a.offV = 0;
+
+	// define video format of PORTB-INPUT
+	stVideo_B.stSRC_b.frmt = VIDSRC_1280x720p60;
+	stVideo_B.stSRC_b.mode = MDIN_SRC_MUX656_8;
+	//stVideo_B.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	stVideo_B.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
+	stVideo_B.stSRC_b.offH = 0;
+	stVideo_B.stSRC_b.offV = 0;
+
+	// define video format of MAIN-OUTPUT
+	stVideo_B.stOUT_m.frmt = VIDOUT_1280x720p60;
+	stVideo_B.stOUT_m.mode = MDIN_OUT_MUX656_8;	 //by hungry 2012.03.06		// test by chungsa
+	stVideo_B.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
+
+	stVideo_B.stOUT_m.brightness = 128;			// set main picture factor
+	stVideo_B.stOUT_m.contrast = 128;
+	stVideo_B.stOUT_m.saturation = 128;
+	stVideo_B.stOUT_m.hue = 128;
+
+#if RGB_GAIN_OFFSET_TUNE == 1
+	stVideo_B.stOUT_m.r_gain = 128;				// set main gain/offset
+	stVideo_B.stOUT_m.g_gain = 128;
+	stVideo_B.stOUT_m.b_gain = 128;
+	stVideo_B.stOUT_m.r_offset = 128;
+	stVideo_B.stOUT_m.g_offset = 128;
+	stVideo_B.stOUT_m.b_offset = 128;
+#endif
+
+	// define video format of IPC-block
+	stVideo_B.stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
+	stVideo_B.stIPC_m.film = MDIN_DEINT_FILM_OFF;
+	stVideo_B.stIPC_m.gain = 34;
+	stVideo_B.stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
+
+	// define map of frame buffer
+	stVideo_B.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+	// define video format of AUX-INPUT
+	stVideo_B.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
+
+	// define video format of AUX-OUTPUT (CVBS output)
+	stVideo_B.stOUT_x.frmt = VIDOUT_720x480i60;
+	stVideo_B.stOUT_x.mode = MDIN_OUT_MUX656_8;
+	stVideo_B.stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
+
+	stVideo_B.stOUT_x.brightness = 128;			// set aux picture factor
+	stVideo_B.stOUT_x.contrast = 128;
+	stVideo_B.stOUT_x.saturation = 128;
+	stVideo_B.stOUT_x.hue = 128;
+
+#if RGB_GAIN_OFFSET_TUNE == 1
+	stVideo_B.stOUT_x.r_gain = 128;				// set aux gain/offset
+	stVideo_B.stOUT_x.g_gain = 128;
+	stVideo_B.stOUT_x.b_gain = 128;
+	stVideo_B.stOUT_x.r_offset = 128;
+	stVideo_B.stOUT_x.g_offset = 128;
+	stVideo_B.stOUT_x.b_offset = 128;
+#endif
+
+	// define video format of video encoder
+	stVideo_B.encFRMT = VID_VENC_NTSC_M;
+	// define video format of HDMI-OUTPUT
+	stVideo_B.stVID_h.mode  = HDMI_OUT_RGB444_8;
+	stVideo_B.stVID_h.fine  = HDMI_CLK_EDGE_RISE;
+
+	// audio block
+	stVideo_B.stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
+	stVideo_B.stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
+	stVideo_B.stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
+							AUDIO_SCK_EDGE_RISE | AUDIO_SD_MSB_FIRST | AUDIO_SD_1ST_SHIFT;
+
+	MDINHTX_SetHDMIBlock(&stVideo_B);		// initialize HDMI block
+
+#if 0		// temporary blocked by kukuri
+	// define video format of 4CH-display
+	stVideo_B.st4CH_x.chID  = MDIN_4CHID_IN_SYNC;	 // set CH-ID extract
+	stVideo_B.st4CH_x.order = MDIN_4CHID_A1A2B1B2; // set CH-ID mapping
+	stVideo_B.st4CH_x.view  = MDIN_4CHVIEW_ALL;	 // set 4CH view mode
+#endif
+	stVideo_B.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
+	MDIN3xx_VideoProcess(&stVideo_B);			// mdin3xx main video process
+
+	// define window for inter-area (PIP window? kukuri)
+	stInterWND.lx = 315;
+	stInterWND.rx = 405;
+	stInterWND.ly = 90;
+	stInterWND.ry = 150;
+	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
+	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
+
+	// define variable for EDK application
+//	InputSelOld = 0xff;
+	InputSelect = VIDEO_DIGITAL_NVP6158_A;
+
+	PrevSrcMainFrmt = 0xff;
+	SrcMainFrmt = stVideo_B.stSRC_a.frmt;
+	PrevSrcMainMode = 0xff;
+	SrcMainMode = stVideo_B.stSRC_a.mode;
+
+	PrevOutMainFrmt = 0xff;
+	OutMainFrmt = stVideo_B.stOUT_m.frmt;
+	PrevOutMainMode = 0xff;
+	OutMainMode = stVideo_B.stOUT_m.mode;
+	TempOutMainMode = OutMainMode;
+
+	PrevOutAuxFrmt = 0xff;
+	OutAuxFrmt = stVideo_B.stOUT_x.frmt;
+	PrevOutAuxMode = 0xff;
+	OutAuxMode = stVideo_B.stOUT_x.mode;
+	PrevEncFrmt = 0xff;
+	EncVideoFrmt = stVideo_B.encFRMT;
+}
+
 #endif
 static void MDIN3xx_SetRegInitial_C(void)
 {
 	WORD nID = 0;
+
+	I2C_SET_CHANNEL(I2C_SUB);
+	SELECT_MDIN(MDIN_A);
 	
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
@@ -470,7 +653,7 @@ static void MDIN3xx_SetRegInitial_C(void)
 	stVideo_C.dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
 
 	// set video path
-	stVideo_C.srcPATH = PATH_MAIN_A_AUX_M;	// set main is A, aux is main out
+	stVideo_C.srcPATH = PATH_MAIN_B_AUX_M;	// set main is A, aux is main out
 	stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;	// set main only
 	stVideo_C.encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
@@ -878,12 +1061,14 @@ static void SetOSDMenuRefresh(void)
 	MDIN3xx_EnableAuxWithMainOSD(&stVideo_C, ON);
 }
 
-#if 1
 //--------------------------------------------------------------------------------------------------
 static void VideoFrameProcess_A(BYTE src)
 {
 	//if (fSyncParsed==FALSE) return;		// wait for sync detection
 	if(fInputChanged == FALSE) return;
+
+	I2C_SET_CHANNEL(I2C_MAIN);
+	SELECT_MDIN(MDIN_A);
 
 	if (EncVideoFrmt!=PrevEncFrmt)
 	{
@@ -961,12 +1146,104 @@ static void VideoFrameProcess_A(BYTE src)
 		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
 	}
 }
+
+#if 1
+
+//--------------------------------------------------------------------------------------------------
+static void VideoFrameProcess_B(BYTE src)
+{
+	//if (fSyncParsed==FALSE) return;		// wait for sync detection
+	if(fInputChanged == FALSE) return;
+
+	I2C_SET_CHANNEL(I2C_MAIN);
+	SELECT_MDIN(MDIN_B);
+
+	if (EncVideoFrmt!=PrevEncFrmt)
+	{
+		PrevSrcMainFrmt = 0xff;
+	}
+	stVideo_B.encFRMT = EncVideoFrmt;
+	PrevEncFrmt = EncVideoFrmt;
+
+	if (SrcMainFrmt!=PrevSrcMainFrmt||SrcMainMode!=PrevSrcMainMode||
+		OutMainFrmt!=PrevOutMainFrmt||OutMainMode!=PrevOutMainMode)
+	{
+		stVideo_B.exeFLAG |= MDIN_UPDATE_MAINFMT;
+	}
+
+	if (SrcAuxFrmt!=PrevSrcAuxFrmt||SrcAuxMode!=PrevSrcAuxMode||
+		OutAuxFrmt!=PrevOutAuxFrmt||OutAuxMode!=PrevOutAuxMode)
+	{
+		stVideo_B.exeFLAG |= MDIN_UPDATE_AUXFMT;
+	}
+
+	//if (stVideo_B.exeFLAG!=MDIN_UPDATE_CLEAR) // updated video formats
+	{
+		stVideo_B.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
+#if 0
+		if (stVideo_B.srcPATH == PATH_MAIN_B_AUX_B || stVideo_B.srcPATH == PATH_MAIN_B_AUX_A || stVideo_B.srcPATH == PATH_MAIN_B_AUX_M)
+		{
+			stVideo_B.stSRC_b.frmt = SrcMainFrmt; stVideo_B.stSRC_b.mode = SrcMainMode;
+			stVideo_B.stSRC_a.frmt = SrcAuxFrmt; stVideo_B.stSRC_a.mode = SrcAuxMode;
+		}
+		else
+		{
+			stVideo_B.stSRC_a.frmt = SrcMainFrmt; stVideo_B.stSRC_a.mode = SrcMainMode;
+			stVideo_B.stSRC_b.frmt = SrcAuxFrmt; stVideo_B.stSRC_b.mode = SrcAuxMode;
+		}
+
+		stVideo_B.stOUT_m.frmt = OutMainFrmt; stVideo_B.stOUT_m.mode = OutMainMode;
+		stVideo_B.stOUT_x.frmt = OutAuxFrmt; stVideo_B.stOUT_x.mode = OutAuxMode;
+#endif
+		//Set main & aux window scale, crop, zoom
+		//memcpy(&stVideo_B.stCROP_m, &stMainCROP, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(&stVideo_B.stCROP_x, &stAuxCROP, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(&stVideo_B.stVIEW_m, &stMainVIEW, sizeof(MDIN_VIDEO_WINDOW));
+		//memcpy(&stVideo_B.stVIEW_x, &stAuxVIEW, sizeof(MDIN_VIDEO_WINDOW));
+
+		//MDIN3xx_SetScaleProcess(&stVideo_B);
+
+		MDIN3xx_EnableAuxDisplay(&stVideo_B, OFF);
+		MDIN3xx_EnableMainDisplay(OFF);
+
+		//SetOffChipFrmt(src);		// set InA offchip format
+		//SetSrcMainFine(src);		// set source video fine (fldid, offset)
+
+		//if (OutMainFrmt!=PrevOutMainFrmt) 
+		{
+			stVideo_B.pHY_m		= 	NULL;		// restore MFCHY from API
+			stVideo_B.pHC_m		= 	NULL;		// restore MFCHY from API
+			stVideo_B.pVY_m		= 	NULL;		// restore MFCHY from API
+			stVideo_B.pVC_m		= 	NULL;		// restore MFCHY from API
+		}
+		MDIN3xx_VideoProcess(&stVideo_B);		// mdin3xx main video process
+		//MDINAUX_VideoProcess(&stVideo_B);
+
+		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
+		//SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
+
+		MDIN3xx_EnableAuxDisplay(&stVideo_B, ON);
+		MDIN3xx_EnableMainDisplay(ON);
+
+		//SetOSDMenuRefresh();
+		
+		PrevSrcMainFrmt = SrcMainFrmt;	PrevSrcMainMode = SrcMainMode;
+		PrevOutMainFrmt = OutMainFrmt;	PrevOutMainMode = OutMainMode;
+
+		PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
+		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
+	}
+}
+
 #endif
 //--------------------------------------------------------------------------------------------------
 static void VideoFrameProcess_C(BYTE src)
 {
 	//if (fSyncParsed==FALSE) return;		// wait for sync detection
 	if(fInputChanged == FALSE) return;
+
+	I2C_SET_CHANNEL(I2C_SUB);
+	SELECT_MDIN(MDIN_A);
 
 	if (EncVideoFrmt!=PrevEncFrmt)
 	{
@@ -1059,10 +1336,10 @@ void CreateVideoInstance(void)
 	MDIN3xx_SetRegInitial_A();	// initialize MDIN-3xx
 
 #else // A-C
-	I2C_SET_CHANNEL(I2C_MAIN);
 	MDIN3xx_SetRegInitial_A();	// initialize MDIN-3xx
-	Delay_ms(1);
-	I2C_SET_CHANNEL(I2C_SUB);
+
+	MDIN3xx_SetRegInitial_B();	// initialize MDIN-3xx
+	//Delay_ms(1);
 	MDIN3xx_SetRegInitial_C();
 #endif
 }
@@ -1090,10 +1367,9 @@ void VideoProcessHandler(void)
 //	InputSourceHandler(InputSelect);
 //	InputSyncHandler_A(InputSelect);
 //	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
-	I2C_SET_CHANNEL(I2C_MAIN);
 	VideoFrameProcess_A(InputSelect);
+	VideoFrameProcess_B(InputSelect);
 //	Delay_ms(1);
-	I2C_SET_CHANNEL(I2C_SUB);
 	VideoFrameProcess_C(InputSelect);
 //	SetOSDMenuRefresh();
 //	fInputChanged = FALSE;
@@ -1103,6 +1379,7 @@ void VideoProcessHandler(void)
 void VideoHTXCtrlHandler(void)
 {
 	I2C_SET_CHANNEL(I2C_SUB);
+	SELECT_MDIN(MDIN_A);
 	MDINHTX_CtrlHandler(&stVideo_C);
 }
 

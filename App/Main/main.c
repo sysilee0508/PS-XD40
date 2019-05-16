@@ -157,12 +157,13 @@ void main(void)
 //	OSD_RefreshScreen();
 
 #if 0//#ifdef MDIN_TEST_PATTERN
-//	I2C_SET_CHANNEL(I2C_MAIN);
-//	MDIN3xx_SetSrcTestPattern(&stVideo_A, MDIN_IN_TEST_H_COLOR);
-	I2C_SET_CHANNEL(I2C_SUB);
+	I2C_SET_CHANNEL(I2C_MAIN);
+	SELECT_MDIN(MDIN_B);
+	MDIN3xx_SetSrcTestPattern(&stVideo_B, MDIN_IN_TEST_H_COLOR);
+//	I2C_SET_CHANNEL(I2C_SUB);
 //	MDIN3xx_SetSrcTestPattern(&stVideo_C, MDIN_IN_TEST_H_COLOR);
 
-	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
+//	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_RED);
 #endif
 
 	while(TRUE)
