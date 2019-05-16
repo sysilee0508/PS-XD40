@@ -97,19 +97,12 @@ typedef	enum {
 	MDIN_DIG_OUT_X_MAP15		// output data map mode 15 for aux video
 #endif
 
-// blocked by kukuri
-//#if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN325A)
-//	MDIN_DIG_OUT_M_MAP5 = 5,	// output data map mode 5 for main video
-//	MDIN_DIG_OUT_X_MAP5 = 21	// output data map mode 5 for aux video
-//#endif
+#if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN325A)
+	MDIN_DIG_OUT_M_MAP5 = 5,	// output data map mode 5 for main video
+	MDIN_DIG_OUT_X_MAP5 = 21	// output data map mode 5 for aux video
+#endif
 
 }	MDIN_DIG_OUT_MAP_t;
-
-//added by kukuri
-#if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN325A)
-#define MDIN325_DIG_OUT_M_MAP5			5	// output data map mode 5 for main video
-#define MDIN325_DIG_OUT_X_MAP5			21	// output data map mode 5 for aux video
-#endif
 
 typedef	enum {
 	MDIN_HOST_DATA_NONE = 0,	// host data map mode 0
@@ -423,7 +416,6 @@ typedef	enum {
 	
 	VIDOUT_1280x720p30,		// 1280x720p 30Hz
 	VIDOUT_1280x720p25,		// 1280x720p 25Hz
-	//	VIDOUT_1280x720p24,		// 1280x720p 24Hz			//by hungry 2012.03.19
 	
 	VIDOUT_1920x1080i60,		// 1920x1080i 60Hz
 	VIDOUT_1920x1080i59,		// 1920x1080i 59.94Hz
@@ -574,8 +566,8 @@ typedef	struct
 #define		MDIN_DEINT_CUE_OFF			0x0000	// chroma upsampling error correction is off
 #define		MDIN_DEINT_FRC_DOWN			0x0008	// frame rate down conversion is down
 #define		MDIN_DEINT_FRC_NORM			0x0000	// frame rate down conversion is normal
-#define		MDIN_PROCESS_444			0x0010	// 4:4:4 processing
-#define		MDIN_PROCESS_422			0x0000	// 4:2:2 processing
+#define		MDIN_PROCESS_444				0x0010	// 4:4:4 processing
+#define		MDIN_PROCESS_422				0x0000	// 4:2:2 processing
 
 
 // define for attribute of deinterlacer, but only use in API function
@@ -740,6 +732,7 @@ typedef struct {
 #define		AUDIO_SD_1ST_SHIFT			0x0000	// WS to SD first bit is shift for I2S
 
 typedef struct {
+
 	BYTE	err;		// EDID error
 	BYTE	type;		// display type ("2":HDMI, "1":DVI)
 	BYTE	mode;		// video mode of hdmi output
@@ -794,9 +787,6 @@ typedef struct {
 }	stPACKED MDIN_4CHVIDEO_INFO, *PMDIN_4CHVIDEO_INFO;
 
 typedef struct {
-#ifdef MDIN_MULTI_DEVICE	//kukuri
-	MDIN_CHIP_ID_t	chipId;
-#endif
 	BYTE	exeFLAG;				// the flag of execution of video process
 	BYTE	dspFLAG;				// the flag of display of aux-video
 
@@ -1361,70 +1351,6 @@ MDIN_ERROR_t MDIN3xx_SetMFCHCFilterCoef(PMDIN_VIDEO_INFO pINFO, PMDIN_MFCFILT_CO
 MDIN_ERROR_t MDIN3xx_SetMFCVYFilterCoef(PMDIN_VIDEO_INFO pINFO, PMDIN_MFCFILT_COEF pCoef);
 MDIN_ERROR_t MDIN3xx_SetMFCVCFilterCoef(PMDIN_VIDEO_INFO pINFO, PMDIN_MFCFILT_COEF pCoef);
 
-#ifdef MDIN_MULTI_DEVICE
-MDIN_ERROR_t MDIN3xx_SetDelayCLK_A(MDIN_CHIP_ID_t chipId, MDIN_CLK_DELAY_t delay);
-MDIN_ERROR_t MDIN3xx_SetDelayCLK_B(MDIN_CHIP_ID_t chipId, MDIN_CLK_DELAY_t delay);
-MDIN_ERROR_t MDIN3xx_SetDelayVCLK_OUT(MDIN_CHIP_ID_t chipId, MDIN_CLK_DELAY_t delay);
-MDIN_ERROR_t MDIN3xx_SetDelayVCLK_OUT_B(MDIN_CHIP_ID_t chipId, MDIN_CLK_DELAY_t delay);
-MDIN_ERROR_t MDIN3xx_SetClock_clk_a(MDIN_CHIP_ID_t chipId, MDIN_CLK_SOURCE_t src);
-MDIN_ERROR_t MDIN3xx_SetClock_clk_b(MDIN_CHIP_ID_t chipId, MDIN_CLK_SOURCE_t src);
-MDIN_ERROR_t MDIN3xx_SetClock_clk_a1(MDIN_CHIP_ID_t chipId, MDIN_CLK_PATH_A1_t src);
-MDIN_ERROR_t MDIN3xx_SetClock_clk_a2(MDIN_CHIP_ID_t chipId, MDIN_CLK_PATH_A2_t src);
-MDIN_ERROR_t MDIN3xx_SetClock_clk_b1(MDIN_CHIP_ID_t chipId, MDIN_CLK_PATH_B1_t src);
-MDIN_ERROR_t MDIN3xx_SetClock_clk_b2(MDIN_CHIP_ID_t chipId, MDIN_CLK_PATH_B2_t src);
-MDIN_ERROR_t MDIN3xx_SetClock_clk_m1(MDIN_CHIP_ID_t chipId, MDIN_CLK_PATH_M1_t src);
-MDIN_ERROR_t MDIN3xx_SetClock_clk_m2(MDIN_CHIP_ID_t chipId, MDIN_CLK_PATH_M2_t src);
-
-MDIN_ERROR_t MDIN3xx_SetFrontNRFilterCoef(MDIN_CHIP_ID_t chipId, PMDIN_FNRFILT_COEF pCoef);
-MDIN_ERROR_t MDIN3xx_EnableFrontNRFilter(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_SetPeakingFilterCoef(MDIN_CHIP_ID_t chipId, PMDIN_FNRFILT_COEF pCoef);
-MDIN_ERROR_t MDIN3xx_SetPeakingFilterLevel(MDIN_CHIP_ID_t chipId, BYTE val);
-MDIN_ERROR_t MDIN3xx_EnablePeakingFilter(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_EnableLTI(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_EnableCTI(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_SetColorEnFilterCoef(MDIN_CHIP_ID_t chipId, PMDIN_COLOREN_COEF pCoef);
-MDIN_ERROR_t MDIN3xx_EnableColorEnFilter(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_SetBlockNRFilterCoef(MDIN_CHIP_ID_t chipId, PMDIN_BNRFILT_COEF pCoef);
-MDIN_ERROR_t MDIN3xx_EnableBlockNRFilter(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_SetMosquitFilterCoef(MDIN_CHIP_ID_t chipId, PMDIN_MOSQUIT_COEF pCoef);
-MDIN_ERROR_t MDIN3xx_EnableMosquitFilter(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_SetColorTonFilterCoef(MDIN_CHIP_ID_t chipId, PMDIN_COLORTON_COEF pCoef);
-MDIN_ERROR_t MDIN3xx_EnableColorTonFilter(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_SetBWExtensionPoint(MDIN_CHIP_ID_t chipId, PMDIN_BWPOINT_COEF pCoef);
-MDIN_ERROR_t MDIN3xx_EnableBWExtension(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_EnableZoomArtifact(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-
-//MDIN_ERROR_t MDIN3xx_EnableVENCColorMode(BOOL OnOff);
-//MDIN_ERROR_t MDIN3xx_EnableVENCBlueScreen(BOOL OnOff);
-//MDIN_ERROR_t MDIN3xx_EnableVENCPeakingFilter(BOOL OnOff);
-
-MDIN_ERROR_t MDIN3xx_SetMemoryConfig(MDIN_CHIP_ID_t chipId);
-DWORD		 MDIN3xx_GetAddressFRMB(void);
-
-MDIN_ERROR_t MDIN3xx_GetChipID(MDIN_CHIP_ID_t chipId, PWORD pID);
-MDIN_ERROR_t MDIN3xx_GetDeviceID(MDIN_CHIP_ID_t chipId, PWORD pID);
-MDIN_ERROR_t MDIN3xx_GetVersionID(MDIN_CHIP_ID_t chipId, PWORD pID);
-MDIN_ERROR_t MDIN3xx_HardReset(MDIN_CHIP_ID_t chipId);
-MDIN_ERROR_t MDIN3xx_SoftReset(MDIN_CHIP_ID_t chipId);
-WORD		 MDIN3xx_GetSizeOfBank(void);
-MDIN_ERROR_t MDIN3xx_EnableIRQ(MDIN_CHIP_ID_t chipId, MDIN_IRQ_FLAG_t irq, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_GetParseIRQ(MDIN_CHIP_ID_t chipId);
-BOOL		 MDIN3xx_IsOccurIRQ(MDIN_IRQ_FLAG_t irq);
-MDIN_ERROR_t MDIN3xx_SetPriorityHIF(MDIN_CHIP_ID_t chipId, MDIN_PRIORITY_t mode);
-MDIN_ERROR_t MDIN3xx_SetVCLKPLLSource(MDIN_CHIP_ID_t chipId, MDIN_PLL_SOURCE_t src);
-MDIN_ERROR_t MDIN3xx_EnableOutputPAD(MDIN_CHIP_ID_t chipId, MDIN_PAD_OUT_t id, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_EnableClockDrive(MDIN_CHIP_ID_t chipId, MDIN_CLK_DRV_t id, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_EnableMainDisplay(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_EnableMainFreeze(MDIN_CHIP_ID_t chipId, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_SetInDataMapMode(MDIN_CHIP_ID_t chipId, MDIN_IN_DATA_MAP_t mode);
-#if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN325A)||defined(SYSTEM_USE_MDIN380)
-MDIN_ERROR_t MDIN3xx_SetDIGOutMapMode(MDIN_CHIP_ID_t chipId, MDIN_DIG_OUT_MAP_t mode);
-#endif
-#if	defined(SYSTEM_USE_MDIN380)&&defined(SYSTEM_USE_BUS_HIF)
-MDIN_ERROR_t MDIN3xx_SetHostDataMapMode(MDIN_CHIP_ID_t chipId, MDIN_HOST_DATA_MAP_t mode);
-#endif
-
-#else
 MDIN_ERROR_t MDIN3xx_SetDelayCLK_A(MDIN_CLK_DELAY_t delay);
 MDIN_ERROR_t MDIN3xx_SetDelayCLK_B(MDIN_CLK_DELAY_t delay);
 MDIN_ERROR_t MDIN3xx_SetDelayVCLK_OUT(MDIN_CLK_DELAY_t delay);
@@ -1457,9 +1383,9 @@ MDIN_ERROR_t MDIN3xx_SetBWExtensionPoint(PMDIN_BWPOINT_COEF pCoef);
 MDIN_ERROR_t MDIN3xx_EnableBWExtension(BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableZoomArtifact(BOOL OnOff);
 
-//MDIN_ERROR_t MDIN3xx_EnableVENCColorMode(BOOL OnOff);
-//MDIN_ERROR_t MDIN3xx_EnableVENCBlueScreen(BOOL OnOff);
-//MDIN_ERROR_t MDIN3xx_EnableVENCPeakingFilter(BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_EnableVENCColorMode(BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_EnableVENCBlueScreen(BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_EnableVENCPeakingFilter(BOOL OnOff);
 
 MDIN_ERROR_t MDIN3xx_SetMemoryConfig(void);
 DWORD		 MDIN3xx_GetAddressFRMB(void);
@@ -1479,13 +1405,12 @@ MDIN_ERROR_t MDIN3xx_EnableOutputPAD(MDIN_PAD_OUT_t id, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_t id, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableMainDisplay(BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableMainFreeze(BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_SetInDataMapMode(MDIN_IN_DATA_MAP_t mode);
-MDIN_ERROR_t MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_MAP_t mode);
-MDIN_ERROR_t MDIN3xx_SetHostDataMapMode(MDIN_HOST_DATA_MAP_t mode);
-#endif
 MDIN_ERROR_t MDIN3xx_EnableAuxDisplay(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableAuxFreeze(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableAuxWithMainOSD(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_SetInDataMapMode(MDIN_IN_DATA_MAP_t mode);
+MDIN_ERROR_t MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_MAP_t mode);
+MDIN_ERROR_t MDIN3xx_SetHostDataMapMode(MDIN_HOST_DATA_MAP_t mode);
 MDIN_ERROR_t MDIN3xx_SetFormat4CHID(PMDIN_VIDEO_INFO pINFO, MDIN_4CHID_FORMAT_t mode);
 MDIN_ERROR_t MDIN3xx_SetOrder4CHID(PMDIN_VIDEO_INFO pINFO, MDIN_4CHID_ORDER_t mode);
 MDIN_ERROR_t MDIN3xx_SetDisplay4CH(PMDIN_VIDEO_INFO pINFO, MDIN_4CHVIEW_MODE_t mode);
@@ -1495,14 +1420,13 @@ MDIN_ERROR_t MDIN3xx_EnableMirrorH(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableMirrorV(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 
 MDIN_ERROR_t MDIN3xx_SetSrcTestPattern(PMDIN_VIDEO_INFO pINFO, MDIN_IN_TEST_t mode);
-MDIN_ERROR_t MDIN3xx_SetOutTestPattern(MDIN_CHIP_ID_t chipId, MDIN_OUT_TEST_t mode);
+MDIN_ERROR_t MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_t mode);
 
-MDIN_ERROR_t MDIN3xx_GetSyncInfo(MDIN_CHIP_ID_t chipId, PMDIN_AUTOSYNC_INFO pAUTO, WORD hclk);
+MDIN_ERROR_t MDIN3xx_GetSyncInfo(PMDIN_AUTOSYNC_INFO pAUTO, WORD hclk);
 
-#if	defined(SYSTEM_USE_4D1_IN)
 MDIN_ERROR_t MDIN3xx_SetOut4CH_OutBT656(void);	// 01Aug2011
 MDIN_ERROR_t MDIN3xx_SetOut4CH_OutVsync_Half(BOOL OnOff);	// 24Aug2011
-#endif
+
 MDIN_ERROR_t MDIN3xx_SetSrcClockPath(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDIN3xx_SetSrcVideoPort(PMDIN_VIDEO_INFO pINFO, WORD nID);
 MDIN_ERROR_t MDIN3xx_SetSrcVideoFrmt(PMDIN_VIDEO_INFO pINFO);
@@ -1512,20 +1436,25 @@ MDIN_ERROR_t MDIN3xx_SetOutVideoCSC(PMDIN_VIDEO_INFO pINFO);
 
 MDIN_ERROR_t MDIN3xx_EnableWriteFRMB(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 
+
+//void CreateMDIN325VideoInstance(void);	// 01Aug2011
+//void CreateMDIN380VideoInstance(void);	// 01Aug2011
+
+
 // mdinipc.c
-MDIN_ERROR_t MDIN3xx_SetIPCBlock(MDIN_CHIP_ID_t chipId);
+MDIN_ERROR_t MDIN3xx_SetIPCBlock(void);
 MDIN_ERROR_t MDIN3xx_SetDeintMode(PMDIN_VIDEO_INFO pINFO, MDIN_DEINT_MODE_t mode);
 MDIN_ERROR_t MDIN3xx_SetDeintFilm(PMDIN_VIDEO_INFO pINFO, MDIN_DEINT_FILM_t mode);
 MDIN_ERROR_t MDIN3xx_EnableDeint3DNR(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_SetDeint3DNRGain(PMDIN_VIDEO_INFO pINFO, BYTE gain);
 MDIN_ERROR_t MDIN3xx_EnableDeintCCS(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableDeintCUE(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_SetDeintInterWND(MDIN_CHIP_ID_t chipId, PMDIN_INTER_WINDOW pAREA, MDIN_INTER_BLOCK_t nID);
-MDIN_ERROR_t MDIN3xx_EnableDeintInterWND(MDIN_CHIP_ID_t chipId, MDIN_INTER_BLOCK_t nID, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_DisplayDeintInterWND(MDIN_CHIP_ID_t chipId, BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_SetDeintInterWND(PMDIN_INTER_WINDOW pAREA, MDIN_INTER_BLOCK_t nID);
+MDIN_ERROR_t MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK_t nID, BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_DisplayDeintInterWND(BOOL OnOff);
 
 // mdinaux.c
-MDIN_ERROR_t MDINAUX_SetVideoPLL(MDIN_CHIP_ID_t chipId, WORD S, WORD F, WORD T);
+MDIN_ERROR_t MDINAUX_SetVideoPLL(WORD S, WORD F, WORD T);
 MDIN_ERROR_t MDINAUX_VideoProcess(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDINAUX_SetScaleProcess(PMDIN_VIDEO_INFO pINFO);
 	
@@ -1558,15 +1487,13 @@ MDIN_ERROR_t MDINAUX_SetVideoWindowCROP(PMDIN_VIDEO_INFO pINFO, MDIN_VIDEO_WINDO
 MDIN_ERROR_t MDINAUX_SetVideoWindowZOOM(PMDIN_VIDEO_INFO pINFO, MDIN_VIDEO_WINDOW stZOOM);
 MDIN_ERROR_t MDINAUX_SetVideoWindowVIEW(PMDIN_VIDEO_INFO pINFO, MDIN_VIDEO_WINDOW stVIEW);
 
-MDIN_ERROR_t MDINAUX_SetFrontNRFilterCoef(MDIN_CHIP_ID_t chipId, PMDIN_AUXFILT_COEF pCoef);
+MDIN_ERROR_t MDINAUX_SetFrontNRFilterCoef(PMDIN_AUXFILT_COEF pCoef);
 MDIN_ERROR_t MDINAUX_EnableFrontNRFilter(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDINAUX_EnableMirrorH(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDINAUX_EnableMirrorV(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 
-#if	defined(SYSTEM_USE_4D1_IN)
 MDIN_ERROR_t MDINAUX_SetOut4CH_OutQuad(void);	// 01Aug2011
 MDIN_ERROR_t MDINAUX_SetOut4CH_OutBT656(void);	// 01Aug2011
-#endif
 
 MDIN_ERROR_t MDINAUX_SetSrcVideoFrmt(PMDIN_VIDEO_INFO pINFO);
 
@@ -1574,6 +1501,6 @@ MDIN_ERROR_t MDINAUX_SetSrcVideoFrmt(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDINHTX_CtrlHandler(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDINHTX_VideoProcess(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDINHTX_SetHDMIBlock(PMDIN_VIDEO_INFO pINFO);
-void MDINHTX_SetChipId(MDIN_CHIP_ID_t chipId);
+
 
 #endif	/* __MDIN3xx_H__ */

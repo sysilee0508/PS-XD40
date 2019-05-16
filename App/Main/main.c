@@ -7,7 +7,7 @@
 #include "video_loss.h"
 
 #define MDIN_TEST_PATTERN
-extern MDIN_VIDEO_INFO		stVideo[MDIN_CHIP_ID_MAX];
+
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -76,7 +76,8 @@ static void PlayBuzzer(void)
 void main(void)
 {
 	eDisplayMode_t displayMode;
-	
+
+	I2C_SET_CHANNEL(I2C_MAIN);
 	// initialize STM32F103x
 	MCU_init();
 	// initialize interrupt
@@ -155,9 +156,13 @@ void main(void)
 //	OSD_DrawBorderLine();
 //	OSD_RefreshScreen();
 
-#ifdef MDIN_TEST_PATTERN
-	MDIN3xx_SetSrcTestPattern(&stVideo[MDIN_CHIP_ID_C], MDIN_IN_TEST_V_COLOR);
-//	MDIN3xx_SetOutTestPattern(MDIN_CHIP_ID_A, MDIN_OUT_TEST_COLOR);
+#if 0//#ifdef MDIN_TEST_PATTERN
+//	I2C_SET_CHANNEL(I2C_MAIN);
+//	MDIN3xx_SetSrcTestPattern(&stVideo_A, MDIN_IN_TEST_H_COLOR);
+	I2C_SET_CHANNEL(I2C_SUB);
+//	MDIN3xx_SetSrcTestPattern(&stVideo_C, MDIN_IN_TEST_H_COLOR);
+
+	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
 #endif
 
 	while(TRUE)

@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------------
 // Include files
 // -----------------------------------------------------------------------------
-#define MDIN_MULTI_DEVICE	//kukuri - using multi mdin
+
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
@@ -77,8 +77,7 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 
 
 #define 	SYSTEM_USE_MDIN380			// for use MDIN380
-#define 	SYSTEM_USE_MDIN325
-#define 	SYSTEM_USE_MDIN325A
+
 //#define		SYSTEM_USE_4D1_IN		// by hungry 2012.02.08
 
 #ifdef		SYSTEM_USE_4D1_IN
@@ -92,8 +91,7 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 */
 #endif
 
-#define 	IN_960H_MODE	// added by kukuri
-
+#define 	IN_960H_MODE	// added by kukuri s
 #ifdef		SYSTEM_USE_MDIN380
 //#define 	SYSTEM_USE_BUS_HIF			// for use BUS-IF & I2C-IF
 //#define 	SYSTEM_USE_PCI_HIF			// for use PCI-IF & I2C-IF
@@ -124,12 +122,7 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 #define		SOURCE_CSC_STD_RANGE	1	// "1" for standard range, "0" for full range
 #define		OUTPUT_CSC_STD_RANGE	0	// "1" for standard range, "0" for full range
 
-#ifdef MDIN_MULTI_DEVICE
-#define	I2C_MDIN3xx_ADDR_AC		0xDC
-#define 	I2C_MDIN3xx_ADDR_BD		0xDE
-#else
 #define 	I2C_MDIN3xx_ADDR	0xDC	// MDIN3xx I2C slave address
-#endif
 
 #define		DIFF(a,b)			((a)>(b)? (a-b):(b-a))
 #define		MBIT(a,b)			(((a)&(b))? ON : OFF)
@@ -195,19 +188,6 @@ typedef	enum {
 
 }	MDIN_BLOCK_ID_t;
 
-#ifdef MDIN_MULTI_DEVICE	//kukuri
-typedef enum {
-	MDIN_CHIP_ID_A = 0,		//325A (ch1,2)
-	MDIN_CHIP_ID_B,			//325A (ch3,4)
-	MDIN_CHIP_ID_C,			//380
-	MDIN_CHIP_ID_D,			//325 (cvbs output)
-	MDIN_CHIP_ID_MAX
-}	MDIN_CHIP_ID_t;
-
-#define MDINOSD_DEFAULT_CHIPID			MDIN_CHIP_ID_C
-
-#endif
-
 #if			defined(SYSTEM_USE_MDIN380)&&defined(SYSTEM_USE_BUS_HIF)
 	#if		CPU_MEM_XFER_USE_DMA == 1
 		#if		CPU_ACCESS_BUS_NBYTE == 1
@@ -241,13 +221,13 @@ typedef enum {
 	#endif	// CPU_MEM_XFER_USE_DMA 
 
 #else
-#define		MDINHIF_MultiWrite(chip, id,addr,pBuf,bytes)		MDINI2C_MultiWrite(chip, id,addr,pBuf,bytes)
-#define		MDINHIF_RegWrite(chip, id,addr,data)				MDINI2C_RegWrite(chip, id,addr,data)
-#define		MDINHIF_MultiRead(chip, id,addr,pBuf,bytes)		MDINI2C_MultiRead(chip, id,addr,pBuf,bytes)
-#define		MDINHIF_RegRead(chip, id,addr,pBuf)				MDINI2C_RegRead(chip, id,addr,pBuf)
-#define		MDINHIF_RegField(chip, id,addr,pos,cnt,data)		MDINI2C_RegField(chip, id,addr,pos,cnt,data)
-#define		MDINHIF_DMAWrite(chip, id,addr,pBuf,bytes)		MDINI2C_MultiWrite(chip, id,addr,pBuf,bytes)
-#define		MDINHIF_DMARead(chip, id,addr,pBuf,bytes)			MDINI2C_MultiRead(chip, id,addr,pBuf,bytes)
+#define		MDINHIF_MultiWrite(id,addr,pBuf,bytes)		MDINI2C_MultiWrite(id,addr,pBuf,bytes)
+#define		MDINHIF_RegWrite(id,addr,data)				MDINI2C_RegWrite(id,addr,data)
+#define		MDINHIF_MultiRead(id,addr,pBuf,bytes)		MDINI2C_MultiRead(id,addr,pBuf,bytes)
+#define		MDINHIF_RegRead(id,addr,pBuf)				MDINI2C_RegRead(id,addr,pBuf)
+#define		MDINHIF_RegField(id,addr,pos,cnt,data)		MDINI2C_RegField(id,addr,pos,cnt,data)
+#define		MDINHIF_DMAWrite(id,addr,pBuf,bytes)		MDINI2C_MultiWrite(id,addr,pBuf,bytes)
+#define		MDINHIF_DMARead(id,addr,pBuf,bytes)			MDINI2C_MultiRead(id,addr,pBuf,bytes)
 #endif
 
 

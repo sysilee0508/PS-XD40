@@ -1,25 +1,33 @@
 #ifndef		__I2C_H__
 #define		__I2C_H__
 
+//#define SEPARATE_SDA
+
 typedef enum _I2C_CH
 {
-	I2C_MAIN,
+	I2C_MAIN = 0,
 	I2C_SUB,
 	I2C_MAX
 } eI2C_CH_t;
+
+extern eI2C_CH_t i2c_ch;
+
+#define I2C_SET_CHANNEL(ch)			i2c_ch = ch
 
 // -----------------------------------------------------------------------------
 // Exported function Prototype
 // -----------------------------------------------------------------------------
 // i2c
-void I2C_Start(eI2C_CH_t ch);
-void I2C_Stop(eI2C_CH_t ch);
-void I2C_P2S(eI2C_CH_t ch, unsigned char Data);
-void AckDetect(eI2C_CH_t ch);
-void AckSend(eI2C_CH_t ch);
-void NotAck(eI2C_CH_t ch);
-unsigned char I2C_S2P(eI2C_CH_t ch);
-unsigned char I2C_READ(eI2C_CH_t ch, unsigned char slaveaddr,unsigned char regaddr);
-void I2C_WRITE(eI2C_CH_t ch, unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data);
+void I2C_Start(void);
+void I2C_Stop(void);
+void I2C_P2S(unsigned char Data);
+void AckDetect(void);
+void AckSend(void);
+void NotAck(void);          
+unsigned char I2C_S2P(void);
+unsigned char I2C_READ(unsigned char slaveaddr,unsigned char regaddr);
+void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data);
 
+//void I2C_SET_CHANNEL(eI2C_CH_t ch);
+//eI2C_CH_t Get_I2C_CurrentChannel(void);
 #endif	

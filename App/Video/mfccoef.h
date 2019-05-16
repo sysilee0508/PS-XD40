@@ -15,8 +15,6 @@
 #ifndef		__MFCCOEF_H__
 #define		__MFCCOEF_H__
 
-
-#if 0
 // -----------------------------------------------------------------------------
 // Include files
 // -----------------------------------------------------------------------------
@@ -622,6 +620,6 @@ static ROMDATA MDIN_FNRFILT_COEF EDK_FNRY2HDFilter[]	= {		// added on Jun08 2010
 	{ {0x0200, 0x013B, 0x0FFA, 0x0FA3, 0x0001, 0x0029, 0x0009, 0x0FF5},
 	  {0x0400, 0x0000, 0x0000, 0x0000}	},								// C
 };
-#endif//if 0
+
 
 #endif	/* __MFCCOEF_H__ */

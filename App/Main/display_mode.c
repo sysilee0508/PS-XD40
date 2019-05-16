@@ -29,7 +29,7 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 static BOOL Check_VideoFormat_Change(void)
 {
 	eChannel_t channel;
-	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0,};
+	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0xFF, 0xFF, 0xFF, 0xFF};
 	BYTE changedChannel = 0x00;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	BOOL changed = FALSE;

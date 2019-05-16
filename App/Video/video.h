@@ -22,7 +22,7 @@
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
-// video.c
+#define MDIN_MULTI_DEVICE
 
 #ifdef MDIN_MULTI_DEVICE		// added by kukuri
 
@@ -95,16 +95,19 @@ typedef enum {
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
-//extern MDIN_VIDEO_INFO		stVideo[MDIN_CHIP_ID_MAX];
-//extern MDIN_INTER_WINDOW	stInterWND;
-//extern MDIN_VIDEO_WINDOW	stZOOM, stCROP;
+extern MDIN_VIDEO_INFO	 stVideo_A;
+extern MDIN_VIDEO_INFO stVideo_C;
+extern MDIN_VIDEO_INFO stVideo;
+//extern MDIN_VIDEO_INFO		stVideo_A, stVideo_C, stVideo;
+extern MDIN_INTER_WINDOW	stInterWND;
+extern MDIN_VIDEO_WINDOW	stZOOM, stCROP;
 
-//extern BYTE AdjInterWND,  InputSelect, InputSelOld;//,  SrcSyncInfo;
-//extern BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;
-//extern BYTE OutMainFrmt, PrevOutMainFrmt, OutMainMode, PrevOutMainMode;
-//extern BYTE SrcAuxFrmt, PrevSrcAuxFrmt, SrcAuxMode, PrevSrcAuxMode;
-//extern BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
-//extern BYTE EncVideoFrmt, PrevEncFrmt; //AdcVideoFrmt, PrevAdcFrmt,
+extern BYTE AdjInterWND,  InputSelect, InputSelOld,  SrcSyncInfo;
+extern BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;
+extern BYTE OutMainFrmt, PrevOutMainFrmt, OutMainMode, PrevOutMainMode;
+extern BYTE SrcAuxFrmt, PrevSrcAuxFrmt, SrcAuxMode, PrevSrcAuxMode;
+extern BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
+extern BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 
 // -----------------------------------------------------------------------------
 // Exported function Prototype

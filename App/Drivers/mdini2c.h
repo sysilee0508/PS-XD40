@@ -36,23 +36,22 @@
 // -----------------------------------------------------------------------------
 // Exported function Prototype
 // -----------------------------------------------------------------------------
-#if	defined(SYSTEM_USE_MDIN380)&&defined(SYSTEM_USE_BUS_HIF)
-MDIN_ERROR_t MDINI2C_SetPageID(WORD nID);
-#endif
-MDIN_ERROR_t MDINI2C_MultiWrite(MDIN_CHIP_ID_t chipId, BYTE nID, DWORD rAddr, PBYTE pBuff, DWORD bytes);
-MDIN_ERROR_t MDINI2C_RegWrite(MDIN_CHIP_ID_t chipId, BYTE nID, DWORD rAddr, WORD wData);
-MDIN_ERROR_t MDINI2C_MultiRead(MDIN_CHIP_ID_t chipId, BYTE nID, DWORD rAddr, PBYTE pBuff, DWORD bytes);
-MDIN_ERROR_t MDINI2C_RegRead(MDIN_CHIP_ID_t chipId, BYTE nID, DWORD rAddr, PWORD rData);
-MDIN_ERROR_t MDINI2C_RegField(MDIN_CHIP_ID_t chipId, BYTE nID, DWORD rAddr, WORD bPos, WORD bCnt, WORD bData);
 
-BYTE MHDMI_I2CWrite(MDIN_CHIP_ID_t chipId, WORD rAddr, PBYTE pBuff, WORD bytes);
-BYTE MHDMI_I2CRead(MDIN_CHIP_ID_t chipId, WORD rAddr, PBYTE pBuff, WORD bytes);
-BYTE LOCAL_I2CWrite(MDIN_CHIP_ID_t chipId, WORD rAddr, PBYTE pBuff, WORD bytes);
-BYTE LOCAL_I2CRead(MDIN_CHIP_ID_t chipId, WORD rAddr, PBYTE pBuff, WORD bytes);
-BYTE MHOST_I2CWrite(MDIN_CHIP_ID_t chipId, WORD rAddr, PBYTE pBuff, WORD bytes);
-BYTE MHOST_I2CRead(MDIN_CHIP_ID_t chipId, WORD rAddr, PBYTE pBuff, WORD bytes);
-BYTE SDRAM_I2CWrite(MDIN_CHIP_ID_t chipId, DWORD rAddr, PBYTE pBuff, DWORD bytes);
-BYTE SDRAM_I2CRead(MDIN_CHIP_ID_t chipId, DWORD rAddr, PBYTE pBuff, DWORD bytes);
+MDIN_ERROR_t MDINI2C_SetPageID(WORD nID);
+MDIN_ERROR_t MDINI2C_MultiWrite(BYTE nID, DWORD rAddr, PBYTE pBuff, DWORD bytes);
+MDIN_ERROR_t MDINI2C_RegWrite(BYTE nID, DWORD rAddr, WORD wData);
+MDIN_ERROR_t MDINI2C_MultiRead(BYTE nID, DWORD rAddr, PBYTE pBuff, DWORD bytes);
+MDIN_ERROR_t MDINI2C_RegRead(BYTE nID, DWORD rAddr, PWORD rData);
+MDIN_ERROR_t MDINI2C_RegField(BYTE nID, DWORD rAddr, WORD bPos, WORD bCnt, WORD bData);
+
+BYTE MHDMI_I2CWrite(WORD rAddr, PBYTE pBuff, WORD bytes);
+BYTE MHDMI_I2CRead(WORD rAddr, PBYTE pBuff, WORD bytes);
+BYTE LOCAL_I2CWrite(WORD rAddr, PBYTE pBuff, WORD bytes);
+BYTE LOCAL_I2CRead(WORD rAddr, PBYTE pBuff, WORD bytes);
+BYTE MHOST_I2CWrite(WORD rAddr, PBYTE pBuff, WORD bytes);
+BYTE MHOST_I2CRead(WORD rAddr, PBYTE pBuff, WORD bytes);
+BYTE SDRAM_I2CWrite(DWORD rAddr, PBYTE pBuff, DWORD bytes);
+BYTE SDRAM_I2CRead(DWORD rAddr, PBYTE pBuff, DWORD bytes);
 
 
 #endif	/* __MDINI2C_H__ */

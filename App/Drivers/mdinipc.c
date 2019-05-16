@@ -40,9 +40,9 @@ static BYTE enInterWND = 0;
 // ----------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------------------------------
-MDIN_ERROR_t MDIN3xx_SetIPCBlock(MDIN_CHIP_ID_t chipId)
+MDIN_ERROR_t MDIN3xx_SetIPCBlock(void)
 {
-	return MDINHIF_MultiWrite(chipId, MDIN_LOCAL_ID, 0x200, (PBYTE)MDIN_Deinter_Default, 256);
+	return MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x200, (PBYTE)MDIN_Deinter_Default, 256);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ MDIN_ERROR_t MDIN3xx_SetDeintMode(PMDIN_VIDEO_INFO pINFO, MDIN_DEINT_MODE_t mode
 
 //	pIPC->mode = (pIPC->attb&MDIN_DEINT_IPC_PROC)? mode : MDIN_DEINT_NONSTILL;
 	pIPC->mode = mode; if ((pIPC->attb&MDIN_DEINT_IPC_PROC)==0) mode = MDIN_DEINT_NONSTILL;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x210, 12, 2, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x210, 12, 2, mode)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -64,7 +64,7 @@ MDIN_ERROR_t MDIN3xx_SetDeintFilm(PMDIN_VIDEO_INFO pINFO, MDIN_DEINT_FILM_t mode
 //	pIPC->film = (pIPC->attb&MDIN_DEINT_IPC_PROC)? mode : MDIN_DEINT_FILM_OFF;
 	pIPC->film = mode; if ((pIPC->attb&MDIN_DEINT_IPC_PROC)==0) mode = MDIN_DEINT_FILM_OFF;
 	if (pINFO->dacPATH==DAC_PATH_AUX_4CH) mode = MDIN_DEINT_FILM_OFF;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x250, 12, 3, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x250, 12, 3, mode)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -81,70 +81,70 @@ static MDIN_ERROR_t MDIN3xx_ScaleDownProgNR(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 
 	// because of getting field_id toggle
 	// nr_t_en, deinterlace_en
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x205, 0, 1, 1)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x205, 4, 1, 1)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x205, 0, 1, 1)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x205, 4, 1, 1)) return MDIN_I2C_ERROR;
 
 	// fieldid_bypass, progressive
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x001, 2+nID,   1, 1)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x002, 8-nID*8, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x001, 2+nID,   1, 1)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x002, 8-nID*8, 1, 0)) return MDIN_I2C_ERROR;
 	
 	// out dark screen
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x43, 1, 1, 1)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x43, 1, 1, 1)) return MDIN_I2C_ERROR;
 
 	// in_test_ptrn
-	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_LOCAL_ID, 0x042, 0x0084)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x042, 0x0084)) return MDIN_I2C_ERROR;
 
 	MDINDLY_mSec(100);		// delay 100ms
 
 	// restore deinterlace_en, progressive, in_test_ptrn
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x205, 4, 1, 0)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x002, 8-nID*8, 1, 1)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(pINFO->chipId, MDIN_LOCAL_ID, 0x042, 0x0000)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x43, 1, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x205, 4, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x002, 8-nID*8, 1, 1)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x042, 0x0000)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x43, 1, 1, 0)) return MDIN_I2C_ERROR;
 
 	return MDIN_NO_ERROR;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-static MDIN_ERROR_t MDIN3xx_SetDeintUltraNR(MDIN_CHIP_ID_t chipId, BOOL OnOff)
+static MDIN_ERROR_t MDIN3xx_SetDeintUltraNR(BOOL OnOff)
 {
 	WORD rVal;
 
-	if (MDINHIF_RegRead(chipId, MDIN_LOCAL_ID, 0x260, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(MDIN_LOCAL_ID, 0x260, &rVal)) return MDIN_I2C_ERROR;
 	if ((rVal&0x0600)!=0x0600) OnOff = OFF;		// if 3DNR is off, then OFF
 	
 	// nr_n_deint_thres
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x264,  8, 8, (OnOff)? 255 : 20)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x264,  8, 8, (OnOff)? 255 : 20)) return MDIN_I2C_ERROR;
 
 	// nr_deint_thres
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x264,  0, 8, (OnOff)? 255 : 18)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x264,  0, 8, (OnOff)? 255 : 18)) return MDIN_I2C_ERROR;
 
 	// mo_nr_th
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x265,  4, 3, (OnOff)?   7 :  4)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x265,  4, 3, (OnOff)?   7 :  4)) return MDIN_I2C_ERROR;
 
 	// n_mo_nr_th
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x265,  0, 3, (OnOff)?   7 :  4)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x265,  0, 3, (OnOff)?   7 :  4)) return MDIN_I2C_ERROR;
 
 	// fast_history_nr
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x266,  0, 4, (OnOff)?   0 :  8)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x266,  0, 4, (OnOff)?   0 :  8)) return MDIN_I2C_ERROR;
 
 	// nr_inter_diff_or_en, nr_avg_inter_diff_or_en
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x267, 14, 2, (OnOff)?   3 :  0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x267, 14, 2, (OnOff)?   3 :  0)) return MDIN_I2C_ERROR;
 
 	// nr_inter_diff_thres
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x267,  8, 6, (OnOff)?   0 : 63)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x267,  8, 6, (OnOff)?   0 : 63)) return MDIN_I2C_ERROR;
 
 	// avg_nr_diff_thres
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x267,  0, 8, (OnOff)?   0 : 16)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x267,  0, 8, (OnOff)?   0 : 16)) return MDIN_I2C_ERROR;
 
 	// inter_diff_exp_tab
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x268,  4, 2, (OnOff)?   3 :  2)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x268,  4, 2, (OnOff)?   3 :  2)) return MDIN_I2C_ERROR;
 
 	// nr_avg_inter_diff_exp_tab
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x268,  0, 2, (OnOff)?   3 :  2)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x268,  0, 2, (OnOff)?   3 :  2)) return MDIN_I2C_ERROR;
 
 	// y_surface_for_nr_surface_hor_th
-	if (MDINHIF_RegField(chipId, MDIN_LOCAL_ID, 0x23b,  8, 8, (OnOff)?   0 :  3)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x23b,  8, 8, (OnOff)?   0 :  3)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -164,7 +164,7 @@ MDIN_ERROR_t MDIN3xx_EnableDeint3DNR(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	if ((pIPC->attb&MDIN_DEINT_444_PROC)&&(pIPC->attb&MDIN_DEINT_IPC_PROC)==0) OnOff = OFF;
 
 	// if 1080p input and dual output, 3dnr_en = off
-	if ((pIPC->attb&MDIN_DEINT_HD_1080p)&&(pINFO->dacPATH==DAC_PATH_AUX_OUT)) OnOff = OFF;
+	if (pIPC->attb&MDIN_DEINT_HD_1080p&&pINFO->dacPATH==DAC_PATH_AUX_OUT) OnOff = OFF;
 
 	// for 2-HD input mode
 	if (pINFO->dacPATH==DAC_PATH_AUX_2HD) OnOff = OFF;
@@ -191,37 +191,37 @@ MDIN_ERROR_t MDIN3xx_EnableDeint3DNR(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 #endif
 
 	// common_mode_at_IPC - nr_t_en
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x205,  0, 1, (OnOff)? mode : 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x205,  0, 1, (OnOff)? mode : 0)) return MDIN_I2C_ERROR;
 
 	// nr_mode_reg - nr_en, nr_write_en
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x260, 10, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x260, 12, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x260, 10, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x260, 12, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 
 	// nr_motion_set_reg - nr_mo_sel, nr_all_use_mo
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x261, 6, 2, (OnOff)? 2 : 3)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x261, 0, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x261, 6, 2, (OnOff)? 2 : 3)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x261, 0, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 
 	// nr_motion_offset_reg - cu_motion_use, n_motion_use, slow_motion_use, still_motion_use
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x262, 15, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x262, 14, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x262, 13, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x262, 12, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x262, 15, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x262, 14, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x262, 13, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x262, 12, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 
 	// mo_history_for_nr_condition - nr_mo_his_update_use_en
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x266, 11, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x266, 11, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 
 	// border_ctrl_reg1 - no_his_border_adp_en
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x240, 13, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x240, 13, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 
 	// set progressive NR scale down
 	if (MDIN3xx_ScaleDownProgNR(pINFO, OnOff)) return MDIN_NO_ERROR;
 
 	// if 3dnr_en=off & progressive input, mfc_prepend_load = OFF
 	OnOff = ((OnOff==OFF)&&((pIPC->attb&MDIN_DEINT_IPC_PROC)==0))? OFF : ON;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x100,  6, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x100,  6, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 
 	// set ultraNR => if 3dnr_en=on & 3dnr_gain>50, ultraNR = ON
-	return MDIN3xx_SetDeintUltraNR(pINFO->chipId, ((pIPC->gain>50)? ON : OFF));
+	return MDIN3xx_SetDeintUltraNR((pIPC->gain>50)? ON : OFF);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,11 +239,11 @@ MDIN_ERROR_t MDIN3xx_SetDeint3DNRGain(PMDIN_VIDEO_INFO pINFO, BYTE gain)
 	pIPC->gain = MIN(gain,level);
 
 	// NR factor level, NR factor not_still_1st
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x260, 0, 6, max-pIPC->gain)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x26a, 0, 6, max-pIPC->gain)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x260, 0, 6, max-pIPC->gain)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x26a, 0, 6, max-pIPC->gain)) return MDIN_I2C_ERROR;
 
 	// set ultraNR => if 3dnr_en=on & 3dnr_gain>50, ultraNR = ON
-	return MDIN3xx_SetDeintUltraNR(pINFO->chipId, ((pIPC->gain>50)? ON : OFF));
+	return MDIN3xx_SetDeintUltraNR((pIPC->gain>50)? ON : OFF);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -261,8 +261,8 @@ MDIN_ERROR_t MDIN3xx_EnableDeintCCS(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	// if 1080i input, ccs_en = off
 	if (pIPC->attb&MDIN_DEINT_HD_1080i) OnOff = OFF;
 
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x248, 14, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x205, 5, 1, MBIT(OnOff,pal))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x248, 14, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x205, 5, 1, MBIT(OnOff,pal))) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -279,43 +279,43 @@ MDIN_ERROR_t MDIN3xx_EnableDeintCUE(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	if ((pIPC->attb&MDIN_DEINT_444_PROC)&&(pIPC->attb&MDIN_DEINT_IPC_PROC)==0) OnOff = OFF;
 
 	// if pal_ccs_en==1, cue_en = off
-	if (MDINHIF_RegRead(pINFO->chipId, MDIN_LOCAL_ID, 0x205, &rVal)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegRead(MDIN_LOCAL_ID, 0x205, &rVal)) return MDIN_I2C_ERROR;
 	if (rVal&0x0020) OnOff = OFF;
 
-	if (MDINHIF_RegField(pINFO->chipId, MDIN_LOCAL_ID, 0x208, 5, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x208, 5, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-MDIN_ERROR_t MDIN3xx_SetDeintInterWND(MDIN_CHIP_ID_t chipId, PMDIN_INTER_WINDOW pWND, MDIN_INTER_BLOCK_t nID)
+MDIN_ERROR_t MDIN3xx_SetDeintInterWND(PMDIN_INTER_WINDOW pWND, MDIN_INTER_BLOCK_t nID)
 {
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x278, (WORD)pWND->lx)) return MDIN_I2C_ERROR;	// lx
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x279, nID*4+0x80)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x278, (WORD)pWND->ly)) return MDIN_I2C_ERROR;	// ly
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x279, nID*4+0x81)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x278, (WORD)pWND->rx)) return MDIN_I2C_ERROR;	// rx
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x279, nID*4+0x82)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x278, (WORD)pWND->ry)) return MDIN_I2C_ERROR;	// ry
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x279, nID*4+0x83)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x278, (WORD)pWND->lx)) return MDIN_I2C_ERROR;	// lx
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x279, nID*4+0x80)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x278, (WORD)pWND->ly)) return MDIN_I2C_ERROR;	// ly
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x279, nID*4+0x81)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x278, (WORD)pWND->rx)) return MDIN_I2C_ERROR;	// rx
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x279, nID*4+0x82)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x278, (WORD)pWND->ry)) return MDIN_I2C_ERROR;	// ry
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x279, nID*4+0x83)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-MDIN_ERROR_t MDIN3xx_EnableDeintInterWND(MDIN_CHIP_ID_t chipId, MDIN_INTER_BLOCK_t nID, BOOL OnOff)
+MDIN_ERROR_t MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK_t nID, BOOL OnOff)
 {
 	if (OnOff)	enInterWND |=  (1<<nID);
 	else		enInterWND &= ~(1<<nID);
 
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x278, enInterWND)) return MDIN_I2C_ERROR;		// OnOff
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x279, 0x80|0x20)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x278, enInterWND)) return MDIN_I2C_ERROR;		// OnOff
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x279, 0x80|0x20)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-MDIN_ERROR_t MDIN3xx_DisplayDeintInterWND(MDIN_CHIP_ID_t chipId, BOOL OnOff)
+MDIN_ERROR_t MDIN3xx_DisplayDeintInterWND(BOOL OnOff)
 {
 	WORD mode = (OnOff)? 0x0612 : 0x0000;
-	if (MDINHIF_RegWrite(chipId, MDIN_LOCAL_ID, 0x276, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x276, mode)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 

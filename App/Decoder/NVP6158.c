@@ -49,13 +49,26 @@ NC_VIVO_CH_FORMATDEF arrVfcType[0x100] = {
 
 unsigned char NVP6158_I2C_READ(unsigned char slaveaddr, unsigned char regaddr)
 {
+//	eI2C_CH_t prev_i2c = Get_I2C_CurrentChannel();
+//	unsigned char read_data;
+	
+	I2C_SET_CHANNEL(I2C_MAIN);
 
-    return I2C_READ(I2C_MAIN, NVP6158_ADDR, regaddr);
+	return I2C_READ(NVP6158_ADDR, regaddr);
+
+//	I2C_SET_CHANNEL(prev_i2c);
+
+//	return read_data;
+	
 }
 
 void NVP6158_I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data)
 {
-	I2C_WRITE(I2C_MAIN, NVP6158_ADDR, regaddr, write_data);		
+//	eI2C_CH_t prev_i2c = i2c_ch;
+	
+	I2C_SET_CHANNEL(I2C_MAIN);
+	I2C_WRITE(NVP6158_ADDR, regaddr, write_data);		
+//	I2C_SET_CHANNEL(prev_i2c);
 }
 
 void NVP6158_Set_VportMap(eVPORT_MAP_t map)

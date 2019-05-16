@@ -12,8 +12,6 @@
 // Ref. Docment		: 
 // Revision History 	:
 
-
-#if 0	// do not use cursor
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
@@ -242,5 +240,4 @@ MDIN_ERROR_t MDINCUR_SetCursorPalette(PCURSOR_CTL_INFO pINFO, BYTE size, PBYTE p
 	return MDINCUR_CursorPalette(pINFO);		// set cursor palette
 }
 
-#endif
 /*  FILE_END_HERE */

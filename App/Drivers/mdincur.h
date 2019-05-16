@@ -15,7 +15,6 @@
 #ifndef		__MDINCUR_H__
 #define		__MDINCUR_H__
 
-#if 0
 // -----------------------------------------------------------------------------
 // Include files
 // -----------------------------------------------------------------------------
@@ -96,6 +95,5 @@ MDIN_ERROR_t MDINCUR_EnableCursorColorKey(PCURSOR_CTL_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDINCUR_SetCursorBMPInfo(PCURSOR_CTL_INFO pINFO, BYTE w, BYTE h, DWORD addr);
 MDIN_ERROR_t MDINCUR_SetCursorPalette(PCURSOR_CTL_INFO pINFO, BYTE size, PBYTE pBuff);
 
-#endif
 
 #endif	/* __MDINCUR_H__ */
