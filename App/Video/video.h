@@ -47,6 +47,19 @@ typedef enum {
 //#define		VIDEO_DIGITAL_NVP6158_D		4
 //#define		VIDEO_DIGITAL_NVP6158_CD	5
 
+typedef enum
+{
+	MDIN_ID_A = 0,
+	MDIN_ID_B,
+	MDIN_ID_C,
+//	MDIN_ID_D,
+	MDIN_ID_MAX
+} MDIN_CHIP_ID_t;
+
+#define 		MDIN_A				0
+#define 		MDIN_B				1
+#define 		SELECT_MDIN(x)			selectedMDIN = x		
+
 #else
 
 #if defined(SYSTEM_USE_MDIN340)
@@ -91,27 +104,19 @@ typedef enum {
 //#define VIDEO_CORP_HALF				0x01
 //#define VIDEO_CORP_QUAD				0x02
 
-#define 		MDIN_A				0
-#define 		MDIN_B				1
-#define 		SELECT_MDIN(x)		selectedMDIN = x		
-
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
-extern MDIN_VIDEO_INFO	 stVideo_A, stVideo_B;
-extern MDIN_VIDEO_INFO stVideo_C;
-extern MDIN_VIDEO_INFO stVideo;
-//extern MDIN_VIDEO_INFO		stVideo_A, stVideo_C, stVideo;
-extern MDIN_INTER_WINDOW	stInterWND;
-extern MDIN_VIDEO_WINDOW	stZOOM, stCROP;
+extern MDIN_VIDEO_INFO	 stVideo_A, stVideo_B, stVideo_C;
+//extern MDIN_VIDEO_INFO stVideo;
 
 
-extern BYTE AdjInterWND,  InputSelect, InputSelOld,  SrcSyncInfo;
-extern BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;
-extern BYTE OutMainFrmt, PrevOutMainFrmt, OutMainMode, PrevOutMainMode;
-extern BYTE SrcAuxFrmt, PrevSrcAuxFrmt, SrcAuxMode, PrevSrcAuxMode;
-extern BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
-extern BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
+//extern BYTE AdjInterWND,  InputSelect, InputSelOld,  SrcSyncInfo;
+//extern BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;
+//extern BYTE OutMainFrmt, PrevOutMainFrmt, OutMainMode, PrevOutMainMode;
+//extern BYTE SrcAuxFrmt, PrevSrcAuxFrmt, SrcAuxMode, PrevSrcAuxMode;
+//extern BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
+//extern BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 
 // -----------------------------------------------------------------------------
 // Exported function Prototype
