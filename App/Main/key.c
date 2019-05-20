@@ -454,10 +454,12 @@ void Key_Proc(void)
 						screenFreezeOn = CLEAR;
 						//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
+					
+					DisplayScreen((eDisplayMode_t)(key - 1));
+					SetInputChanged();
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
-					//DisplayMode_FullScreen((eChannel_t)(key - 1));
 					OSD_DrawBorderLine();
 				}
 				break;

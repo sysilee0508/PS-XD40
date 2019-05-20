@@ -182,9 +182,6 @@ void main(void)
 //		UpdateAutoSeqCount();
 //		DisplayAutoSeqChannel();
 
-//		Key_Proc();
-//		RTC_CheckTime();
-
 		UpdateDisplayMode();
 		// video process handler
 		VideoProcessHandler();

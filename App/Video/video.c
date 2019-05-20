@@ -44,6 +44,7 @@ MDIN_VIDEO_INFO	 stVideo_A, stVideo_B, stVideo_C;
 MDIN_INTER_WINDOW	stInterWND;
 
 MDIN_VIDEO_INPUT_t InputSelect, InputSelOld;
+MDIN_SRCVIDEO_PATH_t SrcPath[MDIN_ID_MAX];
 MDIN_SRCVIDEO_FORMAT_t SrcMainFrmt[MDIN_ID_MAX], PrevSrcMainFrmt[MDIN_ID_MAX];//, SrcMainMode, PrevSrcMainMode;
 MDIN_OUTVIDEO_FORMAT_t OutMainFrmt[MDIN_ID_MAX], PrevOutMainFrmt[MDIN_ID_MAX];// OutMainMode, PrevOutMainMode;
 MDIN_SRCVIDEO_FORMAT_t SrcAuxFrmt[MDIN_ID_MAX], PrevSrcAuxFrmt[MDIN_ID_MAX];//, SrcAuxMode, PrevSrcAuxMode;
@@ -576,77 +577,80 @@ static void MDIN3xx_SetRegInitial_C(void)
 //--------------------------------------------------------------------------------------------------
 static void SetInVideoPath(MDIN_VIDEO_INPUT_t src)
 {
-	switch (src)
+	if(src != InputSelOld)
 	{
-		case VIDEO_DIGITAL_NVP6158_A:
-			stVideo_A.srcPATH = PATH_MAIN_A_AUX_M;
-			stVideo_A.dacPATH = DAC_PATH_MAIN_OUT;
-			stVideo_A.encPATH = VENC_PATH_PORT_X;
+		switch (src)
+		{
+			case VIDEO_DIGITAL_NVP6158_A:
+				stVideo_A.srcPATH = PATH_MAIN_A_AUX_M;
+				stVideo_A.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo_A.encPATH = VENC_PATH_PORT_X;
 
-			stVideo_C.srcPATH = PATH_MAIN_A_AUX_M;
-			stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
-			stVideo_C.encPATH = VENC_PATH_PORT_X;
-			break;
-			
-		case VIDEO_DIGITAL_NVP6158_AB:
-			stVideo_A.srcPATH = PATH_MAIN_A_AUX_B;
-			stVideo_A.dacPATH = DAC_PATH_MAIN_PIP;
-			stVideo_A.encPATH = VENC_PATH_PORT_B;
-			
-			stVideo_C.srcPATH = PATH_MAIN_A_AUX_M;
-			stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
-			stVideo_C.encPATH = VENC_PATH_PORT_X;
-			break;
+				stVideo_C.srcPATH = PATH_MAIN_A_AUX_M;
+				stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo_C.encPATH = VENC_PATH_PORT_X;
+				break;
+				
+			case VIDEO_DIGITAL_NVP6158_AB:
+				stVideo_A.srcPATH = PATH_MAIN_A_AUX_B;
+				stVideo_A.dacPATH = DAC_PATH_MAIN_PIP;
+				stVideo_A.encPATH = VENC_PATH_PORT_B;
+				
+				stVideo_C.srcPATH = PATH_MAIN_A_AUX_M;
+				stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo_C.encPATH = VENC_PATH_PORT_X;
+				break;
 
-		case VIDEO_DIGITAL_NVP6158_C:
-			stVideo_B.srcPATH = PATH_MAIN_A_AUX_M;
-			stVideo_B.dacPATH = DAC_PATH_MAIN_OUT;
-			stVideo_B.encPATH = VENC_PATH_PORT_X;
+			case VIDEO_DIGITAL_NVP6158_C:
+				stVideo_B.srcPATH = PATH_MAIN_A_AUX_M;
+				stVideo_B.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo_B.encPATH = VENC_PATH_PORT_X;
 
-			stVideo_C.srcPATH = PATH_MAIN_B_AUX_M;
-			stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
-			stVideo_C.encPATH = VENC_PATH_PORT_X;
-			break;
-			
-		case VIDEO_DIGITAL_NVP6158_CD:
-			stVideo_B.srcPATH = PATH_MAIN_A_AUX_B;
-			stVideo_B.dacPATH = DAC_PATH_MAIN_PIP;
-			stVideo_B.encPATH = VENC_PATH_PORT_B;
-			
-			stVideo_C.srcPATH = PATH_MAIN_B_AUX_M;
-			stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
-			stVideo_C.encPATH = VENC_PATH_PORT_X;
-			break;
+				stVideo_C.srcPATH = PATH_MAIN_B_AUX_M;
+				stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo_C.encPATH = VENC_PATH_PORT_X;
+				break;
+				
+			case VIDEO_DIGITAL_NVP6158_CD:
+				stVideo_B.srcPATH = PATH_MAIN_A_AUX_B;
+				stVideo_B.dacPATH = DAC_PATH_MAIN_PIP;
+				stVideo_B.encPATH = VENC_PATH_PORT_B;
+				
+				stVideo_C.srcPATH = PATH_MAIN_B_AUX_M;
+				stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo_C.encPATH = VENC_PATH_PORT_X;
+				break;
 
-		case VIDEO_DIGITAL_NVP6158_AC:
-		case VIDEO_DIGITAL_NVP6158_AD:
-			stVideo_A.srcPATH = PATH_MAIN_A_AUX_M;
-			stVideo_A.dacPATH = DAC_PATH_MAIN_OUT;
-			stVideo_A.encPATH = VENC_PATH_PORT_X;
-			
-			stVideo_B.srcPATH = PATH_MAIN_A_AUX_M;
-			stVideo_B.dacPATH = DAC_PATH_MAIN_OUT;
-			stVideo_B.encPATH = VENC_PATH_PORT_X;
+			case VIDEO_DIGITAL_NVP6158_AC:
+			case VIDEO_DIGITAL_NVP6158_AD:
+				stVideo_A.srcPATH = PATH_MAIN_A_AUX_M;
+				stVideo_A.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo_A.encPATH = VENC_PATH_PORT_X;
+				
+				stVideo_B.srcPATH = PATH_MAIN_A_AUX_M;
+				stVideo_B.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo_B.encPATH = VENC_PATH_PORT_X;
 
-			stVideo_C.srcPATH = PATH_MAIN_A_AUX_B;
-			stVideo_C.dacPATH = DAC_PATH_MAIN_PIP;
-			stVideo_C.encPATH = VENC_PATH_PORT_B;
-			break;
-			
-		case VIDEO_DIGITAL_NVP6158_ABCD:
-			stVideo_A.srcPATH = PATH_MAIN_A_AUX_B;
-			stVideo_A.dacPATH = DAC_PATH_MAIN_PIP;
-			stVideo_A.encPATH = VENC_PATH_PORT_B;
-			
-			stVideo_B.srcPATH = PATH_MAIN_A_AUX_B;
-			stVideo_B.dacPATH = DAC_PATH_MAIN_PIP;
-			stVideo_B.encPATH = VENC_PATH_PORT_B;
+				stVideo_C.srcPATH = PATH_MAIN_A_AUX_B;
+				stVideo_C.dacPATH = DAC_PATH_MAIN_PIP;
+				stVideo_C.encPATH = VENC_PATH_PORT_B;
+				break;
+				
+			case VIDEO_DIGITAL_NVP6158_ABCD:
+				stVideo_A.srcPATH = PATH_MAIN_A_AUX_B;
+				stVideo_A.dacPATH = DAC_PATH_MAIN_PIP;
+				stVideo_A.encPATH = VENC_PATH_PORT_B;
+				
+				stVideo_B.srcPATH = PATH_MAIN_A_AUX_B;
+				stVideo_B.dacPATH = DAC_PATH_MAIN_PIP;
+				stVideo_B.encPATH = VENC_PATH_PORT_B;
 
-			stVideo_C.srcPATH = PATH_MAIN_A_AUX_B;
-			stVideo_C.dacPATH = DAC_PATH_MAIN_PIP;
-			stVideo_C.encPATH = VENC_PATH_PORT_B;
-			break;
-			
+				stVideo_C.srcPATH = PATH_MAIN_A_AUX_B;
+				stVideo_C.dacPATH = DAC_PATH_MAIN_PIP;
+				stVideo_C.encPATH = VENC_PATH_PORT_B;
+				break;
+				
+		}
 	}
 }
 
@@ -824,8 +828,6 @@ static BYTE GetOutAuxMode(BYTE src)
 //--------------------------------------------------------------------------------------------------
 static void InputSourceHandler(MDIN_VIDEO_INPUT_t src)
 {
-	if(fInputChanged != TRUE)  return;
-
 	SetInVideoPath(src);
 	ConfigVideoFrmt(src);
 
@@ -858,8 +860,6 @@ static void VideoFrameProcess(MDIN_CHIP_ID_t mdin_id)
 {
 	PMDIN_VIDEO_INFO pVideo = pVideoInfo[mdin_id];
 
-	if(fInputChanged == FALSE) return;
-
 	ConfigI2C(mdin_id);
 
 	if (EncVideoFrmt!=PrevEncFrmt)
@@ -869,7 +869,8 @@ static void VideoFrameProcess(MDIN_CHIP_ID_t mdin_id)
 	pVideo->encFRMT = EncVideoFrmt;
 	PrevEncFrmt = EncVideoFrmt;
 
-	if((SrcMainFrmt[mdin_id] != PrevSrcMainFrmt[mdin_id])|| (OutMainFrmt[mdin_id] !=PrevOutMainFrmt[mdin_id]))
+	if((SrcMainFrmt[mdin_id] != PrevSrcMainFrmt[mdin_id])|| (OutMainFrmt[mdin_id] !=PrevOutMainFrmt[mdin_id]) ||
+		(SrcPath[mdin_id] != pVideo->srcPATH))
 	{
 		pVideo->exeFLAG |= MDIN_UPDATE_MAINFMT;
 	}
@@ -916,6 +917,7 @@ static void VideoFrameProcess(MDIN_CHIP_ID_t mdin_id)
 		PrevOutMainFrmt[mdin_id] = OutMainFrmt[mdin_id];
 
 		PrevSrcAuxFrmt[mdin_id] = SrcAuxFrmt[mdin_id];
+		SrcPath[mdin_id] = pVideo->srcPATH;
 	}
 }
 
@@ -946,7 +948,6 @@ void InitInputSource(void)
 void SetInputSource(BYTE input)
 {
 	InputSelect = input;
-//	fInputChanged = TRUE;
 }
 
 void SetInputChanged(void)
@@ -956,15 +957,30 @@ void SetInputChanged(void)
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
 {
-	MDIN_CHIP_ID_t mdin;
-	
-	InputSourceHandler(InputSelect);
-//	InputSyncHandler_A(InputSelect);
-//	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
-	for(mdin = MDIN_ID_A; mdin < MDIN_ID_MAX; mdin++)
+	if(fInputChanged == TRUE)
 	{
-		VideoFrameProcess(mdin);
+		InputSourceHandler(InputSelect);
+
+		if((displayMode == DISPLAY_MODE_FULL_CH1) || (displayMode == DISPLAY_MODE_FULL_CH2) || 
+			(displayMode == DISPLAY_MODE_2SPLIT_HSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_A) ||
+			(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_A) ||
+			(displayMode == DISPLAY_MODE_PIP_A2) || (displayMode == DISPLAY_MODE_PIP_B2) ||
+			(displayMode == DISPLAY_MODE_PIP_C2) || (displayMode == DISPLAY_MODE_PIP_D2))
+		{
+			VideoFrameProcess(MDIN_ID_A);
+		}
+		else if((displayMode == DISPLAY_MODE_FULL_CH3) || (displayMode == DISPLAY_MODE_FULL_CH4)) 
+		{
+			VideoFrameProcess(MDIN_ID_B);
+		}
+		else 
+		{
+			VideoFrameProcess(MDIN_ID_A);
+			VideoFrameProcess(MDIN_ID_B);
+		}
+		VideoFrameProcess(MDIN_ID_C);
 	}
 	SetOSDMenuRefresh();
 	fInputChanged = FALSE;

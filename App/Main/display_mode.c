@@ -123,12 +123,21 @@ void DisplayScreen(eDisplayMode_t mode)
 	switch(mode)
 	{
 		case DISPLAY_MODE_FULL_CH1:
+			NVP6158_Set_VportMap(VPORT_MAP0);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
+			break;
+			
 		case DISPLAY_MODE_FULL_CH2:
+			NVP6158_Set_VportMap(VPORT_MAP1);
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
 
 		case DISPLAY_MODE_FULL_CH3:
+			NVP6158_Set_VportMap(VPORT_MAP0);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_C);
+			break;
 		case DISPLAY_MODE_FULL_CH4:
+			NVP6158_Set_VportMap(VPORT_MAP1);
 			SetInputSource(VIDEO_DIGITAL_NVP6158_C);
 			break;
 
@@ -140,6 +149,7 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_PIP_B2:
 		case DISPLAY_MODE_PIP_C2:
 		case DISPLAY_MODE_PIP_D2:
+			NVP6158_Set_VportMap(VPORT_MAP0);
 			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
 			break;
 
@@ -152,6 +162,7 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_4SPLIT_D3CROP:
 		case DISPLAY_MODE_4SPLIT_U3SCALE:
 		case DISPLAY_MODE_4SPLIT_U3CROP:
+			NVP6158_Set_VportMap(VPORT_MAP0);
 			SetInputSource(VIDEO_DIGITAL_NVP6158_ABCD);
 			break;
 
@@ -159,6 +170,7 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_PIP_B3:
 		case DISPLAY_MODE_PIP_C3:
 		case DISPLAY_MODE_PIP_D3:
+			NVP6158_Set_VportMap(VPORT_MAP0);
 			SetInputSource(VIDEO_DIGITAL_NVP6158_AC);
 			break;
 
@@ -166,6 +178,7 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_PIP_B4:
 		case DISPLAY_MODE_PIP_C4:
 		case DISPLAY_MODE_PIP_D4:
+			NVP6158_Set_VportMap(VPORT_MAP2);
 			SetInputSource(VIDEO_DIGITAL_NVP6158_AD);
 			break;
 	}
