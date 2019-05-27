@@ -82,21 +82,6 @@ static BOOL Check_VideoFormat_Change(void)
 				changed = UpdatedChannel(changedChannel, CHANNEL3) | UpdatedChannel(changedChannel, CHANNEL4);
 				break;
 
-			case DISPLAY_MODE_4SPLIT_QUAD:
-			case DISPLAY_MODE_4SPLIT_R3SCALE:
-			case DISPLAY_MODE_4SPLIT_R3CROP:
-			case DISPLAY_MODE_4SPLIT_L3SCALE:
-			case DISPLAY_MODE_4SPLIT_L3CROP:
-			case DISPLAY_MODE_4SPLIT_D3SCALE:
-			case DISPLAY_MODE_4SPLIT_D3CROP:
-			case DISPLAY_MODE_4SPLIT_U3SCALE:
-			case DISPLAY_MODE_4SPLIT_U3CROP:
-				changed = UpdatedChannel(changedChannel, CHANNEL1) | 		\
-							UpdatedChannel(changedChannel, CHANNEL2) |		\
-							UpdatedChannel(changedChannel, CHANNEL3) | 		\
-							UpdatedChannel(changedChannel, CHANNEL4);
-				break;
-
 			case DISPLAY_MODE_PIP_A3:
 			case DISPLAY_MODE_PIP_B3:
 			case DISPLAY_MODE_PIP_C3:
@@ -109,6 +94,10 @@ static BOOL Check_VideoFormat_Change(void)
 			case DISPLAY_MODE_PIP_C4:
 			case DISPLAY_MODE_PIP_D4:
 				changed = UpdatedChannel(changedChannel, CHANNEL1) | UpdatedChannel(changedChannel, CHANNEL4);
+				break;
+
+			default:
+				changed = (changedChannel != 0x00)?TRUE:FALSE;
 				break;
 
 		}
@@ -153,6 +142,14 @@ void DisplayScreen(eDisplayMode_t mode)
 			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
 			break;
 
+		case DISPLAY_MODE_2SPLIT_HSCALE_B:
+		case DISPLAY_MODE_2SPLIT_HCROP_B:
+		case DISPLAY_MODE_2SPLIT_VSCALE_B:
+		case DISPLAY_MODE_2SPLIT_VCROP_B:
+			NVP6158_Set_VportMap(VPORT_MAP0);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_CD);
+			break;
+
 		case DISPLAY_MODE_4SPLIT_QUAD:
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
 		case DISPLAY_MODE_4SPLIT_R3CROP:
@@ -164,6 +161,12 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_4SPLIT_U3CROP:
 			NVP6158_Set_VportMap(VPORT_MAP0);
 			SetInputSource(VIDEO_DIGITAL_NVP6158_ABCD);
+			break;
+
+		case DISPLAY_MODE_4SPLIT_H:
+		case DISPLAY_MODE_4SPLIT_X:
+			NVP6158_Set_VportMap(VPORT_MAP0);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_ABCD2);
 			break;
 
 		case DISPLAY_MODE_PIP_A3:
@@ -179,7 +182,7 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_PIP_C4:
 		case DISPLAY_MODE_PIP_D4:
 			NVP6158_Set_VportMap(VPORT_MAP2);
-			SetInputSource(VIDEO_DIGITAL_NVP6158_AD);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_AC);
 			break;
 	}
 	Write_NvItem_DisplayMode(mode);
@@ -201,6 +204,25 @@ eDisplayMode_t GetCurrentDisplayMode(void)
 	eDisplayMode_t displayMode;
 	Read_NvItem_DisplayMode(&displayMode);
 	return displayMode;
+}
+
+eDisplayMode_t GetSystemSplitMode(void)
+{
+	eDisplayMode_t split;
+
+	Read_NvItem_SplitMode(&split);
+	if((split < DISPLAY_MODE_2SPLIT_HSCALE_A) || (split >= DISPLAY_MODE_MAX))
+	{
+		split = DISPLAY_MODE_2SPLIT_HSCALE_A;
+		Write_NvItem_SplitMode(split);
+	}
+	
+	return split;
+}
+
+void SetSystemSplitMode(eDisplayMode_t split)
+{
+	Write_NvItem_SplitMode(split);
 }
 
 BYTE GetInputVideoFormat(eChannel_t channel)

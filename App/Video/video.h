@@ -35,8 +35,9 @@ typedef enum {
 //	VIDEO_DIGITAL_NVP6158_D,
 	VIDEO_DIGITAL_NVP6158_CD,
 	VIDEO_DIGITAL_NVP6158_AC,
-	VIDEO_DIGITAL_NVP6158_AD,
-	VIDEO_DIGITAL_NVP6158_ABCD
+//	VIDEO_DIGITAL_NVP6158_AD,
+	VIDEO_DIGITAL_NVP6158_ABCD,
+	VIDEO_DIGITAL_NVP6158_ABCD2
 //	VIDEO_DIGITAL_NVP6158_MAX
 } MDIN_VIDEO_INPUT_t;
 
@@ -127,6 +128,9 @@ void SetInputSource(BYTE input);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
 //void Request2VideoProcess(void);
-void Set_DisplayWindow(eDisplayMode_t displayMode);
+//void Set_DisplayWindow(eDisplayMode_t displayMode);
+void CreateDisplayWindow_A(eDisplayMode_t displayMode);
+void CreateDisplayWindow_B(eDisplayMode_t displayMode);
+void CreateDisplayWindow_C(eDisplayMode_t displayMode);
 
 #endif	/* __VIDEO_H__ */

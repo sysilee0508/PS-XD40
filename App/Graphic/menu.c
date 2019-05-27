@@ -1391,15 +1391,15 @@ static u8* Get_String_SplitMode(void)//(splitMode)
 
 static void DisplayPage_DisplaySplitMode(const u8* pStr)
 {
-//	eSplitMode_t splitMode = Get_SystemSplitMode();
+	eDisplayMode_t split = GetSystemSplitMode();
 	sPosition_t position;
 
 	Erase_AllMenuScreen();
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 	splitModeSelecting = TRUE;
 
-//	DisplayMode_SplitScreen(splitMode);
-       OSD_DrawBorderLine();
+	DisplayScreen(split);
+	OSD_DrawBorderLine();
 
 	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space8)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
@@ -1544,7 +1544,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 //	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
-//	eSplitMode_t splitMode;
+	eDisplayMode_t split;
 
 	switch(key)
 	{
@@ -1571,9 +1571,9 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						Write_NvItem_BorderLineDisplay(borderLineOn);
 						break;
 					case DISPLAY_ITEM_Y_SPLIT_MODE:
-						//splitMode = Get_SystemSplitMode();
-						//IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, 0, inc_dec, &splitMode, TRUE);
-						//Set_SystemSplitMode(splitMode);
+						split = GetSystemSplitMode();
+						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, DISPLAY_MODE_2SPLIT_HSCALE_A, inc_dec, &split, TRUE);
+						SetSystemSplitMode(split);
 						break;
 				}
 				DisplayPage_UpdatePageOption(itemY);
@@ -2427,6 +2427,7 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			SetKeyMode(KEY_MODE_LONG);
 
 			MDINOSD_SetBGBoxColor(RGB(255,255,255));
+			MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 			OSD_DrawBorderLine();
 			OSD_RefreshScreen();
 

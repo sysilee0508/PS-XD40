@@ -66,7 +66,7 @@ typedef enum
 //-- system data ---------------------------------------------------------------
 //	If you want to store any system data (item) in NV memory, it comes here
 	NV_ITEM_DISPLAY_MODE,
-//	NV_ITEM_SPLIT_MODE,
+	NV_ITEM_SPLIT_MODE,
 //	NV_ITEM_DISPLAY_CHANNEL,
 //	NV_ITEM_INPUT_VIDEO_FORMAT,
 //------------------------------------------------------------------------------
@@ -170,9 +170,8 @@ typedef struct
 	BOOL					motionIndication;
 	eBaudRate_t 			baudrate;
 
-	//eSplitMode_t			splitMode;
-	//eChannel_t				currentChannel;
 	eDisplayMode_t			displayMode;
+	eDisplayMode_t			splitMode;
 	
 	uint32_t				storageEndCheck;
 } sNvData_t;
@@ -199,12 +198,13 @@ extern BOOL	ReadNvItem(eNvItems_t item, void * pData, size_t size);
 extern BOOL WriteNvItem(eNvItems_t item, void * pData, size_t size);
 
 extern void Read_NvItem_FwVersion(sVersion_t* pData);
-//extern void Read_NvItem_SplitMode(eSplitMode_t* pData);
-//extern void Write_NvItem_SplitMode(eSplitMode_t data);
-//extern void Read_NvItem_DisplayChannel(eChannel_t* pData);
-//extern void Write_NvItem_DisplayChannel(eChannel_t data);
+
 extern void Read_NvItem_DisplayMode(eDisplayMode_t* pData);
 extern void Write_NvItem_DisplayMode(eDisplayMode_t data);
+extern void Read_NvItem_SplitMode(eDisplayMode_t* pData);
+extern void Write_NvItem_SplitMode(eDisplayMode_t data);
+//extern void Read_NvItem_DisplayChannel(eChannel_t* pData);
+//extern void Write_NvItem_DisplayChannel(eChannel_t data);
 
 extern void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData);
 extern void Write_NvItem_TimeCorrect(sTimeCorrect_t data);

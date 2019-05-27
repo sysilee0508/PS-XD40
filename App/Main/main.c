@@ -138,6 +138,7 @@ void main(void)
 
 	//InputSelect = VIDEO_DIGITAL_SDI;
 	Read_NvItem_DisplayMode(&displayMode);
+	
 	if(displayMode == DISPLAY_MODE_FULL_CH1)
 	{
 		UpdateKeyData(KEY_FULL_CH1);
