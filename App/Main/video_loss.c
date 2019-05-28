@@ -39,7 +39,7 @@ void ScanVideoLossChannels(void)
 				UpdateAutoSeqDisplayTime();
 			}
 		}
-		OSD_DisplayVideoMode();
+		//OSD_DisplayVideoMode();
 		previousLossChannels = lossChannels;
 		previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
 	}

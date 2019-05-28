@@ -5,9 +5,10 @@
 #define SYSTEM_NORMAL_MODE			0	//normal working
 
 #define ALARMOUT_REQUESTER_NONE		0x00
-#define ALARMOUT_REQUESTER_ALARM	0x01
+#define ALARMOUT_REQUESTER_ALARM		0x01
 #define ALARMOUT_REQUESTER_MOTION	0x02
 
+#define CHANNEL_NONE					0xFF
 //-----------------------------------------------------------------------------
 //  ���� �ý��� ���� ����
 //-----------------------------------------------------------------------------
@@ -17,8 +18,7 @@ typedef enum
 	CHANNEL1 = 0,
 	CHANNEL2,
 	CHANNEL3,
-	CHANNEL4,
-	CHANNEL_SPLIT
+	CHANNEL4
 } eChannel_t;
 
 typedef enum

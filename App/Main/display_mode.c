@@ -229,3 +229,29 @@ BYTE GetInputVideoFormat(eChannel_t channel)
 {
 	return NVP6158_Current_Video_Format_Check(channel);
 }
+
+eChannel_t ConvertDisplayMode2Channel(eDisplayMode_t displayMode)
+{
+	eChannel_t channel = CHANNEL1;
+
+	switch(displayMode)
+	{
+		case DISPLAY_MODE_FULL_CH1:
+			channel = CHANNEL1;
+			break;
+
+		case DISPLAY_MODE_FULL_CH2:
+			channel = CHANNEL2;
+			break;
+
+		case DISPLAY_MODE_FULL_CH3:
+			channel = CHANNEL3;
+			break;
+
+		case DISPLAY_MODE_FULL_CH4:
+			channel = CHANNEL4;
+			break;
+	}
+
+	return channel;
+}

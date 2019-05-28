@@ -25,7 +25,7 @@ static void InitializeAutoSeq_Normal(void)
 
 	Read_NvItem_AutoSeqLossSkip(&skipOn);
 	Read_NvItem_AutoSeqTime(displayTime);
-	//displayMode = Get_SystemDisplayMode();
+	displayMode = GetCurrentDisplayMode();
 
 	UpdateAutoSeqDisplayTime();
 	//Find video loss channels
@@ -40,9 +40,8 @@ static void InitializeAutoSeq_Normal(void)
 			}
 		}
 	}
-/*
 	// Set auto sequence start channel
-	if(displayMode == DISPLAY_MODE_FULL)
+	if(IS_FULL_MODE(displayMode))
 	{
 		if(GetAutoSeqOn() == SET)
 		{
@@ -51,7 +50,7 @@ static void InitializeAutoSeq_Normal(void)
 		}
 		else
 		{
-			displayChannel = Get_SystemDisplayChannel();
+			displayChannel = ConvertDisplayMode2Channel(displayMode);
 		}
 	}
 	else //if(displayMode >= DISPLAY_MODE_QUAD_A)	*/
@@ -68,7 +67,7 @@ static void InitializeAutoSeq_Normal(void)
 
 	OSD_EraseAllText();
 	// update display mode as full screen
-	//DisplayMode_FullScreen(displayChannel);
+	DisplayScreen((eDisplayMode_t)displayChannel);
 	// set autoSeqOn
 	ChangeAutoSeqOn(SET);
 	OSD_DrawBorderLine();
@@ -87,7 +86,7 @@ static void InitializeAutoSeq_Alarm(void)
 		displayChannel = GetLastAlarmChannel();
 		displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
 
-		//DisplayMode_FullScreen(displayChannel);
+		DisplayScreen((eDisplayMode_t)displayChannel);
 	}
 }
 
@@ -201,14 +200,17 @@ void UpdateAutoSeqCount(void)
 
 void DisplayAutoSeqChannel(void)
 {
-	eChannel_t currentChannel;// = Get_SystemDisplayChannel();
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	eChannel_t currentChannel;
+	
+	currentChannel = ConvertDisplayMode2Channel(displayMode);
 
 	if((currentChannel != displayChannel) &&
 			((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)))
 	{
 		OSD_EraseAllText();
 		// update current channel
-		//DisplayMode_FullScreen(displayChannel);
+		DisplayScreen((eDisplayMode_t)displayChannel);
 		// Update OSD
 		OSD_RefreshScreen();
 		OSD_Display();

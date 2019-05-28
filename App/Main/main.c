@@ -180,8 +180,8 @@ void main(void)
 //		MotionDetectCheck();
 //		PlayBuzzer();
 
-//		UpdateAutoSeqCount();
-//		DisplayAutoSeqChannel();
+		UpdateAutoSeqCount();
+		DisplayAutoSeqChannel();
 
 		UpdateDisplayMode();
 		// video process handler

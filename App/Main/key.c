@@ -92,9 +92,9 @@ void TurnOnSelectedLed(eChannel_t channel)
 		case CHANNEL4:
 			led_keycode = KEYCODE_CH4;
 			break;
-		case CHANNEL_SPLIT:
-			led_keycode = KEYCODE_SPLIT;
-			break;
+//		case CHANNEL_SPLIT:
+//			led_keycode = KEYCODE_SPLIT;
+//			break;
 	}
 }
 
@@ -499,7 +499,8 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						ConfigI2C(MDIN_ID_C);
+						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					
 					DisplayScreen((eDisplayMode_t)(key - 1));
@@ -517,7 +518,8 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						ConfigI2C(MDIN_ID_C);
+						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
@@ -531,20 +533,22 @@ void Key_Proc(void)
 					split = (++split)%31;
 					DisplayScreen(testSplitMode[split]);
 					SetInputChanged();
+					OSD_DrawBorderLine();
 				}
 				break;
 
 			case KEY_FREEZE :
 				InitializeAutoSeq(AUTO_SEQ_NONE);
+				ConfigI2C(MDIN_ID_C);
 				if(screenFreezeOn == CLEAR)
 				{
 					screenFreezeOn = SET;
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
 				}
 				else
 				{
 					screenFreezeOn = CLEAR;
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				break;
 
@@ -555,7 +559,8 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						ConfigI2C(MDIN_ID_C);
+						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_RefreshScreen();
 					InitializeAutoSeq(AUTO_SEQ_NORMAL);
@@ -568,7 +573,8 @@ void Key_Proc(void)
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					ConfigI2C(MDIN_ID_C);
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				Enter_MainMenu();
 				break;
@@ -578,7 +584,8 @@ void Key_Proc(void)
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
-					//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					ConfigI2C(MDIN_ID_C);
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				OSD_EraseAllText();
 				OSD_RefreshScreen();

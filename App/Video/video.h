@@ -29,24 +29,13 @@
 typedef enum {
 	VIDEO_INPUT_NONE = 0,
 	VIDEO_DIGITAL_NVP6158_A,
-//	VIDEO_DIGITAL_NVP6158_B,
 	VIDEO_DIGITAL_NVP6158_AB,
 	VIDEO_DIGITAL_NVP6158_C,
-//	VIDEO_DIGITAL_NVP6158_D,
 	VIDEO_DIGITAL_NVP6158_CD,
 	VIDEO_DIGITAL_NVP6158_AC,
-//	VIDEO_DIGITAL_NVP6158_AD,
 	VIDEO_DIGITAL_NVP6158_ABCD,
 	VIDEO_DIGITAL_NVP6158_ABCD2
-//	VIDEO_DIGITAL_NVP6158_MAX
 } MDIN_VIDEO_INPUT_t;
-
-//#define		VIDEO_DIGITAL_NVP6158_A		0
-//#define		VIDEO_DIGITAL_NVP6158_B		1
-//#define		VIDEO_DIGITAL_NVP6158_AB	2
-//#define		VIDEO_DIGITAL_NVP6158_C		3
-//#define		VIDEO_DIGITAL_NVP6158_D		4
-//#define		VIDEO_DIGITAL_NVP6158_CD	5
 
 typedef enum
 {
@@ -98,37 +87,20 @@ typedef enum
 
 #endif	//MDIN_MULTI_DEVICE kukuri
 
-//#define VIDEO_CORP_NONE				0x00
-//#define VIDEO_CROP_H				0x01
-//#define VIDEO_CROP_V				0x02
-//
-//#define VIDEO_CORP_HALF				0x01
-//#define VIDEO_CORP_QUAD				0x02
-
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
 extern MDIN_VIDEO_INFO	 stVideo_A, stVideo_B, stVideo_C;
-//extern MDIN_VIDEO_INFO stVideo;
-
-
-//extern BYTE AdjInterWND,  InputSelect, InputSelOld,  SrcSyncInfo;
-//extern BYTE SrcMainFrmt, PrevSrcMainFrmt, SrcMainMode, PrevSrcMainMode;
-//extern BYTE OutMainFrmt, PrevOutMainFrmt, OutMainMode, PrevOutMainMode;
-//extern BYTE SrcAuxFrmt, PrevSrcAuxFrmt, SrcAuxMode, PrevSrcAuxMode;
-//extern BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
-//extern BYTE AdcVideoFrmt, PrevAdcFrmt, EncVideoFrmt, PrevEncFrmt;
 
 // -----------------------------------------------------------------------------
 // Exported function Prototype
 // -----------------------------------------------------------------------------
+void ConfigI2C(MDIN_CHIP_ID_t mdin);
+MDIN_OUTVIDEO_FORMAT_t GetOutVideoFormat(MDIN_CHIP_ID_t mdin);
 void CreateVideoInstance(void);
-//void InitInputSource(void);
 void SetInputSource(BYTE input);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
-//void Request2VideoProcess(void);
-//void Set_DisplayWindow(eDisplayMode_t displayMode);
 void CreateDisplayWindow_A(eDisplayMode_t displayMode);
 void CreateDisplayWindow_B(eDisplayMode_t displayMode);
 void CreateDisplayWindow_C(eDisplayMode_t displayMode);

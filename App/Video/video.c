@@ -8,13 +8,6 @@
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
 
-#define PIP_WINDOW_WIDTH_1280				DISPLAY_WIDTH_1280x720/3
-#define PIP_WINDOW_WIDTH_1920				DISPLAY_WIDTH_1920X1080/3
-#define PIP_WINDOW_HEIGHT_720				DISPLAY_HEIGHT_1280x720/3
-#define PIP_WINDOW_HEIGHT_1080				DISPLAY_HEIGHT_1920x1080/3
-#define PIP_POSITION_MARGIN_720				70
-#define PIP_POSITION_MARGIN_1080				100
-
 #define COMPENSATION_MARGIN					0
 
 // ----------------------------------------------------------------------
@@ -53,11 +46,10 @@ MDIN_INTER_WINDOW	stInterWND;
 
 MDIN_VIDEO_INPUT_t InputSelect, InputSelOld;
 MDIN_SRCVIDEO_PATH_t SrcPath[MDIN_ID_MAX];
-MDIN_SRCVIDEO_FORMAT_t SrcMainFrmt[MDIN_ID_MAX], PrevSrcMainFrmt[MDIN_ID_MAX];//, SrcMainMode, PrevSrcMainMode;
-MDIN_OUTVIDEO_FORMAT_t OutMainFrmt[MDIN_ID_MAX], PrevOutMainFrmt[MDIN_ID_MAX];// OutMainMode, PrevOutMainMode;
-MDIN_SRCVIDEO_FORMAT_t SrcAuxFrmt[MDIN_ID_MAX], PrevSrcAuxFrmt[MDIN_ID_MAX];//, SrcAuxMode, PrevSrcAuxMode;
-//BYTE OutAuxFrmt, PrevOutAuxFrmt, OutAuxMode, PrevOutAuxMode;
-MDIN_VENC_FORMAT_t EncVideoFrmt, PrevEncFrmt;//, AdcVideoFrmt, PrevAdcFrmt, ;
+static MDIN_SRCVIDEO_FORMAT_t SrcMainFrmt[MDIN_ID_MAX], PrevSrcMainFrmt[MDIN_ID_MAX];
+static MDIN_OUTVIDEO_FORMAT_t OutMainFrmt[MDIN_ID_MAX], PrevOutMainFrmt[MDIN_ID_MAX];
+static MDIN_SRCVIDEO_FORMAT_t SrcAuxFrmt[MDIN_ID_MAX], PrevSrcAuxFrmt[MDIN_ID_MAX];
+MDIN_VENC_FORMAT_t EncVideoFrmt, PrevEncFrmt;
 BOOL fInputChanged;
 
 MDIN_VIDEO_WINDOW stMainVIEW[MDIN_ID_MAX], stAuxVIEW[MDIN_ID_MAX];
@@ -76,7 +68,7 @@ const static PMDIN_VIDEO_INFO pVideoInfo[MDIN_ID_MAX] = {&stVideo_A, &stVideo_B,
 // ----------------------------------------------------------------------
 // Static functions
 // ----------------------------------------------------------------------
-static void ConfigI2C(MDIN_CHIP_ID_t mdin)
+void ConfigI2C(MDIN_CHIP_ID_t mdin)
 {
 	switch(mdin)
 	{
@@ -98,6 +90,11 @@ static void ConfigI2C(MDIN_CHIP_ID_t mdin)
 		default:
 			break;
 	}
+}
+
+MDIN_OUTVIDEO_FORMAT_t GetOutVideoFormat(MDIN_CHIP_ID_t mdin)
+{
+	return OutMainFrmt[mdin];
 }
 
 static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)

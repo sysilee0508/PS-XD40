@@ -4,25 +4,36 @@
 //=============================================================================
 //  MACRO
 //=============================================================================
-
+#define IS_FULL_MODE(mode)						(mode <= DISPLAY_MODE_FULL_CH4)?TRUE:FALSE
 //=============================================================================
 //  define
 //=============================================================================
 #define DISPLAY_WIDTH_1920X1080				1920
-#define DISPLAY_HEIGHT_1920x1080			1080
+#define DISPLAY_HEIGHT_1920x1080				1080
 #define DISPLAY_WIDTH_1280x720				1280
 #define DISPLAY_HEIGHT_1280x720				720
-#define DISPLAY_WIDTH_960					960
-#define DISPLAY_HEIGHT_480					480
-#define DISPLAY_HEIGHT_576					576
+#define DISPLAY_WIDTH_960						960
+#define DISPLAY_HEIGHT_480						480
+#define DISPLAY_HEIGHT_576						576
 
-#define DISPLAY_WIDTH 						DISPLAY_WIDTH_1920X1080
-#define DISPLAY_HEIGHT						DISPLAY_HEIGHT_1920x1080
+#define DISPLAY_WIDTH 							DISPLAY_WIDTH_1920X1080
+#define DISPLAY_HEIGHT							DISPLAY_HEIGHT_1920x1080
 
 #define DISPLAY_HALF_WIDTH 					(DISPLAY_WIDTH/2)	//960
 #define DISPLAY_HALF_HEIGHT					(DISPLAY_HEIGHT/2)	//540
 #define DISPLAY_QUAD_WIDTH					(DISPLAY_WIDTH/4)	//480
 #define DISPLAY_QUAD_HEIGHT					(DISPLAY_HEIGHT/4)	//270
+
+#define PIP_WINDOW_WIDTH_1280				DISPLAY_WIDTH_1280x720/3
+#define PIP_WINDOW_WIDTH_1920				DISPLAY_WIDTH_1920X1080/3
+#define PIP_WINDOW_HEIGHT_720				DISPLAY_HEIGHT_1280x720/3
+#define PIP_WINDOW_HEIGHT_1080				DISPLAY_HEIGHT_1920x1080/3
+#define PIP_POSITION_MARGIN_720				60
+#define PIP_POSITION_MARGIN_1080				90
+
+#define PIP_WINDOW_WIDTH						PIP_WINDOW_WIDTH_1920
+#define PIP_WINDOW_HEIGHT						PIP_WINDOW_HEIGHT_1080
+#define PIP_POSITION_MARGIN					PIP_POSITION_MARGIN_1080
 
 //=============================================================================
 //  enum
@@ -89,30 +100,6 @@ typedef enum
 	DISPLAY_MODE_MAX	//35
 } eDisplayMode_t;
 
-#if 0
-typedef enum
-{
-//	DISPLAY_MODE_FULL,			// full screen mode for any channel
-	DISPLAY_MODE_QUAD_A,		// 4 split screen
-	DISPLAY_MODE_QUAD_B,
-	DISPLAY_MODE_QUAD_C,
-	DISPLAY_MODE_QUAD_D,
-	DISPLAY_MODE_QUAD_E,
-	DISPLAY_MODE_3SPLIT_A,		// 3 split
-	DISPLAY_MODE_3SPLIT_B,
-	DISPLAY_MODE_3SPLIT_C,
-	DISPLAY_MODE_3SPLIT_D,
-	DISPLAY_MODE_2SPLIT,			// 2 split
-	DISPLAY_MODE_MAX
-} eSplitMode_t;
-
-typedef enum
-{
-	DISPLAY_MODE_FULL,
-	DISPLAY_MODE_SPLIT
-} eDisplayMode_t;
-#endif
-
 //=============================================================================
 //  struct
 //=============================================================================
@@ -132,5 +119,5 @@ extern void DisplayScreen(eDisplayMode_t mode);
 extern void UpdateDisplayMode(void);
 extern eDisplayMode_t GetCurrentDisplayMode(void);
 extern BYTE GetInputVideoFormat(eChannel_t channel);
-
+extern eChannel_t ConvertDisplayMode2Channel(eDisplayMode_t displayMode);
 #endif

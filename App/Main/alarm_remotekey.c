@@ -25,7 +25,7 @@ static BOOL alarmRemoteEnable = TRUE;
 
 static u32 alarmOutTimeCountInSec = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
-static eChannel_t lastAlarmChannel = CHANNEL_SPLIT;
+static eChannel_t lastAlarmChannel = CHANNEL_NONE;
 
 static u8 uartProc_State = UART_STATE_SOH;
 
@@ -168,7 +168,7 @@ static void ClearAllAlarm(void)
 		alarmInfo[channel].alarm_status = ALARM_CLEAR;
 		alarmInfo[channel].check_count = 0;
 	}
-	lastAlarmChannel = CHANNEL_SPLIT;
+	lastAlarmChannel = CHANNEL_NONE;
 
 	if(GetCurrentAutoSeq() == AUTO_SEQ_ALARM)
 	{
