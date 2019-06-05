@@ -255,3 +255,34 @@ eChannel_t ConvertDisplayMode2Channel(eDisplayMode_t displayMode)
 
 	return channel;
 }
+
+eChannel_t FineSubChannelForPIP(eDisplayMode_t displayMode)
+{
+	eChannel_t channel = CHANNEL2;
+
+	switch(displayMode)
+	{
+		case DISPLAY_MODE_PIP_A2:
+		case DISPLAY_MODE_PIP_B2:
+		case DISPLAY_MODE_PIP_C2:
+		case DISPLAY_MODE_PIP_D2:
+			channel = CHANNEL2;
+			break;
+
+		case DISPLAY_MODE_PIP_A3:
+		case DISPLAY_MODE_PIP_B3:
+		case DISPLAY_MODE_PIP_C3:
+		case DISPLAY_MODE_PIP_D3:
+			channel = CHANNEL3;
+			break;
+
+		case DISPLAY_MODE_PIP_A4:
+		case DISPLAY_MODE_PIP_B4:
+		case DISPLAY_MODE_PIP_C4:
+		case DISPLAY_MODE_PIP_D4:
+			channel = CHANNEL4;
+			break;
+	}
+
+	return channel;
+}

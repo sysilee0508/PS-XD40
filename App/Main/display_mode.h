@@ -5,6 +5,8 @@
 //  MACRO
 //=============================================================================
 #define IS_FULL_MODE(mode)						(mode <= DISPLAY_MODE_FULL_CH4)?TRUE:FALSE
+#define IS_PIP_MODE(mode)						((mode >= DISPLAY_MODE_PIP_A2)||(mode <= DISPLAY_MODE_PIP_D4)) ? TRUE:FALSE
+
 //=============================================================================
 //  define
 //=============================================================================
@@ -120,4 +122,5 @@ extern void UpdateDisplayMode(void);
 extern eDisplayMode_t GetCurrentDisplayMode(void);
 extern BYTE GetInputVideoFormat(eChannel_t channel);
 extern eChannel_t ConvertDisplayMode2Channel(eDisplayMode_t displayMode);
+extern eChannel_t FineSubChannelForPIP(eDisplayMode_t displayMode);
 #endif
