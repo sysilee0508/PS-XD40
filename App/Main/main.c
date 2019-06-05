@@ -134,6 +134,8 @@ void main(void)
 	//NVP6158 device initialization
 	NVP6158_init();
 	InitVideoLossCheck();
+//	NVP6158_VideoDetectionProc();
+//	Delay_ms(1);
 	InitializeMotionDetect();
 
 	InputSelect = VIDEO_DIGITAL_SDI;

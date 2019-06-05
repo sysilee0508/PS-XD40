@@ -29,7 +29,7 @@ static eChannel_t systemDisplayChannel = CHANNEL_SPLIT;
 static eVideoResolution_t Get_Current_Video_Resolution_Each_Channel(eChannel_t ch)
 {
 	BYTE oCurVideofmt =0x00;
-	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_MAX;
+	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_720P;
 	
 	oCurVideofmt = NVP6158_Current_Video_Format_Check(ch);
 	switch(oCurVideofmt)
@@ -70,9 +70,6 @@ static eVideoResolution_t Get_Current_Video_Resolution_Each_Channel(eChannel_t c
 		case CVI_HD_30P_EX:
 		case CVI_HD_25P_EX:
 			oCurVideoRes = VIDEO_RESOLUTION_720P;
-			break;
-
-		default:
 			break;
 	}
 
@@ -131,75 +128,88 @@ static void Display_FullMode(eChannel_t ch)
 	}
 }
 
-static void Display_2SplitMode(eVideoResolution_t outRes)
+static void Display_2SplitMode(void)
 {
+	eVideoResolution_t outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	
 	//ch1
-	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
+	switch(outRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode12_w0();
+#ifdef __CROP__
+			//VS4210_Input1080P_Output1080P_Mode12_w0_cropping();
+			VS4210_Input1080P_Output720P_Mode12_w0_cropping();			
+#else
+			//VS4210_Input1080P_Output1080P_Mode12_w0();
+                        VS4210_Input1080P_Output720P_Mode12_w0();
+#endif
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode12_w0();
-			else
-				VS4210_Input720P_Output720P_Mode12_w0();
+#ifdef __CROP__
+			VS4210_Input720P_Output720P_Mode12_w0_cropping();
+#else
+			VS4210_Input720P_Output720P_Mode12_w0();
+#endif
 			break;
-		default : 
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode12_w0();
-			else
-				VS4210_Input720P_Output720P_Mode12_w0();
-			break;				
 	}
+	
 	//ch2
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL2))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode12_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+#ifdef __CROP__
+				//VS4210_Input1080P_Output1080P_Mode12_w1_cropping();
+#else
+				//VS4210_Input1080P_Output1080P_Mode12_w1();
+#endif
+			//else
+#ifdef __CROP__
+				VS4210_Input1080P_Output720P_Mode12_w1_cropping();
+#else
+				VS4210_Input1080P_Output720P_Mode12_w1();
+#endif
 			break;
+			
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode12_w1();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+#ifdef __CROP__
+				//VS4210_Input720P_Output1080P_Mode12_w1_cropping();
+#else
+				//VS4210_Input720P_Output1080P_Mode12_w1();
+#endif
+			//else
+#ifdef __CROP__
+				VS4210_Input720P_Output720P_Mode12_w1_cropping();
+#else
 				VS4210_Input720P_Output720P_Mode12_w1();
-			break;	
-		default : 
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode12_w1();
-			else
-				VS4210_Input720P_Output720P_Mode12_w1();
+#endif
 			break;	
 	}
 }
 
-static void Display_3SplitAMode(eVideoResolution_t outRes)
+static void Display_3SplitAMode(void)//eVideoResolution_t outRes)
 {
+	eVideoResolution_t outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	
 	//ch 1
-	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
+	switch(outRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode8_w0();
+#ifdef __CROP__
+			//VS4210_Input1080P_Output1080P_Mode8_w0_cropping();
+			VS4210_Input1080P_Output720P_Mode8_w0_cropping();
+#else
+			//VS4210_Input1080P_Output1080P_Mode8_w0();
+			VS4210_Input1080P_Output720P_Mode8_w0();
+#endif
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode8_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode8_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode8_w0_cropping();
-				#endif
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode8_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode8_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode8_w0_cropping();
-				#endif
+#ifdef __CROP__
+			VS4210_Input720P_Output720P_Mode8_w0_cropping();
+#else
+			VS4210_Input720P_Output720P_Mode8_w0();
+#endif
 			break;
 	}
 
@@ -207,18 +217,15 @@ static void Display_3SplitAMode(eVideoResolution_t outRes)
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL2))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode8_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode8_w1();
+			//else
+				VS4210_Input1080P_Output720P_Mode8_w1();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode8_w1();
-			else
-				VS4210_Input720P_Output720P_Mode8_w1();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode8_w1();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode8_w1();
+			//else
 				VS4210_Input720P_Output720P_Mode8_w1();
 			break;
 	}
@@ -226,68 +233,57 @@ static void Display_3SplitAMode(eVideoResolution_t outRes)
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL3))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode8_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode8_w2();
+			//else
+				VS4210_Input1080P_Output720P_Mode8_w2();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode8_w2();
-			else
-				VS4210_Input720P_Output720P_Mode8_w2();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode8_w2();
-			else
-				VS4210_Input720P_Output720P_Mode8_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode8_w2();
+			//else
+				VS4210_Input720P_Output720P_Mode8_w2();			
 			break;
 	}
 }
 
-static void Display_3SplitBMode(eVideoResolution_t outRes)
+static void Display_3SplitBMode(void)
 {
+	eVideoResolution_t outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	
 	//ch 1
-	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
+	switch(outRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode9_w0();
+#ifdef __CROP__
+			//VS4210_Input1080P_Output1080P_Mode9_w0_cropping();
+			VS4210_Input1080P_Output720P_Mode9_w0_cropping();
+#else
+			//VS4210_Input1080P_Output1080P_Mode9_w0();
+			VS4210_Input1080P_Output720P_Mode9_w0();
+#endif
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode9_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode9_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode9_w0_cropping();
-				#endif
+#ifdef __CROP__
+			VS4210_Input720P_Output720P_Mode9_w0_cropping();
+#else
+			VS4210_Input720P_Output720P_Mode9_w0();
+#endif
 			break;	
-		default : 
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode9_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode9_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode9_w0_cropping();
-				#endif
-			break;				
 	}
 
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL2))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode9_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode9_w1();
+			//else
+				VS4210_Input1080P_Output720P_Mode9_w1();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode9_w1();
-			else
-				VS4210_Input720P_Output720P_Mode9_w1();
-			break;	
-		default : 
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode9_w1();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode9_w1();
+			//else
 				VS4210_Input720P_Output720P_Mode9_w1();
 			break;	
 	}
@@ -295,67 +291,57 @@ static void Display_3SplitBMode(eVideoResolution_t outRes)
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL3))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode9_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode9_w2();
+			//else
+				VS4210_Input1080P_Output720P_Mode9_w2();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode9_w2();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output720P_Mode9_w2();
+			//else
 				VS4210_Input720P_Output720P_Mode9_w2();
 			break;	
-		default : 
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode9_w2();
-			else
-				VS4210_Input720P_Output720P_Mode9_w2();
-			break;		
 	}		
 }
 
-static void Display_3SplitCMode(eVideoResolution_t outRes)
+static void Display_3SplitCMode(void)
 {
-	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
+	eVideoResolution_t outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	
+	//ch 1
+	switch(outRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode10_w0();
+#ifdef __CROP__
+			//VS4210_Input1080P_Output1080P_Mode10_w0_cropping();
+			VS4210_Input1080P_Output720P_Mode10_w0_cropping();
+#else
+			//VS4210_Input1080P_Output1080P_Mode10_w0();
+			VS4210_Input1080P_Output720P_Mode10_w0();
+#endif
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode10_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode10_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode10_w0_cropping();
-				#endif
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode10_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode10_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode10_w0_cropping();
-				#endif
+#ifdef __CROP__
+			VS4210_Input720P_Output720P_Mode10_w0_cropping();
+#else
+			VS4210_Input720P_Output720P_Mode10_w0();
+#endif
 			break;
 	}
 
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL2))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode10_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode10_w1();
+			//else
+				VS4210_Input1080P_Output720P_Mode10_w1();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode10_w1();
-			else
-				VS4210_Input720P_Output720P_Mode10_w1();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode10_w1();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode10_w1();
+			//else
 				VS4210_Input720P_Output720P_Mode10_w1();
 			break;
 	}
@@ -363,67 +349,57 @@ static void Display_3SplitCMode(eVideoResolution_t outRes)
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL3))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode10_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode10_w2();
+			//else
+				VS4210_Input1080P_Output720P_Mode10_w2();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode10_w2();
-			else
-				VS4210_Input720P_Output720P_Mode10_w2();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode10_w2();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode10_w2();
+			//else
 				VS4210_Input720P_Output720P_Mode10_w2();
 			break;
 	}
 }
 
-static void Display_3SplitDMode(eVideoResolution_t outRes)
+static void Display_3SplitDMode(void)
 {
-	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
+	eVideoResolution_t outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	
+	//ch 1
+	switch(outRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode11_w0();
+#ifdef __CROP__
+			//VS4210_Input1080P_Output1080P_Mode11_w0_cropping();
+			VS4210_Input1080P_Output720P_Mode11_w0_cropping();
+#else
+			//VS4210_Input1080P_Output1080P_Mode11_w0();
+			VS4210_Input1080P_Output720P_Mode11_w0();
+#endif
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode11_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode11_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode11_w0_cropping();
-				#endif
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode11_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode11_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode11_w0_cropping();
-				#endif
+#ifdef __CROP__
+			VS4210_Input720P_Output720P_Mode11_w0_cropping();
+#else
+			VS4210_Input720P_Output720P_Mode11_w0();
+#endif
 			break;
 	}
 
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL2))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode11_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode11_w1();
+			//else
+				VS4210_Input1080P_Output720P_Mode11_w1();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode11_w1();
-			else
-				VS4210_Input720P_Output720P_Mode11_w1();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode11_w1();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode11_w1();
+			//else
 				VS4210_Input720P_Output720P_Mode11_w1();
 			break;
 	}
@@ -431,41 +407,31 @@ static void Display_3SplitDMode(eVideoResolution_t outRes)
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL3))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode11_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode11_w2();
+			//else
+				VS4210_Input1080P_Output720P_Mode11_w2();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode11_w2();
-			else
-				VS4210_Input720P_Output720P_Mode11_w2();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode11_w2();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode11_w2();
+			//else
 				VS4210_Input720P_Output720P_Mode11_w2();
 			break;
 	}
 }
 
-static void Display_QuadAMode(eVideoResolution_t outRes)
+static void Display_QuadAMode(void)
 {
+	SetSrcMainFrmt(VIDSRC_1920x1080p60);
+	
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
 	{
 		case VIDEO_RESOLUTION_1080P:
 			VS4210_Input1080P_Output1080P_Mode1_w0();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode1_w0();
-			else
-				VS4210_Input720P_Output720P_Mode1_w0();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode1_w0();
-			else
-				VS4210_Input720P_Output720P_Mode1_w0();
+			VS4210_Input720P_Output1080P_Mode1_w0();
 			break;
 	}
 
@@ -475,16 +441,7 @@ static void Display_QuadAMode(eVideoResolution_t outRes)
 			VS4210_Input1080P_Output1080P_Mode1_w1();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode1_w1();
-			else
-				VS4210_Input720P_Output720P_Mode1_w1();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode1_w1();
-			else
-				VS4210_Input720P_Output720P_Mode1_w1();
+			VS4210_Input720P_Output1080P_Mode1_w1();
 			break;
 	}
 
@@ -494,16 +451,7 @@ static void Display_QuadAMode(eVideoResolution_t outRes)
 			VS4210_Input1080P_Output1080P_Mode1_w2();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode1_w2();
-			else
-				VS4210_Input720P_Output720P_Mode1_w2();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode1_w2();
-			else
-				VS4210_Input720P_Output720P_Mode1_w2();
+			VS4210_Input720P_Output1080P_Mode1_w2();
 			break;
 	}
 
@@ -513,64 +461,47 @@ static void Display_QuadAMode(eVideoResolution_t outRes)
 			VS4210_Input1080P_Output1080P_Mode1_w3();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode1_w3();
-			else
-				VS4210_Input720P_Output720P_Mode1_w3();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode1_w3();
-			else
-				VS4210_Input720P_Output720P_Mode1_w3();
+			VS4210_Input720P_Output1080P_Mode1_w3();
 			break;
 	}
 }
 
-static void Display_QuadBMode(eVideoResolution_t outRes) // mode-6
+static void Display_QuadBMode(void) // mode-6
 {
-	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
+	eVideoResolution_t outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	
+	//ch 1
+	switch(outRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode6_w0();
+#ifdef __CROP__
+			//VS4210_Input1080P_Output1080P_Mode6_w0_cropping();
+			VS4210_Input1080P_Output720P_Mode6_w0_cropping();
+#else
+			VS4210_Input1080P_Output720P_Mode6_w0();
+#endif
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode6_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode6_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode6_w0_cropping();
-				#endif
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode6_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode6_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode6_w0_cropping();
-				#endif
+#ifdef __CROP__
+			VS4210_Input720P_Output720P_Mode6_w0_cropping();
+#else
+			VS4210_Input720P_Output720P_Mode6_w0();
+#endif
 			break;
 	}
 
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL2))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode6_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode6_w1();
+			//else
+				VS4210_Input1080P_Output720P_Mode6_w1();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode6_w1();
-			else
-				VS4210_Input720P_Output720P_Mode6_w1();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode6_w1();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode6_w1();
+			//else
 				VS4210_Input720P_Output720P_Mode6_w1();
 			break;
 	}
@@ -578,18 +509,15 @@ static void Display_QuadBMode(eVideoResolution_t outRes) // mode-6
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL3))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode6_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode6_w2();
+			//else
+				VS4210_Input1080P_Output720P_Mode6_w2();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode6_w2();
-			else
-				VS4210_Input720P_Output720P_Mode6_w2();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode6_w2();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode6_w2();
+			//else
 				VS4210_Input720P_Output720P_Mode6_w2();
 			break;
 	}
@@ -597,68 +525,57 @@ static void Display_QuadBMode(eVideoResolution_t outRes) // mode-6
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL4))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode6_w3();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode6_w3();
+			//else
+				VS4210_Input1080P_Output720P_Mode6_w3();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode6_w3();
-			else
-				VS4210_Input720P_Output720P_Mode6_w3();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode6_w3();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode6_w3();
+			//else
 				VS4210_Input720P_Output720P_Mode6_w3();
 			break;
 	}
 }
 
-static void Display_QuadCMode(eVideoResolution_t outRes)
+static void Display_QuadCMode(void)//eVideoResolution_t outRes)
 {
-	//Channel1
-	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
+	eVideoResolution_t outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	
+	//ch 1
+	switch(outRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode7_w0();
+#ifdef __CROP__
+			//VS4210_Input1080P_Output1080P_Mode7_w0_cropping();
+			VS4210_Input1080P_Output720P_Mode7_w0_cropping();
+#else
+			//VS4210_Input1080P_Output1080P_Mode7_w0();
+			VS4210_Input1080P_Output720P_Mode7_w0();
+#endif
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode7_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode7_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode7_w0_cropping();
-				#endif
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode7_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode7_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode7_w0_cropping();
-				#endif
+#ifdef __CROP__
+			VS4210_Input720P_Output720P_Mode7_w0_cropping();
+#else
+			VS4210_Input720P_Output720P_Mode7_w0();
+#endif
 			break;
 	}
 	//Ch2
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL2))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode7_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode7_w1();
+			//else
+				VS4210_Input1080P_Output720P_Mode7_w1();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode7_w1();
-			else
-				VS4210_Input720P_Output720P_Mode7_w1();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode7_w1();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode7_w1();
+			//else
 				VS4210_Input720P_Output720P_Mode7_w1();
 			break;
 	}
@@ -666,87 +583,74 @@ static void Display_QuadCMode(eVideoResolution_t outRes)
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL3))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode7_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode7_w2();
+			//else
+				VS4210_Input1080P_Output720P_Mode7_w2();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode7_w2();
-			else
-				VS4210_Input720P_Output720P_Mode7_w2();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode7_w2();
-			else
-				VS4210_Input720P_Output720P_Mode7_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode7_w2();
+			//else
+				VS4210_Input720P_Output720P_Mode7_w2();			
 			break;
 	}
 	//Ch4
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL4))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode7_w3();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode7_w3();
+			//else
+				VS4210_Input1080P_Output720P_Mode7_w3();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode7_w3();
-			else
-				VS4210_Input720P_Output720P_Mode7_w3();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode7_w3();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode7_w3();
+			//else
 				VS4210_Input720P_Output720P_Mode7_w3();
 			break;
 	}
 
 }
 
-static void Display_QuadDMode(eVideoResolution_t outRes)
+static void Display_QuadDMode(void)//eVideoResolution_t outRes)
 {
-	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
+	eVideoResolution_t outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	
+	//ch 1
+	switch(outRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode4_w0();
+#ifdef __CROP__
+			//VS4210_Input1080P_Output1080P_Mode4_w0_cropping();
+			VS4210_Input1080P_Output720P_Mode4_w0_cropping();
+#else
+			//VS4210_Input1080P_Output1080P_Mode4_w0();
+			VS4210_Input1080P_Output720P_Mode4_w0();
+#endif
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode4_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode4_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode4_w0_cropping();
-				#endif
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode4_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode4_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode4_w0_cropping();
-				#endif
+#ifdef __CROP__
+			VS4210_Input720P_Output720P_Mode4_w0_cropping();
+#else
+			VS4210_Input720P_Output720P_Mode4_w0();
+#endif
 			break;
 	}
 
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL2))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode4_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode4_w1();
+			//else
+				VS4210_Input1080P_Output720P_Mode4_w1();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode4_w1();
-			else
-				VS4210_Input720P_Output720P_Mode4_w1();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode4_w1();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode4_w1();
+			//else
 				VS4210_Input720P_Output720P_Mode4_w1();
 			break;
 	}
@@ -754,105 +658,89 @@ static void Display_QuadDMode(eVideoResolution_t outRes)
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL3))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode4_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode4_w2();
+			//else
+				VS4210_Input1080P_Output720P_Mode4_w2();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode4_w2();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode4_w2();
+			//else
 				VS4210_Input720P_Output720P_Mode4_w2();
 			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode4_w2();
-			else
-				VS4210_Input720P_Output720P_Mode4_w2();
-		break;
 	}
 
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL4))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode4_w3();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode4_w3();
+			//else
+				VS4210_Input1080P_Output720P_Mode4_w3();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode4_w3();
-			else
-				VS4210_Input720P_Output720P_Mode4_w3();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode4_w3();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode4_w3();
+			//else
 				VS4210_Input720P_Output720P_Mode4_w3();
 			break;
 	}
 }
 
-static void Display_QuadEMode(eVideoResolution_t outRes)
+static void Display_QuadEMode(void)
 {
-	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL1))
+	eVideoResolution_t outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+	
+	//ch 1
+	switch(outRes)
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode5_w0();
+#ifdef __CROP__
+			//VS4210_Input1080P_Output1080P_Mode5_w0_cropping();
+			VS4210_Input1080P_Output720P_Mode5_w0_cropping();
+#else
+			//VS4210_Input1080P_Output1080P_Mode5_w0();
+			VS4210_Input1080P_Output720P_Mode5_w0();
+#endif
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode5_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode5_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode5_w0_cropping();
-				#endif
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode5_w0();
-			else
-				#ifndef __CROP__
-				VS4210_Input720P_Output720P_Mode5_w0();
-				#else
-				VS4210_Input720P_Output720P_Mode5_w0_cropping();
-				#endif
+#ifdef __CROP__
+			VS4210_Input720P_Output720P_Mode5_w0_cropping();
+#else
+			VS4210_Input720P_Output720P_Mode5_w0();
+#endif
 			break;
 	}
 
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL2))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode5_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode5_w1();
+			//else
+				VS4210_Input1080P_Output720P_Mode5_w1();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode5_w1();
-			else
-				VS4210_Input720P_Output720P_Mode5_w1();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode5_w1();
-			else
-				VS4210_Input720P_Output720P_Mode5_w1();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode5_w1();
+			//else
+				VS4210_Input1080P_Output720P_Mode5_w1();
 			break;
 	}
 
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL3))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode5_w2();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode5_w2();
+			//else
+				VS4210_Input1080P_Output720P_Mode5_w2();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode5_w2();
-			else
-				VS4210_Input720P_Output720P_Mode5_w2();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode5_w2();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode5_w2();
+			//else
 				VS4210_Input720P_Output720P_Mode5_w2();
 			break;
 	}
@@ -860,18 +748,15 @@ static void Display_QuadEMode(eVideoResolution_t outRes)
 	switch(Get_Current_Video_Resolution_Each_Channel(CHANNEL4))
 	{
 		case VIDEO_RESOLUTION_1080P:
-			VS4210_Input1080P_Output1080P_Mode5_w3();
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input1080P_Output1080P_Mode5_w3();
+			//else
+				VS4210_Input1080P_Output720P_Mode5_w3();
 			break;
 		case VIDEO_RESOLUTION_720P:
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input720P_Output1080P_Mode5_w3();
-			else
-				VS4210_Input720P_Output720P_Mode5_w3();
-			break;
-		default :
-			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output1080P_Mode5_w3();
-			else
+			//if(outRes == VIDEO_RESOLUTION_1080P)
+			//	VS4210_Input720P_Output1080P_Mode5_w3();
+			//else
 				VS4210_Input720P_Output720P_Mode5_w3();
 			break;
 	}
@@ -897,52 +782,52 @@ static BYTE Check_VideoFormat_Change(void)
 	return videoFormatChanged;	
 }
 
-static void Display_SplitMode(eSplitMode_t splitMode, eVideoResolution_t outRes)
+static void Display_SplitMode(eSplitMode_t splitMode)
 {
 	switch(splitMode)
 	{
 		case DISPLAY_MODE_QUAD_A:
-			Display_QuadAMode(outRes);
+			Display_QuadAMode();//outRes);
 			break;
 
 		case DISPLAY_MODE_QUAD_B:
-			Display_QuadBMode(outRes);
+			Display_QuadBMode();//outRes);
 			break;
 
 		case DISPLAY_MODE_QUAD_C:
-			Display_QuadCMode(outRes);
+			Display_QuadCMode();//outRes);
 			break;
 
 		case DISPLAY_MODE_QUAD_D:
-			Display_QuadDMode(outRes);
+			Display_QuadDMode();//outRes);
 			break;
 
 		case DISPLAY_MODE_QUAD_E:
-			Display_QuadEMode(outRes);
+			Display_QuadEMode();//outRes);
 			break;
 
 		case DISPLAY_MODE_3SPLIT_A:
-			Display_3SplitAMode(outRes);
+			Display_3SplitAMode();//outRes);
 			break;
 
 		case DISPLAY_MODE_3SPLIT_B:
-			Display_3SplitBMode(outRes);
+			Display_3SplitBMode();//outRes);
 			break;
 
 		case DISPLAY_MODE_3SPLIT_C:
-			Display_3SplitCMode(outRes);
+			Display_3SplitCMode();//outRes);
 			break;
 
 		case DISPLAY_MODE_3SPLIT_D:
-			Display_3SplitDMode(outRes);
+			Display_3SplitDMode();//outRes);
 			break;
 
 		case DISPLAY_MODE_2SPLIT:
-			Display_2SplitMode(outRes);
+			Display_2SplitMode();
 			break;
 
 		default:
-			Display_QuadAMode(outRes);
+			Display_QuadAMode();//outRes);
 			break;
 	}
 }
@@ -961,8 +846,8 @@ void Set_DisplayoutputMode_table(void)
 		}
 		else
 		{
-			outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
-			Display_SplitMode(Get_SystemSplitMode(), outRes);
+			//outRes = Get_Current_Video_Resolution_Each_Channel(CHANNEL1);
+			Display_SplitMode(Get_SystemSplitMode());//, outRes);
 		}
 		Delay_ms(500);
 	}
@@ -1015,17 +900,17 @@ void DisplayMode_SplitScreen(eSplitMode_t splitMode)
 	
 	Set_SystemDisplayMode(DISPLAY_MODE_SPLIT);
 	Set_SystemDisplayChannel(CHANNEL_SPLIT);
-	
-	if(outRes == VIDEO_RESOLUTION_720P) 
-	{
-		SetSrcMainFrmt(VIDSRC_1280x720p60);
-	}
-	else
+
+	if(splitMode == DISPLAY_MODE_QUAD_A)
 	{
 		SetSrcMainFrmt(VIDSRC_1920x1080p60);
 	}
+	else
+	{
+		SetSrcMainFrmt(VIDSRC_1280x720p60);
+	}
 
-	Display_SplitMode(splitMode, outRes);
+	Display_SplitMode(splitMode);
 }
 
 eInputVideoMode_t Get_InputVideoMode(eChannel_t channel)
