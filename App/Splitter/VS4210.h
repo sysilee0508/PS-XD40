@@ -9,7 +9,7 @@
 //  define
 //=============================================================================
 
-//#define __CROP__
+#define __CROP__
 
 //=============================================================================
 //  enum
@@ -67,6 +67,7 @@ extern void VS4210_Input720P_Output720P_Mode10_w0_cropping(void);
 extern void VS4210_Input720P_Output720P_Mode10_w1(void);
 extern void VS4210_Input720P_Output720P_Mode10_w2(void);
 extern void VS4210_Input720P_Output720P_Mode11_w0(void);
+extern void VS4210_Input720P_Output720P_Mode11_w0_cropping(void);
 extern void VS4210_Input720P_Output720P_Mode11_w1(void);
 extern void VS4210_Input720P_Output720P_Mode11_w2(void);
 extern void VS4210_Input720P_Output720P_Mode12_w0(void);

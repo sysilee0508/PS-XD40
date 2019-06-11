@@ -1385,6 +1385,33 @@ static u8* Get_String_SplitMode(splitMode)
 		case DISPLAY_MODE_2SPLIT:
 			pStr = (u8*)menuStr_SplitMode_2Split;
 			break;
+		case DISPLAY_MODE_QUAD_B_CROP:
+			pStr = (u8*)menuStr_SplitMode_QuadB_Crop;
+			break;
+		case DISPLAY_MODE_QUAD_C_CROP:
+			pStr = (u8*)menuStr_SplitMode_QuadC_Crop;
+			break;
+		case DISPLAY_MODE_QUAD_D_CROP:
+			pStr = (u8*)menuStr_SplitMode_QuadD_Crop;
+			break;
+		case DISPLAY_MODE_QUAD_E_CROP:
+			pStr = (u8*)menuStr_SplitMode_QuadE_Crop;
+			break;
+		case DISPLAY_MODE_3SPLIT_A_CROP:
+			pStr = (u8*)menuStr_SplitMode_3SplitA_Crop;
+			break;
+		case DISPLAY_MODE_3SPLIT_B_CROP:
+			pStr = (u8*)menuStr_SplitMode_3SplitB_Crop;
+			break;
+		case DISPLAY_MODE_3SPLIT_C_CROP:
+			pStr = (u8*)menuStr_SplitMode_3SplitC_Crop;
+			break;
+		case DISPLAY_MODE_3SPLIT_D_CROP:
+			pStr = (u8*)menuStr_SplitMode_3SplitD_Crop;
+			break;
+		case DISPLAY_MODE_2SPLIT_CROP:
+			pStr = (u8*)menuStr_SplitMode_2Split_Crop;
+			break;
 	}
 
 	return pStr;
@@ -1402,9 +1429,9 @@ static void DisplayPage_DisplaySplitMode(const u8* pStr)
 	DisplayMode_SplitScreen(splitMode);
        OSD_DrawBorderLine();
 
-	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space8)*CHAR_WIDTH))/2;
+	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space20)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
-	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
+	OSD_PrintString(position, menuStr_Space20, strlen(menuStr_Space20));
 	position.pos_x = (DISPLAY_WIDTH - (strlen(pStr)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
 	OSD_PrintString(position, pStr, strlen(pStr));
@@ -1466,9 +1493,9 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 				Print_StringWithSelectedMark(
 						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 						displayMenu[itemY].offset_y,
-						menuStr_Space8,
+						menuStr_Space20,
 						NULL,
-						strlen(menuStr_Space8));
+						strlen(menuStr_Space20));
 				Print_StringWithSelectedMark(
 						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 						displayMenu[itemY].offset_y,

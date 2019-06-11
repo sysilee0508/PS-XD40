@@ -7,21 +7,21 @@
 //=============================================================================
 //  Define
 //=============================================================================
-#define FLASH_PAGE_SIZE					0x800//2048 //page size is 2k
+#define FLASH_PAGE_SIZE				0x800//2048 //page size is 2k
 #define FLASH_START_ADDR				0x08000000
 #define FLASH_END_ADDR					0x080FFFFF
 
 #define FLASH_ADDRESS_PAGE(x)			x * FLASH_PAGE_SIZE + FLASH_START_ADDR
-#define	NV_STORAGE_START_ADDR			FLASH_ADDRESS_PAGE(150)//0x08080000
+#define NV_STORAGE_START_ADDR			FLASH_ADDRESS_PAGE(200)//FLASH_ADDRESS_PAGE(150)
 
 #define NVSTORAGE_START_CHECK			0xA5A5A5A5
-#define NVSTORAGE_END_CHECK				0x5A5A5A5A
+#define NVSTORAGE_END_CHECK			0x5A5A5A5A
 
 #define NV_VERSION_MAJOR				(uint8_t)1
-#define NV_VERSION_MINOR				(uint8_t)3
+#define NV_VERSION_MINOR				(uint8_t)4
 
 #define FW_VERSION_MAJOR				(uint8_t)90	//engineer version starts 90 
-#define FW_VERSION_MINOR				(uint8_t)3
+#define FW_VERSION_MINOR				(uint8_t)4
 
 #define NV_SUCCESS						TRUE
 #define NV_FAIL							FALSE

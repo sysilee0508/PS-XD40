@@ -28,6 +28,7 @@ const u8 menuStr_Space8[] = "        ";
 const u8 menuStr_Space9[] = "         ";
 const u8 menuStr_Space10[] = "          ";
 const u8 menuStr_Space13[] = "             ";
+const u8 menuStr_Space20[] = "                    ";
 
 // Options
 const u8 menuStr_Left[] = "LEFT";
@@ -60,6 +61,15 @@ const u8 menuStr_SplitMode_3SplitB[] = "3SPLIT-B";
 const u8 menuStr_SplitMode_3SplitC[] = "3SPLIT-C";
 const u8 menuStr_SplitMode_3SplitD[] = "3SPLIT-D";
 const u8 menuStr_SplitMode_2Split[] = "2SPLIT";
+const u8 menuStr_SplitMode_QuadB_Crop[] = "QUAD-B Cropping";
+const u8 menuStr_SplitMode_QuadC_Crop[] = "QUAD-C Cropping";
+const u8 menuStr_SplitMode_QuadD_Crop[] = "QUAD-D Cropping";
+const u8 menuStr_SplitMode_QuadE_Crop[] = "QUAD-E Cropping";
+const u8 menuStr_SplitMode_3SplitA_Crop[] = "3SPLIT-A Cropping";
+const u8 menuStr_SplitMode_3SplitB_Crop[] = "3SPLIT-B Cropping";
+const u8 menuStr_SplitMode_3SplitC_Crop[] = "3SPLIT-C Cropping";
+const u8 menuStr_SplitMode_3SplitD_Crop[] = "3SPLIT-D Cropping";
+const u8 menuStr_SplitMode_2Split_Crop[] = "2SPLIT Cropping";
 
 const u8 menuStr_Alarm[] =   "ALARM";
 const u8 menuStr_Remocon[] = "REMOTE";
