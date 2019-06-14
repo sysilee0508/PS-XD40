@@ -428,10 +428,6 @@ void Key_Check(void)
 
 const eDisplayMode_t testSplitMode[] = 
 {
-#if 0
-	DISPLAY_MODE_4SPLIT_L3SCALE,
-	DISPLAY_MODE_4SPLIT_L3CROP,
-#else
 	// 2-split (8)
 	DISPLAY_MODE_2SPLIT_HSCALE_A,	// ch 1,2
 	DISPLAY_MODE_2SPLIT_HCROP_A,		// ch 1,2
@@ -457,19 +453,15 @@ const eDisplayMode_t testSplitMode[] =
 	DISPLAY_MODE_PIP_A2,	
 	DISPLAY_MODE_PIP_A3,	
 	DISPLAY_MODE_PIP_A4,	
-	
-	DISPLAY_MODE_PIP_B2,	//main ch1, sub ch2, position B(right-bottom)
-	DISPLAY_MODE_PIP_B3,	//main ch1, sub ch2, position B(right-bottom)
-	DISPLAY_MODE_PIP_B4,	//main ch1, sub ch2, position B(right-bottom)	
-	
+	DISPLAY_MODE_PIP_B2,
+	DISPLAY_MODE_PIP_B3,
+	DISPLAY_MODE_PIP_B4,
 	DISPLAY_MODE_PIP_C2,
 	DISPLAY_MODE_PIP_C3,
 	DISPLAY_MODE_PIP_C4,
-	
 	DISPLAY_MODE_PIP_D2,
 	DISPLAY_MODE_PIP_D3,
 	DISPLAY_MODE_PIP_D4
-#endif
 };
 void Key_Proc(void)
 {
@@ -503,11 +495,11 @@ void Key_Proc(void)
 						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					
-					DisplayScreen((eDisplayMode_t)(key - 1));
-					SetInputChanged();
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
+					DisplayScreen((eDisplayMode_t)(key - 1));
+					SetInputChanged();
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -530,6 +522,7 @@ void Key_Proc(void)
 				}
 				else
 				{
+					OSD_EraseAllText();
 					split = (++split)%31;
 					DisplayScreen(testSplitMode[split]);
 					SetInputChanged();

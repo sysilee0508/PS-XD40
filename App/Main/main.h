@@ -21,6 +21,7 @@ typedef enum
 	CHANNEL4
 } eChannel_t;
 
+/*
 typedef enum
 {
 	SPLIT_2H_SCALE = 0,
@@ -55,6 +56,7 @@ typedef enum
 	PIP_D4,
 	NUM_OF_PIP	//12
 } ePip_t;
+*/
 extern s8 videoOutResolution;
 
 extern void NVP6158_init(void);
