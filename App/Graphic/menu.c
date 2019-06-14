@@ -1538,9 +1538,9 @@ static void DisplayPage_RedrawPage(u8 itemY)
 
 	splitModeSelecting = FALSE;
 
-	position.pos_x = (DISPLAY_WIDTH -( strlen(menuStr_Space8)*CHAR_WIDTH))/2;
+	position.pos_x = (DISPLAY_WIDTH -( strlen(menuStr_Space20)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
-	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
+	OSD_PrintString(position, menuStr_Space20, strlen(menuStr_Space20));
 
 	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
 	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);

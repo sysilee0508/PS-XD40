@@ -296,7 +296,7 @@ static void Display_3SplitBMode(BOOL fCropping)
 			break;
 		case VIDEO_RESOLUTION_720P:
 			if(outRes == VIDEO_RESOLUTION_1080P)
-				VS4210_Input1080P_Output720P_Mode9_w2();
+				VS4210_Input720P_Output1080P_Mode9_w2();
 			else
 				VS4210_Input720P_Output720P_Mode9_w2();
 			break;	
