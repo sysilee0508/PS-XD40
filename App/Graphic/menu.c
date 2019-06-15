@@ -1348,14 +1348,15 @@ const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 };
 static BOOL splitModeSelecting = FALSE;
 
-static u8* Get_String_SplitMode(void)//(splitMode)
+#if 0
+static u8* Get_String_SplitMode(splitMode)
 {
 	u8* pStr;
-/*
+
 	switch(splitMode)
 	{
-		case DISPLAY_MODE_QUAD_A:
-			pStr = (u8*)menuStr_SplitMode_QuadA;
+		case DISPLAY_MODE_2SPLIT_HSCALE_A:
+			pStr = (u8*)menuStr_DisplayMode_2SplitHScale_A;
 			break;
 		case DISPLAY_MODE_QUAD_B:
 			pStr = (u8*)menuStr_SplitMode_QuadB;
@@ -1385,13 +1386,14 @@ static u8* Get_String_SplitMode(void)//(splitMode)
 			pStr = (u8*)menuStr_SplitMode_2Split;
 			break;
 	}
-*/
+
 	return pStr;
 }
+#endif
 
-static void DisplayPage_DisplaySplitMode(const u8* pStr)
+static void DisplayPage_DisplaySplitMode(eDisplayMode_t split)
 {
-	eDisplayMode_t split = GetSystemSplitMode();
+	//eDisplayMode_t split = GetSystemSplitMode();
 	sPosition_t position;
 
 	Erase_AllMenuScreen();
@@ -1399,14 +1401,15 @@ static void DisplayPage_DisplaySplitMode(const u8* pStr)
 	splitModeSelecting = TRUE;
 
 	DisplayScreen(split);
+	SetInputChanged();
 	OSD_DrawBorderLine();
 
-	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space8)*CHAR_WIDTH))/2;
+	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space25)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
-	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
-	position.pos_x = (DISPLAY_WIDTH - (strlen(pStr)*CHAR_WIDTH))/2;
+	OSD_PrintString(position, menuStr_Space25, strlen(menuStr_Space25));
+	position.pos_x = (DISPLAY_WIDTH - (strlen(pDisplayMode_Name[split])*CHAR_WIDTH))/2;
 	position.pos_y = 100;
-	OSD_PrintString(position, pStr, strlen(pStr));
+	OSD_PrintString(position, pDisplayMode_Name[split], strlen(pDisplayMode_Name[split]));
 }
 
 static void DisplayPage_UpdatePageOption(u8 itemY)
@@ -1414,7 +1417,8 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 //	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
-	u8* pStr_SplitMode;
+	eDisplayMode_t split;
+	//u8* pStr_SplitMode;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
 	switch(itemY)
@@ -1459,25 +1463,25 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 			break;
 
 		case DISPLAY_ITEM_Y_SPLIT_MODE:
-			//pStr_SplitMode = Get_String_SplitMode(Get_SystemSplitMode());
+			split = GetSystemSplitMode();
 			if(requestEnterKeyProc == CLEAR)
 			{
 				Print_StringWithSelectedMark(
 						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 						displayMenu[itemY].offset_y,
-						menuStr_Space8,
+						menuStr_Space25,
 						NULL,
-						strlen(menuStr_Space8));
+						strlen(menuStr_Space25));
 				Print_StringWithSelectedMark(
 						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 						displayMenu[itemY].offset_y,
-						(const u8*)pStr_SplitMode,
+						pDisplayMode_Name[split],
 						attribute,
-						strlen(pStr_SplitMode));
+						strlen(pDisplayMode_Name[split]));
 			}
 			else
 			{
-				DisplayPage_DisplaySplitMode((const u8*)pStr_SplitMode);
+				DisplayPage_DisplaySplitMode(split);
 			}
 			break;
 	}
@@ -1510,9 +1514,9 @@ static void DisplayPage_RedrawPage(u8 itemY)
 
 	splitModeSelecting = FALSE;
 
-	position.pos_x = (DISPLAY_WIDTH -( strlen(menuStr_Space8)*CHAR_WIDTH))/2;
+	position.pos_x = (DISPLAY_WIDTH -( strlen(menuStr_Space25)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
-	OSD_PrintString(position, menuStr_Space8, strlen(menuStr_Space8));
+	OSD_PrintString(position, menuStr_Space25, strlen(menuStr_Space25));
 
 	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
 	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);

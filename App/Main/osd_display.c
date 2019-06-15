@@ -14,8 +14,15 @@
 #define VIDEO_FORMAT_LENGTH_MAX		20
 #define VIDEO_LOSS_LENGTH				8
 
-#define VIDEO_MODE_DISPLAY_TIME			10//seconds
+#define VIDEO_MODE_DISPLAY_TIME			7//seconds
 static u8 displayingDateTimeLength = 0;
+
+enum
+{
+	VIDEO_IN = 0,
+	VIDEO_OUT
+};
+
 
 enum 
 {
@@ -43,7 +50,7 @@ enum
 static const sPosition_t titlePositionTable_Quad[NUM_OF_POS_QUAD][NUM_OF_CHANNEL] =
 {
 	//QUAD
-	{{DISPLAY_QUAD_WIDTH, 0}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, 0}, {DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}},
+	{{DISPLAY_QUAD_WIDTH, 0}, {DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, 0}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}},
 	//Quad_R
 	{{DISPLAY_WIDTH/3, 0}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), 0}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HEIGHT/3}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), (DISPLAY_HEIGHT/3)*2}},
 	//quad_L
@@ -61,8 +68,8 @@ static const sPosition_t titlePositionTable_Quad[NUM_OF_POS_QUAD][NUM_OF_CHANNEL
 static const sPosition_t indicatorPositionTable_Split[NUM_OF_POS_SPLIT][NUM_OF_CHANNEL] =
 {
 	//QUAD
-	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X , DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}, {DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
-			{DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT+MARGIN_Y}, {DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT+MARGIN_Y}},
+	{{DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X , DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}, {DISPLAY_HALF_WIDTH-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT+MARGIN_Y},
+			{DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}, {DISPLAY_HALF_WIDTH+MARGIN_X, DISPLAY_HALF_HEIGHT+MARGIN_Y}},
 	//Quad_R
 	{{(DISPLAY_WIDTH/3)*2-CHAR_WIDTH-MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {(DISPLAY_WIDTH/3)*2+MARGIN_X, (DISPLAY_HEIGHT/3)-CHAR_HEIGHT-MARGIN_Y},
 			{(DISPLAY_WIDTH/3)*2+MARGIN_X, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT/2}, {(DISPLAY_WIDTH/3)*2+MARGIN_X, (DISPLAY_HEIGHT/3)*2+MARGIN_Y}},
@@ -89,99 +96,49 @@ static const sPosition_t indicatorPositionTable_Split[NUM_OF_POS_SPLIT][NUM_OF_C
 			{DISPLAY_HALF_WIDTH-CHAR_WIDTH/2 , DISPLAY_HALF_HEIGHT - MARGIN_Y - CHAR_HEIGHT}, {DISPLAY_HALF_WIDTH-CHAR_WIDTH/2, DISPLAY_HALF_HEIGHT + MARGIN_Y+CHAR_HEIGHT}}
 };
 
-static const sPosition_t videoPositionTable_Split[DISPLAY_MODE_MAX][NUM_OF_CHANNEL] =
+// center postion of x, start postion of y
+static const sPosition_t videoFormatPosition_Split[NUM_OF_POS_SPLIT][NUM_OF_CHANNEL] =
 {
 	//QUAD_A
-	{{DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT},
-			{DISPLAY_QUAD_WIDTH, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT}},
-	//Quad_B
+	{{DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT}, {DISPLAY_QUAD_WIDTH, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT},
+			{DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_QUAD_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT}},
+	//Quad_R
 	{{DISPLAY_WIDTH/3, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HEIGHT/6},
 			{DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HEIGHT - (DISPLAY_HEIGHT/6)}},
-	//quad_c
+	//quad_L
 	{{(DISPLAY_WIDTH/3)*2, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH/6, DISPLAY_HEIGHT/6},
 			{DISPLAY_WIDTH/6, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH/6, DISPLAY_HEIGHT - (DISPLAY_HEIGHT/6)}},
-	//quad_d
+	//quad_D
 	{{DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT/3}, {DISPLAY_WIDTH/6, DISPLAY_HEIGHT-DISPLAY_HEIGHT/6},
 			{DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT-DISPLAY_HEIGHT/6}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HEIGHT-DISPLAY_HEIGHT/6}},
-	//quad_e
+	//quad_U
 	{{DISPLAY_HALF_WIDTH, (DISPLAY_HEIGHT/3)*2}, {DISPLAY_WIDTH/6, DISPLAY_HEIGHT/6},
 			{DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT/6}, {DISPLAY_WIDTH - (DISPLAY_WIDTH/6), DISPLAY_HEIGHT/6}},
-	// 2 split
-	{{DISPLAY_QUAD_WIDTH,DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT},
-			{0, 0}, {0, 0}}
+	//quad_H
+	{{DISPLAY_HALF_WIDTH , DISPLAY_QUAD_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT}, 
+			{DISPLAY_QUAD_WIDTH/2, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH/2, DISPLAY_HALF_HEIGHT}},
+	//quad_X
+	{{DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_HALF_WIDTH + DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}, 
+			{DISPLAY_HALF_WIDTH, DISPLAY_QUAD_HEIGHT/2}, {DISPLAY_HALF_WIDTH, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT/2}},
+	// 2 split_H
+	{{DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT},
+			{DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}, {DISPLAY_WIDTH - DISPLAY_QUAD_WIDTH, DISPLAY_HALF_HEIGHT}},
+	// 2 split_V
+	{{DISPLAY_HALF_WIDTH, DISPLAY_QUAD_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT+DISPLAY_QUAD_HEIGHT},
+			{DISPLAY_HALF_WIDTH, DISPLAY_QUAD_HEIGHT}, {DISPLAY_HALF_WIDTH, DISPLAY_HALF_HEIGHT+DISPLAY_QUAD_HEIGHT}}
 };
 
 
-static const sPosition_t videoInFormatPosition_Full =
+static const sPosition_t videoFormatPosition_Full =
 {
-	(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, //x
-	DISPLAY_HALF_HEIGHT - CHAR_HEIGHT - MARGIN_Y	//y
-};
-static const sPosition_t videoOutFormatPosition_Full =
-{
-	(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, //x
-	DISPLAY_HALF_HEIGHT + MARGIN_Y	//y
+	DISPLAY_HALF_WIDTH, //x
+	DISPLAY_HALF_HEIGHT	//y
 };
 static const sPosition_t videoLossPosition_Full =
 {
 	(DISPLAY_WIDTH - (VIDEO_LOSS_LENGTH*CHAR_WIDTH)) / 2,
 	(DISPLAY_HEIGHT - CHAR_HEIGHT) / 2
 };
-
-#if 0
-static const sPosition_t videoInFormatPosition_Split[NUM_OF_SPLIT][NUM_OF_CHANNEL] =
-{
-	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
-			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}},
-	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2, DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
-			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}},
-	{{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT - MARGIN_Y},
-			{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT - DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT - MARGIN_Y}},
-	{{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT - MARGIN_Y},
-			{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT - DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT - MARGIN_Y}},
-	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y},
-			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT-CHAR_HEIGHT-MARGIN_Y}},
-};
-
-static const sPosition_t videoOutFormatPosition_Split[NUM_OF_SPLIT][NUM_OF_CHANNEL] =
-{
-	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2, DISPLAY_HALF_HEIGHT+MARGIN_Y},
-			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT+MARGIN_Y}},
-	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2, DISPLAY_HALF_HEIGHT+MARGIN_Y},
-			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT+MARGIN_Y}},
-	{{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_QUAD_HEIGHT+MARGIN_Y},
-			{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT+MARGIN_Y}},
-	{{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_QUAD_HEIGHT+MARGIN_Y},
-			{(DISPLAY_WIDTH - (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT+MARGIN_Y}},
-	{{(DISPLAY_HALF_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH))/2,DISPLAY_HALF_HEIGHT+MARGIN_Y},
-			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2,DISPLAY_HALF_HEIGHT+MARGIN_Y}},
-};
-
-static const sPosition_t videoLossPosition_Split[NUM_OF_SPLIT+NUM_OF_PIP][NUM_OF_CHANNEL] =
-{
-	// SPLIT -------------------------------------------------------------------------------------------------------------//
-	{{(DISPLAY_HALF_WIDTH-(VIDEO_LOSS_LENGTH*CHAR_WIDTH))/2, (DISPLAY_HEIGHT - CHAR_HEIGHT) / 2},
-			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_LOSS_LENGTH*CHAR_WIDTH)/2,(DISPLAY_HEIGHT - CHAR_HEIGHT) / 2}},
-	{{(DISPLAY_HALF_WIDTH-(VIDEO_LOSS_LENGTH*CHAR_WIDTH))/2, (DISPLAY_HEIGHT - CHAR_HEIGHT) / 2},
-			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_LOSS_LENGTH*CHAR_WIDTH)/2,(DISPLAY_HEIGHT - CHAR_HEIGHT) / 2}},
-	{{(DISPLAY_WIDTH - (VIDEO_LOSS_LENGTH*CHAR_WIDTH)) / 2, (DISPLAY_HALF_HEIGHT - CHAR_HEIGHT) / 2},
-			{(DISPLAY_WIDTH - (VIDEO_LOSS_LENGTH*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT - DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT/2}},
-	{{(DISPLAY_WIDTH - (VIDEO_LOSS_LENGTH*CHAR_WIDTH)) / 2, (DISPLAY_HALF_HEIGHT - CHAR_HEIGHT) / 2},
-			{(DISPLAY_WIDTH - (VIDEO_LOSS_LENGTH*CHAR_WIDTH)) / 2, DISPLAY_HEIGHT - DISPLAY_QUAD_HEIGHT - CHAR_HEIGHT/2}},
-	{{(DISPLAY_HALF_WIDTH-(VIDEO_LOSS_LENGTH*CHAR_WIDTH))/2,(DISPLAY_HEIGHT - CHAR_HEIGHT) / 2},
-			{DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-(VIDEO_LOSS_LENGTH*CHAR_WIDTH)/2,(DISPLAY_HEIGHT - CHAR_HEIGHT) / 2}},
-	// PIP --------------------------------------------------------------------------------------------------------------//
-	{{(DISPLAY_WIDTH - (VIDEO_LOSS_LENGTH*CHAR_WIDTH)) / 2, (DISPLAY_HEIGHT - CHAR_HEIGHT) / 2},
-			{DISPLAY_WIDTH-PIP_POSITION_MARGIN-PIP_WINDOW_WIDTH/2-(VIDEO_LOSS_LENGTH*CHAR_WIDTH)/2, PIP_POSITION_MARGIN+(PIP_WINDOW_HEIGHT-CHAR_HEIGHT)/2}},
-	{{(DISPLAY_WIDTH - (VIDEO_LOSS_LENGTH*CHAR_WIDTH)) / 2, (DISPLAY_HEIGHT - CHAR_HEIGHT) / 2},
-			{PIP_POSITION_MARGIN+(PIP_WINDOW_WIDTH-(VIDEO_LOSS_LENGTH*CHAR_WIDTH))/2, DISPLAY_HEIGHT-PIP_POSITION_MARGIN-PIP_WINDOW_HEIGHT/2-CHAR_HEIGHT/2}},
-	{{(DISPLAY_WIDTH - (VIDEO_LOSS_LENGTH*CHAR_WIDTH)) / 2, (DISPLAY_HEIGHT - CHAR_HEIGHT) / 2},
-			{DISPLAY_WIDTH-PIP_POSITION_MARGIN-PIP_WINDOW_WIDTH/2-(VIDEO_LOSS_LENGTH*CHAR_WIDTH)/2, DISPLAY_HEIGHT-PIP_POSITION_MARGIN-PIP_WINDOW_HEIGHT/2-CHAR_HEIGHT/2}},
-	{{(DISPLAY_WIDTH - (VIDEO_LOSS_LENGTH*CHAR_WIDTH)) / 2, (DISPLAY_HEIGHT - CHAR_HEIGHT) / 2},
-			{PIP_POSITION_MARGIN+(PIP_WINDOW_WIDTH-(VIDEO_LOSS_LENGTH*CHAR_WIDTH))/2, PIP_POSITION_MARGIN+(PIP_WINDOW_HEIGHT-CHAR_HEIGHT)/2}},
-};
-#endif
-
 
 static BOOL requestRefreshScreen = CLEAR;
 
@@ -450,7 +407,7 @@ static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_
 	return position;
 }
 
-static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
+static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 videoDir)
 {
 	sPosition_t position;
 
@@ -460,17 +417,88 @@ static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_
 		case DISPLAY_MODE_FULL_CH2:
 		case DISPLAY_MODE_FULL_CH3:
 		case DISPLAY_MODE_FULL_CH4:
-			position.pos_x = (DISPLAY_WIDTH - (length * CHAR_WIDTH))/2;
-			position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
+		case DISPLAY_MODE_PIP_A2:
+		case DISPLAY_MODE_PIP_A3:
+		case DISPLAY_MODE_PIP_A4:
+		case DISPLAY_MODE_PIP_B2:
+		case DISPLAY_MODE_PIP_B3:
+		case DISPLAY_MODE_PIP_B4:
+		case DISPLAY_MODE_PIP_C2:
+		case DISPLAY_MODE_PIP_C3:
+		case DISPLAY_MODE_PIP_C4:
+		case DISPLAY_MODE_PIP_D2:
+		case DISPLAY_MODE_PIP_D3:
+		case DISPLAY_MODE_PIP_D4:
+			position.pos_x = videoFormatPosition_Full.pos_x;
+			position.pos_y = videoFormatPosition_Full.pos_y ;
 			break;
-
-	/*
-		case DISPLAY_MODE_SPLIT:
-			position.pos_x = videoPositionTable_Split[splitMode][channel].pos_x - ((length * CHAR_WIDTH)/2);
-			position.pos_y = videoPositionTable_Split[splitMode][channel].pos_y - CHAR_HEIGHT/2;
+			
+		case DISPLAY_MODE_2SPLIT_HSCALE_A:
+		case DISPLAY_MODE_2SPLIT_HSCALE_B:
+		case DISPLAY_MODE_2SPLIT_HCROP_A:
+		case DISPLAY_MODE_2SPLIT_HCROP_B:
+			position.pos_x = videoFormatPosition_Split[SPLIT_H][channel].pos_x;
+			position.pos_y = videoFormatPosition_Split[SPLIT_H][channel].pos_y;
 			break;
-	*/
+		
+		case DISPLAY_MODE_2SPLIT_VSCALE_A:
+		case DISPLAY_MODE_2SPLIT_VSCALE_B:
+		case DISPLAY_MODE_2SPLIT_VCROP_A:
+		case DISPLAY_MODE_2SPLIT_VCROP_B:
+			position.pos_x = videoFormatPosition_Split[SPLIT_V][channel].pos_x;
+			position.pos_y = videoFormatPosition_Split[SPLIT_V][channel].pos_y;
+			break;
+			
+		case DISPLAY_MODE_4SPLIT_QUAD:
+			position.pos_x = videoFormatPosition_Split[QUAD][channel].pos_x;
+			position.pos_y = videoFormatPosition_Split[QUAD][channel].pos_y;
+			break;
+			
+		case DISPLAY_MODE_4SPLIT_R3SCALE:
+		case DISPLAY_MODE_4SPLIT_R3CROP:
+			position.pos_x = videoFormatPosition_Split[QUAD_R][channel].pos_x;
+			position.pos_y = videoFormatPosition_Split[QUAD_R][channel].pos_y;
+			break;
+			
+		case DISPLAY_MODE_4SPLIT_L3SCALE:
+		case DISPLAY_MODE_4SPLIT_L3CROP:
+			position.pos_x = videoFormatPosition_Split[QUAD_L][channel].pos_x;
+			position.pos_y = videoFormatPosition_Split[QUAD_L][channel].pos_y;
+			break;
+			
+		case DISPLAY_MODE_4SPLIT_D3SCALE:
+		case DISPLAY_MODE_4SPLIT_D3CROP:
+			position.pos_x = videoFormatPosition_Split[QUAD_D][channel].pos_x;
+			position.pos_y = videoFormatPosition_Split[QUAD_D][channel].pos_y;
+			break;
+			
+		case DISPLAY_MODE_4SPLIT_U3SCALE:
+		case DISPLAY_MODE_4SPLIT_U3CROP:
+			position.pos_x = videoFormatPosition_Split[QUAD_U][channel].pos_x;
+			position.pos_y = videoFormatPosition_Split[QUAD_U][channel].pos_y;
+			break;
+			
+		case DISPLAY_MODE_4SPLIT_H:
+			position.pos_x = videoFormatPosition_Split[QUAD_H][channel].pos_x;
+			position.pos_y = videoFormatPosition_Split[QUAD_H][channel].pos_y;
+			break;
+			
+		case DISPLAY_MODE_4SPLIT_X:
+			position.pos_x = videoFormatPosition_Split[QUAD_X][channel].pos_x;
+			position.pos_y = videoFormatPosition_Split[QUAD_X][channel].pos_y;
+			break;
 	}
+
+	position.pos_x -= (VIDEO_FORMAT_LENGTH_MAX*CHAR_WIDTH)/2;
+	if(videoDir == VIDEO_IN)
+	{
+		position.pos_y -= (CHAR_HEIGHT+MARGIN_Y);
+	}
+	else
+	{
+		position.pos_y += MARGIN_Y;
+	}
+	
 	return position;
 
 }
@@ -543,13 +571,13 @@ static u8 CreateDateString(u8 *pDateStr)
 	Read_NvItem_YearFormat(&year4digit);
 
 	memset(year, NULL, sizeof(year));
-	if(year4digit == FALSE) //2digit
+	if(year4digit == FALSE) // 2digit
 	{
 		year[0] = ((rtcDate.year + DEFAULT_YEAR)/ 10) + ASCII_ZERO;
 		year[1] = ((rtcDate.year + DEFAULT_YEAR)% 10) + ASCII_ZERO;
 		dateLength = DATE_LENGTH_2DIGIT;
 	}
-	else //4 digit
+	else // 4digit
 	{
 		year[0] = 2 + ASCII_ZERO;
 		year[1] = ASCII_ZERO;
@@ -975,6 +1003,31 @@ static void OSD_EraseNoVideo(void)
 	}
 }
 
+static void OSD_EraseVideoMode(void)
+{
+	sPosition_t position;
+	eChannel_t channel;
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	
+	if(IS_FULL_MODE(displayMode) || IS_PIP_MODE(displayMode))
+	{
+		position = OSD_VideoModeStringPosition(CHANNEL1, displayMode, VIDEO_IN);
+		OSD_PrintString(position, osdStr_Space20, strlen(osdStr_Space20));
+		position = OSD_VideoModeStringPosition(CHANNEL1, displayMode, VIDEO_OUT);
+		OSD_PrintString(position, osdStr_Space20, strlen(osdStr_Space20));
+	}
+	else
+	{
+		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+		{
+			position = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
+			OSD_PrintString(position, osdStr_Space20, strlen(osdStr_Space20));
+			position = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
+			OSD_PrintString(position, osdStr_Space20, strlen(osdStr_Space20));
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // No Video
 //-----------------------------------------------------------------------------
@@ -1034,10 +1087,12 @@ void OSD_DisplayVideoMode(void)
 	}
 	preDisplayMode = displayMode;
 
-	if(IS_FULL_MODE(displayMode))
+	if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
 	{
 		channel = ConvertDisplayMode2Channel(displayMode);
-
+		inPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
+		outPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
+		
 		if(IsVideoLossChannel(channel) != TRUE)
 		{
 			if(videoModeDisplayCount[channel] > 0)
@@ -1054,8 +1109,8 @@ void OSD_DisplayVideoMode(void)
 			if(preInVideo != pInVideoStr)
 			{
 				OSD_EraseNoVideo();
-				OSD_PrintString(videoInFormatPosition_Full, pInVideoStr, strlen(pInVideoStr));
-				OSD_PrintString(videoOutFormatPosition_Full, pOutVideoStr, strlen((const u8*)pOutVideoStr));
+				OSD_PrintString(inPosition, pInVideoStr, strlen(pInVideoStr));
+				OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr));
 			}
 
 			if((TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1)) && (videoModeDisplayCount[channel] > 0))
@@ -1072,8 +1127,8 @@ void OSD_DisplayVideoMode(void)
 
 			if((preInVideo != pInVideoStr) || (preOutVideo != pOutVideoStr))
 			{
-				OSD_PrintString(videoInFormatPosition_Full, pInVideoStr, strlen(pInVideoStr));
-				OSD_PrintString(videoOutFormatPosition_Full, pOutVideoStr, strlen((const u8*)pOutVideoStr));
+				OSD_PrintString(inPosition, pInVideoStr, strlen(pInVideoStr));
+				OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr));
 				
 				OSD_DisplayNoVideo();
 			}
@@ -1082,24 +1137,49 @@ void OSD_DisplayVideoMode(void)
 		preOutVideo = pOutVideoStr;
 
 	}
-/*
 	else
 	{
-		for(channel = CHANNEL1; channel < Get_NumOfDisplayChannels(); channel++)
+		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 		{
 			if(IsVideoLossChannel(channel) != TRUE)
 			{
 				if(videoModeDisplayCount[channel] > 0)
 				{
 					pInVideoStr = GetInVideoFormatString(channel);
+					pOutVideoStr = GetOutVideoFormatString();
 				}
 				else
 				{
-					pInVideoStr = (u8*)osdStr_Space10;
+					pInVideoStr = (u8*)osdStr_Space20;
+					pOutVideoStr = (u8*)osdStr_Space20;
 				}
-				position =  OSD_VideoModeStringPosition(channel, displayMode, strlen(pInVideoStr));
-				OSD_PrintString(position, pInVideoStr, strlen(pInVideoStr));
 				
+				inPosition =  OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
+				outPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
+
+				if((displayMode == DISPLAY_MODE_2SPLIT_HSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_A) ||
+					(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_A))
+				{
+					if((channel == CHANNEL1) || (channel == CHANNEL2))
+					{
+						OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
+						OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+					}
+				}
+				else if((displayMode == DISPLAY_MODE_2SPLIT_HSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_B) ||
+					(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_B))
+				{
+					if((channel == CHANNEL3) || (channel == CHANNEL4))
+					{
+						OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
+						OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+					}
+				}
+				else
+				{
+					OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
+					OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+				}
 				if((TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1)) && (videoModeDisplayCount[channel] > 0))
 				{
 					videoModeDisplayCount[channel]--;
@@ -1112,7 +1192,6 @@ void OSD_DisplayVideoMode(void)
 		}
 	}
 	previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -1472,6 +1551,7 @@ void OSD_EraseAllText(void)
 		OSD_EraseNoVideo();
 		OSD_EraseAuto();
 		OSD_EraseIndicator();
+		OSD_EraseVideoMode();
 	}
 }
 
@@ -1722,3 +1802,13 @@ void OSD_DrawBorderLine(void)	//DONE
 		}
 	}
 }
+
+void ResetVideoModeDisplayTime(eChannel_t channel)
+{
+	videoModeDisplayCount[channel] = VIDEO_MODE_DISPLAY_TIME;
+}
+void ClearVideoModeDisplayTime(eChannel_t channel)
+{
+	videoModeDisplayCount[channel] = 0;
+}
+

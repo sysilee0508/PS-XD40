@@ -42,4 +42,7 @@ extern void OSD_Display_State(void);
 
 extern void OSD_DrawBorderLine(void);
 extern void OSD_RefreshScreen(void);
+
+extern void ResetVideoModeDisplayTime(eChannel_t channel);
+extern void ClearVideoModeDisplayTime(eChannel_t channel);
 #endif

@@ -469,6 +469,7 @@ void Key_Proc(void)
 	eKeyData_t key = GetCurrentKey();
 	BOOL autoSeq_skipNoVideoChannel;
 	static eDisplayMode_t split = DISPLAY_MODE_2SPLIT_HSCALE_A;
+	eChannel_t channel; 
 
 	if(IsKeyReady()==TRUE)
 	{
@@ -485,6 +486,7 @@ void Key_Proc(void)
 			case KEY_FULL_CH2 : 
 			case KEY_FULL_CH3 : 
 			case KEY_FULL_CH4 : 
+				channel = (eChannel_t)(key-1);
 				// If key is changed...
 				if(previous_keydata != key)
 				{
@@ -498,8 +500,9 @@ void Key_Proc(void)
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
-					DisplayScreen((eDisplayMode_t)(key - 1));
+					DisplayScreen((eDisplayMode_t)channel);
 					SetInputChanged();
+					ResetVideoModeDisplayTime(channel);
 					OSD_DrawBorderLine();
 				}
 				break;
@@ -516,9 +519,12 @@ void Key_Proc(void)
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
-					split = 0;
-					DisplayScreen(testSplitMode[split]);//(GetSystemSplitMode());
+					DisplayScreen(GetSystemSplitMode());
 					OSD_DrawBorderLine();
+					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+					{
+						ResetVideoModeDisplayTime(channel);
+					}
 				}
 				else
 				{
@@ -527,6 +533,10 @@ void Key_Proc(void)
 					DisplayScreen(testSplitMode[split]);
 					SetInputChanged();
 					OSD_DrawBorderLine();
+					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+					{
+						ResetVideoModeDisplayTime(channel);
+					}
 				}
 				break;
 

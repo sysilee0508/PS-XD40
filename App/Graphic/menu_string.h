@@ -28,8 +28,10 @@ const u8 menuStr_Space8[] = "        ";
 const u8 menuStr_Space9[] = "         ";
 const u8 menuStr_Space10[] = "          ";
 const u8 menuStr_Space13[] = "             ";
+const u8 menuStr_Space25[] = "                         ";
 
 // Options
+#if 0
 const u8 menuStr_Left[] = "LEFT";
 const u8 menuStr_Center[] = "CENTER";
 const u8 menuStr_Right[] = "RIGHT";
@@ -39,6 +41,7 @@ const u8 menuStr_TopRight[] = "TOP-RIGHT";
 const u8 menuStr_BottomLeft[] = "BOTTOM-LEFT";
 const u8 menuStr_BottomCenter[] = "BOTTOM-CENTER";
 const u8 menuStr_BottomRight[] = "BOTTOM-RIGHT";
+#endif
 
 const u8 menuStr_Asia[] = "ASIA (yyyy-mm-dd)";
 const u8 menuStr_Usa[] =   "USA  (mm-dd-yyyy)";
@@ -50,16 +53,78 @@ const u8 menuStr_Show[] = "SHOW(OFF)";
 const u8 menuStr_Resolution1920X1080_60P[] = "1920 X 1080 60P";
 const u8 menuStr_Resolution1920X1080_50P[] = "1920 X 1080 50P";
 
-const u8 menuStr_SplitMode_QuadA[] = "QUAD-A";
-const u8 menuStr_SplitMode_QuadB[] = "QUAD-B";
-const u8 menuStr_SplitMode_QuadC[] = "QUAD-C";
-const u8 menuStr_SplitMode_QuadD[] = "QUAD-D";
-const u8 menuStr_SplitMode_QuadE[] = "QUAD-E";
-const u8 menuStr_SplitMode_3SplitA[] = "3SPLIT-A";
-const u8 menuStr_SplitMode_3SplitB[] = "3SPLIT-B";
-const u8 menuStr_SplitMode_3SplitC[] = "3SPLIT-C";
-const u8 menuStr_SplitMode_3SplitD[] = "3SPLIT-D";
-const u8 menuStr_SplitMode_2Split[] = "2SPLIT";
+const u8 menuStr_DisplayMode_2SplitHScale_A[] = "2Split H-Scale Ch1&Ch2";
+const u8 menuStr_DisplayMode_2SplitHCrop_A[] = "2Split H-Crop Ch1&Ch2";
+const u8 menuStr_DisplayMode_2SplitVScale_A[] = "2Split V-Scale Ch1&Ch2";
+const u8 menuStr_DisplayMode_2SplitVCrop_A[] = "2Split V-Crop Ch1&Ch2";
+const u8 menuStr_DisplayMode_2SplitHScale_B[] = "2Split H-Scale Ch3&Ch4";
+const u8 menuStr_DisplayMode_2SplitHCrop_B[] = "2Split H-Crop Ch3&Ch4";
+const u8 menuStr_DisplayMode_2SplitVScale_B[] = "2Split V-Scale Ch3&Ch4";
+const u8 menuStr_DisplayMode_2SplitVCrop_B[] = "2Split V-Crop Ch3&Ch4";
+
+const u8 menuStr_DisplayMode_4Split_Quad[] = "4Split QUAD";
+const u8 menuStr_DisplayMode_4Split_RScale[] = "4Split-Rigth Scale";
+const u8 menuStr_DisplayMode_4Split_RCrop[] = "4Split-Right Crop";
+const u8 menuStr_DisplayMode_4Split_LScale[] = "4Split-Left Scale";
+const u8 menuStr_DisplayMode_4Split_LCrop[] = "4Split-Left Crop";
+const u8 menuStr_DisplayMode_4Split_DScale[] = "4Split-Bottom Scale";
+const u8 menuStr_DisplayMode_4Split_DCrop[] = "4Split-Bottom Crop";
+const u8 menuStr_DisplayMode_4Split_UScale[] = "4Split-Top Scale";
+const u8 menuStr_DisplayMode_4Split_UCrop[] = "4Split-Top Crop";
+const u8 menuStr_DisplayMode_4Split_H[] = "4Split-H";
+const u8 menuStr_DisplayMode_4Split_X[] = "4Split-X";
+
+const u8 menuStr_DisplayMode_PIP_A2[] = "PIP Right-Top Ch2";
+const u8 menuStr_DisplayMode_PIP_A3[] = "PIP Right-Top Ch3";
+const u8 menuStr_DisplayMode_PIP_A4[] = "PIP Right-Top Ch4";
+const u8 menuStr_DisplayMode_PIP_B2[] = "PIP Left-Bottom Ch2";
+const u8 menuStr_DisplayMode_PIP_B3[] = "PIP Left-Bottom Ch3";
+const u8 menuStr_DisplayMode_PIP_B4[] = "PIP Left-Bottom Ch4";
+const u8 menuStr_DisplayMode_PIP_C2[] = "PIP Right-Bottom Ch2";
+const u8 menuStr_DisplayMode_PIP_C3[] = "PIP Right-Bottom Ch3";
+const u8 menuStr_DisplayMode_PIP_C4[] = "PIP Right-Bottom Ch4";
+const u8 menuStr_DisplayMode_PIP_D2[] = "PIP Left-Top Ch2";
+const u8 menuStr_DisplayMode_PIP_D3[] = "PIP Left-Top Ch3";
+const u8 menuStr_DisplayMode_PIP_D4[] = "PIP Left-Top Ch4";
+
+const u8* pDisplayMode_Name[DISPLAY_MODE_MAX] = 
+{
+	NULL,
+	NULL, 
+	NULL,
+	NULL,
+	menuStr_DisplayMode_2SplitHScale_A,
+	menuStr_DisplayMode_2SplitHCrop_A,
+	menuStr_DisplayMode_2SplitVScale_A,
+	menuStr_DisplayMode_2SplitVCrop_A,
+	menuStr_DisplayMode_2SplitHScale_B,	
+	menuStr_DisplayMode_2SplitHCrop_B,
+	menuStr_DisplayMode_2SplitVScale_B,
+	menuStr_DisplayMode_2SplitVCrop_B,
+	menuStr_DisplayMode_4Split_Quad,
+	menuStr_DisplayMode_4Split_RScale,
+	menuStr_DisplayMode_4Split_RCrop,
+	menuStr_DisplayMode_4Split_LScale,
+	menuStr_DisplayMode_4Split_LCrop,
+	menuStr_DisplayMode_4Split_DScale,
+	menuStr_DisplayMode_4Split_DCrop,
+	menuStr_DisplayMode_4Split_UScale,
+	menuStr_DisplayMode_4Split_UCrop,
+	menuStr_DisplayMode_4Split_H,
+	menuStr_DisplayMode_4Split_X,
+	menuStr_DisplayMode_PIP_A2,
+	menuStr_DisplayMode_PIP_A3,
+	menuStr_DisplayMode_PIP_A4,
+	menuStr_DisplayMode_PIP_B2,
+	menuStr_DisplayMode_PIP_B3,
+	menuStr_DisplayMode_PIP_B4,
+	menuStr_DisplayMode_PIP_C2,
+	menuStr_DisplayMode_PIP_C3,
+	menuStr_DisplayMode_PIP_C4,
+	menuStr_DisplayMode_PIP_D2,
+	menuStr_DisplayMode_PIP_D3,
+	menuStr_DisplayMode_PIP_D4
+};
 
 const u8 menuStr_Alarm[] =   "ALARM";
 const u8 menuStr_Remocon[] = "REMOTE";
