@@ -112,7 +112,7 @@ enum
 enum
 {
 	DISPLAY_ITEM_Y_TITLE = 0,
-	DISPLAY_ITEM_Y_RESOLUTION,
+//	DISPLAY_ITEM_Y_RESOLUTION,
 	DISPLAY_ITEM_Y_OSD_DISPLAY,
 	DISPLAY_ITEM_Y_BORDER_LINE_DISPLAY,
 	DISPLAY_ITEM_Y_SPLIT_MODE,
@@ -1296,7 +1296,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 					case AUTOSEQ_ITEM_Y_CH3_DISPLAY_TIME:
 					case AUTOSEQ_ITEM_Y_CH4_DISPLAY_TIME:
 						Read_NvItem_AutoSeqTime(autoSeqTime);
-						IncreaseDecreaseCount(60,0,inc_dec, &autoSeqTime[itemY-1], TRUE);
+						IncreaseDecreaseCount(60,5,inc_dec, &autoSeqTime[itemY-1], TRUE);
 						Write_NvItem_AutoSeqTime(autoSeqTime);
 						break;
 					case AUTOSEQ_ITEM_Y_LOSS_SKIP:
@@ -1341,59 +1341,15 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 {
 	{24, LINE0_OFFSET_Y, menuStr_Display_Title},
-	{20, LINE1_OFFSET_Y, menuStr_Display_Resolution},
-	{20, LINE2_OFFSET_Y, menuStr_Display_OsdDisplay},
-	{20, LINE3_OFFSET_Y, menuStr_Display_BorderLine},
-	{20, LINE4_OFFSET_Y, menuStr_Display_SplitMode}
+//	{20, LINE1_OFFSET_Y, menuStr_Display_Resolution},
+	{20, LINE1_OFFSET_Y, menuStr_Display_OsdDisplay},
+	{20, LINE2_OFFSET_Y, menuStr_Display_BorderLine},
+	{20, LINE3_OFFSET_Y, menuStr_Display_SplitMode}
 };
 static BOOL splitModeSelecting = FALSE;
 
-#if 0
-static u8* Get_String_SplitMode(splitMode)
-{
-	u8* pStr;
-
-	switch(splitMode)
-	{
-		case DISPLAY_MODE_2SPLIT_HSCALE_A:
-			pStr = (u8*)menuStr_DisplayMode_2SplitHScale_A;
-			break;
-		case DISPLAY_MODE_QUAD_B:
-			pStr = (u8*)menuStr_SplitMode_QuadB;
-			break;
-		case DISPLAY_MODE_QUAD_C:
-			pStr = (u8*)menuStr_SplitMode_QuadC;
-			break;
-		case DISPLAY_MODE_QUAD_D:
-			pStr = (u8*)menuStr_SplitMode_QuadD;
-			break;
-		case DISPLAY_MODE_QUAD_E:
-			pStr = (u8*)menuStr_SplitMode_QuadE;
-			break;
-		case DISPLAY_MODE_3SPLIT_A:
-			pStr = (u8*)menuStr_SplitMode_3SplitA;
-			break;
-		case DISPLAY_MODE_3SPLIT_B:
-			pStr = (u8*)menuStr_SplitMode_3SplitB;
-			break;
-		case DISPLAY_MODE_3SPLIT_C:
-			pStr = (u8*)menuStr_SplitMode_3SplitC;
-			break;
-		case DISPLAY_MODE_3SPLIT_D:
-			pStr = (u8*)menuStr_SplitMode_3SplitD;
-			break;
-		case DISPLAY_MODE_2SPLIT:
-			pStr = (u8*)menuStr_SplitMode_2Split;
-			break;
-	}
-
-	return pStr;
-}
-#endif
-
 static void DisplayPage_DisplaySplitMode(eDisplayMode_t split)
 {
-	//eDisplayMode_t split = GetSystemSplitMode();
 	sPosition_t position;
 
 	Erase_AllMenuScreen();
@@ -1423,8 +1379,9 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 
 	switch(itemY)
 	{
+#if 0
 		case DISPLAY_ITEM_Y_RESOLUTION:
-/*			Read_NvItem_Resolution(&resolution);
+			Read_NvItem_Resolution(&resolution);
 			switch(resolution)
 			{
 				case RESOLUTION_1920_1080_60P:
@@ -1443,8 +1400,9 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 							attribute,
 							strlen(menuStr_Resolution1920X1080_50P));
 					break;
-			}	*/
+			}	
 			break;
+#endif
 
 		case DISPLAY_ITEM_Y_OSD_DISPLAY:
 			Read_NvItem_OsdOn(&osdOn);
@@ -1495,7 +1453,8 @@ static void DisplayPage_Entry(void)
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
 
-	DrawSelectMark(DISPLAY_ITEM_Y_RESOLUTION);
+	//DrawSelectMark(DISPLAY_ITEM_Y_RESOLUTION);
+	DrawSelectMark(DISPLAY_ITEM_Y_OSD_DISPLAY);
 	for(index = 0; index < DISPLAY_ITEM_Y_MAX; index++)
 	{
 		Print_StringWithSelectedMarkSize(
@@ -1543,7 +1502,7 @@ static void DisplayPage_RedrawPage(u8 itemY)
 
 static void DisplayPage_KeyHandler(eKeyData_t key)
 {
-	static u8 itemY = DISPLAY_ITEM_Y_RESOLUTION;
+	static u8 itemY = DISPLAY_ITEM_Y_OSD_DISPLAY;
 	u8 inc_dec = DECREASE;
 //	eResolution_t resolution;
 	BOOL osdOn;
@@ -1559,11 +1518,11 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			{
 				switch(itemY)
 				{
-					case DISPLAY_ITEM_Y_RESOLUTION:
+					//case DISPLAY_ITEM_Y_RESOLUTION:
 						//Read_NvItem_Resolution(&resolution);
 						//IncreaseDecreaseCount(RESOLUTION_MAX - 1, 0, inc_dec, &resolution, TRUE);
 						//Write_NvItem_Resolution(resolution);
-						break;
+						//break;
 					case DISPLAY_ITEM_Y_OSD_DISPLAY:
 						Read_NvItem_OsdOn(&osdOn);
 						Toggle(&osdOn);
@@ -1591,14 +1550,14 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 
 		case KEY_ENTER:
 			Toggle(&requestEnterKeyProc);
-                        if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
-				{
-					DisplayPage_RedrawPage(itemY);
-				}
-				else
-				{
-					DisplayPage_UpdatePageOption(itemY);
-				}
+			if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
+			{
+				DisplayPage_RedrawPage(itemY);
+			}
+			else
+			{
+				DisplayPage_UpdatePageOption(itemY);
+			}
 			//DisplayPage_UpdatePageOption(itemY);
 			break;
 
@@ -1617,7 +1576,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
-				itemY = DISPLAY_ITEM_Y_RESOLUTION;
+				itemY = DISPLAY_ITEM_Y_OSD_DISPLAY;
 				splitModeSelecting = FALSE;
 				MainMenu_Entry(currentPage);
 			}
@@ -2407,6 +2366,7 @@ static void MainPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = MAINMENU_ITEM_Y_TIME_DATE;
 	u8 inc_dec = DECREASE;
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
  	switch(key)
 	{
@@ -2436,8 +2396,7 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			OSD_RefreshScreen();
 
 			// turn on button leds
-			//TurnOnSelectedLed(Get_SystemDisplayChannel());
-			
+			TurnOnSelectedLed(ConvertDisplayMode2Channel(displayMode));
 			break;
 	}
 }

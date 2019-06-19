@@ -6,7 +6,7 @@
 #include "common.h"
 #include "video_loss.h"
 
-#define MDIN_TEST_PATTERN
+#undef MDIN_TEST_PATTERN
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -75,8 +75,6 @@ static void PlayBuzzer(void)
 //=============================================================================
 void main(void)
 {
-	eDisplayMode_t displayMode;
-
 	I2C_SET_CHANNEL(I2C_MAIN);
 	// initialize STM32F103x
 	MCU_init();
@@ -126,8 +124,8 @@ void main(void)
 
 	//NVP6158 device initialization
 	NVP6158_init();
-//	InitVideoLossCheck();
-//	InitializeMotionDetect();
+	InitVideoLossCheck();
+	InitializeMotionDetect();
 
 	// initialize Debug Serial
 	USART3_Init();
@@ -136,28 +134,9 @@ void main(void)
 	CreateOSDInstance();
 	Osd_ClearScreen();
 
-	//InputSelect = VIDEO_DIGITAL_SDI;
-	Read_NvItem_DisplayMode(&displayMode);
+	SetInitialKey();
 	
-	if(displayMode == DISPLAY_MODE_FULL_CH1)
-	{
-		UpdateKeyData(KEY_FULL_CH1);
-	}
-	else if(displayMode == DISPLAY_MODE_FULL_CH2)
-	{
-		UpdateKeyData(KEY_FULL_CH2);
-	}
-	else
-	{
-		UpdateKeyData(KEY_SPLIT);
-	}
-
-	SetKeyReady();
-
-//	OSD_DrawBorderLine();
-//	OSD_RefreshScreen();
-
-#if 0//def MDIN_TEST_PATTERN
+#ifdef MDIN_TEST_PATTERN
 	I2C_SET_CHANNEL(I2C_MAIN);
 //	I2C_SET_CHANNEL(I2C_SUB);
 	SELECT_MDIN(MDIN_A);
@@ -173,12 +152,11 @@ void main(void)
 		Key_Proc();
 		NVP6158_VideoDetectionProc();
 		Delay_ms(1);
-		//Set_DisplayoutputMode_table();
 		
 		ScanVideoLossChannels();
-//		CheckAlarmClearCondition();
-//		MotionDetectCheck();
-//		PlayBuzzer();
+		CheckAlarmClearCondition();
+		MotionDetectCheck();
+		PlayBuzzer();
 
 		UpdateAutoSeqCount();
 		DisplayAutoSeqChannel();

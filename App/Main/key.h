@@ -111,4 +111,5 @@ extern BOOL IsKeyReady(void);
 extern void UpdateKeyData(eKeyData_t key);
 extern eKeyData_t GetCurrentKey(void);
 extern BOOL IsScreenFreeze(void);
+extern void SetInitialKey(void);
 #endif

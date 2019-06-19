@@ -1093,7 +1093,7 @@ void OSD_DisplayVideoMode(void)
 		inPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
 		outPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
 		
-		if(IsVideoLossChannel(channel) != TRUE)
+		if((IsVideoLossChannel(channel) != TRUE) && (GetAutoSeqOn() == FALSE))
 		{
 			if(videoModeDisplayCount[channel] > 0)
 			{

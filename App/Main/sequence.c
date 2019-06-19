@@ -211,8 +211,10 @@ void DisplayAutoSeqChannel(void)
 		OSD_EraseAllText();
 		// update current channel
 		DisplayScreen((eDisplayMode_t)displayChannel);
+		SetInputChanged();
 		// Update OSD
 		OSD_RefreshScreen();
+		Delay_ms(10);
 		OSD_Display();
 	}
 }

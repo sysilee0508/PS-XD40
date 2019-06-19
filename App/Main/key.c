@@ -92,9 +92,9 @@ void TurnOnSelectedLed(eChannel_t channel)
 		case CHANNEL4:
 			led_keycode = KEYCODE_CH4;
 			break;
-//		case CHANNEL_SPLIT:
-//			led_keycode = KEYCODE_SPLIT;
-//			break;
+		default:
+			led_keycode = KEYCODE_SPLIT;
+			break;
 	}
 }
 
@@ -174,6 +174,25 @@ eKeyData_t GetCurrentKey(void)
 BOOL IsScreenFreeze(void)
 {
 	return screenFreezeOn;
+}
+
+void SetInitialKey(void)
+{
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	eKeyData_t key = KEY_NONE;
+
+	if(IS_FULL_MODE(displayMode))
+	{
+		key = (eKeyData_t)displayMode+1;
+	}
+	else
+	{
+		key = KEY_SPLIT;
+	}
+
+	UpdateKeyData(key);
+	TurnOnSelectedLed(ConvertDisplayMode2Channel(displayMode));
+	SetKeyReady();
 }
 
 //-----------------------------------------------------------------------------
@@ -425,44 +444,6 @@ void Key_Check(void)
 	}
 }
 
-
-const eDisplayMode_t testSplitMode[] = 
-{
-	// 2-split (8)
-	DISPLAY_MODE_2SPLIT_HSCALE_A,	// ch 1,2
-	DISPLAY_MODE_2SPLIT_HCROP_A,		// ch 1,2
-	DISPLAY_MODE_2SPLIT_VSCALE_A,	// ch 1,2
-	DISPLAY_MODE_2SPLIT_VCROP_A,		// ch 1,2
-	DISPLAY_MODE_2SPLIT_HSCALE_B,	
-	DISPLAY_MODE_2SPLIT_HCROP_B,
-	DISPLAY_MODE_2SPLIT_VSCALE_B,
-	DISPLAY_MODE_2SPLIT_VCROP_B,
-	// 4-split (11)
-	DISPLAY_MODE_4SPLIT_QUAD,
-	DISPLAY_MODE_4SPLIT_R3SCALE,
-	DISPLAY_MODE_4SPLIT_R3CROP,
-	DISPLAY_MODE_4SPLIT_L3SCALE,
-	DISPLAY_MODE_4SPLIT_L3CROP,
-	DISPLAY_MODE_4SPLIT_D3SCALE,
-	DISPLAY_MODE_4SPLIT_D3CROP,
-	DISPLAY_MODE_4SPLIT_U3SCALE,
-	DISPLAY_MODE_4SPLIT_U3CROP,
-	DISPLAY_MODE_4SPLIT_H,
-	DISPLAY_MODE_4SPLIT_X,
-	// PIP	(12)
-	DISPLAY_MODE_PIP_A2,	
-	DISPLAY_MODE_PIP_A3,	
-	DISPLAY_MODE_PIP_A4,	
-	DISPLAY_MODE_PIP_B2,
-	DISPLAY_MODE_PIP_B3,
-	DISPLAY_MODE_PIP_B4,
-	DISPLAY_MODE_PIP_C2,
-	DISPLAY_MODE_PIP_C3,
-	DISPLAY_MODE_PIP_C4,
-	DISPLAY_MODE_PIP_D2,
-	DISPLAY_MODE_PIP_D3,
-	DISPLAY_MODE_PIP_D4
-};
 void Key_Proc(void)
 {
 	static eKeyData_t previous_keydata = KEY_NONE;
@@ -520,18 +501,6 @@ void Key_Proc(void)
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
 					DisplayScreen(GetSystemSplitMode());
-					OSD_DrawBorderLine();
-					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-					{
-						ResetVideoModeDisplayTime(channel);
-					}
-				}
-				else
-				{
-					OSD_EraseAllText();
-					split = (++split)%31;
-					DisplayScreen(testSplitMode[split]);
-					SetInputChanged();
 					OSD_DrawBorderLine();
 					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 					{

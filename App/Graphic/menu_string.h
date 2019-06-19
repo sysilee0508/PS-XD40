@@ -179,10 +179,10 @@ const u8 menuStr_AutoSeq_NoVideoSkip[] =     "5. NO VIDEO CHANNEL SKIP : "; // S
 
 // Display
 const u8 menuStr_Display_Title[] =      "-- DISPLAY OPTION --";
-const u8 menuStr_Display_Resolution[] = "1. RESOLUTION : ";
-const u8 menuStr_Display_OsdDisplay[] = "2. OSD DISPLAY : ";
-const u8 menuStr_Display_BorderLine[] = "3. BORDER LINE DISPLAY : ";
-const u8 menuStr_Display_SplitMode[] = "4. SPLIT MODE : ";
+//const u8 menuStr_Display_Resolution[] = "1. RESOLUTION : ";
+const u8 menuStr_Display_OsdDisplay[] = "1. OSD DISPLAY : ";
+const u8 menuStr_Display_BorderLine[] = "2. BORDER LINE DISPLAY : ";
+const u8 menuStr_Display_SplitMode[] = "3. SPLIT MODE : ";
 
 // Alarm
 const u8 menuStr_Alarm_Title[] =               "-- ALARM / REMOTE OPTION --";

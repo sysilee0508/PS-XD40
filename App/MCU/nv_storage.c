@@ -126,7 +126,7 @@ static void LoadDefaultNvData(void)
 	nv_data.data.titleDisplayOn = ON;
 	for(index = CHANNEL1; index < NUM_OF_CHANNEL; index++)
 	{
-		nv_data.data.autoSeqTime[index] = 3;
+		nv_data.data.autoSeqTime[index] = 7;
 	}
 	nv_data.data.autoSeqLossSkip = ON;
 	//nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
