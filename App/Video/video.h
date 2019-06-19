@@ -42,7 +42,7 @@ typedef enum
 	MDIN_ID_A = 0,
 	MDIN_ID_B,
 	MDIN_ID_C,
-//	MDIN_ID_D,
+	MDIN_ID_D,
 	MDIN_ID_MAX
 } MDIN_CHIP_ID_t;
 
