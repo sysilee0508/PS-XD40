@@ -542,11 +542,18 @@ void OSD_ModifyPalette_M(BOOL rgb)
 	PLAYER_CTL_INFO pCTL = &stLayer[LAYER_INDEX0];
 	PLAYER_PAL_INFO pPAL = &stLayer[LAYER_INDEX0].stPAL;
 
-	if (rgb==OSD_RGB_PALETTE) pPAL->pBuff = (PBYTE)mdin3xx_font_rgb_pal;
-	else					  pPAL->pBuff = (PBYTE)mdin3xx_font_yuv_pal;
-
+	if (rgb==OSD_RGB_PALETTE) 
+	{
+		pPAL->pBuff = (PBYTE)mdin3xx_font_rgb_pal;
+		pPAL->size		= sizeof(mdin3xx_font_rgb_pal);
+	}
+	else	
+	{
+		pPAL->pBuff = (PBYTE)mdin3xx_font_yuv_pal;
+		pPAL->size		= sizeof(mdin3xx_font_yuv_pal);
+	}
 	pPAL->addr		= 0;
-	pPAL->size		= sizeof(mdin3xx_font_rgb_pal);
+
 	MDINOSD_SetLayerPalette(pCTL, pPAL->addr, pPAL->size, pPAL->pBuff);
 }
 

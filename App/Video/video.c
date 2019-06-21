@@ -13,6 +13,7 @@
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
+#if 0
 // default value for AUX filter
 static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
   {	{0x00aa, 0x0047, 0x03e4, 0x0000, 0x0000},	// HY - 1920x1080 to 1280x1024
@@ -40,6 +41,7 @@ static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
 	{0x0072, 0x0042, 0x0005},					// VY
 	{0x0072, 0x0047}  },						// VC
 };
+#endif
 
 MDIN_VIDEO_INFO	 stVideo_A, stVideo_B, stVideo_C, stVideo_D;
 MDIN_INTER_WINDOW	stInterWND;
@@ -243,6 +245,17 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 
 	return format[channel];
 }
+
+
+//--------------------------------------------------------------------------------------------------
+static void SetIPCVideoFine(void)
+{
+	MDINHIF_RegField(MDIN_LOCAL_ID, 0x256, 0, 8, 12);
+	MDINHIF_RegField(MDIN_LOCAL_ID, 0x259, 0, 8,  4);
+	MDINHIF_RegField(MDIN_LOCAL_ID, 0x25a, 8, 8,  1);
+	MDINHIF_RegField(MDIN_LOCAL_ID, 0x25b, 0, 8,  8);
+}
+
 
 static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 {
@@ -610,29 +623,29 @@ static void MDIN3xx_SetRegInitial_D(void)
 	stVideo_D.dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
 
 	// set video path
-	stVideo_D.srcPATH = PATH_MAIN_A_AUX_M;	// set main is A, aux is main out
+	stVideo_D.srcPATH = PATH_MAIN_A_AUX_A;	// set main is A, aux is main out
 	stVideo_D.dacPATH = DAC_PATH_MAIN_OUT;	// set main only
 	stVideo_D.encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
 	// define video format of PORTA-INPUT
 	stVideo_D.stSRC_a.frmt = VIDSRC_1920x1080p60;
-	stVideo_D.stSRC_a.mode = MDIN_SRC_RGB444_8;
+	stVideo_D.stSRC_a.mode = MDIN_SRC_EMB422_8;
 	//stVideo_D.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
 	stVideo_D.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
 	stVideo_D.stSRC_a.offH = 0;
 	stVideo_D.stSRC_a.offV = 0;
 
 	// define video format of PORTB-INPUT
-	stVideo_D.stSRC_b.frmt = VIDSRC_1920x1080p60;
-	stVideo_D.stSRC_b.mode = MDIN_SRC_RGB444_8;
-	//stVideo_D.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
-	stVideo_D.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
-	stVideo_D.stSRC_b.offH = 0;
-	stVideo_D.stSRC_b.offV = 0;
+//	stVideo_D.stSRC_b.frmt = VIDSRC_1920x1080p60;
+//	stVideo_D.stSRC_b.mode = MDIN_SRC_RGB444_8;
+//	//stVideo_D.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+//	stVideo_D.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
+//	stVideo_D.stSRC_b.offH = 0;
+//	stVideo_D.stSRC_b.offV = 0;
 
 	// define video format of MAIN-OUTPUT
-	stVideo_D.stOUT_m.frmt = VIDOUT_720x480i60;//VIDOUT_1920x1080p60;
-	stVideo_D.stOUT_m.mode = MDIN_OUT_MUX656_8;//MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
+	stVideo_D.stOUT_m.frmt = VIDOUT_1920x1080p60;
+	stVideo_D.stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
 	stVideo_D.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
 	stVideo_D.stOUT_m.brightness = 128;			// set main picture factor
@@ -680,8 +693,8 @@ static void MDIN3xx_SetRegInitial_D(void)
 	// define video format of video encoder
 	stVideo_D.encFRMT = VID_VENC_NTSC_M;	//VID_VENC_AUTO
 	// define video format of HDMI-OUTPUT
-	stVideo_D.stVID_h.mode  = HDMI_OUT_RGB444_8;
-	stVideo_D.stVID_h.fine  = HDMI_CLK_EDGE_RISE;
+//	stVideo_D.stVID_h.mode  = HDMI_OUT_RGB444_8;
+//	stVideo_D.stVID_h.fine  = HDMI_CLK_EDGE_RISE;
 
 	// audio block
 //	stVideo_D.stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
@@ -693,6 +706,10 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	stVideo_D.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
 	MDIN3xx_VideoProcess(&stVideo_D);			// mdin3xx main video process
+
+	SetIPCVideoFine();
+	MDIN3xx_EnableAuxDisplay(&stVideo_D, ON);
+	MDIN3xx_EnableMainDisplay(ON);
 
 	// define window for inter-area (PIP window? kukuri)
 //	stInterWND.lx = 315;
@@ -835,8 +852,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1280x720p50;
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB; // VIDOUT_1280x720p50;
+				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
 			break;
@@ -855,8 +872,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1280x720p50;
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB; // VIDOUT_1280x720p50;
+				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
 			break;
@@ -882,8 +899,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p50;
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
 			break;
@@ -902,8 +919,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p50;
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
 			break;
@@ -920,8 +937,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1280x720p50;
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50;// VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
 
@@ -942,8 +959,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p50;
-				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB;// VIDOUT_1280x720p50;
+				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50;//VIDSRC_1280x720p50;
 			}
 			break;
 
@@ -960,8 +977,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1280x720p50;
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB;// VIDOUT_1280x720p50;
+				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
 
@@ -976,8 +993,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p50;
-				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB;//VIDOUT_1280x720p50;
+				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 			}
 			break;
 			
@@ -993,8 +1010,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1280x720p50;
-				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 			}
 
 			SrcMainFrmt[MDIN_ID_B] = GetInSourceFormat(CHANNEL3);//stVideo.stSRC_a.frmt;
@@ -1009,8 +1026,8 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p50;
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
 			break;
@@ -1108,21 +1125,10 @@ static void InputSourceHandler(MDIN_VIDEO_INPUT_t src)
 }
 
 //--------------------------------------------------------------------------------------------------
-static void SetIPCVideoFine(void)
-{
-	MDINHIF_RegField(MDIN_LOCAL_ID, 0x256, 0, 8, 12);
-	MDINHIF_RegField(MDIN_LOCAL_ID, 0x259, 0, 8,  4);
-	MDINHIF_RegField(MDIN_LOCAL_ID, 0x25a, 8, 8,  1);
-	MDINHIF_RegField(MDIN_LOCAL_ID, 0x25b, 0, 8,  8);
-}
-
-
-//--------------------------------------------------------------------------------------------------
 static void SetOSDMenuRefresh(void)
 {
 	ConfigI2C(MDIN_ID_C);
-	//OSD_ModifyPalette_M((OutMainMode==MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
-	OSD_ModifyPalette_M(OSD_RGB_PALETTE);
+	//OSD_ModifyPalette_M((stVideo_C.stOUT_m.mode == MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
 	MDINOSD_EnableLayerRepeat(&stLayer[LAYER_INDEX0], OFF, OFF);
 	MDIN3xx_EnableAuxWithMainOSD(&stVideo_C, ON);
 }
@@ -1207,7 +1213,7 @@ void CreateVideoInstance(void)
 	memset((PBYTE)&stVideo_C, 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_C();
 	memset((PBYTE)&stVideo_D, 0, sizeof(MDIN_VIDEO_INFO));
-	//MDIN3xx_SetRegInitial_D();
+	MDIN3xx_SetRegInitial_D();
 	
 	InputSelect = VIDEO_DIGITAL_NVP6158_A;
 }
@@ -1268,6 +1274,28 @@ void VideoHTXCtrlHandler(void)
 }
 
 
+//--------------------------------------------------------------------------------------------------
+void SetAuxOutMode_C(void)
+{
+	eOutVideoFormat_t format;
+
+	Read_NvItem_AuxVideoFormat(&format);
+
+	ConfigI2C(MDIN_ID_C);
+	if(format == VIDEO_VGA)
+	{
+		stVideo_C.stOUT_m.mode = MDIN_OUT_RGB444_8;
+		OSD_ModifyPalette_M(OSD_RGB_PALETTE);
+	}
+	else
+	{
+		stVideo_C.stOUT_m.mode = MDIN_OUT_EMB422_8;
+		OSD_ModifyPalette_M(OSD_YUV_PALETTE);
+	}
+	stVideo_C.dspFLAG |= MDIN_UPDATE_AUXFMT;
+}
+
+//--------------------------------------------------------------------------------------------------
 void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 {
 	WORD mainWidth, mainHeight;
@@ -1567,6 +1595,7 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 }
 
 
+//--------------------------------------------------------------------------------------------------
 void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 {
 	WORD mainWidth, mainHeight;
@@ -1788,11 +1817,9 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 }
 
 
+//--------------------------------------------------------------------------------------------------
 void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 {
-	WORD mainWidth, mainHeight;
-	WORD auxWidth, auxHeight;
-
 	PMDIN_VIDEO_WINDOW pMainView = &stMainVIEW[MDIN_ID_C];
 	PMDIN_VIDEO_WINDOW pAuxView = &stAuxVIEW[MDIN_ID_C];
 	PMDIN_VIDEO_WINDOW pMainCrop = &stMainCROP[MDIN_ID_C];

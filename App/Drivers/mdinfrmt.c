@@ -1236,6 +1236,43 @@ ROMDATA MDIN_OUTVIDEO_SYNC defMDINOutSync[]		= {
 		  66		// axclk_gen_div_t (T)
 	#endif
 	},
+#if 1
+	{
+		// 1920x1080p60 Reduced Blanking  --> for 1920x1080p25 BT656 out
+		  20,		// hdpulse_pos
+		  10,		// vdpulse_pos
+		   0,		// vdpulse_pos_bot
+		2046, //kukuri  //2080,		// htotal_size	
+		  80,		// hactive_start
+		2000,		// hactive_end
+		  33,		// hsync_start
+		   1,		// hsync_end
+		1353, //kukuri //1111,		// vtotal_size
+		  30,		// vactive_start
+		1110,		// vactive_end
+		   7,		// vsync_start
+		   2,		// vsync_end
+		   0,		// vactive_start_bot
+		   0,		// vactive_end_bot
+		   0,		// vsync_start_bot
+		   0,		// vsync_end_bot
+		   0,		// vsync_bot_fld_pos
+		 
+		  54,		// pre_div_vclk (P)
+		 277,		// post_div_vclk (M)
+		   2, // kukuri // 1,		// post_scale_vclk (S)
+
+	#if defined(SYSTEM_USE_MCLK189)
+		   2,		// axclk_gen_div_s (S)
+		  35,		// axclk_gen_div_f (F)
+		  48		// axclk_gen_div_t (T)
+	#else
+		   2,		// axclk_gen_div_s (S)
+		  61,		// axclk_gen_div_f (F)
+		  66		// axclk_gen_div_t (T)
+	#endif
+	},
+#else
 	{
 		// 1920x1200p60 Reduced Blanking
 		  20,		// hdpulse_pos
@@ -1271,6 +1308,7 @@ ROMDATA MDIN_OUTVIDEO_SYNC defMDINOutSync[]		= {
 		  27		// axclk_gen_div_t (T)
 	#endif
 	}
+#endif
 };
 
 // DAC sync control

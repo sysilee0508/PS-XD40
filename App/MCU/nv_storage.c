@@ -144,11 +144,9 @@ static void LoadDefaultNvData(void)
 	}
 	nv_data.data.videoLossBuzzerTime = 3;
 	nv_data.data.videoLossDisplayOn = ON;
-
 	nv_data.data.remoconId = REMOCON_ID_NONE;
 	nv_data.data.alarm_remote_sel = ALARM_MODE;
 	nv_data.data.baudrate = BAUDRATE_9600;
-	
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{	
 		nv_data.data.motionDetect_On[index] = OFF;
@@ -156,13 +154,14 @@ static void LoadDefaultNvData(void)
 	nv_data.data.motionSensitivity = 49;
 	memset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
 	nv_data.data.motionIndication = OFF;
+	nv_data.data.auxVideo = VIDEO_VGA;
 
-	nv_data.data.displayMode = DISPLAY_MODE_FULL_CH1;
-	nv_data.data.splitMode = DISPLAY_MODE_2SPLIT_HSCALE_A;
-	//nv_data.data.currentChannel = (eChannel_t)CHANNEL_SPLIT;
+	nv_data.data.displayMode = DISPLAY_MODE_4SPLIT_QUAD;
+	nv_data.data.splitMode = DISPLAY_MODE_4SPLIT_QUAD;
 
 	// set anyone of nv items dirty in order to write nv data to flash
 	nvInfo[NV_ITEM_END_CHECK].dirty = SET;
+	
 	// Write nv data to Flash
 	StoreNvDataToStorage();
 }
@@ -294,20 +293,7 @@ void Write_NvItem_SplitMode(eDisplayMode_t data)
 	nv_data.data.splitMode = data;
 	nvInfo[NV_ITEM_SPLIT_MODE].dirty = SET;
 }
-/*
-void Read_NvItem_DisplayChannel(eChannel_t* pData)
-{
-	*pData = nv_data.data.currentChannel;
-}
-void Write_NvItem_DisplayChannel(eChannel_t data)
-{
-	if(data <= NUM_OF_CHANNEL)
-	{
-		nv_data.data.currentChannel = data;
-		nvInfo[NV_ITEM_DISPLAY_CHANNEL].dirty = SET;
-	}
-}
-*/
+
 void Read_NvItem_DisplayMode(eDisplayMode_t* pData)
 {
 	*pData = nv_data.data.displayMode;
@@ -404,7 +390,6 @@ void Write_NvItem_DateDisplayOn(BOOL data)
 
 void Read_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
 {
-	//*pData = nv_data.data.channelName[channel];
 	strncpy((char *)pData, (const char*)(nv_data.data.channelName[channel]), CHANNEL_NEME_LENGTH_MAX);
 }
 void Write_NvItem_ChannelName(uint8_t* pData, eChannel_t channel)
@@ -448,23 +433,6 @@ void Write_NvItem_VideoLossDisplayOn(BOOL data)
 	nv_data.data.videoLossDisplayOn = data;
 	nvInfo[NV_ITEM_VIDEO_LOSS_DISPLAY_ON].dirty = SET;
 }
-
-/*
-void Read_NvItem_Resolution(eResolution_t *pData)
-{
-	*pData = nv_data.data.outputResolution;
-}
-void Write_NvItem_Resolution(eResolution_t data)
-{
-	if(data < RESOLUTION_MAX)
-	{
-		nv_data.data.outputResolution = data;
-		nvInfo[NV_ITEM_OUTPUT_RESOLUTION].dirty = SET;
-
-		UpdateVideoResolution(data);
-	}
-}
-*/
 
 void Read_NvItem_BorderLineDisplay(BOOL *pData)
 {
@@ -588,13 +556,15 @@ void Write_NvItem_MotionIndication(BOOL data)
 	nvInfo[NV_ITME_MOTION_INDICATION].dirty = SET;
 }
 
-//--------------------------------------------------------------------------------
-void GetSystemStatus(sSystemStatusData_t* pStatus)
+void Read_NvItem_AuxVideoFormat(eOutVideoFormat_t *pData)
 {
-	memcpy(pStatus, &systemStatus, sizeof(sSystemStatusData_t));
+	*pData = nv_data.data.auxVideo;
+}
+void Write_NvItem_AuxVideoFormat(eOutVideoFormat_t data)
+{
+	nv_data.data.auxVideo = data;
+	nvInfo[NV_ITEM_VIDEO_AUX_FORMAT].dirty = SET;
 }
 
-void SetSystemStatus(sSystemStatusData_t* pStatus)
-{
-	memcpy(&systemStatus, pStatus, sizeof(sSystemStatusData_t));
-}
+
+/*****  END OF FILE *****/

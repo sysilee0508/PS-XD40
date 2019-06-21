@@ -63,6 +63,7 @@ typedef enum
 	NV_ITEM_MOTION_DETECT_BLOCK,
 	NV_ITME_MOTION_INDICATION,
 	NV_ITEM_SERIAL_BAUDRATE,
+	NV_ITEM_VIDEO_AUX_FORMAT,
 //-- system data ---------------------------------------------------------------
 //	If you want to store any system data (item) in NV memory, it comes here
 	NV_ITEM_DISPLAY_MODE,
@@ -130,6 +131,13 @@ typedef enum
 	BAUDRATE_9600,
 	BAUDRATE_MAX
 } eBaudRate_t;
+
+typedef enum
+{
+	VIDEO_VGA,
+	VIDEO_CVBS,
+	VIDEO_MAX
+} eOutVideoFormat_t;
 //--------------------------------------------------------------------------------------
 typedef struct
 {
@@ -169,6 +177,7 @@ typedef struct
 	uint16_t				motionBlocks[NUM_OF_CHANNEL][ROWS_OF_BLOCKS];
 	BOOL					motionIndication;
 	eBaudRate_t 			baudrate;
+	eOutVideoFormat_t		auxVideo;
 
 	eDisplayMode_t			displayMode;
 	eDisplayMode_t			splitMode;
@@ -254,4 +263,6 @@ extern void Read_NvItem_MotionIndication(BOOL *pData);
 extern void Write_NvItem_MotionIndication(BOOL data);
 extern void Read_NvItem_SerialBaudrate(eBaudRate_t *pData);
 extern void Write_NvItem_SerialBaudrate(eBaudRate_t data);
+extern void Read_NvItem_AuxVideoFormat(eOutVideoFormat_t *pData);
+extern void Write_NvItem_AuxVideoFormat(eOutVideoFormat_t data);
 #endif

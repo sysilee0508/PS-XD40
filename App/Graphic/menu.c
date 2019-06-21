@@ -116,6 +116,7 @@ enum
 	DISPLAY_ITEM_Y_OSD_DISPLAY,
 	DISPLAY_ITEM_Y_BORDER_LINE_DISPLAY,
 	DISPLAY_ITEM_Y_SPLIT_MODE,
+	DISPLAY_ITEM_Y_AUX_VIDEO,
 	DISPLAY_ITEM_Y_MAX
 };
 
@@ -1344,7 +1345,8 @@ const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 //	{20, LINE1_OFFSET_Y, menuStr_Display_Resolution},
 	{20, LINE1_OFFSET_Y, menuStr_Display_OsdDisplay},
 	{20, LINE2_OFFSET_Y, menuStr_Display_BorderLine},
-	{20, LINE3_OFFSET_Y, menuStr_Display_SplitMode}
+	{20, LINE3_OFFSET_Y, menuStr_Display_SplitMode},
+	{20, LINE4_OFFSET_Y, menuStr_Display_VideoOutFormat}
 };
 static BOOL splitModeSelecting = FALSE;
 
@@ -1374,36 +1376,11 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 	BOOL osdOn;
 	BOOL borderLineOn;
 	eDisplayMode_t split;
-	//u8* pStr_SplitMode;
+	eOutVideoFormat_t auxVideo;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
 	switch(itemY)
 	{
-#if 0
-		case DISPLAY_ITEM_Y_RESOLUTION:
-			Read_NvItem_Resolution(&resolution);
-			switch(resolution)
-			{
-				case RESOLUTION_1920_1080_60P:
-					Print_StringWithSelectedMark(
-							displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
-							displayMenu[itemY].offset_y,
-							menuStr_Resolution1920X1080_60P,
-							attribute,
-							strlen(menuStr_Resolution1920X1080_60P));
-					break;
-				case RESOLUTION_1920_1080_50P:
-					Print_StringWithSelectedMark(
-							displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
-							displayMenu[itemY].offset_y,
-							menuStr_Resolution1920X1080_50P,
-							attribute,
-							strlen(menuStr_Resolution1920X1080_50P));
-					break;
-			}	
-			break;
-#endif
-
 		case DISPLAY_ITEM_Y_OSD_DISPLAY:
 			Read_NvItem_OsdOn(&osdOn);
 			Print_StringOnOff(
@@ -1441,6 +1418,35 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 			{
 				DisplayPage_DisplaySplitMode(split);
 			}
+			break;
+
+		case DISPLAY_ITEM_Y_AUX_VIDEO:
+			Read_NvItem_AuxVideoFormat(&auxVideo);
+			Print_StringWithSelectedMark(
+					displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+					displayMenu[itemY].offset_y,
+					menuStr_Space13,
+					NULL,
+					strlen(menuStr_Space13));
+			switch(auxVideo)
+			{
+				case VIDEO_VGA:
+					Print_StringWithSelectedMark(
+							displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+							displayMenu[itemY].offset_y,
+							menuStr_AuxVGA,
+							attribute,
+							strlen(menuStr_AuxVGA));
+					break;
+				case VIDEO_CVBS:
+					Print_StringWithSelectedMark(
+							displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+							displayMenu[itemY].offset_y,
+							menuStr_AuxCVBS,
+							attribute,
+							strlen(menuStr_AuxCVBS));
+					break;
+			}	
 			break;
 	}
 }
@@ -1504,7 +1510,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = DISPLAY_ITEM_Y_OSD_DISPLAY;
 	u8 inc_dec = DECREASE;
-//	eResolution_t resolution;
+	eOutVideoFormat_t auxVideo;
 	BOOL osdOn;
 	BOOL borderLineOn;
 	eDisplayMode_t split;
@@ -1518,11 +1524,6 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			{
 				switch(itemY)
 				{
-					//case DISPLAY_ITEM_Y_RESOLUTION:
-						//Read_NvItem_Resolution(&resolution);
-						//IncreaseDecreaseCount(RESOLUTION_MAX - 1, 0, inc_dec, &resolution, TRUE);
-						//Write_NvItem_Resolution(resolution);
-						//break;
 					case DISPLAY_ITEM_Y_OSD_DISPLAY:
 						Read_NvItem_OsdOn(&osdOn);
 						Toggle(&osdOn);
@@ -1537,6 +1538,13 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						split = GetSystemSplitMode();
 						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, DISPLAY_MODE_2SPLIT_HSCALE_A, inc_dec, &split, TRUE);
 						SetSystemSplitMode(split);
+						break;
+					case DISPLAY_ITEM_Y_AUX_VIDEO:
+						Read_NvItem_AuxVideoFormat(&auxVideo);
+						IncreaseDecreaseCount(VIDEO_MAX - 1, 0, inc_dec, &auxVideo, TRUE);
+						Write_NvItem_AuxVideoFormat(auxVideo);
+						SetAuxOutMode_C();
+						SetInputChanged();
 						break;
 				}
 				DisplayPage_UpdatePageOption(itemY);

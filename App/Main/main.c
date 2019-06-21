@@ -131,6 +131,7 @@ void main(void)
 	USART3_Init();
 
 	CreateVideoInstance();
+	SetAuxOutMode_C();
 	CreateOSDInstance();
 	Osd_ClearScreen();
 

@@ -101,6 +101,7 @@ void CreateVideoInstance(void);
 void SetInputSource(BYTE input);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
+void SetAuxOutMode_C(void);
 void CreateDisplayWindow_A(eDisplayMode_t displayMode);
 void CreateDisplayWindow_B(eDisplayMode_t displayMode);
 void CreateDisplayWindow_C(eDisplayMode_t displayMode);
