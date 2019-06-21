@@ -1202,16 +1202,16 @@ ROMDATA MDIN_OUTVIDEO_SYNC defMDINOutSync[]		= {
 	#endif
 	},
 	{
-		// 1920x1080p60 Reduced Blanking
+		// 1920x1080p60 Reduced Blanking  --> for 1920x1080p30 BT656 out
 		  20,		// hdpulse_pos
 		  10,		// vdpulse_pos
 		   0,		// vdpulse_pos_bot
-		2080,		// htotal_size
+		2046, //kukuri  //2080,		// htotal_size	
 		  80,		// hactive_start
 		2000,		// hactive_end
 		  33,		// hsync_start
 		   1,		// hsync_end
-		1111,		// vtotal_size
+		1128, //kukuri //1111,		// vtotal_size
 		  30,		// vactive_start
 		1110,		// vactive_end
 		   7,		// vsync_start
@@ -1224,7 +1224,7 @@ ROMDATA MDIN_OUTVIDEO_SYNC defMDINOutSync[]		= {
 		 
 		  54,		// pre_div_vclk (P)
 		 277,		// post_div_vclk (M)
-		   1,		// post_scale_vclk (S)
+		   2, // kukuri // 1,		// post_scale_vclk (S)
 
 	#if defined(SYSTEM_USE_MCLK189)
 		   2,		// axclk_gen_div_s (S)
