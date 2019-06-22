@@ -852,7 +852,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB; // VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080pRB2; // VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
@@ -872,7 +872,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB; // VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080pRB2; // VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
@@ -899,7 +899,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2; //VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
@@ -919,7 +919,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2; //VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
@@ -937,7 +937,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080pRB2; //VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50;// VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
@@ -959,7 +959,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB;// VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2;// VIDOUT_1280x720p50;
 				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50;//VIDSRC_1280x720p50;
 			}
 			break;
@@ -977,7 +977,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB;// VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080pRB2;// VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
@@ -993,7 +993,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB;//VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2;//VIDOUT_1280x720p50;
 				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 			}
 			break;
@@ -1010,7 +1010,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080pRB2; //VIDOUT_1280x720p50;
 				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 			}
 
@@ -1026,7 +1026,7 @@ static void ConfigVideoFrmt(BYTE src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1200pRB; //VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2; //VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 				OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 			}
@@ -1837,8 +1837,8 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 		case DISPLAY_MODE_2SPLIT_VCROP_A:
 		case DISPLAY_MODE_2SPLIT_VSCALE_B:
 		case DISPLAY_MODE_2SPLIT_VCROP_B:
-			pMainCrop->w = DISPLAY_WIDTH_1280x720 / 2;
-			pMainCrop->h = DISPLAY_HEIGHT_1280x720;
+			pMainCrop->w = DISPLAY_WIDTH / 2;
+			pMainCrop->h = DISPLAY_HEIGHT;
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
 			break;
@@ -1849,8 +1849,8 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pMainCrop->w = DISPLAY_WIDTH_1280x720 / 2;
-			pMainCrop->h = DISPLAY_HEIGHT_1280x720;
+			pMainCrop->w = DISPLAY_WIDTH / 2;
+			pMainCrop->h = DISPLAY_HEIGHT;
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
 			
@@ -1859,8 +1859,8 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = DISPLAY_HALF_WIDTH;
 			pAuxView->y = 0;
 
-			pAuxCrop->w = DISPLAY_WIDTH_1280x720 / 2;
-			pAuxCrop->h = DISPLAY_HEIGHT_1280x720;
+			pAuxCrop->w = DISPLAY_WIDTH / 2;
+			pAuxCrop->h = DISPLAY_HEIGHT;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
@@ -1872,8 +1872,8 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = DISPLAY_WIDTH*2/3;
 			pAuxView->y = DISPLAY_HEIGHT/3;
 
-			pAuxCrop->w = DISPLAY_WIDTH_1280x720 / 2;
-			pAuxCrop->h = DISPLAY_HEIGHT_1280x720;
+			pAuxCrop->w = DISPLAY_WIDTH / 2;
+			pAuxCrop->h = DISPLAY_HEIGHT;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
@@ -1885,8 +1885,8 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = 0;
 			pAuxView->y = DISPLAY_HEIGHT/3;
 
-			pAuxCrop->w = DISPLAY_WIDTH_1280x720 / 2;
-			pAuxCrop->h = DISPLAY_HEIGHT_1280x720;
+			pAuxCrop->w = DISPLAY_WIDTH / 2;
+			pAuxCrop->h = DISPLAY_HEIGHT;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
@@ -1898,8 +1898,8 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = DISPLAY_WIDTH/3;
 			pAuxView->y = DISPLAY_HEIGHT*2/3;
 
-			pAuxCrop->w = DISPLAY_WIDTH_1280x720;
-			pAuxCrop->h = DISPLAY_HEIGHT_1280x720/2;
+			pAuxCrop->w = DISPLAY_WIDTH;
+			pAuxCrop->h = DISPLAY_HEIGHT/2;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
@@ -1911,8 +1911,8 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = DISPLAY_WIDTH/3;
 			pAuxView->y = 0;
 
-			pAuxCrop->w = DISPLAY_WIDTH_1280x720;
-			pAuxCrop->h = DISPLAY_HEIGHT_1280x720/2;
+			pAuxCrop->w = DISPLAY_WIDTH;
+			pAuxCrop->h = DISPLAY_HEIGHT/2;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
@@ -1923,15 +1923,15 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = DISPLAY_WIDTH/4;
 			pAuxView->y = 0;
 
-			pAuxCrop->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxCrop->h = DISPLAY_HEIGHT_1280x720;
+			pAuxCrop->w = DISPLAY_WIDTH/2;
+			pAuxCrop->h = DISPLAY_HEIGHT;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_X:
-			pMainCrop->w = DISPLAY_WIDTH_1280x720 / 2;
-			pMainCrop->h = DISPLAY_HEIGHT_1280x720 /2;
+			pMainCrop->w = DISPLAY_WIDTH / 2;
+			pMainCrop->h = DISPLAY_HEIGHT /2;
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
 			
@@ -1940,8 +1940,8 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = 0;
 			pAuxView->y = DISPLAY_HEIGHT/4;
 
-			pAuxCrop->w = DISPLAY_WIDTH_1280x720;
-			pAuxCrop->h = DISPLAY_HEIGHT_1280x720/2;
+			pAuxCrop->w = DISPLAY_WIDTH;
+			pAuxCrop->h = DISPLAY_HEIGHT/2;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
