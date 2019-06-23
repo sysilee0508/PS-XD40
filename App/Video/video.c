@@ -1409,14 +1409,14 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 		case DISPLAY_MODE_2SPLIT_HSCALE_A:
-			pMainView->w = DISPLAY_WIDTH_1280x720/2; //DISPLAY_HALF_WIDTH;
-			pMainView->h = DISPLAY_HEIGHT_1280x720;
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2; //DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720;
-			pAuxView->x = DISPLAY_WIDTH_1280x720; //DISPLAY_HALF_WIDTH;
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HEIGHT;
+			pAuxView->x = DISPLAY_HALF_WIDTH;
 			pAuxView->y = 0;
 			break;
 
@@ -1431,144 +1431,144 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 		case DISPLAY_MODE_2SPLIT_VSCALE_A:
-			pMainView->w = DISPLAY_WIDTH_1280x720/2;
-			pMainView->h = DISPLAY_HEIGHT_1280x720/2; 
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/2;
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HEIGHT_1280x720/2;
+			pAuxView->y = DISPLAY_HALF_HEIGHT;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
-			pMainView->w = DISPLAY_WIDTH_1280x720*2/3;
-			pMainView->h = DISPLAY_HEIGHT_1280x720;
+			pMainView->w = DISPLAY_WIDTH*2/3;
+			pMainView->h = DISPLAY_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
-			pAuxView->x = DISPLAY_WIDTH_1280x720*4/3;
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
+			pAuxView->x = DISPLAY_WIDTH*4/3;
 			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_R3CROP:
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
-			pAuxView->x = DISPLAY_WIDTH_1280x720*4/3;
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
+			pAuxView->x = DISPLAY_WIDTH*4/3;
 			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_L3SCALE:
-			pMainView->w = DISPLAY_WIDTH_1280x720*2/3;
-			pMainView->h = DISPLAY_HEIGHT_1280x720;
-			pMainView->x = DISPLAY_WIDTH_1280x720*2/3 +1;
+			pMainView->w = DISPLAY_WIDTH*2/3;
+			pMainView->h = DISPLAY_HEIGHT;
+			pMainView->x = DISPLAY_WIDTH*2/3 +1;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
 			pAuxView->x = 0;
 			pAuxView->y = 0;
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_L3CROP:
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
 			pAuxView->x = 0;
 			pAuxView->y = 0;
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_D3SCALE:
-			pMainView->w = DISPLAY_WIDTH_1280x720;
-			pMainView->h = DISPLAY_HEIGHT_1280x720*2/3;
+			pMainView->w = DISPLAY_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT*2/3;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HEIGHT_1280x720*2/3;
+			pAuxView->y = DISPLAY_HEIGHT*2/3;
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_D3CROP:
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HEIGHT_1280x720*2/3;
+			pAuxView->y = DISPLAY_HEIGHT*2/3;
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_U3SCALE:
-			pMainView->w = DISPLAY_WIDTH_1280x720;
-			pMainView->h = DISPLAY_HEIGHT_1280x720*2/3;
+			pMainView->w = DISPLAY_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT*2/3;
 			pMainView->x = 0;
-			pMainView->y = DISPLAY_HEIGHT_1280x720/3;
+			pMainView->y = DISPLAY_HEIGHT/3;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
 			pAuxView->x = 0;
 			pAuxView->y = 0;
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_U3CROP:
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
 			pAuxView->x = 0;
 			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_QUAD:
 		case DISPLAY_MODE_4SPLIT_H:
-			pMainView->w = DISPLAY_WIDTH_1280x720/2;
-			pMainView->h = DISPLAY_HEIGHT_1280x720/2;
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/2;
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HEIGHT_1280x720/2;
+			pAuxView->y = DISPLAY_HALF_HEIGHT;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_X:
-			pMainView->w = DISPLAY_WIDTH_1280x720/2;
-			pMainView->h = DISPLAY_HEIGHT_1280x720/2;
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/2;
-			pAuxView->x = DISPLAY_WIDTH_1280x720;
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = DISPLAY_WIDTH;
 			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_PIP_A2:
-			pAuxView->w = PIP_WINDOW_WIDTH_1280;
-			pAuxView->h = PIP_WINDOW_HEIGHT_720;
-			pAuxView->x = (DISPLAY_WIDTH_1280x720-PIP_WINDOW_WIDTH_1280-PIP_POSITION_MARGIN_720)*2;
-			pAuxView->y = PIP_POSITION_MARGIN_720;
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = (DISPLAY_WIDTH-PIP_WINDOW_WIDTH-PIP_POSITION_MARGIN)*2;
+			pAuxView->y = PIP_POSITION_MARGIN;
 			break;
 
 		case DISPLAY_MODE_PIP_B2:
-			pAuxView->w = PIP_WINDOW_WIDTH_1280;
-			pAuxView->h = PIP_WINDOW_HEIGHT_720;
-			pAuxView->x = PIP_POSITION_MARGIN_720*2;
-			pAuxView->y = DISPLAY_HEIGHT_1280x720-PIP_WINDOW_HEIGHT_720-PIP_POSITION_MARGIN_720;
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = PIP_POSITION_MARGIN*2;
+			pAuxView->y = DISPLAY_HEIGHT-PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
 			break;
 
 		case DISPLAY_MODE_PIP_C2:
-			pAuxView->w = PIP_WINDOW_WIDTH_1280;
-			pAuxView->h = PIP_WINDOW_HEIGHT_720;
-			pAuxView->x = (DISPLAY_WIDTH_1280x720-PIP_WINDOW_WIDTH_1280-PIP_POSITION_MARGIN_720)*2;
-			pAuxView->y = DISPLAY_HEIGHT_1280x720-PIP_WINDOW_HEIGHT_720-PIP_POSITION_MARGIN_720;
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = (DISPLAY_WIDTH-PIP_WINDOW_WIDTH-PIP_POSITION_MARGIN)*2;
+			pAuxView->y = DISPLAY_HEIGHT-PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
 			break;
 
 		case DISPLAY_MODE_PIP_D2:
-			pAuxView->w = PIP_WINDOW_WIDTH_1280;
-			pAuxView->h = PIP_WINDOW_HEIGHT_720;
-			pAuxView->x = PIP_POSITION_MARGIN_720*2;
-			pAuxView->y = PIP_POSITION_MARGIN_720;
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = PIP_POSITION_MARGIN*2;
+			pAuxView->y = PIP_POSITION_MARGIN;
 			break;
 /*
 		default:
@@ -1709,14 +1709,14 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 		case DISPLAY_MODE_2SPLIT_HSCALE_B:
-			pMainView->w = DISPLAY_WIDTH_1280x720/2; //DISPLAY_HALF_WIDTH;
-			pMainView->h = DISPLAY_HEIGHT_1280x720;
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2; //DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720;
-			pAuxView->x = DISPLAY_WIDTH_1280x720; //DISPLAY_HALF_WIDTH;
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HEIGHT;
+			pAuxView->x = DISPLAY_HALF_WIDTH;
 			pAuxView->y = 0;
 			break;
 
@@ -1736,35 +1736,35 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 		case DISPLAY_MODE_4SPLIT_L3CROP:
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
 		case DISPLAY_MODE_4SPLIT_R3CROP:
-			pMainView->w = DISPLAY_WIDTH_1280x720/2;
-			pMainView->h = DISPLAY_HEIGHT_1280x720/2; //DISPLAY_HALF_HEIGHT;
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/2; //DISPLAY_HALF_HEIGHT;
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HEIGHT_1280x720/2; //DISPLAY_HALF_HEIGHT;
+			pAuxView->y = DISPLAY_HALF_HEIGHT;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_U3SCALE:
 		case DISPLAY_MODE_4SPLIT_U3CROP:
 		case DISPLAY_MODE_4SPLIT_D3SCALE:
 		case DISPLAY_MODE_4SPLIT_D3CROP:
-			pMainView->w = DISPLAY_WIDTH_1280x720/2;
-			pMainView->h = DISPLAY_HEIGHT_1280x720/2; //DISPLAY_HALF_HEIGHT;
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/2; //DISPLAY_HALF_HEIGHT;
-			pAuxView->x = DISPLAY_WIDTH_1280x720;
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = DISPLAY_WIDTH;
 			pAuxView->y = 0; //DISPLAY_HALF_HEIGHT;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_H:
-			pMainView->w = DISPLAY_WIDTH_1280x720/4;
-			pMainView->h = DISPLAY_HEIGHT_1280x720;
+			pMainView->w = DISPLAY_WIDTH/4;
+			pMainView->h = DISPLAY_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
@@ -1773,9 +1773,9 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/4;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720;
-			pAuxView->x = DISPLAY_WIDTH_1280x720*3/2;
+			pAuxView->w = DISPLAY_WIDTH/4;
+			pAuxView->h = DISPLAY_HEIGHT;
+			pAuxView->x = DISPLAY_WIDTH*3/2;
 			pAuxView->y = 0;
 
 			pAuxCrop->w = auxWidth/4;
@@ -1785,8 +1785,8 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_4SPLIT_X:
-			pMainView->w = DISPLAY_WIDTH_1280x720/2;
-			pMainView->h = DISPLAY_HEIGHT_1280x720/8;
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT/8;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
@@ -1795,10 +1795,10 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/8;
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HEIGHT/8;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HEIGHT_1280x720*3/8;
+			pAuxView->y = DISPLAY_HEIGHT*3/8;
 
 			pAuxCrop->w = auxWidth;
 			pAuxCrop->h = auxHeight/4;
@@ -1837,7 +1837,7 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 		case DISPLAY_MODE_2SPLIT_VCROP_A:
 		case DISPLAY_MODE_2SPLIT_VSCALE_B:
 		case DISPLAY_MODE_2SPLIT_VCROP_B:
-			pMainCrop->w = DISPLAY_WIDTH / 2;
+			pMainCrop->w = DISPLAY_HALF_WIDTH;
 			pMainCrop->h = DISPLAY_HEIGHT;
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
@@ -1849,7 +1849,7 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pMainCrop->w = DISPLAY_WIDTH / 2;
+			pMainCrop->w = DISPLAY_HALF_WIDTH;
 			pMainCrop->h = DISPLAY_HEIGHT;
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
@@ -1859,7 +1859,7 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = DISPLAY_HALF_WIDTH;
 			pAuxView->y = 0;
 
-			pAuxCrop->w = DISPLAY_WIDTH / 2;
+			pAuxCrop->w = DISPLAY_HALF_WIDTH;
 			pAuxCrop->h = DISPLAY_HEIGHT;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
@@ -1948,34 +1948,34 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 
 		case DISPLAY_MODE_PIP_A3:
 		case DISPLAY_MODE_PIP_A4:
-			pAuxView->w = PIP_WINDOW_WIDTH_1920;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
-			pAuxView->x = DISPLAY_WIDTH -PIP_WINDOW_WIDTH_1920-PIP_POSITION_MARGIN_1080;
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = DISPLAY_WIDTH -PIP_WINDOW_WIDTH-PIP_POSITION_MARGIN;
 			pAuxView->y = PIP_POSITION_MARGIN_1080;
 			break;
 
 		case DISPLAY_MODE_PIP_B3:
 		case DISPLAY_MODE_PIP_B4:
-			pAuxView->w = PIP_WINDOW_WIDTH_1920;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
-			pAuxView->x = PIP_POSITION_MARGIN_1080;
-			pAuxView->y = DISPLAY_HEIGHT -PIP_WINDOW_HEIGHT_1080-PIP_POSITION_MARGIN_1080;
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = PIP_POSITION_MARGIN;
+			pAuxView->y = DISPLAY_HEIGHT-PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
 			break;
 
 		case DISPLAY_MODE_PIP_C3:
 		case DISPLAY_MODE_PIP_C4:
-			pAuxView->w = PIP_WINDOW_WIDTH_1920;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
 			pAuxView->x = DISPLAY_WIDTH -PIP_WINDOW_WIDTH-PIP_POSITION_MARGIN;
 			pAuxView->y = DISPLAY_HEIGHT -PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
 			break;
 
 		case DISPLAY_MODE_PIP_D3:
 		case DISPLAY_MODE_PIP_D4:
-			pAuxView->w = PIP_WINDOW_WIDTH_1920;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
-			pAuxView->x = PIP_POSITION_MARGIN_1080;
-			pAuxView->y = PIP_POSITION_MARGIN_1080;
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = PIP_POSITION_MARGIN;
+			pAuxView->y = PIP_POSITION_MARGIN;
 			break;
 
 	}
