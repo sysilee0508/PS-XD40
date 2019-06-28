@@ -501,6 +501,7 @@ void Key_Proc(void)
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
 					DisplayScreen(GetSystemSplitMode());
+					SetInputChanged();
 					OSD_DrawBorderLine();
 					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 					{

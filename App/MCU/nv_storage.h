@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "mdintype.h"
+#include "NVP6158.h"
 
 //=============================================================================
 //  Define
@@ -68,6 +69,7 @@ typedef enum
 //	If you want to store any system data (item) in NV memory, it comes here
 	NV_ITEM_DISPLAY_MODE,
 	NV_ITEM_SPLIT_MODE,
+	NV_ITEM_VPORT_MAP,
 //	NV_ITEM_DISPLAY_CHANNEL,
 //	NV_ITEM_INPUT_VIDEO_FORMAT,
 //------------------------------------------------------------------------------
@@ -138,6 +140,7 @@ typedef enum
 	VIDEO_CVBS,
 	VIDEO_MAX
 } eOutVideoFormat_t;
+
 //--------------------------------------------------------------------------------------
 typedef struct
 {
@@ -181,6 +184,7 @@ typedef struct
 
 	eDisplayMode_t			displayMode;
 	eDisplayMode_t			splitMode;
+	eVPORT_MAP_t			vportMap;
 	
 	uint32_t				storageEndCheck;
 } sNvData_t;
@@ -212,8 +216,8 @@ extern void Read_NvItem_DisplayMode(eDisplayMode_t* pData);
 extern void Write_NvItem_DisplayMode(eDisplayMode_t data);
 extern void Read_NvItem_SplitMode(eDisplayMode_t* pData);
 extern void Write_NvItem_SplitMode(eDisplayMode_t data);
-//extern void Read_NvItem_DisplayChannel(eChannel_t* pData);
-//extern void Write_NvItem_DisplayChannel(eChannel_t data);
+extern void Read_NvItem_VportMap(eVPORT_MAP_t* pData);
+extern void Write_NvItem_VportMap(eVPORT_MAP_t data);
 
 extern void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData);
 extern void Write_NvItem_TimeCorrect(sTimeCorrect_t data);

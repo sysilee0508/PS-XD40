@@ -26,16 +26,22 @@
 
 #ifdef MDIN_MULTI_DEVICE		// added by kukuri
 
+//typedef enum {
+//	VIDEO_INPUT_NONE = 0,
+//	VIDEO_DIGITAL_NVP6158_FULL,
+//	VIDOE_DIGITAL_NVP6158_FULL2,
+//	VIDEO_DIGITAL_NVP6158_2CHANNELS,
+//	VIDEO_DIGITAL_NVP6158_4CHANNELS
+//} MDIN_VIDEO_INPUT_t;
+
 typedef enum {
 	VIDEO_INPUT_NONE = 0,
 	VIDEO_DIGITAL_NVP6158_A,
-	VIDEO_DIGITAL_NVP6158_AB,
-	VIDEO_DIGITAL_NVP6158_C,
-	VIDEO_DIGITAL_NVP6158_CD,
-	VIDEO_DIGITAL_NVP6158_AC,
-	VIDEO_DIGITAL_NVP6158_ABCD,
-	VIDEO_DIGITAL_NVP6158_ABCD2
+	VIDEO_DIGITAL_NVP6158_B,
+	VIDEO_DIGITAL_NVP6158_AB
+	//VIDEO_DIGITAL_NVP6158_4CHANNELS
 } MDIN_VIDEO_INPUT_t;
+
 
 typedef enum
 {
@@ -45,6 +51,12 @@ typedef enum
 	MDIN_ID_D,
 	MDIN_ID_MAX
 } MDIN_CHIP_ID_t;
+
+typedef enum
+{
+	COLOR_RGB,
+	COLOR_YBR
+} eColorFormat_t;
 
 #define 		MDIN_A				0
 #define 		MDIN_B				1
@@ -87,6 +99,19 @@ typedef enum
 
 #endif	//MDIN_MULTI_DEVICE kukuri
 
+
+#define RGB_WHITE					RGB(255, 255, 255)
+#define RGB_BLACK					RGB(0,0,0)
+#define RGB_GRAY					RGB(128, 128, 128)
+
+#define YBR_WHITE					RGB(128, 235, 128)
+#define YBR_BLACK					RGB(128, 16, 128)
+#define YBR_GRAY					RGB(128, 125, 128)
+
+#define WHITE(x)						(x == COLOR_RGB) ? RGB_WHITE : YBR_WHITE
+#define BLACK(x)						(x == COLOR_RGB) ? RGB_BLACK : YBR_BLACK
+#define GRAY(x)						(x == COLOR_RGB) ? RGB_BLACK : YBR_GRAY
+
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
@@ -98,12 +123,14 @@ extern MDIN_VIDEO_INFO	 stVideo_A, stVideo_B, stVideo_C;
 void ConfigI2C(MDIN_CHIP_ID_t mdin);
 MDIN_OUTVIDEO_FORMAT_t GetOutVideoFormat(MDIN_CHIP_ID_t mdin);
 void CreateVideoInstance(void);
+void InitInputSource(void);
 void SetInputSource(BYTE input);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
 void SetAuxOutMode_C(void);
-void CreateDisplayWindow_A(eDisplayMode_t displayMode);
-void CreateDisplayWindow_B(eDisplayMode_t displayMode);
-void CreateDisplayWindow_C(eDisplayMode_t displayMode);
+eColorFormat_t GetCurrentColorFormat(void);
+//void CreateDisplayWindow_A(eDisplayMode_t displayMode);
+//void CreateDisplayWindow_B(eDisplayMode_t displayMode);
+//void CreateDisplayWindow_C(eDisplayMode_t displayMode);
 
 #endif	/* __VIDEO_H__ */

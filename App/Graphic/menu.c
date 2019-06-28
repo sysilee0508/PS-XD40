@@ -454,12 +454,12 @@ static void MainMenu_Entry(u8 itemY)
 	u8 index;
 	sVersion_t version;
 	u8 strVersion[6] = "00.00";
-
+	
 	currentPage = MENU_PAGE_MAIN;
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
 
-	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
+	MDINOSD_SetBGBoxColor(BLACK(GetCurrentColorFormat()));		// set BG-BOX color
 
 	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
@@ -1483,7 +1483,7 @@ static void DisplayPage_RedrawPage(u8 itemY)
 	position.pos_y = 100;
 	OSD_PrintString(position, menuStr_Space25, strlen(menuStr_Space25));
 
-	MDINOSD_SetBGBoxColor(RGB(0,0,0));		// set BG-BOX color
+	MDINOSD_SetBGBoxColor(BLACK(GetCurrentColorFormat()));		// set BG-BOX color
 	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
@@ -1544,6 +1544,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						IncreaseDecreaseCount(VIDEO_MAX - 1, 0, inc_dec, &auxVideo, TRUE);
 						Write_NvItem_AuxVideoFormat(auxVideo);
 						SetAuxOutMode_C();
+						MDINOSD_SetBGBoxColor(BLACK(GetCurrentColorFormat()));
 						SetInputChanged();
 						break;
 				}
@@ -2374,7 +2375,7 @@ static void MainPage_KeyHandler(eKeyData_t key)
 {
 	static u8 itemY = MAINMENU_ITEM_Y_TIME_DATE;
 	u8 inc_dec = DECREASE;
-	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	eDisplayMode_t displayMode = GetCurrentDisplayMode(); 
 
  	switch(key)
 	{
@@ -2398,7 +2399,7 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			ChangeSystemMode(SYSTEM_NORMAL_MODE);
 			SetKeyMode(KEY_MODE_LONG);
 
-			MDINOSD_SetBGBoxColor(RGB(255,255,255));
+			MDINOSD_SetBGBoxColor(WHITE(GetCurrentColorFormat()));
 			MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 			OSD_DrawBorderLine();
 			OSD_RefreshScreen();

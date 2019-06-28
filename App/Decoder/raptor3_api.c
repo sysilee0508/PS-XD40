@@ -4,10 +4,9 @@
 
 static int vport[VPORT_MAP_MAX][4] = 
 {
-	//VPORT_MAP0
-	{PORT1, PORT2, PORT3, PORT4},
-	{PORT2, PORT1, PORT4, PORT3},
-	{PORT1, PORT2, PORT4, PORT3}
+	{PORT1, PORT2, PORT3, PORT4},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
+	{PORT1, PORT3, PORT2, PORT4}, // PIP with ch3, quad
+	{PORT1, PORT3, PORT4, PORT2}	// PIP with ch4
 };
 
 /*******************************************************************************

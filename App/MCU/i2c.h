@@ -28,6 +28,4 @@ unsigned char I2C_S2P(void);
 unsigned char I2C_READ(unsigned char slaveaddr,unsigned char regaddr);
 void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data);
 
-//void I2C_SET_CHANNEL(eI2C_CH_t ch);
-//eI2C_CH_t Get_I2C_CurrentChannel(void);
 #endif	

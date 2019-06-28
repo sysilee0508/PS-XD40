@@ -1,5 +1,6 @@
 #include "common.h"
 #include "stm32f10x_flash.h"
+#include "NVP6158.h"
 #include "nv_storage.h"
 //-----------------------------------------------------------------------------
 //
@@ -306,6 +307,20 @@ void Write_NvItem_DisplayMode(eDisplayMode_t data)
 	}
 	nv_data.data.displayMode = data;
 	nvInfo[NV_ITEM_DISPLAY_MODE].dirty = SET;
+}
+
+void Read_NvItem_VportMap(eVPORT_MAP_t* pData)
+{
+	*pData = nv_data.data.vportMap;
+}
+void Write_NvItem_VportMap(eVPORT_MAP_t data)
+{
+	if(data >=  VPORT_MAP_MAX)
+	{
+		data = VPORT_MAP0;
+	}
+	nv_data.data.vportMap = data;
+	nvInfo[NV_ITEM_VPORT_MAP].dirty = SET;
 }
 
 void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData)

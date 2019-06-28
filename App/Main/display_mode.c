@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include "NVP6158.h"
 #include "common.h"
-#include "display_mode.h"
 
 extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel);
 
@@ -115,21 +114,22 @@ void DisplayScreen(eDisplayMode_t mode)
 			NVP6158_Set_VportMap(VPORT_MAP0);
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
-			
+
 		case DISPLAY_MODE_FULL_CH2:
-			NVP6158_Set_VportMap(VPORT_MAP1);
+			NVP6158_Set_VportMap(VPORT_MAP0);
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
 
 		case DISPLAY_MODE_FULL_CH3:
 			NVP6158_Set_VportMap(VPORT_MAP0);
-			SetInputSource(VIDEO_DIGITAL_NVP6158_C);
-			break;
-		case DISPLAY_MODE_FULL_CH4:
-			NVP6158_Set_VportMap(VPORT_MAP1);
-			SetInputSource(VIDEO_DIGITAL_NVP6158_C);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
 			break;
 
+		case DISPLAY_MODE_FULL_CH4:
+			NVP6158_Set_VportMap(VPORT_MAP0);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
+			break;
+		
 		case DISPLAY_MODE_2SPLIT_HSCALE_A:
 		case DISPLAY_MODE_2SPLIT_HCROP_A:
 		case DISPLAY_MODE_2SPLIT_VSCALE_A:
@@ -139,7 +139,7 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_PIP_C2:
 		case DISPLAY_MODE_PIP_D2:
 			NVP6158_Set_VportMap(VPORT_MAP0);
-			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
 
 		case DISPLAY_MODE_2SPLIT_HSCALE_B:
@@ -147,10 +147,9 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_2SPLIT_VSCALE_B:
 		case DISPLAY_MODE_2SPLIT_VCROP_B:
 			NVP6158_Set_VportMap(VPORT_MAP0);
-			SetInputSource(VIDEO_DIGITAL_NVP6158_CD);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
 			break;
 
-		case DISPLAY_MODE_4SPLIT_QUAD:
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
 		case DISPLAY_MODE_4SPLIT_R3CROP:
 		case DISPLAY_MODE_4SPLIT_L3SCALE:
@@ -159,30 +158,31 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_4SPLIT_D3CROP:
 		case DISPLAY_MODE_4SPLIT_U3SCALE:
 		case DISPLAY_MODE_4SPLIT_U3CROP:
-			NVP6158_Set_VportMap(VPORT_MAP0);
-			SetInputSource(VIDEO_DIGITAL_NVP6158_ABCD);
-			break;
-
 		case DISPLAY_MODE_4SPLIT_H:
 		case DISPLAY_MODE_4SPLIT_X:
 			NVP6158_Set_VportMap(VPORT_MAP0);
-			SetInputSource(VIDEO_DIGITAL_NVP6158_ABCD2);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
 			break;
 
 		case DISPLAY_MODE_PIP_A3:
 		case DISPLAY_MODE_PIP_B3:
 		case DISPLAY_MODE_PIP_C3:
 		case DISPLAY_MODE_PIP_D3:
-			NVP6158_Set_VportMap(VPORT_MAP0);
-			SetInputSource(VIDEO_DIGITAL_NVP6158_AC);
+			NVP6158_Set_VportMap(VPORT_MAP4);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
 
 		case DISPLAY_MODE_PIP_A4:
 		case DISPLAY_MODE_PIP_B4:
 		case DISPLAY_MODE_PIP_C4:
 		case DISPLAY_MODE_PIP_D4:
-			NVP6158_Set_VportMap(VPORT_MAP2);
-			SetInputSource(VIDEO_DIGITAL_NVP6158_AC);
+			NVP6158_Set_VportMap(VPORT_MAP5);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
+			break;
+
+		case DISPLAY_MODE_4SPLIT_QUAD:
+			NVP6158_Set_VportMap(VPORT_MAP4);
+			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
 			break;
 	}
 	Write_NvItem_DisplayMode(mode);
@@ -266,33 +266,58 @@ eChannel_t ConvertDisplayMode2Channel(eDisplayMode_t displayMode)
 	return channel;
 }
 
-eChannel_t FineSubChannelForPIP(eDisplayMode_t displayMode)
+eChannel_t FindMainChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin)
 {
-	eChannel_t channel = CHANNEL2;
+	eChannel_t main= CHANNEL1;
 
-	switch(displayMode)
+	if(mdin == MDIN_ID_A)
 	{
-		case DISPLAY_MODE_PIP_A2:
-		case DISPLAY_MODE_PIP_B2:
-		case DISPLAY_MODE_PIP_C2:
-		case DISPLAY_MODE_PIP_D2:
-			channel = CHANNEL2;
-			break;
-
-		case DISPLAY_MODE_PIP_A3:
-		case DISPLAY_MODE_PIP_B3:
-		case DISPLAY_MODE_PIP_C3:
-		case DISPLAY_MODE_PIP_D3:
-			channel = CHANNEL3;
-			break;
-
-		case DISPLAY_MODE_PIP_A4:
-		case DISPLAY_MODE_PIP_B4:
-		case DISPLAY_MODE_PIP_C4:
-		case DISPLAY_MODE_PIP_D4:
-			channel = CHANNEL4;
-			break;
+		if(displayMode == DISPLAY_MODE_FULL_CH2)
+		{
+			main = CHANNEL2;
+		}
+	}
+	else if(mdin == MDIN_ID_B)
+	{
+		if(displayMode == DISPLAY_MODE_FULL_CH4)
+		{
+			main = CHANNEL4;
+		}
+		else if(displayMode == DISPLAY_MODE_4SPLIT_QUAD)
+		{
+			main = CHANNEL2;
+		}
+		else
+		{
+			main = CHANNEL3;
+		}
 	}
 
-	return channel;
+	return main;
+}
+
+eChannel_t FindAuxChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin)
+{
+	eChannel_t aux = CHANNEL4;
+
+	if(mdin == MDIN_ID_A)
+	{
+		if((displayMode == DISPLAY_MODE_PIP_A3) || (displayMode == DISPLAY_MODE_PIP_B3) ||
+			(displayMode == DISPLAY_MODE_PIP_C3) || (displayMode == DISPLAY_MODE_PIP_D3) ||
+			(displayMode == DISPLAY_MODE_4SPLIT_QUAD))
+		{
+			aux = CHANNEL3;
+		}
+		else if((displayMode == DISPLAY_MODE_PIP_A4) || (displayMode == DISPLAY_MODE_PIP_B4) ||
+			(displayMode == DISPLAY_MODE_PIP_C4) || (displayMode == DISPLAY_MODE_PIP_D4))
+		{
+			aux = CHANNEL4;
+		}
+		else
+		{
+			aux = CHANNEL2;
+		}
+	}
+	
+	return aux;
 }

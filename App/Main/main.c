@@ -73,7 +73,7 @@ static void PlayBuzzer(void)
 //=============================================================================
 //  main function
 //=============================================================================
-void main(void)
+ void main(void)
 {
 	I2C_SET_CHANNEL(I2C_MAIN);
 	// initialize STM32F103x
@@ -131,20 +131,20 @@ void main(void)
 	USART3_Init();
 
 	CreateVideoInstance();
-	SetAuxOutMode_C();
+	//SetAuxOutMode_C();
 	CreateOSDInstance();
 	Osd_ClearScreen();
 
 	SetInitialKey();
 	
 #ifdef MDIN_TEST_PATTERN
-	I2C_SET_CHANNEL(I2C_MAIN);
-//	I2C_SET_CHANNEL(I2C_SUB);
-	SELECT_MDIN(MDIN_A);
-//	MDIN3xx_SetSrcTestPattern(&stVideo_A, MDIN_IN_TEST_H_COLOR);
+//	I2C_SET_CHANNEL(I2C_MAIN);
+	I2C_SET_CHANNEL(I2C_SUB);
+	SELECT_MDIN(MDIN_B);
+	MDIN3xx_SetSrcTestPattern(&stVideo_D, MDIN_IN_TEST_H_COLOR);
 //	MDIN3xx_SetSrcTestPattern(&stVideo_C, MDIN_IN_TEST_H_COLOR);
 
-	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
+//	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
 #endif
 
 	while(TRUE)

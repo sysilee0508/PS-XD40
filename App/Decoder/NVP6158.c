@@ -66,6 +66,8 @@ void NVP6158_Set_VportMap(eVPORT_MAP_t map)
 	{
 		s_raptor3_vfmts.vport_map = map;
 		s_raptor3_vfmts.vport_map_changed = 1;
+
+		Write_NvItem_VportMap(map);
 	}
 }
 
@@ -651,14 +653,8 @@ void NVP6158_init(void)
 
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;
 
-//	if(displayMode == CH2)
-//	{
-//		s_raptor3_vfmts.vport_map = VPORT_MAP1;
-//	}
-//	else
-	{
-		s_raptor3_vfmts.vport_map = VPORT_MAP0;
-	}
+	// added by kukuri
+	Read_NvItem_VportMap(&s_raptor3_vfmts.vport_map);
 	s_raptor3_vfmts.vport_map_changed = 1;
 }
 

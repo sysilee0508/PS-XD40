@@ -86,8 +86,8 @@ void MCU_init(void)
 //	3 : SPI_CS
 //	4 : NC
 //	5 : NC
-//	6 : NC
-//	7 : H_ALE //MDIN HOST_ALE : host address latch enable (active high)
+//	6 : I2C_SUB2_SCL
+//	7 : I2C_SUB2_SDA
 //	8 : NC
 //	9 : NC
 //	10: NC

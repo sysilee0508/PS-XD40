@@ -5,9 +5,7 @@
 //  MACRO
 //=============================================================================
 #define IS_FULL_MODE(mode)						(mode <= DISPLAY_MODE_FULL_CH4)?TRUE:FALSE
-#define IS_PIP_MODE(mode)						((mode >= DISPLAY_MODE_PIP_A2)&&(mode <= DISPLAY_MODE_PIP_D4)) ? TRUE:FALSE
-//#define IS_4SPLIT_MODE(mode)					((mode >= DISPLAY_MODE_4SPLIT_QUAD)&&DISPLAY_MODE_4SPLIT_X) ? TRUE:FALSE
-//#define IS_2SPLIT_MODE(mode)					((mode >= DISPLAY_MODE_2SPLIT_HSCALE_A)&&DISPLAY_MODE_2SPLIT_VCROP_B) ? TRUE:FALSE
+#define IS_PIP_MODE(mode)						((mode >= DISPLAY_MODE_PIP_A2)&&(mode <= DISPLAY_MODE_PIP_D4))?TRUE:FALSE
 
 //=============================================================================
 //  define
@@ -28,26 +26,23 @@
 #define DISPLAY_QUAD_WIDTH					(DISPLAY_WIDTH/4)	//480
 #define DISPLAY_QUAD_HEIGHT					(DISPLAY_HEIGHT/4)	//270
 
-#define PIP_WINDOW_WIDTH_1280				DISPLAY_WIDTH_1280x720/3
-#define PIP_WINDOW_WIDTH_1920				DISPLAY_WIDTH_1920X1080/3
-#define PIP_WINDOW_HEIGHT_720				DISPLAY_HEIGHT_1280x720/3
-#define PIP_WINDOW_HEIGHT_1080				DISPLAY_HEIGHT_1920x1080/3
-#define PIP_POSITION_MARGIN_720				60
-#define PIP_POSITION_MARGIN_1080				90
+#define PIP_WINDOW_WIDTH						DISPLAY_WIDTH_1280x720 / 3	
+#define PIP_WINDOW_HEIGHT						DISPLAY_HEIGHT_1280x720 / 3
+#define PIP_POSITION_MARGIN					60
 
-#define PIP_WINDOW_WIDTH						PIP_WINDOW_WIDTH_1920
-#define PIP_WINDOW_HEIGHT						PIP_WINDOW_HEIGHT_1080
-#define PIP_POSITION_MARGIN					PIP_POSITION_MARGIN_1080
+#define PIP_WINDOW_WIDTH_1080				DISPLAY_WIDTH_1920X1080/ 3	
+#define PIP_WINDOW_HEIGHT_1080				DISPLAY_HEIGHT_1920x1080 / 3
+#define PIP_POSITION_MARGIN_1080				90
 
 //=============================================================================
 //  enum
 //=============================================================================
-typedef enum
-{
-	VIDEO_RESOLUTION_1080P,
-	VIDEO_RESOLUTION_720P,
-	VIDEO_RESOLUTION_MAX
-} eVideoResolution_t;
+//typedef enum
+//{
+//	VIDEO_RESOLUTION_1080P,
+//	VIDEO_RESOLUTION_720P,
+//	VIDEO_RESOLUTION_MAX
+//} eVideoResolution_t;
 
 typedef enum
 {
@@ -124,5 +119,6 @@ extern void UpdateDisplayMode(void);
 extern eDisplayMode_t GetCurrentDisplayMode(void);
 extern BYTE GetInputVideoFormat(eChannel_t channel);
 extern eChannel_t ConvertDisplayMode2Channel(eDisplayMode_t displayMode);
-extern eChannel_t FineSubChannelForPIP(eDisplayMode_t displayMode);
+extern eChannel_t FindMainChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin);
+extern eChannel_t FindMainChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin);
 #endif

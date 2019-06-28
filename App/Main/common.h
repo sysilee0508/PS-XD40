@@ -46,10 +46,10 @@
 
 #include "MotionDetect.h"
 #include "alarm_remotekey.h"
-#include "display_mode.h"
-#include "nv_storage.h"
 #include "video.h"
+#include "display_mode.h"
 #include "osd_display.h"
+#include "nv_storage.h"
 
 #define NOP()	asm("NOP")
 

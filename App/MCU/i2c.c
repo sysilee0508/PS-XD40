@@ -208,15 +208,3 @@ void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char wri
 	
 	I2C_Stop();	
 }
-
-#if 0
-void I2C_SET_CHANNEL(eI2C_CH_t ch)
-{
-	i2c_ch = ch;
-}
-
-eI2C_CH_t Get_I2C_CurrentChannel(void)
-{
-	return i2c_ch;
-}
-#endif
