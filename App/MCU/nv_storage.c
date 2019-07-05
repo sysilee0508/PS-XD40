@@ -41,9 +41,12 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_MOTION_SENSITIVITY,		sizeof(uint8_t),							CLEAR},
 		{NV_ITEM_MOTION_DETECT_BLOCK,       sizeof(uint16_t)*NUM_OF_CHANNEL*ROWS_OF_BLOCKS, CLEAR},
 		{NV_ITEM_SERIAL_BAUDRATE,			sizeof(eBaudRate_t),						CLEAR},
-		{NV_ITEM_DISPLAY_MODE, 				sizeof(eDisplayMode_t),							CLEAR},
+		{NV_ITEM_VIDEO_AUX_FORMAT,			sizeof(eOutVideoFormat_t),					CLEAR},
+		{NV_ITEM_CROPPING_OFFSET_2SPLIT,	sizeof(sCroppingOffset_t)*NUM_OF_CHANNEL,	CLEAR},
+		{NV_ITEM_CROPPING_OFFSET_4SPLIT,	sizeof(sCroppingOffset_t),					CLEAR},
+		{NV_ITEM_DISPLAY_MODE, 				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_SPLIT_MODE,				sizeof(eDisplayMode_t),						CLEAR},
-		//{NV_ITEM_DISPLAY_CHANNEL,			sizeof(eChannel_t),							CLEAR},
+		{NV_ITEM_VPORT_MAP,					sizeof(eVPORT_MAP_t),						CLEAR},
 		{NV_ITEM_END_CHECK,					sizeof(uint32_t),							CLEAR}
 };
 

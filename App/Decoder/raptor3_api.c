@@ -2,11 +2,18 @@
 #include "NVP6158.h"
 #include "delay.h"
 
+//static int vport[VPORT_MAP_MAX][4] =
+//{
+//	{PORT1, PORT2, PORT3, PORT4},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
+//	{PORT1, PORT3, PORT2, PORT4}, // PIP with ch3, quad
+//	{PORT1, PORT3, PORT4, PORT2}	// PIP with ch4
+//};
+
 static int vport[VPORT_MAP_MAX][4] = 
 {
-	{PORT1, PORT2, PORT3, PORT4},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
-	{PORT1, PORT3, PORT2, PORT4}, // PIP with ch3, quad
-	{PORT1, PORT3, PORT4, PORT2}	// PIP with ch4
+	{PORT4, PORT3, PORT2, PORT1},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
+	{PORT4, PORT2, PORT3, PORT1}, // PIP with ch3, quad
+	{PORT2, PORT4, PORT3, PORT1}	// PIP with ch4
 };
 
 /*******************************************************************************

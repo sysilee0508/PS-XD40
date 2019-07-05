@@ -509,11 +509,21 @@ static void MDIN3xx_SetRegInitial_C(void)
 
 static void MDIN3xx_SetRegInitial_D(void)
 {
+	BYTE retry = 0;
 	WORD nID = 0;
 
 	ConfigI2C(MDIN_ID_D);
 
-	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
+	do
+	{
+		MDIN3xx_GetChipID(&nID);	// get chip-id
+		if(nID != 0x85)
+		{
+			retry++;
+		}
+	} while((retry <= 3) && (nID != 0x85));
+
+	if(retry > 3)	return;
 
 	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
 	MDIN3xx_SetMemoryConfig();			// initialize DDR memory
@@ -523,9 +533,6 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP5);		// disable digital out
-	//MDINOSD_SetBGLayerColor(RGB(128,128,128));			// set BG-Layer color
-
-	//MDINOSD_SetBGBoxColor(RGB(255,255,255));			// set BG-BOX color
 
 	// setup enhancement
 	MDIN3xx_SetFrontNRFilterCoef(NULL);		// set default frontNR filter coef
@@ -546,8 +553,6 @@ static void MDIN3xx_SetRegInitial_D(void)
 	MDIN3xx_EnableBWExtension(OFF);			// set B/W extension off
 
 	MDIN3xx_SetIPCBlock();		// initialize IPC block (3DNR gain is 37)
-
-//	memset((PBYTE)&stVideo_D, 0, sizeof(MDIN_VIDEO_INFO));
 
 	MDIN3xx_SetMFCHYFilterCoef(&stVideo_D, NULL);	// set default MFC filters
 	MDIN3xx_SetMFCHCFilterCoef(&stVideo_D, NULL);
@@ -627,41 +632,12 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	// define video format of video encoder
 	stVideo_D.encFRMT = VID_VENC_NTSC_M;	//VID_VENC_AUTO
-	// define video format of HDMI-OUTPUT
-//	stVideo_D.stVID_h.mode  = HDMI_OUT_RGB444_8;
-//	stVideo_D.stVID_h.fine  = HDMI_CLK_EDGE_RISE;
-
-	// audio block
-//	stVideo_D.stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
-//	stVideo_D.stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
-//	stVideo_D.stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
-//							AUDIO_SCK_EDGE_RISE | AUDIO_SD_MSB_FIRST | AUDIO_SD_1ST_SHIFT;
-
-//	MDINHTX_SetHDMIBlock(&stVideo_D);		// initialize HDMI block
 
 	stVideo_D.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
 	MDIN3xx_VideoProcess(&stVideo_D);			// mdin3xx main video process
 
 	SetIPCVideoFine();
 	MDIN3xx_EnableAuxDisplay(&stVideo_D, ON);
-//	MDIN3xx_EnableMainDisplay(ON);
-
-	// define window for inter-area (PIP window? kukuri)
-//	stInterWND.lx = 315;
-//	stInterWND.rx = 405;
-//	stInterWND.ly = 90;
-//	stInterWND.ry = 150;
-//	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
-//	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
-
-	// define variable for EDK application
-
-//	PrevSrcMainFrmt[MDIN_ID_D]= 0xff;
-//	SrcMainFrmt[MDIN_ID_D] = stVideo_D.stSRC_a.frmt;
-//	PrevOutMainFrmt[MDIN_ID_D] = 0xff;
-//	OutMainFrmt[MDIN_ID_D] = stVideo_D.stOUT_m.frmt;
-//	PrevEncFrmt = 0xff;
-//	EncVideoFrmt = stVideo_D.encFRMT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -691,8 +667,6 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 				}
 				stVideo_C.srcPATH = PATH_MAIN_A_AUX_M;
 				stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
-				
-//				stVideo_A.exeFLAG |= MDIN_UPDATE_MAINFMT;
 				break;
 
 			case VIDEO_DIGITAL_NVP6158_B:	// use only mdin_b
@@ -713,8 +687,6 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 				}
 				stVideo_C.srcPATH = PATH_MAIN_B_AUX_M;
 				stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
-				
-//				stVideo_B.exeFLAG |= MDIN_UPDATE_MAINFMT;
 				break;
 
 			case VIDEO_DIGITAL_NVP6158_AB:	// use mdin_a & mdin_b
@@ -733,10 +705,6 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 					stVideo_C.srcPATH = PATH_MAIN_A_AUX_B;
 				}
 				stVideo_C.dacPATH = DAC_PATH_MAIN_PIP;
-
-//				stVideo_A.exeFLAG |= MDIN_UPDATE_MAINFMT;
-//				stVideo_B.exeFLAG |= MDIN_UPDATE_MAINFMT;
-//				stVideo_C.exeFLAG |= MDIN_UPDATE_MAINFMT;
 				break;
 		}
 	}

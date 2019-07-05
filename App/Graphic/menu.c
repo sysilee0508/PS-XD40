@@ -1427,7 +1427,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 					displayMenu[itemY].offset_y,
 					menuStr_Space13,
 					NULL,
-					strlen(menuStr_Space13));
+					strlen(menuStr_Space10));
 			switch(auxVideo)
 			{
 				case VIDEO_VGA:
@@ -1554,6 +1554,14 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			{
 				IncreaseDecreaseCount(DISPLAY_ITEM_Y_MAX - 1, 1, inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);
+			}
+			break;
+
+		case KEY_LEFT:
+		case KEY_RIGHT:
+			if(itemY == DISPLAY_ITEM_Y_SPLIT_MODE)
+			{
+				//if()
 			}
 			break;
 
