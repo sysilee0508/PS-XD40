@@ -115,7 +115,7 @@ const u8* pDisplayMode_Name[DISPLAY_MODE_MAX] =
 };
 
 const u8 menuStr_AuxVGA[] = "VGA";
-const u8 menuStr_AuxCVBS[] = "CVBS/TVI";
+const u8 menuStr_AuxCVBS[] = "CVBS & TVI";
 
 const u8 menuStr_Alarm[] =   "ALARM";
 const u8 menuStr_Remocon[] = "REMOTE";

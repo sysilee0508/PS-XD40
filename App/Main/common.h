@@ -46,8 +46,8 @@
 
 #include "MotionDetect.h"
 #include "alarm_remotekey.h"
-#include "video.h"
 #include "display_mode.h"
+#include "video.h"
 #include "osd_display.h"
 #include "nv_storage.h"
 

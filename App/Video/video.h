@@ -45,15 +45,6 @@ typedef enum {
 
 typedef enum
 {
-	MDIN_ID_A = 0,
-	MDIN_ID_B,
-	MDIN_ID_C,
-	MDIN_ID_D,
-	MDIN_ID_MAX
-} MDIN_CHIP_ID_t;
-
-typedef enum
-{
 	COLOR_RGB,
 	COLOR_YBR
 } eColorFormat_t;
@@ -112,6 +103,8 @@ typedef enum
 #define BLACK(x)						(x == COLOR_RGB) ? RGB_BLACK : YBR_BLACK
 #define GRAY(x)						(x == COLOR_RGB) ? RGB_BLACK : YBR_GRAY
 
+#define ADJUST_WINDOW_STEP_MAX	20
+
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
@@ -129,8 +122,8 @@ void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
 void SetAuxOutMode_C(void);
 eColorFormat_t GetCurrentColorFormat(void);
-//void CreateDisplayWindow_A(eDisplayMode_t displayMode);
-//void CreateDisplayWindow_B(eDisplayMode_t displayMode);
+void CreateDisplayWindow_A(eDisplayMode_t displayMode);
+void CreateDisplayWindow_B(eDisplayMode_t displayMode);
 //void CreateDisplayWindow_C(eDisplayMode_t displayMode);
 
 #endif	/* __VIDEO_H__ */

@@ -321,3 +321,62 @@ eChannel_t FindAuxChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin)
 	
 	return aux;
 }
+
+BOOL IsCroppingMode(eDisplayMode_t mode)
+{
+	BOOL cropping = FALSE;
+
+	if((mode == DISPLAY_MODE_2SPLIT_HCROP_A) || (mode == DISPLAY_MODE_2SPLIT_VCROP_A) ||
+		(mode == DISPLAY_MODE_2SPLIT_HCROP_B) || (mode == DISPLAY_MODE_2SPLIT_VCROP_B) ||
+		(mode == DISPLAY_MODE_4SPLIT_R3CROP) || (mode == DISPLAY_MODE_4SPLIT_L3CROP) ||
+		(mode == DISPLAY_MODE_4SPLIT_D3CROP) || (mode == DISPLAY_MODE_4SPLIT_U3CROP))
+	{
+		cropping = TRUE;
+	}
+
+	return cropping;
+}
+
+eCroppingDirection_t GetCroppingDirection(eDisplayMode_t mode)
+{
+	eCroppingDirection_t dir = CROPPING_NONE;
+
+	if((mode == DISPLAY_MODE_2SPLIT_HCROP_A) || (mode == DISPLAY_MODE_2SPLIT_HCROP_B) ||
+		(mode == DISPLAY_MODE_4SPLIT_R3CROP) || (mode == DISPLAY_MODE_4SPLIT_L3CROP))
+	{
+		dir = CROPPING_H;
+	}
+	else if((mode == DISPLAY_MODE_2SPLIT_VCROP_A) || (mode == DISPLAY_MODE_2SPLIT_VCROP_B) ||
+			(mode == DISPLAY_MODE_4SPLIT_D3CROP) || (mode == DISPLAY_MODE_4SPLIT_U3CROP))
+	{
+		dir = CROPPING_V;
+	}
+
+	return dir;
+}
+
+#if 0
+void GetCroppingOffsetValue(void)
+{
+//	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+//	eChannel_t channel;
+	sCroppingOffset_t croppingOffset;
+
+	Nv_
+
+	switch(displayMode)
+	{
+		case DISPLAY_MODE_2SPLIT_HCROP_A:
+		case DISPLAY_MODE_2SPLIT_VCROP_A:
+			
+			break;
+	}
+
+	if( TRUE == IsCroppingMode(displayMode))
+	{
+		channel = ConvertDisplayMode2Channel(displayMode);
+
+		
+	}
+}
+#endif

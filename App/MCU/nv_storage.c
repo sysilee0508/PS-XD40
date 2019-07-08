@@ -42,8 +42,7 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_MOTION_DETECT_BLOCK,       sizeof(uint16_t)*NUM_OF_CHANNEL*ROWS_OF_BLOCKS, CLEAR},
 		{NV_ITEM_SERIAL_BAUDRATE,			sizeof(eBaudRate_t),						CLEAR},
 		{NV_ITEM_VIDEO_AUX_FORMAT,			sizeof(eOutVideoFormat_t),					CLEAR},
-		{NV_ITEM_CROPPING_OFFSET_2SPLIT,	sizeof(sCroppingOffset_t)*NUM_OF_CHANNEL,	CLEAR},
-		{NV_ITEM_CROPPING_OFFSET_4SPLIT,	sizeof(sCroppingOffset_t),					CLEAR},
+		{NV_ITEM_CROPPING_OFFSET,			sizeof(sCroppingOffset_t)*NUM_OF_CHANNEL,	CLEAR},
 		{NV_ITEM_DISPLAY_MODE, 				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_SPLIT_MODE,				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_VPORT_MAP,					sizeof(eVPORT_MAP_t),						CLEAR},
@@ -159,9 +158,15 @@ static void LoadDefaultNvData(void)
 	memset(nv_data.data.motionBlocks, 0x00, sizeof(nv_data.data.motionBlocks));
 	nv_data.data.motionIndication = OFF;
 	nv_data.data.auxVideo = VIDEO_VGA;
+	for(index = 0; index < NUM_OF_CHANNEL; index++)
+	{
+		nv_data.data.croppingOffset[index].h_offset = 0;
+		nv_data.data.croppingOffset[index].v_offset = 0;
+	}
 
 	nv_data.data.displayMode = DISPLAY_MODE_4SPLIT_QUAD;
 	nv_data.data.splitMode = DISPLAY_MODE_4SPLIT_QUAD;
+
 
 	// set anyone of nv items dirty in order to write nv data to flash
 	nvInfo[NV_ITEM_END_CHECK].dirty = SET;
@@ -584,5 +589,16 @@ void Write_NvItem_AuxVideoFormat(eOutVideoFormat_t data)
 	nvInfo[NV_ITEM_VIDEO_AUX_FORMAT].dirty = SET;
 }
 
+void Read_NvItem_CroppingOffset(sCroppingOffset_t *pData, eChannel_t channel)
+{
+	*pData = nv_data.data.croppingOffset[channel];
+}
+void Write_NvItem_CroppingOffset(sCroppingOffset_t data, eChannel_t channel)
+{
+	nv_data.data.croppingOffset[channel] = data;
+	nvInfo[NV_ITEM_CROPPING_OFFSET].dirty = SET;
+
+	//NVP6158_AdjustCroppingOffset();
+}
 
 /*****  END OF FILE *****/

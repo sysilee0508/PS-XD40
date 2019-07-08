@@ -57,6 +57,13 @@ typedef enum
 	VPORT_MAP_MAX
 } eVPORT_MAP_t;
 
+typedef struct
+{
+	unsigned char		h_offset;
+	unsigned char		v_offset;
+} sCroppingOffset_t;
+
+
 // Auto Detection
 typedef struct 
 {
@@ -989,6 +996,8 @@ typedef struct _RAPTOR3_INFORMATION_S
 	
 	eVPORT_MAP_t 		vport_map;		// added by kukuri
 	unsigned char 		vport_map_changed;
+
+	sCroppingOffset_t 		videoOffset[4];
 } RAPTOR3_INFORMATION_S;
 
 void NVP6158_init(void);
@@ -1047,6 +1056,6 @@ void NC_VD_VO_Mode_Set_New( unsigned char ch, unsigned char devnum, unsigned cha
 
 void NVP6158_Set_VportMap(eVPORT_MAP_t map);
 eVPORT_MAP_t NVP6158_Get_VportMap(void);
-
+void NVP6158_AdjustCroppingOffset(void);
 
 #endif

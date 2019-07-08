@@ -146,7 +146,6 @@ static void PlayBuzzer(void)
 
 //	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
 #endif
-
 	while(TRUE)
 	{
 		RTC_CheckTime();

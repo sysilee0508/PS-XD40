@@ -44,6 +44,16 @@
 //	VIDEO_RESOLUTION_MAX
 //} eVideoResolution_t;
 
+
+typedef enum
+{
+	MDIN_ID_A = 0,
+	MDIN_ID_B,
+	MDIN_ID_C,
+	MDIN_ID_D,
+	MDIN_ID_MAX
+} MDIN_CHIP_ID_t;
+
 typedef enum
 {
 	INPUT_VIDEO_1080P30,
@@ -99,6 +109,12 @@ typedef enum
 	DISPLAY_MODE_MAX	//35
 } eDisplayMode_t;
 
+typedef enum
+{
+	CROPPING_NONE,
+	CROPPING_H,
+	CROPPING_V
+} eCroppingDirection_t;
 //=============================================================================
 //  struct
 //=============================================================================
@@ -121,4 +137,6 @@ extern BYTE GetInputVideoFormat(eChannel_t channel);
 extern eChannel_t ConvertDisplayMode2Channel(eDisplayMode_t displayMode);
 extern eChannel_t FindMainChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin);
 extern eChannel_t FindMainChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin);
+extern BOOL IsCroppingMode(eDisplayMode_t mode);
+extern eCroppingDirection_t GetCroppingDirection(eDisplayMode_t mode);
 #endif

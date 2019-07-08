@@ -1,14 +1,21 @@
 
 /* Includes ------------------------------------------------------------------*/
+#include "common.h"
 #include "NVP6158.h"
 #include "i2c.h"
 #include "delay.h"
 
-extern unsigned char GetCurrentDisplayMode(void);
-
 RAPTOR3_INFORMATION_S	s_raptor3_vfmts;
 
 static char g_MergeEn;
+
+const static unsigned char logicalChannel[4] = 
+{
+	CH4,
+	CH3,
+	CH2,
+	CH1
+};
 
 
 NC_VIVO_CH_FORMATDEF arrVfcType[0x100] = {
@@ -366,11 +373,68 @@ unsigned char NVP6158_MotionDetect_Check(void)
 	return s_raptor3_vfmts.motiondetect;
 }
 
-NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel)
+NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char channel)
 {
-	return s_raptor3_vfmts.curvideofmt[oLogicalChannel];
+	//unsigned char oLogicalChannel = logicalChannel[channel];
+	
+	return s_raptor3_vfmts.curvideofmt[logicalChannel[channel]];
 }
 
+unsigned char NVP6158_GetLogicalChannel(unsigned char channel)
+{
+	return logicalChannel[channel];
+}
+
+
+void NVP6158_AdjustCroppingOffset(void)
+{
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	sCroppingOffset_t offset;
+
+	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00 );
+	switch(displayMode)
+	{
+		case DISPLAY_MODE_2SPLIT_HCROP_A:
+			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL1], (offset.h_offset * 10));//offset.h_offset);
+			Read_NvItem_CroppingOffset(&offset, CHANNEL2);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL2], (offset.h_offset * 10));//offset.h_offset);
+			break;
+
+		case DISPLAY_MODE_2SPLIT_HCROP_B:
+			Read_NvItem_CroppingOffset(&offset, CHANNEL3);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL3], (offset.h_offset * 10));//offset.h_offset);
+			Read_NvItem_CroppingOffset(&offset, CHANNEL4);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL4], (offset.h_offset * 10));//offset.h_offset);
+			break;
+			
+		case DISPLAY_MODE_2SPLIT_VCROP_A:
+			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5C + logicalChannel[CHANNEL1], 0xE0+offset.v_offset);//offset.h_offset);
+			Read_NvItem_CroppingOffset(&offset, CHANNEL2);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5C + logicalChannel[CHANNEL2], 0xE0+offset.v_offset);//offset.h_offset);
+			break;
+
+		case DISPLAY_MODE_2SPLIT_VCROP_B:
+			Read_NvItem_CroppingOffset(&offset, CHANNEL3);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5C + logicalChannel[CHANNEL3], 0xE0+offset.v_offset);//offset.h_offset);
+			Read_NvItem_CroppingOffset(&offset, CHANNEL4);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5C + logicalChannel[CHANNEL4], 0xE0+offset.v_offset);//offset.h_offset);
+			break;
+
+		case DISPLAY_MODE_4SPLIT_R3CROP:
+		case DISPLAY_MODE_4SPLIT_L3CROP:
+			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5B, (offset.h_offset * 10));//offset.h_offset);
+			break;
+
+		case DISPLAY_MODE_4SPLIT_D3CROP:
+		case DISPLAY_MODE_4SPLIT_U3CROP:
+			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5F, 0xE0+offset.v_offset);//offset.h_offset);
+			break;
+	}
+}
 
 #define DISTINGUISH_MAX_NUM	5
 static unsigned int CVI_720P30[4]={0,};
@@ -529,7 +593,6 @@ void NVP6158_init(void)
 	unsigned char ch;
 	unsigned char port;
 	unsigned char val_9x44;
-	//unsigned char displayMode = GetCurrentDisplayMode();
 
 	chip_id = check_id(NVP6158_ADDR);
 	if(chip_id != RAPTOR3_4PORT_R0_ID )
@@ -649,6 +712,9 @@ void NVP6158_init(void)
 	{
 		NC_VD_AUTO_AutoMode_Set(ch, ch/4);
 		Delay_ms(100);
+
+		//added by kukuri
+		Read_NvItem_CroppingOffset(&s_raptor3_vfmts.videoOffset[ch], logicalChannel[ch]);
 	}
 
 	s_raptor3_vfmts.oMux = VI_1MULTIPLEX_MODE;

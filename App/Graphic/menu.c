@@ -1339,6 +1339,8 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 // Display Page Function
 //------------------------------------------------------------------
+//#define CROPPING_CHANNEL(x)		(x == TRUE) ? CHANNEL2 : CHANNEL1
+
 const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 {
 	{24, LINE0_OFFSET_Y, menuStr_Display_Title},
@@ -1425,7 +1427,7 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 			Print_StringWithSelectedMark(
 					displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 					displayMenu[itemY].offset_y,
-					menuStr_Space13,
+					menuStr_Space10,
 					NULL,
 					strlen(menuStr_Space10));
 			switch(auxVideo)
@@ -1514,6 +1516,9 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 	BOOL osdOn;
 	BOOL borderLineOn;
 	eDisplayMode_t split;
+	static eChannel_t croppingChannel = CHANNEL1;
+	eCroppingDirection_t croppingDir;
+	sCroppingOffset_t croppingOffset;
 
 	switch(key)
 	{
@@ -1558,18 +1563,60 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			break;
 
 		case KEY_LEFT:
+			inc_dec = INCREASE;
 		case KEY_RIGHT:
 			if(itemY == DISPLAY_ITEM_Y_SPLIT_MODE)
 			{
-				//if()
+				split = GetSystemSplitMode();
+				// KEY_LEFT & KEY_RIGHT is enabled only for cropping mode
+				croppingDir = GetCroppingDirection(split);
+				if(croppingDir != CROPPING_NONE)
+				{
+					Read_NvItem_CroppingOffset(&croppingOffset, croppingChannel);
+					if(croppingDir == CROPPING_H)
+					{
+						IncreaseDecreaseCount(ADJUST_WINDOW_STEP_MAX, 0, inc_dec, &croppingOffset.h_offset, FALSE);
+					}
+					else
+					{
+						IncreaseDecreaseCount(ADJUST_WINDOW_STEP_MAX, 0, inc_dec, &croppingOffset.v_offset, FALSE);
+					}
+					Write_NvItem_CroppingOffset(croppingOffset, croppingChannel);
+
+					if((split == DISPLAY_MODE_2SPLIT_HCROP_B) || (split == DISPLAY_MODE_2SPLIT_VCROP_B))
+					{
+						CreateDisplayWindow_B(split);
+					}
+					else
+					{
+						CreateDisplayWindow_A(split);
+					}
+				}
 			}
 			break;
 
 		case KEY_ENTER:
 			Toggle(&requestEnterKeyProc);
-			if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
+//			if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
+//			{
+//				DisplayPage_RedrawPage(itemY);
+//			}
+			if(splitModeSelecting == TRUE)
 			{
-				DisplayPage_RedrawPage(itemY);
+				split = GetSystemSplitMode();
+				
+				if((split == DISPLAY_MODE_2SPLIT_HCROP_A) || (split == DISPLAY_MODE_2SPLIT_VCROP_A))
+				{
+					croppingChannel = (requestEnterKeyProc == CLEAR) ? CHANNEL1 : CHANNEL2;
+				}
+				else if((split == DISPLAY_MODE_2SPLIT_HCROP_B) || (split == DISPLAY_MODE_2SPLIT_VCROP_B))
+				{
+					croppingChannel = (requestEnterKeyProc == CLEAR) ? CHANNEL3 : CHANNEL4;
+				}
+				else
+				{
+					croppingChannel = CHANNEL1;
+				}
 			}
 			else
 			{

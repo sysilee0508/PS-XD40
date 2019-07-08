@@ -29,6 +29,11 @@
 
 #define CHANNEL_NEME_LENGTH_MAX			12
 
+#define CROPPING_OFFSET_H_MIN			0
+#define CROPPING_OFFSET_H_MAX			64
+#define CROPPING_OFFSET_V_MIN			0
+#define CROPPING_OFFSET_V_MAX			36
+
 //=============================================================================
 //  Type definitions - enum, struct
 //=============================================================================
@@ -65,8 +70,7 @@ typedef enum
 	NV_ITME_MOTION_INDICATION,
 	NV_ITEM_SERIAL_BAUDRATE,
 	NV_ITEM_VIDEO_AUX_FORMAT,
-	NV_ITEM_CROPPING_OFFSET_2SPLIT,
-	NV_ITEM_CROPPING_OFFSET_4SPLIT,
+	NV_ITEM_CROPPING_OFFSET,
 //-- system data ---------------------------------------------------------------
 //	If you want to store any system data (item) in NV memory, it should come here
 	NV_ITEM_DISPLAY_MODE,
@@ -141,12 +145,6 @@ typedef enum
 	VIDEO_MAX
 } eOutVideoFormat_t;
 
-typedef struct
-{
-	uint8_t					h_offset;
-	uint8_t					v_offset;
-} sCroppingOffset_t;
-
 //--------------------------------------------------------------------------------------
 typedef struct
 {
@@ -187,8 +185,7 @@ typedef struct
 	BOOL					motionIndication;
 	eBaudRate_t 			baudrate;
 	eOutVideoFormat_t		auxVideo;
-	sCroppingOffset_t		croppingOffset_2split[NUM_OF_CHANNEL];
-	sCroppingOffset_t		croppingOffset_4split;		// only for ch1
+	sCroppingOffset_t		croppingOffset[NUM_OF_CHANNEL];
 
 	eDisplayMode_t			displayMode;
 	eDisplayMode_t			splitMode;
@@ -277,9 +274,7 @@ extern void Read_NvItem_SerialBaudrate(eBaudRate_t *pData);
 extern void Write_NvItem_SerialBaudrate(eBaudRate_t data);
 extern void Read_NvItem_AuxVideoFormat(eOutVideoFormat_t *pData);
 extern void Write_NvItem_AuxVideoFormat(eOutVideoFormat_t data);
-extern void Read_NvItem_CroppingOffset_2split(sCroppingOffset_t *pData, eChannel_t channel);
-extern void Write_NvItem_CroppingOffset_2split(sCroppingOffset_t *pData, eChannel_t channel);
-extern void Read_NvItem_CroppingOffset_4split(sCroppingOffset_t *pData);
-extern void Write_NvItem_CroppingOffset_4split(sCroppingOffset_t *pData);
+extern void Read_NvItem_CroppingOffset(sCroppingOffset_t *pData, eChannel_t channel);
+extern void Write_NvItem_CroppingOffset(sCroppingOffset_t  data, eChannel_t channel);
 
 #endif

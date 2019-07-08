@@ -866,11 +866,13 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 
 
 //--------------------------------------------------------------------------------------------------
-static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
+//static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
+void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 {
 	eChannel_t mainChannel, auxChannel;
 	WORD mainTotalWidth, mainTotalHeight;
 	WORD auxTotalWidth, auxTotalHeight;
+	sCroppingOffset_t croppingOffset;
 
 	PMDIN_VIDEO_WINDOW pMainView = &stMainVIEW[MDIN_ID_A];
 	PMDIN_VIDEO_WINDOW pAuxView = &stAuxVIEW[MDIN_ID_A];
@@ -957,15 +959,16 @@ static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 	switch(displayMode)
 	{	
 		case DISPLAY_MODE_2SPLIT_HCROP_A:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = 0;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
 			pMainCrop->y = 0;
-
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL2);
 			pAuxCrop->w = auxTotalWidth/2;
 			pAuxCrop->h = auxTotalHeight;
-			pAuxCrop->x = 0;
-			pAuxCrop->y = 0;
+			pAuxCrop->x = (auxTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pAuxCrop->y = 0;			
 		case DISPLAY_MODE_2SPLIT_HSCALE_A:
 			pMainView->w = DISPLAY_HALF_WIDTH;
 			pMainView->h = DISPLAY_HEIGHT;
@@ -979,15 +982,16 @@ static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_2SPLIT_VCROP_A:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth;
 			pMainCrop->h = mainTotalHeight/2;
 			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-
+			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL2);
 			pAuxCrop->w = auxTotalWidth;
 			pAuxCrop->h = auxTotalHeight/2;
 			pAuxCrop->x = 0;
-			pAuxCrop->y = 0;
+			pAuxCrop->y = (auxTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;//0;
 		case DISPLAY_MODE_2SPLIT_VSCALE_A:
 			pMainView->w = DISPLAY_HALF_WIDTH;
 			pMainView->h = DISPLAY_HALF_HEIGHT;
@@ -1005,7 +1009,25 @@ static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainView->h = DISPLAY_HEIGHT_1280x720;
 			pMainView->x = 0;
 			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
+			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
+			pAuxView->x = (DISPLAY_WIDTH_1280x720/3)*4;
+			pAuxView->y = 0;
+			break;
+
 		case DISPLAY_MODE_4SPLIT_R3CROP:
+			pMainView->w = DISPLAY_WIDTH_1280x720*2/3;
+			pMainView->h = DISPLAY_HEIGHT_1280x720;
+			pMainView->x = 0;
+			pMainView->y = 0;
+			
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
+			pMainCrop->w = mainTotalWidth*2/3;
+			pMainCrop->h = mainTotalHeight;
+			pMainCrop->x = (mainTotalWidth/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pMainCrop->y = 0;
+
 			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
 			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
 			pAuxView->x = (DISPLAY_WIDTH_1280x720/3)*4;
@@ -1017,7 +1039,26 @@ static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainView->h = DISPLAY_HEIGHT;
 			pMainView->x = DISPLAY_WIDTH*2/3;
 			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
+			pAuxView->x = 0;
+			pAuxView->y = 0;
+			break;
+
 		case DISPLAY_MODE_4SPLIT_L3CROP:
+			pMainView->w = DISPLAY_WIDTH*2/3;
+			pMainView->h = DISPLAY_HEIGHT;
+			pMainView->x = DISPLAY_WIDTH*2/3;
+			pMainView->y = 0;
+			
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
+			pMainCrop->w = mainTotalWidth*2/3;
+			pMainCrop->h = mainTotalHeight;
+			pMainCrop->x = (mainTotalWidth/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pMainCrop->y = 0;
+
+
 			pAuxView->w = DISPLAY_WIDTH/3;
 			pAuxView->h = DISPLAY_HEIGHT/3;
 			pAuxView->x = 0;
@@ -1029,7 +1070,25 @@ static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainView->h = DISPLAY_HEIGHT*2/3;
 			pMainView->x = 0;
 			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
+			pAuxView->x = 0;
+			pAuxView->y = DISPLAY_HEIGHT*2/3;
+			break;
+
 		case DISPLAY_MODE_4SPLIT_D3CROP:
+			pMainView->w = DISPLAY_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT*2/3;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
+			pMainCrop->w = mainTotalWidth;
+			pMainCrop->h = mainTotalHeight*2/3;
+			pMainCrop->x = 0;
+			pMainCrop->y = (mainTotalHeight/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.v_offset;//0;
+
 			pAuxView->w = DISPLAY_WIDTH/3;
 			pAuxView->h = DISPLAY_HEIGHT/3;
 			pAuxView->x = 0;
@@ -1041,7 +1100,25 @@ static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainView->h = DISPLAY_HEIGHT*2/3;
 			pMainView->x = 0;
 			pMainView->y = DISPLAY_HEIGHT/3;
+			
+			pAuxView->w = DISPLAY_WIDTH/3;
+			pAuxView->h = DISPLAY_HEIGHT/3;
+			pAuxView->x = 0;
+			pAuxView->y = 0;
+			break;
+
 		case DISPLAY_MODE_4SPLIT_U3CROP:
+			pMainView->w = DISPLAY_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT*2/3;
+			pMainView->x = 0;
+			pMainView->y = DISPLAY_HEIGHT/3;
+
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
+			pMainCrop->w = mainTotalWidth;
+			pMainCrop->h = mainTotalHeight*2/3;
+			pMainCrop->x = 0;
+			pMainCrop->y = (mainTotalHeight/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.v_offset;//0;
+
 			pAuxView->w = DISPLAY_WIDTH/3;
 			pAuxView->h = DISPLAY_HEIGHT/3;
 			pAuxView->x = 0;
@@ -1132,11 +1209,13 @@ static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 
 
 //--------------------------------------------------------------------------------------------------
-static void CreateDisplayWindow_B(eDisplayMode_t displayMode)
+//static void CreateDisplayWindow_B(eDisplayMode_t displayMode)
+void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 {
 	eChannel_t mainChannel, auxChannel;
 	WORD mainTotalWidth, mainTotalHeight;
 	WORD auxTotalWidth, auxTotalHeight;
+	sCroppingOffset_t croppingOffset;
 
 	PMDIN_VIDEO_WINDOW pMainView = &stMainVIEW[MDIN_ID_B];
 	PMDIN_VIDEO_WINDOW pAuxView = &stAuxVIEW[MDIN_ID_B];
@@ -1228,6 +1307,52 @@ static void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 	switch(displayMode)
 	{	
 		case DISPLAY_MODE_2SPLIT_HCROP_B:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL3);
+			pMainCrop->w = mainTotalWidth/2;
+			pMainCrop->h = mainTotalHeight;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pMainCrop->y = 0;
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL4);
+			pAuxCrop->w = auxTotalWidth/2;
+			pAuxCrop->h = auxTotalHeight;
+			pAuxCrop->x = (auxTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pAuxCrop->y = 0;			
+		case DISPLAY_MODE_2SPLIT_HSCALE_B:
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HEIGHT;
+			pAuxView->x = DISPLAY_WIDTH;
+			pAuxView->y = 0;
+			break;
+
+		case DISPLAY_MODE_2SPLIT_VCROP_B:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL3);
+			pMainCrop->w = mainTotalWidth;
+			pMainCrop->h = mainTotalHeight/2;
+			pMainCrop->x = 0;
+			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL4);
+			pAuxCrop->w = auxTotalWidth;
+			pAuxCrop->h = auxTotalHeight/2;
+			pAuxCrop->x = 0;
+			pAuxCrop->y = (auxTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;//0;
+		case DISPLAY_MODE_2SPLIT_VSCALE_B:
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = 0;
+			pAuxView->y = DISPLAY_HALF_HEIGHT;
+			break;
+/*
+		case DISPLAY_MODE_2SPLIT_HCROP_B:
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
 			pMainCrop->x = 0;
@@ -1270,7 +1395,7 @@ static void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			pAuxView->x = 0;
 			pAuxView->y = DISPLAY_HALF_HEIGHT;
 			break;
-
+*/
 		case DISPLAY_MODE_4SPLIT_U3SCALE:
 		case DISPLAY_MODE_4SPLIT_U3CROP:
 		case DISPLAY_MODE_4SPLIT_D3SCALE:
