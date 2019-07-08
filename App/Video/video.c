@@ -692,9 +692,17 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 			case VIDEO_DIGITAL_NVP6158_AB:	// use mdin_a & mdin_b
 				stVideo_A.srcPATH = PATH_MAIN_A_AUX_B;
 				stVideo_A.dacPATH = DAC_PATH_MAIN_PIP;
-			
-				stVideo_B.srcPATH = PATH_MAIN_A_AUX_B;
-				stVideo_B.dacPATH = DAC_PATH_MAIN_PIP;
+
+				if((mode >= DISPLAY_MODE_3SPLIT_R2SCALE) && (mode <= DISPLAY_MODE_3SPLIT_U2CROP))
+				{
+					stVideo_B.srcPATH = PATH_MAIN_A_AUX_M;
+					stVideo_B.dacPATH = DAC_PATH_MAIN_OUT;
+				}
+				else
+				{
+					stVideo_B.srcPATH = PATH_MAIN_A_AUX_B;
+					stVideo_B.dacPATH = DAC_PATH_MAIN_PIP;
+				}
 
 				if((mode == DISPLAY_MODE_4SPLIT_H) || (mode == DISPLAY_MODE_4SPLIT_X))
 				{
@@ -1002,6 +1010,78 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pAuxView->h = DISPLAY_HALF_HEIGHT;
 			pAuxView->x = 0;
 			pAuxView->y = DISPLAY_HALF_HEIGHT;
+			break;
+
+		case DISPLAY_MODE_3SPLIT_R2CROP:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
+			pMainCrop->w = mainTotalWidth/2;
+			pMainCrop->h = mainTotalHeight;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pMainCrop->y = 0;
+		case DISPLAY_MODE_3SPLIT_R2SCALE:
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = DISPLAY_WIDTH;
+			pAuxView->y = 0;
+			break;
+			
+		case DISPLAY_MODE_3SPLIT_L2CROP:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
+			pMainCrop->w = mainTotalWidth/2;
+			pMainCrop->h = mainTotalHeight;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pMainCrop->y = 0;
+		case DISPLAY_MODE_3SPLIT_L2SCALE:
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT;
+			pMainView->x = DISPLAY_WIDTH;
+			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = 0;
+			pAuxView->y = 0;
+			break;
+			
+		case DISPLAY_MODE_3SPLIT_D2CROP:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
+			pMainCrop->w = mainTotalWidth;
+			pMainCrop->h = mainTotalHeight/2;
+			pMainCrop->x = 0;
+			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
+		case DISPLAY_MODE_3SPLIT_D2SCALE:
+			pMainView->w = DISPLAY_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = 0;
+			pAuxView->y = DISPLAY_HALF_HEIGHT;
+			break;
+			
+		case DISPLAY_MODE_3SPLIT_U2CROP:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
+			pMainCrop->w = mainTotalWidth;
+			pMainCrop->h = mainTotalHeight/2;
+			pMainCrop->x = 0;
+			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
+		case DISPLAY_MODE_3SPLIT_U2SCALE:
+			pMainView->w = DISPLAY_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = DISPLAY_HALF_HEIGHT;
+
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = 0;
+			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
@@ -1506,6 +1586,32 @@ static void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pMainCrop->h = DISPLAY_HEIGHT;
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
+			break;
+
+		case DISPLAY_MODE_3SPLIT_R2SCALE:
+		case DISPLAY_MODE_3SPLIT_R2CROP:
+		case DISPLAY_MODE_3SPLIT_D2SCALE:
+		case DISPLAY_MODE_3SPLIT_D2CROP:
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = DISPLAY_HALF_WIDTH;
+			pAuxView->y = DISPLAY_HALF_HEIGHT;
+			break;
+			
+		case DISPLAY_MODE_3SPLIT_L2SCALE:
+		case DISPLAY_MODE_3SPLIT_L2CROP:
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = 0;
+			pAuxView->y = DISPLAY_HALF_HEIGHT;
+			break;
+
+		case DISPLAY_MODE_3SPLIT_U2SCALE:
+		case DISPLAY_MODE_3SPLIT_U2CROP:
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = DISPLAY_HALF_WIDTH;
+			pAuxView->y = 0;
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_QUAD:

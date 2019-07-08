@@ -94,6 +94,17 @@ static BOOL Check_VideoFormat_Change(void)
 				changed = UpdatedChannel(changedChannel, CHANNEL1) | UpdatedChannel(changedChannel, CHANNEL4);
 				break;
 
+			case DISPLAY_MODE_3SPLIT_R2SCALE:
+			case DISPLAY_MODE_3SPLIT_R2CROP:
+			case DISPLAY_MODE_3SPLIT_L2SCALE:
+			case DISPLAY_MODE_3SPLIT_L2CROP:
+			case DISPLAY_MODE_3SPLIT_D2SCALE:
+			case DISPLAY_MODE_3SPLIT_D2CROP:
+			case DISPLAY_MODE_3SPLIT_U2SCALE:
+			case DISPLAY_MODE_3SPLIT_U2CROP:
+				changed = UpdatedChannel(changedChannel, CHANNEL1) | UpdatedChannel(changedChannel, CHANNEL2) | UpdatedChannel(changedChannel, CHANNEL3);
+				break;
+
 			default:
 				changed = (changedChannel != 0x00)?TRUE:FALSE;
 				break;
@@ -150,6 +161,14 @@ void DisplayScreen(eDisplayMode_t mode)
 			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
 			break;
 
+		case DISPLAY_MODE_3SPLIT_R2SCALE:
+		case DISPLAY_MODE_3SPLIT_R2CROP:
+		case DISPLAY_MODE_3SPLIT_L2SCALE:
+		case DISPLAY_MODE_3SPLIT_L2CROP:
+		case DISPLAY_MODE_3SPLIT_D2SCALE:
+		case DISPLAY_MODE_3SPLIT_D2CROP:
+		case DISPLAY_MODE_3SPLIT_U2SCALE:
+		case DISPLAY_MODE_3SPLIT_U2CROP:
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
 		case DISPLAY_MODE_4SPLIT_R3CROP:
 		case DISPLAY_MODE_4SPLIT_L3SCALE:

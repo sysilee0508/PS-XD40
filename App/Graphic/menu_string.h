@@ -50,6 +50,15 @@ const u8 menuStr_DisplayMode_2SplitHCrop_B[] = "2Split H-Crop Ch3&Ch4";
 const u8 menuStr_DisplayMode_2SplitVScale_B[] = "2Split V-Scale Ch3&Ch4";
 const u8 menuStr_DisplayMode_2SplitVCrop_B[] = "2Split V-Crop Ch3&Ch4";
 
+const u8 menuStr_DisplayMode_3Split_RScale[] = "3Split-Rigth Scale";
+const u8 menuStr_DisplayMode_3Split_RCrop[] = "3Split-Right Crop";
+const u8 menuStr_DisplayMode_3Split_LScale[] = "3Split-Left Scale";
+const u8 menuStr_DisplayMode_3Split_LCrop[] = "3Split-Left Crop";
+const u8 menuStr_DisplayMode_3Split_DScale[] = "3Split-Bottom Scale";
+const u8 menuStr_DisplayMode_3Split_DCrop[] = "3Split-Bottom Crop";
+const u8 menuStr_DisplayMode_3Split_UScale[] = "3Split-Top Scale";
+const u8 menuStr_DisplayMode_3Split_UCrop[] = "3Split-Top Crop";
+
 const u8 menuStr_DisplayMode_4Split_Quad[] = "4Split QUAD";
 const u8 menuStr_DisplayMode_4Split_RScale[] = "4Split-Rigth Scale";
 const u8 menuStr_DisplayMode_4Split_RCrop[] = "4Split-Right Crop";
@@ -89,6 +98,14 @@ const u8* pDisplayMode_Name[DISPLAY_MODE_MAX] =
 	menuStr_DisplayMode_2SplitHCrop_B,
 	menuStr_DisplayMode_2SplitVScale_B,
 	menuStr_DisplayMode_2SplitVCrop_B,
+	menuStr_DisplayMode_3Split_RScale,
+	menuStr_DisplayMode_3Split_RCrop,
+	menuStr_DisplayMode_3Split_LScale,
+	menuStr_DisplayMode_3Split_LCrop,
+	menuStr_DisplayMode_3Split_DScale,
+	menuStr_DisplayMode_3Split_DCrop,
+	menuStr_DisplayMode_3Split_UScale,
+	menuStr_DisplayMode_3Split_UCrop,
 	menuStr_DisplayMode_4Split_Quad,
 	menuStr_DisplayMode_4Split_RScale,
 	menuStr_DisplayMode_4Split_RCrop,
