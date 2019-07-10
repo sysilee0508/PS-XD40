@@ -347,6 +347,8 @@ BOOL IsCroppingMode(eDisplayMode_t mode)
 
 	if((mode == DISPLAY_MODE_2SPLIT_HCROP_A) || (mode == DISPLAY_MODE_2SPLIT_VCROP_A) ||
 		(mode == DISPLAY_MODE_2SPLIT_HCROP_B) || (mode == DISPLAY_MODE_2SPLIT_VCROP_B) ||
+		(mode == DISPLAY_MODE_3SPLIT_R2CROP) || (mode == DISPLAY_MODE_3SPLIT_L2CROP) ||
+		(mode == DISPLAY_MODE_3SPLIT_D2CROP) || (mode == DISPLAY_MODE_3SPLIT_U2CROP) ||
 		(mode == DISPLAY_MODE_4SPLIT_R3CROP) || (mode == DISPLAY_MODE_4SPLIT_L3CROP) ||
 		(mode == DISPLAY_MODE_4SPLIT_D3CROP) || (mode == DISPLAY_MODE_4SPLIT_U3CROP))
 	{
@@ -361,11 +363,13 @@ eCroppingDirection_t GetCroppingDirection(eDisplayMode_t mode)
 	eCroppingDirection_t dir = CROPPING_NONE;
 
 	if((mode == DISPLAY_MODE_2SPLIT_HCROP_A) || (mode == DISPLAY_MODE_2SPLIT_HCROP_B) ||
+		(mode == DISPLAY_MODE_3SPLIT_R2CROP) || (mode == DISPLAY_MODE_3SPLIT_L2CROP) ||
 		(mode == DISPLAY_MODE_4SPLIT_R3CROP) || (mode == DISPLAY_MODE_4SPLIT_L3CROP))
 	{
 		dir = CROPPING_H;
 	}
 	else if((mode == DISPLAY_MODE_2SPLIT_VCROP_A) || (mode == DISPLAY_MODE_2SPLIT_VCROP_B) ||
+			(mode == DISPLAY_MODE_3SPLIT_D2CROP) || (mode == DISPLAY_MODE_3SPLIT_U2CROP) ||
 			(mode == DISPLAY_MODE_4SPLIT_D3CROP) || (mode == DISPLAY_MODE_4SPLIT_U3CROP))
 	{
 		dir = CROPPING_V;

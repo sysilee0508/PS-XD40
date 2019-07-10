@@ -1351,6 +1351,7 @@ const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 	{20, LINE4_OFFSET_Y, menuStr_Display_VideoOutFormat}
 };
 static BOOL splitModeSelecting = FALSE;
+static BOOL selectCroppingWindow = FALSE; 
 
 static void DisplayPage_DisplaySplitMode(eDisplayMode_t split)
 {
@@ -1596,33 +1597,40 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			break;
 
 		case KEY_ENTER:
-			Toggle(&requestEnterKeyProc);
-//			if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
-//			{
-//				DisplayPage_RedrawPage(itemY);
-//			}
 			if(splitModeSelecting == TRUE)
 			{
 				split = GetSystemSplitMode();
-				
-				if((split == DISPLAY_MODE_2SPLIT_HCROP_A) || (split == DISPLAY_MODE_2SPLIT_VCROP_A))
+
+				if(IsCroppingMode(split) == TRUE)
 				{
-					croppingChannel = (requestEnterKeyProc == CLEAR) ? CHANNEL1 : CHANNEL2;
-				}
-				else if((split == DISPLAY_MODE_2SPLIT_HCROP_B) || (split == DISPLAY_MODE_2SPLIT_VCROP_B))
-				{
-					croppingChannel = (requestEnterKeyProc == CLEAR) ? CHANNEL3 : CHANNEL4;
-				}
-				else
-				{
-					croppingChannel = CHANNEL1;
+					Toggle(&selectCroppingWindow);
+					if((split == DISPLAY_MODE_2SPLIT_HCROP_A) || (split == DISPLAY_MODE_2SPLIT_VCROP_A))
+					{
+						croppingChannel = (selectCroppingWindow == TRUE) ? CHANNEL1 : CHANNEL2;
+					}
+					else if((split == DISPLAY_MODE_2SPLIT_HCROP_B) || (split == DISPLAY_MODE_2SPLIT_VCROP_B))
+					{
+						croppingChannel = (selectCroppingWindow == TRUE) ? CHANNEL3 : CHANNEL4;
+					}
+					else
+					{
+						croppingChannel = CHANNEL1;
+					}
 				}
 			}
 			else
 			{
+				Toggle(&requestEnterKeyProc);
+				//if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
+				//{
+				//	DisplayPage_RedrawPage(itemY);
+				//}
+				//else
+				//{
 				DisplayPage_UpdatePageOption(itemY);
+				//}
+				//DisplayPage_UpdatePageOption(itemY);
 			}
-			//DisplayPage_UpdatePageOption(itemY);
 			break;
 
 		case KEY_EXIT:
@@ -1928,59 +1936,59 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 	{
 		case KEY_UP :
 			inc_dec = INCREASE;
-    	case KEY_DOWN :
-    		if(requestEnterKeyProc)
+	    	case KEY_DOWN :
+	    		if(requestEnterKeyProc)
 			{
-    			switch(itemY)
-    			{
-    				case ALARM_ITEM_Y_ALARM_REMOCON:
-    					Read_NvItem_AlarmRemoconSelect(&alarmRemoconSel);
-    					Toggle(&alarmRemoconSel);
-    					ChangeAlarmRemoteKeyMode(alarmRemoconSel);
-    					Write_NvItem_AlarmRemoconSelect(alarmRemoconSel);
-    					break;
+	    			switch(itemY)
+	    			{
+	    				case ALARM_ITEM_Y_ALARM_REMOCON:
+	    					Read_NvItem_AlarmRemoconSelect(&alarmRemoconSel);
+	    					Toggle(&alarmRemoconSel);
+	    					ChangeAlarmRemoteKeyMode(alarmRemoconSel);
+	    					Write_NvItem_AlarmRemoconSelect(alarmRemoconSel);
+	    					break;
 
-    				case ALARM_ITEM_Y_CH1:
-    				case ALARM_ITEM_Y_CH2:
-    				case ALARM_ITEM_Y_CH3:
-    				case ALARM_ITEM_Y_CH4:
-    					Read_NvItem_AlarmOption(&alarmOption, (eChannel_t)(itemY - 2));
-    					IncreaseDecreaseCount(2, 0, inc_dec, (u8 *)&alarmOption, TRUE);
-    					Write_NvItem_AlarmOption(alarmOption, (eChannel_t)(itemY - 2));
-    					break;
+	    				case ALARM_ITEM_Y_CH1:
+	    				case ALARM_ITEM_Y_CH2:
+	    				case ALARM_ITEM_Y_CH3:
+	    				case ALARM_ITEM_Y_CH4:
+	    					Read_NvItem_AlarmOption(&alarmOption, (eChannel_t)(itemY - 2));
+	    					IncreaseDecreaseCount(2, 0, inc_dec, (u8 *)&alarmOption, TRUE);
+	    					Write_NvItem_AlarmOption(alarmOption, (eChannel_t)(itemY - 2));
+	    					break;
 
-    				case ALARM_ITEM_Y_ALARMOUT_TIME:
-    					Read_NvItem_AlarmOutTime(&intData);
-    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
-    					Write_NvItem_AlarmOutTime(intData);
-    					break;
+	    				case ALARM_ITEM_Y_ALARMOUT_TIME:
+	    					Read_NvItem_AlarmOutTime(&intData);
+	    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
+	    					Write_NvItem_AlarmOutTime(intData);
+	    					break;
 
-    				case ALARM_ITEM_Y_ALARM_BUZZER_TIME:
-    					Read_NvItem_AlarmBuzzerTime(&intData);
-    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
-    					Write_NvItem_AlarmBuzzerTime(intData);
-    					break;
+	    				case ALARM_ITEM_Y_ALARM_BUZZER_TIME:
+	    					Read_NvItem_AlarmBuzzerTime(&intData);
+	    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
+	    					Write_NvItem_AlarmBuzzerTime(intData);
+	    					break;
 
-    				case ALARM_ITEM_Y_LOSS_BUZZER_TIME:
-    					Read_NvItem_VideoLossBuzzerTime(&intData);
-    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
-    					Write_NvItem_VideoLossBuzzerTime(intData);
-    					break;
+	    				case ALARM_ITEM_Y_LOSS_BUZZER_TIME:
+	    					Read_NvItem_VideoLossBuzzerTime(&intData);
+	    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
+	    					Write_NvItem_VideoLossBuzzerTime(intData);
+	    					break;
 
-    				case ALARM_ITEM_Y_REMOCONID:
-    					Read_NvItem_RemoconId(&intData);
-    					IncreaseDecreaseCount(REMOCON_ID_MAX, REMOCON_ID_NONE, inc_dec, &intData, TRUE);
-    					Write_NvItem_RemoconId(intData);
-    					break;
+	    				case ALARM_ITEM_Y_REMOCONID:
+	    					Read_NvItem_RemoconId(&intData);
+	    					IncreaseDecreaseCount(REMOCON_ID_MAX, REMOCON_ID_NONE, inc_dec, &intData, TRUE);
+	    					Write_NvItem_RemoconId(intData);
+	    					break;
 
-    				case ALARM_ITEM_Y_BAUDRATE:
-    					Read_NvItem_SerialBaudrate(&baudrate);
-    					IncreaseDecreaseCount(2, 0, inc_dec, &baudrate, TRUE);
-    					Write_NvItem_SerialBaudrate(baudrate);
-    					break;
+	    				case ALARM_ITEM_Y_BAUDRATE:
+	    					Read_NvItem_SerialBaudrate(&baudrate);
+	    					IncreaseDecreaseCount(2, 0, inc_dec, &baudrate, TRUE);
+	    					Write_NvItem_SerialBaudrate(baudrate);
+	    					break;
 
-    			}
-    			AlarmRemoconPage_UpdatePageOption(itemY);
+	    			}
+	    			AlarmRemoconPage_UpdatePageOption(itemY);
 			}
 			else 
 			{
@@ -1998,21 +2006,21 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
     	case KEY_ENTER :
     		Toggle(&requestEnterKeyProc);
     		AlarmRemoconPage_UpdatePageOption(itemY);
-			break; 	
+		break; 	
 
-		case KEY_EXIT:
-       		if(requestEnterKeyProc)
-			{
-       			Toggle(&requestEnterKeyProc);
-       			AlarmRemoconPage_UpdatePageOption(itemY);
-			}
-			else 
-			{
-				ChangeBaudrate();
-				itemY = ALARM_ITEM_Y_ALARM_REMOCON;
-				MainMenu_Entry(currentPage);
-			}
-			break; 	
+	case KEY_EXIT:
+   		if(requestEnterKeyProc)
+		{
+   			Toggle(&requestEnterKeyProc);
+   			AlarmRemoconPage_UpdatePageOption(itemY);
+		}
+		else 
+		{
+			ChangeBaudrate();
+			itemY = ALARM_ITEM_Y_ALARM_REMOCON;
+			MainMenu_Entry(currentPage);
+		}
+		break; 	
 	}
 }   
 
