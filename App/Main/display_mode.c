@@ -205,6 +205,17 @@ void DisplayScreen(eDisplayMode_t mode)
 			break;
 	}
 	Write_NvItem_DisplayMode(mode);
+
+#ifdef ADJUST_CROPPING_WINDOW_NVP
+	if(IsCroppingMode(mode) == TRUE)
+	{
+		NVP6158_AdjustCroppingOffset();
+	}
+	else
+	{
+		NVP6158_ClearWindowOffset();
+	}
+#endif
 }
 
 void UpdateDisplayMode(void)
@@ -377,29 +388,3 @@ eCroppingDirection_t GetCroppingDirection(eDisplayMode_t mode)
 
 	return dir;
 }
-
-#if 0
-void GetCroppingOffsetValue(void)
-{
-//	eDisplayMode_t displayMode = GetCurrentDisplayMode();
-//	eChannel_t channel;
-	sCroppingOffset_t croppingOffset;
-
-	Nv_
-
-	switch(displayMode)
-	{
-		case DISPLAY_MODE_2SPLIT_HCROP_A:
-		case DISPLAY_MODE_2SPLIT_VCROP_A:
-			
-			break;
-	}
-
-	if( TRUE == IsCroppingMode(displayMode))
-	{
-		channel = ConvertDisplayMode2Channel(displayMode);
-
-		
-	}
-}
-#endif

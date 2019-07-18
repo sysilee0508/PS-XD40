@@ -712,9 +712,6 @@ void video_input_eq_val_set(video_equalizer_info_s *pvin_eq_set)
 		__eq_clk_set_value( pvin_eq_set, &eq_value.eq_clk );
 		__eq_timing_b_set_value( pvin_eq_set, &eq_value.eq_timing_b );
 
-		// added by kukuri 
-		//NVP6158_AdjustCroppingOffset();
-
 				if( pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_NT || pvin_eq_set->FmtDef == AHD20_SD_H960_2EX_Btype_PAL )
 				{
 					NVP6158_I2C_WRITE(NVP6158_ADDR, 0xff, 0x00);

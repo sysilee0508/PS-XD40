@@ -5,6 +5,11 @@
 #include "i2c.h"
 #include "delay.h"
 
+extern video_equalizer_value_table_s equalizer_value_fmtdef[ NC_VIVO_CH_FORMATDEF_MAX ] ;
+#define ADJUST_STEP_H(x)		(x / ADJUST_WINDOW_STEP_MAX)
+//#define V_OFFSET(x)			0
+
+
 RAPTOR3_INFORMATION_S	s_raptor3_vfmts;
 
 static char g_MergeEn;
@@ -17,6 +22,7 @@ const static unsigned char logicalChannel[4] =
 	CH1
 };
 
+static unsigned char defaultOffset_V[NC_VIVO_CH_FORMATDEF_MAX] = {0, };
 
 NC_VIVO_CH_FORMATDEF arrVfcType[0x100] = {
 	/*  0x00 */	AHD20_SD_H960_2EX_Btype_NT,
@@ -53,6 +59,8 @@ NC_VIVO_CH_FORMATDEF arrVfcType[0x100] = {
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	/*  0xA0 */
 };
+
+//const unsigned char Defautl_VOffset[NC_VIVO_CH_FORMATDEF_MAX] = {};
 
 unsigned char NVP6158_I2C_READ(unsigned char slaveaddr, unsigned char regaddr)
 {
@@ -385,56 +393,394 @@ unsigned char NVP6158_GetLogicalChannel(unsigned char channel)
 	return logicalChannel[channel];
 }
 
+#ifdef ADJUST_CROPPING_WINDOW_NVP
+unsigned short NVP6158_GetVideoWidth(unsigned char channel)
+{
+	NC_VIVO_CH_FORMATDEF frmt;
+	unsigned short width = 1920;
+
+	frmt = NVP6158_Current_Video_Format_Check(channel);
+	switch(frmt)
+	{
+		case AHD20_SD_H960_NT:
+		case AHD20_SD_H960_EX_NT:
+		case AHD20_SD_H960_2EX_NT:
+		case AHD20_SD_H960_2EX_Btype_NT:
+		case AHD20_SD_H960_PAL:
+		case AHD20_SD_H960_EX_PAL:
+		case AHD20_SD_H960_2EX_PAL:
+		case AHD20_SD_H960_2EX_Btype_PAL:
+			width = 960;
+			break;
+
+		case AHD20_1080P_60P:
+		case AHD20_1080P_30P:
+		case TVI_FHD_30P:
+		case CVI_FHD_30P:
+		case AHD20_1080P_50P:
+		case AHD20_1080P_25P:
+		case TVI_FHD_25P:
+		case CVI_FHD_25P:
+			width = 1920;
+			break;
+
+		case AHD20_720P_60P:
+		case AHD20_720P_30P:
+		case AHD20_720P_30P_EX:
+		case AHD20_720P_30P_EX_Btype:
+		case TVI_HD_60P:
+		case TVI_HD_30P:
+		case TVI_HD_30P_EX:
+		case TVI_HD_B_30P:
+		case TVI_HD_B_30P_EX:
+		case CVI_HD_60P:
+		case CVI_HD_30P:
+		case CVI_HD_30P_EX:
+		case AHD20_720P_50P:
+		case AHD20_720P_25P:
+		case AHD20_720P_25P_EX:
+		case AHD20_720P_25P_EX_Btype:
+		case TVI_HD_50P:
+		case TVI_HD_25P:
+		case TVI_HD_25P_EX:
+		case TVI_HD_B_25P:
+		case TVI_HD_B_25P_EX:
+		case CVI_HD_50P:
+		case CVI_HD_25P:
+		case CVI_HD_25P_EX:
+			width = 1280;
+			break;
+	}
+
+	return width;
+}
+
+static unsigned char H_DefaultOffset(unsigned char channel)
+{
+	NC_VIVO_CH_FORMATDEF frmt;
+	unsigned char offset;
+
+	frmt = NVP6158_Current_Video_Format_Check(channel);
+
+	offset = equalizer_value_fmtdef[frmt].eq_timing_a.h_delay_a[0];
+	return offset;
+}
+
+static unsigned char V_DefaultOffset(unsigned char channel)
+{
+	NC_VIVO_CH_FORMATDEF frmt;
+	unsigned char offset;
+
+	frmt = NVP6158_Current_Video_Format_Check(channel);
+
+	switch(frmt)
+	{
+		case AHD20_SD_H960_NT:
+		case AHD20_SD_H960_EX_NT:
+		case AHD20_SD_H960_2EX_NT:
+		case AHD20_SD_H960_2EX_Btype_NT:
+//			offset = 480;
+//			break;
+			
+		case AHD20_SD_H960_PAL:
+		case AHD20_SD_H960_EX_PAL:
+		case AHD20_SD_H960_2EX_PAL:
+		case AHD20_SD_H960_2EX_Btype_PAL:
+			offset = 16;
+			break;
+
+		case AHD20_1080P_60P:
+		case AHD20_1080P_30P:
+		case TVI_FHD_30P:
+		case CVI_FHD_30P:
+		case AHD20_1080P_50P:
+		case AHD20_1080P_25P:
+		case TVI_FHD_25P:
+		case CVI_FHD_25P:
+			offset = 50;
+			break;
+
+		case AHD20_720P_60P:
+		case AHD20_720P_30P:
+		case AHD20_720P_30P_EX:
+		case AHD20_720P_30P_EX_Btype:
+		case TVI_HD_60P:
+		case TVI_HD_30P:
+		case TVI_HD_30P_EX:
+		case TVI_HD_B_30P:
+		case TVI_HD_B_30P_EX:
+		case CVI_HD_60P:
+		case CVI_HD_30P:
+		case CVI_HD_30P_EX:
+		case AHD20_720P_50P:
+		case AHD20_720P_25P:
+		case AHD20_720P_25P_EX:
+		case AHD20_720P_25P_EX_Btype:
+		case TVI_HD_50P:
+		case TVI_HD_25P:
+		case TVI_HD_25P_EX:
+		case TVI_HD_B_25P:
+		case TVI_HD_B_25P_EX:
+		case CVI_HD_50P:
+		case CVI_HD_25P:
+		case CVI_HD_25P_EX:
+			offset = 26;
+			break;
+	}
+	return offset;
+}
+
+static unsigned char AdjustStep_V(unsigned char channel, unsigned char fLarge)
+{
+	NC_VIVO_CH_FORMATDEF frmt;
+	unsigned char step;
+
+	frmt = NVP6158_Current_Video_Format_Check(channel);
+
+	switch(frmt)
+	{
+		case AHD20_SD_H960_NT:
+		case AHD20_SD_H960_EX_NT:
+		case AHD20_SD_H960_2EX_NT:
+		case AHD20_SD_H960_2EX_Btype_NT:
+		case AHD20_SD_H960_PAL:
+		case AHD20_SD_H960_EX_PAL:
+		case AHD20_SD_H960_2EX_PAL:
+		case AHD20_SD_H960_2EX_Btype_PAL:
+			if(fLarge == 1)
+			{
+				step = (98 - 16) / ADJUST_WINDOW_STEP_MAX;
+			}
+			else
+			{
+				step = (138 - 16) / ADJUST_WINDOW_STEP_MAX;
+			}
+			break;
+
+		case AHD20_1080P_60P:
+		case AHD20_1080P_30P:
+		case TVI_FHD_30P:
+		case CVI_FHD_30P:
+		case AHD20_1080P_50P:
+		case AHD20_1080P_25P:
+		case TVI_FHD_25P:
+		case CVI_FHD_25P:
+			if(fLarge == 1)
+			{
+				step = (404 - 50) / ADJUST_WINDOW_STEP_MAX;
+			}
+			else
+			{
+				step = (584 - 50) / ADJUST_WINDOW_STEP_MAX;
+			}
+			break;
+
+		case AHD20_720P_60P:
+		case AHD20_720P_30P:
+		case AHD20_720P_30P_EX:
+		case AHD20_720P_30P_EX_Btype:
+		case TVI_HD_60P:
+		case TVI_HD_30P:
+		case TVI_HD_30P_EX:
+		case TVI_HD_B_30P:
+		case TVI_HD_B_30P_EX:
+		case CVI_HD_60P:
+		case CVI_HD_30P:
+		case CVI_HD_30P_EX:
+		case AHD20_720P_50P:
+		case AHD20_720P_25P:
+		case AHD20_720P_25P_EX:
+		case AHD20_720P_25P_EX_Btype:
+		case TVI_HD_50P:
+		case TVI_HD_25P:
+		case TVI_HD_25P_EX:
+		case TVI_HD_B_25P:
+		case TVI_HD_B_25P_EX:
+		case CVI_HD_50P:
+		case CVI_HD_25P:
+		case CVI_HD_25P_EX:
+			if(fLarge == 1)
+			{
+				step = (266 - 26) / ADJUST_WINDOW_STEP_MAX;
+			}
+			else
+			{
+				step = (386 - 26) / ADJUST_WINDOW_STEP_MAX;
+			}
+			break;
+	}
+	return step;
+
+}
 
 void NVP6158_AdjustCroppingOffset(void)
 {
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	sCroppingOffset_t offset;
+	unsigned short offset16;
+	unsigned char offset8;
+	unsigned short width;//, height;
+	unsigned char temp;
 
-	NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00 );
 	switch(displayMode)
 	{
 		case DISPLAY_MODE_2SPLIT_HCROP_A:
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00 );
+			
+			width = NVP6158_GetVideoWidth(CHANNEL1);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL1], (offset.h_offset * 10));//offset.h_offset);
+			offset16 = offset.h_offset * ADJUST_STEP_H(width/2) + H_DefaultOffset(CHANNEL1);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL1], offset8);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 = offset8 << 4;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8E + logicalChannel[CHANNEL1], offset8);
+			
+			width = NVP6158_GetVideoWidth(CHANNEL2);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL2);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL2], (offset.h_offset * 10));//offset.h_offset);
+			offset16 = offset.h_offset * ADJUST_STEP_H(width/2) + H_DefaultOffset(CHANNEL2);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL2], offset8);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 = offset8 << 4;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8E + logicalChannel[CHANNEL2], offset8);
 			break;
 
 		case DISPLAY_MODE_2SPLIT_HCROP_B:
+			width = NVP6158_GetVideoWidth(CHANNEL3);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL3);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL3], (offset.h_offset * 10));//offset.h_offset);
+			offset16 = offset.h_offset * ADJUST_STEP_H(width/2) + H_DefaultOffset(CHANNEL3);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL3], offset8);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 = offset8 << 4;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8E + logicalChannel[CHANNEL3], offset8);
+			
+			width = NVP6158_GetVideoWidth(CHANNEL4);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL4);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL4], (offset.h_offset * 10));//offset.h_offset);
+			offset16 = offset.h_offset * ADJUST_STEP_H(width/2) + H_DefaultOffset(CHANNEL4);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL4], offset8);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 = offset8 << 4;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8E + logicalChannel[CHANNEL4], offset8);
 			break;
 			
 		case DISPLAY_MODE_2SPLIT_VCROP_A:
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + logicalChannel[CHANNEL1]);
+			//height = NVP6158_GetVideoHeight(CHANNEL1);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5C + logicalChannel[CHANNEL1], 0xE0+offset.v_offset);//offset.h_offset);
+			offset16 = offset.v_offset * AdjustStep_V(CHANNEL1, 0) + V_DefaultOffset(CHANNEL1);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 |= 0x10;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6E, offset8);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6F, offset8);
+			
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + logicalChannel[CHANNEL2]);
+			//height = NVP6158_GetVideoHeight(CHANNEL2);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL2);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5C + logicalChannel[CHANNEL2], 0xE0+offset.v_offset);//offset.h_offset);
+			offset16 = offset.v_offset * AdjustStep_V(CHANNEL2, 0) + V_DefaultOffset(CHANNEL2);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 |= 0x10;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6E, offset8);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6F, offset8);
 			break;
 
 		case DISPLAY_MODE_2SPLIT_VCROP_B:
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + logicalChannel[CHANNEL3]);
+			//height = NVP6158_GetVideoHeight(CHANNEL3);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL3);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5C + logicalChannel[CHANNEL3], 0xE0+offset.v_offset);//offset.h_offset);
+			offset16 = offset.v_offset * AdjustStep_V(CHANNEL3, 0) + V_DefaultOffset(CHANNEL3);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 |= 0x10;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6E, offset8);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6F, offset8);
+			
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + logicalChannel[CHANNEL4]);
+			//height = NVP6158_GetVideoHeight(CHANNEL4);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL4);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5C + logicalChannel[CHANNEL4], 0xE0+offset.v_offset);//offset.h_offset);
+			offset16 = offset.v_offset * AdjustStep_V(CHANNEL4, 0) + V_DefaultOffset(CHANNEL4);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 |= 0x10;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6E, offset8);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6F, offset8);
+			break;
+
+		case DISPLAY_MODE_3SPLIT_R2CROP:
+		case DISPLAY_MODE_3SPLIT_L2CROP:
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00 );
+			width = NVP6158_GetVideoWidth(CHANNEL1);
+			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
+			offset16 = offset.h_offset * ADJUST_STEP_H(width/2) + H_DefaultOffset(CHANNEL1);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL1], offset8);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 = offset8 << 4;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8E + logicalChannel[CHANNEL1], offset8);
+			break;
+
+		case DISPLAY_MODE_3SPLIT_D2CROP:
+		case DISPLAY_MODE_3SPLIT_U2CROP:
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + logicalChannel[CHANNEL1]);
+			//height = NVP6158_GetVideoHeight(CHANNEL1);
+			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
+			offset16 = offset.v_offset * AdjustStep_V(CHANNEL1, 0) + V_DefaultOffset(CHANNEL1);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 |= 0x10;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6E, offset8);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6F, offset8);
 			break;
 
 		case DISPLAY_MODE_4SPLIT_R3CROP:
 		case DISPLAY_MODE_4SPLIT_L3CROP:
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00 );
+			width = NVP6158_GetVideoWidth(CHANNEL1);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5B, (offset.h_offset * 10));//offset.h_offset);
+			offset16 = offset.h_offset * ADJUST_STEP_H(width/3) + H_DefaultOffset(CHANNEL1);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + logicalChannel[CHANNEL1], offset8);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 = offset8 << 4;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x8E + logicalChannel[CHANNEL1], offset8);
 			break;
 
 		case DISPLAY_MODE_4SPLIT_D3CROP:
 		case DISPLAY_MODE_4SPLIT_U3CROP:
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + logicalChannel[CHANNEL1]);
+			//height = NVP6158_GetVideoHeight(CHANNEL1);
 			Read_NvItem_CroppingOffset(&offset, CHANNEL1);
-			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x5F, 0xE0+offset.v_offset);//offset.h_offset);
+			offset16 = offset.v_offset * AdjustStep_V(CHANNEL1, 1) + V_DefaultOffset(CHANNEL1);
+			offset8 = (offset16 >>8) & 0x0F;
+			offset8 |= 0x10;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6E, offset8);
+			offset8 = offset16 & 0x00FF;
+			NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6F, offset8);
 			break;
 	}
 }
+
+void NVP6158_ClearWindowOffset(void)
+{
+	unsigned char ch;
+	NC_VIVO_CH_FORMATDEF frmt;
+
+	for(ch = 0; ch < 4; ch++)
+	{
+		frmt = s_raptor3_vfmts.curvideofmt[ch];
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x00 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x58 + ch, equalizer_value_fmtdef[frmt].eq_timing_a.h_delay_a[0] );
+		
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0xFF, 0x05 + ch);
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6e, 0x00 );
+		NVP6158_I2C_WRITE(NVP6158_ADDR, 0x6f, 0x00 );
+	}
+}
+#endif
 
 #define DISTINGUISH_MAX_NUM	5
 static unsigned int CVI_720P30[4]={0,};

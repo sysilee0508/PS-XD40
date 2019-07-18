@@ -1057,5 +1057,5 @@ void NC_VD_VO_Mode_Set_New( unsigned char ch, unsigned char devnum, unsigned cha
 void NVP6158_Set_VportMap(eVPORT_MAP_t map);
 eVPORT_MAP_t NVP6158_Get_VportMap(void);
 void NVP6158_AdjustCroppingOffset(void);
-
+void NVP6158_ClearWindowOffset(void);
 #endif

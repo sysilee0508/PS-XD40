@@ -1584,6 +1584,12 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 					}
 					Write_NvItem_CroppingOffset(croppingOffset, croppingChannel);
 
+#ifdef ADJUST_CROPPING_WINDOW_NVP
+					if(IsCroppingMode(split) == TRUE)
+					{
+						NVP6158_AdjustCroppingOffset();
+					}
+#else				
 					if((split == DISPLAY_MODE_2SPLIT_HCROP_B) || (split == DISPLAY_MODE_2SPLIT_VCROP_B))
 					{
 						CreateDisplayWindow_B(split);
@@ -1592,6 +1598,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 					{
 						CreateDisplayWindow_A(split);
 					}
+#endif
 				}
 			}
 			break;
