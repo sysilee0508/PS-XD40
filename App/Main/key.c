@@ -475,7 +475,7 @@ void Key_Proc(void)
 					{
 						screenFreezeOn = CLEAR;
 						ConfigI2C(MDIN_ID_C);
-						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					
 					OSD_EraseAllText();
@@ -495,7 +495,7 @@ void Key_Proc(void)
 					{
 						screenFreezeOn = CLEAR;
 						ConfigI2C(MDIN_ID_C);
-						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
@@ -516,12 +516,12 @@ void Key_Proc(void)
 				if(screenFreezeOn == CLEAR)
 				{
 					screenFreezeOn = SET;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
 				}
 				else
 				{
 					screenFreezeOn = CLEAR;
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				break;
 
@@ -533,7 +533,7 @@ void Key_Proc(void)
 					{
 						screenFreezeOn = CLEAR;
 						ConfigI2C(MDIN_ID_C);
-						MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_RefreshScreen();
 					InitializeAutoSeq(AUTO_SEQ_NORMAL);
@@ -547,7 +547,7 @@ void Key_Proc(void)
 				{
 					screenFreezeOn = CLEAR;
 					ConfigI2C(MDIN_ID_C);
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				Enter_MainMenu();
 				break;
@@ -558,7 +558,7 @@ void Key_Proc(void)
 				{
 					screenFreezeOn = CLEAR;
 					ConfigI2C(MDIN_ID_C);
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				OSD_EraseAllText();
 				OSD_RefreshScreen();

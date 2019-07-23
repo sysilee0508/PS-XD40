@@ -197,7 +197,7 @@ static MDIN_ERROR_t MDINOSD_SpritePaletteAddr(PSPRITE_CTL_INFO pINFO, BYTE nID)
 //--------------------------------------------------------------------------------------------------------------------------
 static MDIN_ERROR_t MDINAUX_SpriteBMPInfo(PSPRITE_CTL_INFO pINFO, BYTE nID)
 {
-	WORD unit = MDIN3xx_GetSizeOfBank()*2;
+	WORD unit = MDIN3xx_GetSizeOfBank(MDIN_ID_C)*2;
 
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x2a4+nID*7, pINFO->stBMP.w)) return MDIN_I2C_ERROR;		// width
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x2a5+nID*7, pINFO->stBMP.h)) return MDIN_I2C_ERROR;		// height
@@ -212,7 +212,7 @@ static MDIN_ERROR_t MDINAUX_SpriteBMPInfo(PSPRITE_CTL_INFO pINFO, BYTE nID)
 //--------------------------------------------------------------------------------------------------------------------------
 static MDIN_ERROR_t MDINOSD_SpriteBMPInfo(PSPRITE_CTL_INFO pINFO, BYTE nID)
 {
-	WORD unit = MDIN3xx_GetSizeOfBank()*2;
+	WORD unit = MDIN3xx_GetSizeOfBank(MDIN_ID_C)*2;
 
 	if (nID>SPRITE_INDEX7) return MDINAUX_SpriteBMPInfo(pINFO, nID%SPRITE_INDEX8);
 
@@ -423,9 +423,9 @@ MDIN_ERROR_t MDINOSD_SetBitmapData(DWORD addr, DWORD size, PBYTE pBuff)
 {
 	if (pBuff==NULL||size==0) return MDIN_INVALID_PARAM;
 
-	if (MDIN3xx_SetPriorityHIF(MDIN_PRIORITY_HIGH)) return MDIN_I2C_ERROR;
+	if (MDIN3xx_SetPriorityHIF(MDIN_ID_C, MDIN_PRIORITY_HIGH)) return MDIN_I2C_ERROR;
 	if (MDINHIF_DMAWrite(MDIN_SDRAM_ID, addr, pBuff, size)) return MDIN_I2C_ERROR;
-	if (MDIN3xx_SetPriorityHIF(MDIN_PRIORITY_NORM)) return MDIN_I2C_ERROR;
+	if (MDIN3xx_SetPriorityHIF(MDIN_ID_C, MDIN_PRIORITY_NORM)) return MDIN_I2C_ERROR;
 
 	return MDIN_NO_ERROR;
 }

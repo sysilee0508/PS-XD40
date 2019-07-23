@@ -160,6 +160,21 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 #define		stPACKED
 #endif
 
+#define                SYSTEM_USE_FIXED_MEMMAP                     1 // "1" fix the aux start row, "0" according to the calculated main end row
+
+#if                       SYSTEM_USE_FIXED_MEMMAP == 1 // row addr : 0~8191
+
+//#define             AUX_START_ADDR                          3810       // 1080i input
+
+//#define             AUX_START_ADDR                          4572       //when 2HD mode (1080p input)
+
+#define  AUX_START_ADDR                          4956       //when 2HD mode (1080i input)
+
+#endif 
+
+#define  SYSTEM_USE_AUDLY_MEMSIZE                   16          // memory size for hdmi audio delay (lip sync)
+
+
 #define 	__MDIN3xx_DBGPRT__		0	// "1" for debug print, "0" for disable debug
 #define 	__MDINHTX_DBGPRT__		0	// "1" for debug print, "0" for disable debug
 #define 	__MDINSDI_DBGPRT__		0	// "1" for debug print, "0" for disable debug	 //by hungry 2012.03.15

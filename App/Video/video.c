@@ -192,6 +192,10 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	WORD nID = 0;
 	PMDIN_VIDEO_INFO pVideo;
 
+	ConfigI2C(mdin);
+	
+	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
+
 	if((mdin != MDIN_ID_A) && (mdin != MDIN_ID_B))
 	{
 		while(1);
@@ -199,17 +203,14 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	else
 	{
 		pVideo = pVideoInfo[mdin];
+		pVideo->chipID = mdin;
 	}
 
-	ConfigI2C(mdin);
-	
-	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
-
 	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
-	MDIN3xx_SetMemoryConfig();			// initialize DDR memory
+	MDIN3xx_SetMemoryConfig(mdin);			// initialize DDR memory
 
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
-	MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_ALL, ON);
+	MDIN3xx_EnableClockDrive(mdin, MDIN_CLK_DRV_ALL, ON);
 
 	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP5);		// disable digital out
@@ -289,10 +290,10 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	pVideo->stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	pVideo->stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	pVideo->stIPC_m.gain = 34;
-	pVideo->stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
+	pVideo->stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	pVideo->stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+	pVideo->stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
 	
 	// define video format of AUX-INPUT
 	pVideo->stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -329,8 +330,10 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 
 	MDINHTX_SetHDMIBlock(pVideo);		// initialize HDMI block
 #endif
-	pVideo->exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
-	MDIN3xx_VideoProcess(pVideo);			// mdin3xx main video process
+	pVideo->exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
+	MDIN3xx_VideoInProcess(pVideo);
+	MDIN3xx_VideoProcess(pVideo);                            // mdin3xx main video process
+	MDINAUX_VideoProcess(pVideo);             // mdin3xx aux video process
 
 	// define window for inter-area (PIP window? kukuri)
 	stInterWND.lx = 315;
@@ -360,11 +363,13 @@ static void MDIN3xx_SetRegInitial_C(void)
 	
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
+	stVideo_C.chipID = MDIN_ID_C;
+
 	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
-	MDIN3xx_SetMemoryConfig();			// initialize DDR memory
+	MDIN3xx_SetMemoryConfig(MDIN_ID_C);			// initialize DDR memory
 
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
-	MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_ALL, ON);
+	MDIN3xx_EnableClockDrive(MDIN_ID_C, MDIN_CLK_DRV_ALL, ON);
 
 	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP2);		// disable digital out
@@ -446,10 +451,10 @@ static void MDIN3xx_SetRegInitial_C(void)
 	stVideo_C.stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo_C.stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo_C.stIPC_m.gain = 34;
-	stVideo_C.stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
+	stVideo_C.stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo_C.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+	stVideo_C.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
 	
 	// define video format of AUX-INPUT
 	stVideo_C.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -486,8 +491,10 @@ static void MDIN3xx_SetRegInitial_C(void)
 
 	MDINHTX_SetHDMIBlock(&stVideo_C);		// initialize HDMI block
 
-	stVideo_C.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
-	MDIN3xx_VideoProcess(&stVideo_C);			// mdin3xx main video process
+	stVideo_C.exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
+	MDIN3xx_VideoInProcess(&stVideo_C);
+	MDIN3xx_VideoProcess(&stVideo_C);                            // mdin3xx main video process
+	MDINAUX_VideoProcess(&stVideo_C);             // mdin3xx aux video process
 
 	// define window for inter-area (PIP window? kukuri)
 	stInterWND.lx = 315;
@@ -525,11 +532,13 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	if(retry > 3)	return;
 
+	stVideo_D.chipID = MDIN_ID_D;
+
 	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
-	MDIN3xx_SetMemoryConfig();			// initialize DDR memory
+	MDIN3xx_SetMemoryConfig(MDIN_ID_D);			// initialize DDR memory
 
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
-	MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_ALL, ON);
+	MDIN3xx_EnableClockDrive(MDIN_ID_D, MDIN_CLK_DRV_ALL, ON);
 
 	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP5);		// disable digital out
@@ -606,10 +615,10 @@ static void MDIN3xx_SetRegInitial_D(void)
 	stVideo_D.stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo_D.stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo_D.stIPC_m.gain = 34;
-	stVideo_D.stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
+	stVideo_D.stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo_D.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+	stVideo_D.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
 
 	// define video format of AUX-INPUT
 	stVideo_D.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -633,8 +642,10 @@ static void MDIN3xx_SetRegInitial_D(void)
 	// define video format of video encoder
 	stVideo_D.encFRMT = VID_VENC_NTSC_M;	//VID_VENC_AUTO
 
-	stVideo_D.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
-	MDIN3xx_VideoProcess(&stVideo_D);			// mdin3xx main video process
+	stVideo_D.exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
+	MDIN3xx_VideoInProcess(&stVideo_D);
+	MDIN3xx_VideoProcess(&stVideo_D);                            // mdin3xx main video process
+	MDINAUX_VideoProcess(&stVideo_D);             // mdin3xx aux video process
 
 	SetIPCVideoFine();
 	MDIN3xx_EnableAuxDisplay(&stVideo_D, ON);
@@ -1790,15 +1801,17 @@ static void VideoFrameProcess(MDIN_CHIP_ID_t mdin_id)
 	pVideo->encFRMT = EncVideoFrmt;
 	PrevEncFrmt = EncVideoFrmt;
 #endif
-	if((SrcMainFrmt[mdin_id] != PrevSrcMainFrmt[mdin_id])|| (OutMainFrmt[mdin_id] !=PrevOutMainFrmt[mdin_id]) ||
-		(SrcPath[mdin_id] != pVideo->srcPATH))
+	if((SrcMainFrmt[mdin_id] != PrevSrcMainFrmt[mdin_id])|| (SrcPath[mdin_id] != pVideo->srcPATH))
 	{
-		pVideo->exeFLAG |= MDIN_UPDATE_MAINFMT;
+		pVideo->exeFLAG |= MDIN_UPDATE_MAIN_IN;
 	}
-
+	if(OutMainFrmt[mdin_id] !=PrevOutMainFrmt[mdin_id])
+	{
+		pVideo->exeFLAG |= MDIN_UPDATE_MAIN_OUT;
+	}
 	if (SrcAuxFrmt[mdin_id] !=PrevSrcAuxFrmt[mdin_id])
 	{
-		pVideo->exeFLAG |= MDIN_UPDATE_AUXFMT;
+		pVideo->exeFLAG |= MDIN_UPDATE_AUX_IN;
 	}
 
 	if (pVideo->exeFLAG!=MDIN_UPDATE_CLEAR) // updated video formats
@@ -1821,7 +1834,7 @@ static void VideoFrameProcess(MDIN_CHIP_ID_t mdin_id)
 
 		MDIN3xx_EnableAuxDisplay(pVideo, OFF);
 		MDIN3xx_EnableMainDisplay(OFF);
-
+/*
 		if (OutMainFrmt[mdin_id] !=PrevOutMainFrmt[mdin_id]) 
 		{
 			pVideo->pHY_m		= 	NULL;		// restore MFCHY from API
@@ -1829,7 +1842,12 @@ static void VideoFrameProcess(MDIN_CHIP_ID_t mdin_id)
 			pVideo->pVY_m		= 	NULL;		// restore MFCHY from API
 			pVideo->pVC_m		= 	NULL;		// restore MFCHY from API
 		}
-		MDIN3xx_VideoProcess(pVideo);		// mdin3xx main video process
+*/
+		//MDIN3xx_VideoProcess(pVideo);		// mdin3xx main video process
+		
+		if (pVideo->exeFLAG&MDIN_UPDATE_IN)                MDIN3xx_VideoInProcess(pVideo);
+		if (pVideo->exeFLAG&MDIN_UPDATE_MAIN)            MDIN3xx_VideoProcess(pVideo);
+		if (pVideo->exeFLAG&MDIN_UPDATE_AUX)             MDINAUX_VideoProcess(pVideo);
 		
 		SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
 
@@ -1853,6 +1871,7 @@ void CreateVideoInstance(void)
 {
 	memset((PBYTE)&stVideo_D, 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_D();
+	
 	memset((PBYTE)&stVideo_A, 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_AB(MDIN_ID_A);
 	memset((PBYTE)&stVideo_B, 0, sizeof(MDIN_VIDEO_INFO));
@@ -1902,8 +1921,8 @@ void VideoProcessHandler(void)
 			Delay_us(10);
 		}
 		VideoFrameProcess(MDIN_ID_C);
+		SetOSDMenuRefresh();
 	}
-	SetOSDMenuRefresh();
 	fInputChanged = FALSE;
 }
 
@@ -1933,7 +1952,7 @@ void SetAuxOutMode_C(void)
 		stVideo_C.stOUT_m.mode = MDIN_OUT_EMB422_8;
 		OSD_ModifyPalette_M(OSD_YUV_PALETTE);
 	}
-	stVideo_C.exeFLAG |= MDIN_UPDATE_AUXFMT;
+	stVideo_C.exeFLAG |= MDIN_UPDATE_AUX;
 }
 
 

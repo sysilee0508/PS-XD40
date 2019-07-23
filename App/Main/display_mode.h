@@ -44,7 +44,7 @@
 //	VIDEO_RESOLUTION_MAX
 //} eVideoResolution_t;
 
-
+#if 0
 typedef enum
 {
 	MDIN_ID_A = 0,
@@ -53,7 +53,7 @@ typedef enum
 	MDIN_ID_D,
 	MDIN_ID_MAX
 } MDIN_CHIP_ID_t;
-
+#endif
 typedef enum
 {
 	INPUT_VIDEO_1080P30,

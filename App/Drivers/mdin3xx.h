@@ -44,6 +44,17 @@
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
 
+// kukuri -->
+typedef enum
+{
+	MDIN_ID_A = 0,
+	MDIN_ID_B,
+	MDIN_ID_C,
+	MDIN_ID_D,
+	MDIN_ID_MAX
+} MDIN_CHIP_ID_t;
+// <--
+
 typedef	enum {
 #if	defined(SYSTEM_USE_MDIN380)
 	MDIN_IN_DATA36_MAP0 = 0,	// input data 36pin map mode 0
@@ -788,6 +799,7 @@ typedef struct {
 }	stPACKED MDIN_4CHVIDEO_INFO, *PMDIN_4CHVIDEO_INFO;
 
 typedef struct {
+	BYTE	chipID;
 	BYTE	exeFLAG;				// the flag of execution of video process
 	BYTE	dspFLAG;				// the flag of display of aux-video
 
@@ -840,11 +852,18 @@ typedef struct {
 }	stPACKED MDIN_VIDEO_INFO, *PMDIN_VIDEO_INFO;
 
 // user define for update video process
-#define		MDIN_UPDATE_MAINFMT			0x01	// update video process as main video change
-#define		MDIN_UPDATE_AUXFMT			0x02	// update video process as aux video change
-#define		MDIN_UPDATE_ENCFMT			0x04	// update video process as v-encoder change
-#define		MDIN_UPDATE_HDMIFMT			0x08	// update video process as hdmi video change
-#define		MDIN_UPDATE_CLEAR			0x00	// clear flag of update video process
+#define		MDIN_UPDATE_ALL			0x0f
+#define		MDIN_UPDATE_MAIN_IN		0x01	// update video process as main in video change
+#define		MDIN_UPDATE_MAIN_OUT	0x02	// update video process as main out video change
+#define		MDIN_UPDATE_AUX_IN		0x04	// update video process as aux in video change
+#define		MDIN_UPDATE_AUX_OUT		0x08	// update video process as aux out video change
+#define		MDIN_UPDATE_ENC			0x10	// update video process as v-encoder change
+#define		MDIN_UPDATE_HDMI			0x20	// update video process as hdmi video change
+#define		MDIN_UPDATE_IN			(MDIN_UPDATE_MAIN_IN|MDIN_UPDATE_AUX_IN)
+#define		MDIN_UPDATE_OUT			(MDIN_UPDATE_MAIN_OUT|MDIN_UPDATE_AUX_OUT)
+#define		MDIN_UPDATE_MAIN			(MDIN_UPDATE_MAIN_IN|MDIN_UPDATE_MAIN_OUT)
+#define		MDIN_UPDATE_AUX			(MDIN_UPDATE_AUX_IN|MDIN_UPDATE_AUX_OUT|MDIN_UPDATE_ENC)
+#define		MDIN_UPDATE_CLEAR		0x00	// clear flag of update video process
 
 // user define for display of aux-video
 #define		MDIN_AUX_DISPLAY_ON			0x01	// display on of aux-video
@@ -1262,7 +1281,10 @@ typedef	struct
 // Exported Variables
 // ----------------------------------------------------------------------
 // mdin3xx.c
-extern WORD mdinERR, mdinREV;
+#define M380_NO			4
+
+extern WORD mdinERR[M380_NO], mdinREV[M380_NO];
+extern WORD fbADDR[M380_NO], GetROW[M380_NO];
 
 // mdinfrmt.c
 extern ROMDATA MDIN_OUTVIDEO_SYNC defMDINOutSync[];
@@ -1307,6 +1329,7 @@ extern ROMDATA MDIN_ENCODER_COEF MDIN_Encoder_Default[];
 // Exported function Prototype
 // -----------------------------------------------------------------------------
 // mdin3xx.c
+MDIN_ERROR_t MDIN3xx_VideoInProcess(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDIN3xx_VideoProcess(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDIN3xx_SetScaleProcess(PMDIN_VIDEO_INFO pINFO);
 
@@ -1388,24 +1411,27 @@ MDIN_ERROR_t MDIN3xx_EnableVENCColorMode(BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableVENCBlueScreen(BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableVENCPeakingFilter(BOOL OnOff);
 
-MDIN_ERROR_t MDIN3xx_SetMemoryConfig(void);
-DWORD		 MDIN3xx_GetAddressFRMB(void);
+MDIN_ERROR_t MDIN3xx_SetMemoryConfig(BYTE mdin_id);//(void);
+DWORD		 MDIN3xx_GetAddressFRMB(BYTE mdin_id);// (void);
 
 MDIN_ERROR_t MDIN3xx_GetChipID(PWORD pID);
 MDIN_ERROR_t MDIN3xx_GetDeviceID(PWORD pID);
 MDIN_ERROR_t MDIN3xx_GetVersionID(PWORD pID);
 MDIN_ERROR_t MDIN3xx_HardReset(void);
 MDIN_ERROR_t MDIN3xx_SoftReset(void);
-WORD		 MDIN3xx_GetSizeOfBank(void);
+WORD		 MDIN3xx_GetSizeOfBank(BYTE mdin_id);//(void);
 MDIN_ERROR_t MDIN3xx_EnableIRQ(MDIN_IRQ_FLAG_t irq, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_GetParseIRQ(void);
-BOOL		 MDIN3xx_IsOccurIRQ(MDIN_IRQ_FLAG_t irq);
-MDIN_ERROR_t MDIN3xx_SetPriorityHIF(MDIN_PRIORITY_t mode);
+MDIN_ERROR_t MDIN3xx_GetParseIRQ(BYTE mdin_id);//(void);
+BOOL		 MDIN3xx_IsOccurIRQ(BYTE mdin_id, MDIN_IRQ_FLAG_t irq);
+MDIN_ERROR_t MDIN3xx_SetPriorityHIF(BYTE mdin_id, MDIN_PRIORITY_t mode);
 MDIN_ERROR_t MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_t src);
-MDIN_ERROR_t MDIN3xx_EnableOutputPAD(MDIN_PAD_OUT_t id, BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_t id, BOOL OnOff);
+
+MDIN_ERROR_t MDIN3xx_EnableOutputPAD(BYTE mdin_id, MDIN_PAD_OUT_t id, BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_EnableClockDrive(BYTE mdin_id, MDIN_CLK_DRV_t id, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableMainDisplay(BOOL OnOff);
-MDIN_ERROR_t MDIN3xx_EnableMainFreeze(BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_OutDarkScreen(BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_EnableMainFreeze(BYTE mdin_id, BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_AuxDarkScreen(BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableAuxDisplay(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableAuxFreeze(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableAuxWithMainOSD(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
@@ -1416,9 +1442,14 @@ MDIN_ERROR_t MDIN3xx_SetFormat4CHID(PMDIN_VIDEO_INFO pINFO, MDIN_4CHID_FORMAT_t 
 MDIN_ERROR_t MDIN3xx_SetOrder4CHID(PMDIN_VIDEO_INFO pINFO, MDIN_4CHID_ORDER_t mode);
 MDIN_ERROR_t MDIN3xx_SetDisplay4CH(PMDIN_VIDEO_INFO pINFO, MDIN_4CHVIEW_MODE_t mode);
 
-MDIN_ERROR_t MDIN3xx_FrameMemoryReAlloc(PMDIN_VIDEO_INFO pINFO);
+//MDIN_ERROR_t MDIN3xx_FrameMemoryReAlloc(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDIN3xx_EnableMirrorH(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_EnableMirrorV(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
+
+MDIN_ERROR_t MDIN3xx_EnableActVideoOffset(BYTE Offset_S, BYTE Offset_E, BOOL OnOff); 	// added on 12Apr2013
+MDIN_ERROR_t MDIN3xx_EnablePIPChromaKey(BOOL OnOff, BYTE blendlevel);				// added on 12Apr2013
+MDIN_ERROR_t MDIN3xx_SetPIPChromaKeyLBound(BYTE l_bound);							// added on 12Apr2013
+MDIN_ERROR_t MDIN3xx_SetPIPChromaKeyUBound(BYTE u_bound);							// added on 12Apr2013
 
 MDIN_ERROR_t MDIN3xx_SetSrcTestPattern(PMDIN_VIDEO_INFO pINFO, MDIN_IN_TEST_t mode);
 MDIN_ERROR_t MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_t mode);
@@ -1431,16 +1462,22 @@ MDIN_ERROR_t MDIN3xx_SetOut4CH_OutVsync_Half(BOOL OnOff);	// 24Aug2011
 MDIN_ERROR_t MDIN3xx_SetSrcClockPath(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDIN3xx_SetSrcVideoPort(PMDIN_VIDEO_INFO pINFO, WORD nID);
 MDIN_ERROR_t MDIN3xx_SetSrcVideoFrmt(PMDIN_VIDEO_INFO pINFO);
-MDIN_ERROR_t MDIN3xx_SetOutVideoFrmt(PMDIN_VIDEO_INFO pINFO);
-MDIN_ERROR_t MDIN3xx_SetSrcVideoCSC(PMDIN_VIDEO_INFO pINFO);
-MDIN_ERROR_t MDIN3xx_SetOutVideoCSC(PMDIN_VIDEO_INFO pINFO);
+//MDIN_ERROR_t MDIN3xx_SetOutVideoFrmt(PMDIN_VIDEO_INFO pINFO);
+//MDIN_ERROR_t MDIN3xx_SetSrcVideoCSC(PMDIN_VIDEO_INFO pINFO);
+//MDIN_ERROR_t MDIN3xx_SetOutVideoCSC(PMDIN_VIDEO_INFO pINFO);
 
-MDIN_ERROR_t MDIN3xx_EnableWriteFRMB(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
+//MDIN_ERROR_t MDIN3xx_EnableWriteFRMB(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 
 
 //void CreateMDIN325VideoInstance(void);	// 01Aug2011
 //void CreateMDIN380VideoInstance(void);	// 01Aug2011
 
+MDIN_ERROR_t MDIN3xx_ExtSyncClkSel(MDIN_PLL_SOURCE_t src, BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_ExtSyncSyncSel(BYTE ExtSyncSrc, BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_ExtSyncLockEn(BOOL OnOff);
+MDIN_ERROR_t MDIN3xx_ExtSyncVSDelay (WORD delay);
+MDIN_ERROR_t MDIN3xx_ExtSyncHSDelay (WORD delay);
+MDIN_ERROR_t MDIN3xx_External_Sync_Lock(BOOL OnOff, WORD  vdelay, WORD hdelay);
 
 // mdinipc.c
 MDIN_ERROR_t MDIN3xx_SetIPCBlock(void);
@@ -1453,6 +1490,10 @@ MDIN_ERROR_t MDIN3xx_EnableDeintCUE(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_SetDeintInterWND(PMDIN_INTER_WINDOW pAREA, MDIN_INTER_BLOCK_t nID);
 MDIN_ERROR_t MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK_t nID, BOOL OnOff);
 MDIN_ERROR_t MDIN3xx_DisplayDeintInterWND(BOOL OnOff);
+
+
+MDIN_ERROR_t MDIN3xx_SetDeinterCtrl(PMDIN_VIDEO_INFO pINFO);
+
 
 // mdinaux.c
 MDIN_ERROR_t MDINAUX_SetVideoPLL(WORD S, WORD F, WORD T);
@@ -1496,12 +1537,15 @@ MDIN_ERROR_t MDINAUX_EnableMirrorV(PMDIN_VIDEO_INFO pINFO, BOOL OnOff);
 MDIN_ERROR_t MDINAUX_SetOut4CH_OutQuad(void);	// 01Aug2011
 MDIN_ERROR_t MDINAUX_SetOut4CH_OutBT656(void);	// 01Aug2011
 
-MDIN_ERROR_t MDINAUX_SetSrcVideoFrmt(PMDIN_VIDEO_INFO pINFO);
+MDIN_ERROR_t MDINAUX_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO);
+//MDIN_ERROR_t MDINAUX_SetSrcVideoFrmt(PMDIN_VIDEO_INFO pINFO);
 
 // mdinhtx.c
 MDIN_ERROR_t MDINHTX_CtrlHandler(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDINHTX_VideoProcess(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDINHTX_SetHDMIBlock(PMDIN_VIDEO_INFO pINFO);
+MDIN_ERROR_t MDINHTX_SetAudioDelay(BOOL AudioDelayOn, WORD AudioDelayMS, BYTE AudioDelayMode);	// 18Sep2012
 
+MDIN_ERROR_t MDIN3xx_SetMemoryMap(PMDIN_VIDEO_INFO pINFO, BYTE nID, BYTE num, WORD addr);	// 24Apr2013
 
 #endif	/* __MDIN3xx_H__ */

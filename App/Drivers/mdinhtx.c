@@ -2372,8 +2372,8 @@ static MDIN_ERROR_t MDINHTX_SetAUTOFormat(PMDIN_VIDEO_INFO pINFO)
 
 	// check call video process
 	if (pINFO->stOUT_m.frmt==frmt)
-		 pINFO->exeFLAG &= ~MDIN_UPDATE_HDMIFMT;	// not update
-	else pINFO->exeFLAG |=  MDIN_UPDATE_HDMIFMT;	// update
+		 pINFO->exeFLAG &= ~MDIN_UPDATE_HDMI;	// not update
+	else pINFO->exeFLAG |=  MDIN_UPDATE_HDMI;	// update
 
 	pINFO->stVID_h.mode = pCTL->mode;			// get native mode
 	pINFO->stOUT_m.frmt = frmt;					// get native format

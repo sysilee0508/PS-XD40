@@ -50,7 +50,7 @@ static WORD gridGAC, autoGAC;
 //--------------------------------------------------------------------------------------------------------------------------
 MDIN_ERROR_t MDINGAC_SetFontMode(PGACMAP_FONT_INFO pGAC, PSPRITE_CTL_INFO pSPT)
 {
-	WORD mode, bpp, unit = MDIN3xx_GetSizeOfBank()*2;
+	WORD mode, bpp, unit = MDIN3xx_GetSizeOfBank(MDIN_ID_C)*2;
 
 	pGAC->r = ADDR2ROW(pGAC->addr, unit);
 	pGAC->c = ADDR2COL(pGAC->addr, unit)/8;				// for 8Byte-unit

@@ -73,7 +73,8 @@ static void PlayBuzzer(void)
 //=============================================================================
 //  main function
 //=============================================================================
- void main(void)
+ 
+void main(void)
 {
 	I2C_SET_CHANNEL(I2C_MAIN);
 	// initialize STM32F103x

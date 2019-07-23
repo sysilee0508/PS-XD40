@@ -178,7 +178,7 @@ static BYTE MHDMI_HOSTRead(WORD rAddr, PBYTE pBuff)
 	if (err) return err;
 
 	// check done flag
-	err = MHDMI_GetWriteDone(); if (err) {mdinERR = 4; return err;}
+	err = MHDMI_GetWriteDone();// if (err) {mdinERR = 4; return err;}	// blocked by kukuri
 	
 	err = MDINI2C_Read(MDIN_HOST_ID, 0x026, (PBYTE)pBuff, 2);
 	return err;

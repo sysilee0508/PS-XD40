@@ -367,7 +367,7 @@ static void XferDataBMP(DWORD src, DWORD dst, DWORD bytes)
 */
 void OSD_SetSprite_layer0(void)
 {
-	DWORD e_addr = (DWORD)MDIN3xx_GetSizeOfBank()*2*8192-192*96;	 
+	DWORD e_addr = (DWORD)MDIN3xx_GetSizeOfBank(MDIN_ID_C)*2*8192-192*96;	 
 
 	memset(&stOSD[SPRITE_INDEX0], 0, sizeof(SPRITE_CTL_INFO));		// clear stOSD[SPRITE_INDEX0]
 	stOSD[SPRITE_INDEX0].ctrl			= 0;				// font palette addr = 0
@@ -457,7 +457,7 @@ void OSD_SetSprite_layer2(WORD x, WORD y)
 void OSD_SetFontMAP(void)
 {
 	MDIN_BITMAP_INFO stBMP;
-	DWORD e_addr = (DWORD)MDIN3xx_GetSizeOfBank()*2*8192;		//API v0.31(2012.05.02)
+	DWORD e_addr = (DWORD)MDIN3xx_GetSizeOfBank(MDIN_ID_C)*2*8192;		//API v0.31(2012.05.02)
 
 	stBMP.pBuff		= (PBYTE)mdin3xx_font_cnv_bmp;
 	stBMP.size		= sizeof(mdin3xx_font_cnv_bmp);
