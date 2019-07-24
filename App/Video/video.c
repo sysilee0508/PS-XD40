@@ -1966,4 +1966,34 @@ eColorFormat_t GetCurrentColorFormat(void)
 }
 
 
+
+
+
+
+// test code
+
+#define STRAT_REG 	0x1C1
+#define NUM_OF_REG	16
+
+WORD readReg[MDIN_ID_MAX][NUM_OF_REG];
+
+void ReadMemoryMapReg(void)
+{
+	static BYTE count = 0;
+	WORD ii;
+	MDIN_CHIP_ID_t mdin;
+
+	if((count % 20) == 0)
+	{
+		for(mdin = MDIN_ID_A; mdin < MDIN_ID_MAX; mdin++)
+		{
+			for(ii = 0; ii < NUM_OF_REG; ii++)
+			{
+				MDINHIF_RegRead(MDIN_LOCAL_ID, ii+STRAT_REG, &readReg[mdin][ii]);
+			}
+		}
+	}
+	count++;
+}
+
 /*  FILE_END_HERE */

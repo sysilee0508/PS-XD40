@@ -1275,11 +1275,21 @@ static MDIN_ERROR_t MDIN3xx_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)
 	fbADDR[pINFO->chipID] += 16;
 	
 #if SYSTEM_USE_FIXED_MEMMAP == 1
-#if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN340)
-	fbADDR[pINFO->chipID] = AUX_START_ADDR*2 + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
-#else
-	fbADDR[pINFO->chipID] = AUX_START_ADDR + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
-#endif
+//#if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN340)
+//	fbADDR[pINFO->chipID] = AUX_START_ADDR*2 + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+//#else
+//	fbADDR[pINFO->chipID] = AUX_START_ADDR + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+//#endif
+	// modified by kukuri
+	if(pINFO->chipID == MDIN_ID_D)	// only MDIN_D is 380
+	{
+		fbADDR[pINFO->chipID] = AUX_START_ADDR*2 + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+	}
+	else
+	{
+		fbADDR[pINFO->chipID] = AUX_START_ADDR + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+	}
+
 #endif
 
 #if __MDIN3xx_DBGPRT__ == 1

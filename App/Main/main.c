@@ -8,6 +8,8 @@
 
 #undef MDIN_TEST_PATTERN
 
+
+extern void ReadMemoryMapReg(void);
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -175,6 +177,9 @@ void main(void)
 		OSD_Display();
 
 		StoreNvDataToStorage();
+
+		//temp
+		ReadMemoryMapReg();
     }
 }
 

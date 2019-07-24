@@ -779,11 +779,23 @@ MDIN_ERROR_t MDINAUX_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)		// added on 24Apr20
 	WORD addr = 0;
 
 #if SYSTEM_USE_FIXED_MEMMAP == 1
-#if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN340)
-	fbADDR[pINFO->chipID] = AUX_START_ADDR*2 + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
-#else
-	fbADDR[pINFO->chipID] = AUX_START_ADDR + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
-#endif
+
+//#if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN340)
+//	fbADDR[pINFO->chipID] = AUX_START_ADDR*2 + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+//#else
+//	fbADDR[pINFO->chipID] = AUX_START_ADDR + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+//#endif
+
+	// modified by kukuri
+	if(pINFO->chipID == MDIN_ID_D)	// only MDIN_C is 380
+	{
+		fbADDR[pINFO->chipID] = AUX_START_ADDR*2 + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+	}
+	else
+	{
+		fbADDR[pINFO->chipID] = AUX_START_ADDR + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+	}
+	
 #endif
 
 //	printf("Aux: GetROW = %d\n\r", fbADDR);
