@@ -192,10 +192,6 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	WORD nID = 0;
 	PMDIN_VIDEO_INFO pVideo;
 
-	ConfigI2C(mdin);
-	
-	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
-
 	if((mdin != MDIN_ID_A) && (mdin != MDIN_ID_B))
 	{
 		while(1);
@@ -205,6 +201,10 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 		pVideo = pVideoInfo[mdin];
 		pVideo->chipID = mdin;
 	}
+
+	ConfigI2C(mdin);
+
+	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
 	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
 	MDIN3xx_SetMemoryConfig(mdin);			// initialize DDR memory
@@ -293,7 +293,8 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	pVideo->stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	pVideo->stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
+//	pVideo->stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+	pVideo->stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_OFF
 	
 	// define video format of AUX-INPUT
 	pVideo->stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -301,10 +302,12 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 //	pVideo->stOUT_x.frmt = VIDOUT_720x480i60;
 //	pVideo->stOUT_x.mode = MDIN_OUT_MUX656_8;
 //	pVideo->stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
+
 //	pVideo->stOUT_x.brightness = 128;			// set aux picture factor
 //	pVideo->stOUT_x.contrast = 128;
 //	pVideo->stOUT_x.saturation = 128;
 //	pVideo->stOUT_x.hue = 128;
+
 #if RGB_GAIN_OFFSET_TUNE == 1
 	pVideo->stOUT_x.r_gain = 128;				// set aux gain/offset
 	pVideo->stOUT_x.g_gain = 128;

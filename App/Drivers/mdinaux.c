@@ -613,9 +613,9 @@ static MDIN_ERROR_t MDINAUX_SetMFCScaleCtrl(PMDIN_VIDEO_INFO pINFO)
 	}
 	
 	// aux_etc_ctrl - aux_rd_ext_buf
-	mode = (pINFO->dacPATH==DAC_PATH_AUX_4CH)? 0 : 1;
-	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x141, 1, 1, mode)) return MDIN_I2C_ERROR;
-//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x141, 1, 1, 1)) return MDIN_I2C_ERROR;	// fix ext-buff
+//	mode = (pINFO->dacPATH==DAC_PATH_AUX_4CH)? 0 : 1;
+//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x141, 1, 1, mode)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x141, 1, 1, 1)) return MDIN_I2C_ERROR;	// fix ext-buff
 
 	// if src is progressive && out is interlace && V dn-scaler then aux_rd_frm2fld = 1
 //	if ((pSRC->stATTB.attb&MDIN_SCANTYPE_PROG)&&(pMFC->stCUT.h>pMFC->stDST.h)&&
