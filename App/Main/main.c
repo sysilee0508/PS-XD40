@@ -8,6 +8,8 @@
 
 #undef MDIN_TEST_PATTERN
 
+extern BYTE	TPIAddr;
+
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -135,6 +137,9 @@ static void PlayBuzzer(void)
 	CreateOSDInstance();
 	Osd_ClearScreen();
 
+	// Init TP2912
+	InitRegisterSet();
+
 	SetInitialKey();
 	
 #ifdef MDIN_TEST_PATTERN
@@ -172,6 +177,12 @@ static void PlayBuzzer(void)
 		VideoHTXCtrlHandler();
 
 		OSD_Display();
+
+		if(TPIAddr != 0) 
+		{
+			// tp2912
+			Get_TVI_ISR();
+		}
 
 		StoreNvDataToStorage();
     }

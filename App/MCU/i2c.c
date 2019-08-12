@@ -208,3 +208,22 @@ void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char wri
 	
 	I2C_Stop();	
 }
+
+void I2C_MultiWrite(unsigned char slaveaddr, unsigned char * pData, unsigned char size)
+{
+	unsigned char cnt = 0;
+	
+	I2C_Start();
+
+	I2C_P2S(slaveaddr & 0xFE);
+	AckDetect();
+
+	for(cnt = 0; cnt < size; cnt++)
+	{
+		I2C_P2S(*pData);
+		pData++;
+		AckDetect()
+	}
+	
+	I2C_Stop();	
+}
