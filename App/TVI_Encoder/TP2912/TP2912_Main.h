@@ -10,7 +10,7 @@
 #ifndef __MAIN__
 #define __MAIN__
 
-
+#if 0
 //----------- P0 Define ------------
 #define MD0_0			P0_0
 #define MD0_1			P0_1
@@ -25,7 +25,7 @@
 #define MD1_0			P1_0
 #define MD1_1			P1_1
 #define MD1_2			P1_2
-#define MD1_3    		P1_3
+#define MD1_3    			P1_3
 #define MD1_4			P1_4
 #define R60HZ_n50HZ 	P1_5
 #define R6050f_n3025f  	P1_6
@@ -47,15 +47,21 @@
 #define MD2_5			P2_5
 #define MD2_6			P2_6
 #define MD2_7			P2_7
+#else
+#define R60HZ_n50HZ 	0//P1_5
+#define R6050f_n3025f  	0//P1_6
+#define R1080P_n720P	1//P1_7
 
-#define Test_Pat		P0_4
+#endif
+
+#define Test_Pat			0//P0_4
 //#define	F37M125		P0_5
 //#define CurDrive_MD			P0_5
 #define CurDrive_MD		1		//Set Voltage Mode, 0=Current Mode
-#define Mode_1920x532			P0_5
+#define Mode_1920x532			0//P0_5
 
 //#define AHD_nEN			P0_6
-#define Diff_nEN			P0_6
+#define Diff_nEN				0//P0_6
 
 #ifdef TP2915BD
 #define nRGB			P0_7
@@ -76,8 +82,6 @@
 #define Manual  1
 #define Auto_   0
 
-void delay(BYTE cnt);
-
 BYTE RS_ready(void);
 BYTE RS_rx(void);
 void RS_tx(BYTE tx_buf);
@@ -89,7 +93,7 @@ BYTE MonReadI2C(BYTE addr, BYTE index);
 void I2CDeviceSet_(BYTE addr, CODE_P BYTE *RegSet);
 
 void I2CDeviceSet( CODE_P BYTE *RegSet); 
-void Main_Initialize(void);
+//void Main_Initialize(void);
 
 void Prompt(void);
 

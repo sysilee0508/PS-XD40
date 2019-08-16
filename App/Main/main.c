@@ -139,7 +139,8 @@ static void PlayBuzzer(void)
 
 	// Init TP2912
 	InitRegisterSet();
-
+//	Init_UpData_Comm();
+	
 	SetInitialKey();
 	
 #ifdef MDIN_TEST_PATTERN

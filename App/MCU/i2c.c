@@ -222,7 +222,7 @@ void I2C_MultiWrite(unsigned char slaveaddr, unsigned char * pData, unsigned cha
 	{
 		I2C_P2S(*pData);
 		pData++;
-		AckDetect()
+		AckDetect();
 	}
 	
 	I2C_Stop();	

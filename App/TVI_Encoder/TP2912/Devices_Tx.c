@@ -8,8 +8,8 @@
 //#include "reg.h"
 #include "TP2912_Typedefs.h"
 #include "TP2912_i2c.h"
-//#include "main.h"
-#include "printf.h"
+#include "TP2912_main.h"
+//#include "printf.h"
 #include "Device_Tx.h"
 #include "TP2912.h"
 //#include "Table.c"
@@ -260,12 +260,6 @@ void Init_RegSet_For_Devices(){
 			SeteDvicesFor720P60();
 			break;
 	}
-	/*
-	if(ManVidRes == R1080P30)				
-		SetDevicesFor1080P30();
-	else
-		SeteDvicesFor720P60();
-	*/
 	#ifdef TVP7002_clkbypass
 		TP2912_WriteI2C(TVP7002,0x0f,0x2f);
 	#endif

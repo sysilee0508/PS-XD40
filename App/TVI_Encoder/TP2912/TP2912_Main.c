@@ -7,28 +7,28 @@
 #include <stdio.h>
 #include <string.h>
 #include "Config.h"
-#include "reg.h"
-#include "typedefs.h"
-#include "main.h"
-#include "i2c.h"
-#include "printf.h"
+//#include "reg.h"
+#include "TP2912_Typedefs.h"
+#include "TP2912_main.h"
+#include "TP2912_i2c.h"
+//#include "printf.h"
 #include "Device_Tx.h"
 //#include "Device_Rx.h"
-#include "Table.c"
+//#include "Table.c"
 //#include "Coaxitron.h"
 #include "TP2912.h"
 
-bit		I2CInitialBlocking = 1;
-bit		DetAutoRes = 0;
-bit     ManualEQ=OFF;
-bit 	MDIN_debug = 0;
-bit 	AHD_nEN = 1;
+BOOL	I2CInitialBlocking = 1;
+BOOL	DetAutoRes = 0;
+BOOL	ManualEQ=OFF;
+BOOL 	MDIN_debug = 0;
+BOOL 	AHD_nEN = 1;
 
 //DATA	BYTE	ManChSel;
 //DATA	BYTE	IsChannel;
 
 #ifdef TEST_SERCOM
-bit		MaskEcho = 0;
+BOOL		MaskEcho = 0;
 DATA	BYTE	StoreArg1 = 0, StoreArg2 = 0;
 DATA	BYTE	AddressOffset = 0;
 #endif //TEST_SERCOM
@@ -39,7 +39,7 @@ DATA	BYTE	tic_rs485=0;
 DATA	BYTE	mS_timer;
 DATA	BYTE	I2CAddressDeb = TVII2CAddress;
 
-bit     TVI_ISR = 0;
+BOOL     TVI_ISR = 0;
 DATA	BYTE	Ex0_INT=0;
 
 DATA	BYTE	ManVidRes;
@@ -53,7 +53,7 @@ extern DATA BYTE cam_ch;
 #define BUF_MAX 	10
 static	DATA BYTE	RS_buf[BUF_MAX];
 static	DATA BYTE   RS_in=0, RS_out=0;
-		bit	        RS_Xbusy=0;			// bit RS_Xbusy=0;
+BOOL	        RS_Xbusy=0;			// bit RS_Xbusy=0;
 
 //================== Debug key input ======================================
 #define MaxBuf		30					 
@@ -73,6 +73,7 @@ static  PDATA BYTE  arg[MaxArg], argn;
 /*****************************************************************************/
 /*      Timer 0 Interrupt                                                    */
 /*****************************************************************************/
+#ifdef TP2912_MAIN
 INTERRUPT(1, timer0_int)
 {
 		
@@ -111,21 +112,9 @@ INTERRUPT(5, timer2_int)
 	ET2 = 1;		//enable interrupt timer2
 }
 */
-
-void delay(BYTE cnt)		//5ms period
-{
-#if 0
-	BYTE t;
-
-	if( !cnt ) return;
-
-	t = tic01 + cnt;
-	while( tic01 != t );
-#else
-	Delay_ms(cnt*5);
 #endif
-}
 
+#ifdef TP2912_MAIN
 //****************************************************************************/
 //      Serial Interrupt                                                   
 //****************************************************************************/
@@ -333,6 +322,7 @@ void MonWriteI2C16(BYTE addr, BYTE indexH, BYTE indexL, BYTE valH, BYTE valL)
 	//Printf("\r\nWrite %02x%02xh to [Adrs(%02xh)Index(%02x%02xh)]", (WORD)valH, (WORD)valL, (WORD)addr, (WORD)indexH, (WORD)indexL);
 	WriteI2C16(addr, indexH, indexL, valH, valL);
 }
+#endif //#ifdef TP2912_MAIN
 
 
 /*===========================================================================*/
@@ -433,6 +423,7 @@ void I2CDeviceSet( CODE_P BYTE *RegSet)
 /*===========================================================================*/
 /*		Help					                                             */
 /*===========================================================================*/
+#ifdef TP2912_MAIN
 void Usage(void)
 {
 	delay(2);
@@ -457,6 +448,8 @@ void Usage(void)
 	Puts("\r\n| /              Repeat previous command        |");	delay(1);
 	Puts("\r\n+-----------------------------------------------+");	delay(1);
 }
+#endif //#ifdef TP2912_MAIN
+
 /*
 BYTE Dec2Hex(BYTE val)
 {
@@ -476,18 +469,19 @@ BYTE Dec2Hex(BYTE val)
 
 }*/
 
+#ifdef TP2912_MAIN
 BYTE StringCommand()
 {
-BYTE *cmds[MaxBuf]  ;
-BYTE cnt = 0;
-BYTE cmd_ptr=0;
-bit eol;
-BYTE i2c_dat;
-//BYTE PTZ_cmd;
-BYTE pan_spd=0;
-BYTE tilt_spd=0;
-BYTE cur_res;
-//PelcoD_cmd PD_cmdset, *PD_cmd, *PD_cmd_sum;
+	BYTE *cmds[MaxBuf]  ;
+	BYTE cnt = 0;
+	BYTE cmd_ptr=0;
+	bit eol;
+	BYTE i2c_dat;
+	//BYTE PTZ_cmd;
+	BYTE pan_spd=0;
+	BYTE tilt_spd=0;
+	BYTE cur_res;
+	//PelcoD_cmd PD_cmdset, *PD_cmd, *PD_cmd_sum;
 	
 //	PD_cmd_sum = &PD_cmdset;
 	cmds[cmd_ptr++] = &commdbuf[commdptr];							//first string command
@@ -931,7 +925,6 @@ void InitReset(){
 
 }
 
-
 void Main_Initialize()
 {
 	InitCPU();
@@ -968,3 +961,5 @@ void main (void)
 		Get_TVI_ISR();
 	}
 }
+#endif //#ifdef TP2912_MAIN
+

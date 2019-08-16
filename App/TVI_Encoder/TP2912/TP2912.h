@@ -73,7 +73,9 @@ enum{
 };
 
 
-CODE BYTE TP2910_AHD1080_UpData_DataSet[];
+//extern CODE BYTE TP2910_AHD1080_UpData_DataSet[];
+void Get_TVI_ISR();
+void InitRegisterSet();
 
 void Get_AHD_RxD();
 void Set_PLL();
@@ -89,6 +91,8 @@ void Init_TVITx_RegSet();
 BYTE Det_TVI_addr();
 
 
+
+void delay(BYTE cnt);
 
 
 #endif

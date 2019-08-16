@@ -7,8 +7,8 @@
 //#include "Config.h"
 //#include "reg.h"
 #include "TP2912_Typedefs.h"
-#include "I2C.h"
 #include "TP2912_i2c.h"
+#include "I2C.h"
 
 #ifdef TP2912_I2C_FUNC
 
@@ -40,17 +40,20 @@ void I2C_CntDelay(int cnt){
 
 void TP2912_WriteI2C(BYTE addr, BYTE index, BYTE val)
 {
+	I2C_SET_CHANNEL(I2C_SUB);
 	I2C_WRITE(addr, index, val);
 }
+
 void TP2912_WriteI2C16(BYTE addr, BYTE indexH, BYTE indexL, BYTE valH, BYTE valL)
 {
 	BYTE writeBuf[4];
+
+	I2C_SET_CHANNEL(I2C_SUB);
 
 	writeBuf[0] = indexH;
 	writeBuf[1] = indexL;
 	writeBuf[2] = valH;
 	writeBuf[3] = valL;
-
 	I2C_MultiWrite(addr, writeBuf, 4);
 }
 
@@ -69,6 +72,7 @@ BYTE TP2912_ReadI2C(BYTE addr, BYTE index)
 	
 	return val;
 #else
+	I2C_SET_CHANNEL(I2C_SUB);
 	return I2C_READ(addr, index);
 #endif
 
@@ -91,6 +95,8 @@ WORD TP2912_ReadI2C16(BYTE addr, BYTE indexH, BYTE indexL)
 	val |=(WORD) TP2912_I2CReadDataWithNAK();
 	I2C_Stop();
 #else
+	I2C_SET_CHANNEL(I2C_SUB);
+	
 	I2C_Start();
 
 	I2C_P2S(addr & 0xFE);

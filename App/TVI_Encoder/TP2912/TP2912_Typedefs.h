@@ -36,6 +36,20 @@
 
 #define INTERRUPT( num, name ) name() interrupt num
 
+#else
+
+#define DATA	
+#define PDATA
+#define IDATA
+#define CODE
+#define CODE_P
+#define PDATA_P
+#define IDATA_P
+#define DATA_P
+
+#define INTERRUPT( num, name ) 
+
+
 #endif
 
 #define _between(x, a, b)	(a<=x && x<=b)
@@ -45,6 +59,8 @@ typedef	unsigned char	Register;
 typedef	unsigned char	BYTE;
 typedef	unsigned int	WORD;
 typedef	unsigned long	DWORD;
+
+#define	BOOL BYTE				// boolean flag
 
 //InputSource		
 
