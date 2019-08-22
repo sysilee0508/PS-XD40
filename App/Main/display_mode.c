@@ -2,7 +2,11 @@
 //  Header Declaration
 //=============================================================================
 #include <stdio.h>
+#if BD_NVP == NVP6158
 #include "NVP6158.h"
+#elif BD_NVP == NVP6168
+#include "NVP6168.h"
+#endif
 #include "common.h"
 
 extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel);
@@ -122,22 +126,38 @@ void DisplayScreen(eDisplayMode_t mode)
 	switch(mode)
 	{
 		case DISPLAY_MODE_FULL_CH1:
+#if BD_NVP == NVP6158
 			NVP6158_Set_VportMap(VPORT_MAP0);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP0);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
 
 		case DISPLAY_MODE_FULL_CH2:
+#if BD_NVP == NVP6158
 			NVP6158_Set_VportMap(VPORT_MAP0);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP0);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
 
 		case DISPLAY_MODE_FULL_CH3:
+#if BD_NVP == NVP6158
 			NVP6158_Set_VportMap(VPORT_MAP0);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP0);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
 			break;
 
 		case DISPLAY_MODE_FULL_CH4:
+#if BD_NVP == NVP6158
 			NVP6158_Set_VportMap(VPORT_MAP0);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP0);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
 			break;
 		
@@ -149,7 +169,11 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_PIP_B2:
 		case DISPLAY_MODE_PIP_C2:
 		case DISPLAY_MODE_PIP_D2:
+#if BD_NVP == NVP6158
 			NVP6158_Set_VportMap(VPORT_MAP0);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP0);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
 
@@ -157,7 +181,11 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_2SPLIT_HCROP_B:
 		case DISPLAY_MODE_2SPLIT_VSCALE_B:
 		case DISPLAY_MODE_2SPLIT_VCROP_B:
+#if BD_NVP == NVP6158
 			NVP6158_Set_VportMap(VPORT_MAP0);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP0);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
 			break;
 
@@ -179,7 +207,11 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_4SPLIT_U3CROP:
 		case DISPLAY_MODE_4SPLIT_H:
 		case DISPLAY_MODE_4SPLIT_X:
+#if BD_NVP == NVP6158
 			NVP6158_Set_VportMap(VPORT_MAP0);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP0);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
 			break;
 
@@ -187,7 +219,11 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_PIP_B3:
 		case DISPLAY_MODE_PIP_C3:
 		case DISPLAY_MODE_PIP_D3:
-			NVP6158_Set_VportMap(VPORT_MAP4);
+#if BD_NVP == NVP6158
+			NVP6158_Set_VportMap(VPORT_MAP1);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP1);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
 
@@ -195,12 +231,20 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_PIP_B4:
 		case DISPLAY_MODE_PIP_C4:
 		case DISPLAY_MODE_PIP_D4:
-			NVP6158_Set_VportMap(VPORT_MAP5);
+#if BD_NVP == NVP6158
+			NVP6158_Set_VportMap(VPORT_MAP2);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP2);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 			break;
 
 		case DISPLAY_MODE_4SPLIT_QUAD:
-			NVP6158_Set_VportMap(VPORT_MAP4);
+#if BD_NVP == NVP6158
+			NVP6158_Set_VportMap(VPORT_MAP1);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP1);
+#endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
 			break;
 	}
@@ -251,7 +295,11 @@ void SetSystemSplitMode(eDisplayMode_t split)
 
 BYTE GetInputVideoFormat(eChannel_t channel)
 {
+#if BD_NVP == NVP6158
 	return NVP6158_Current_Video_Format_Check(channel);
+#elif bd_nvp == NVP6168
+	return NVP6168_Current_VideoFormat_Get(channel);
+#endif
 }
 
 // return main channel for split or pip mode

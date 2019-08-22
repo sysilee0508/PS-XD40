@@ -56,6 +56,7 @@ int DECODER_Chip_Infomation_Get( void );
  * Load Decoder Device Driver Function
  *
  ****************************************************************************************************************/
+ #if PLATFORM_LINUX == 1
 int DECODER_LoadDriver( void )
 {
 	NC_API_DRV_Driver_Init();
@@ -64,23 +65,27 @@ int DECODER_LoadDriver( void )
 
 	return 0;
 }
+#endif
 
 int DECODER_Chip_Infomation_Get( void )
 {
 	memset(&sVdtDevInfo, 0, sizeof(nc_decoder_s));
-	NC_API_DRV_InformationData_Get( &sVdtDevInfo );
-
+	//NC_API_DRV_InformationData_Get( &sVdtDevInfo );
+	nc_drv_chip_infomation_to_app(&sVdtDevInfo);
+	
 	return 0;
 }
 
 int DECODER_Chip_Amount_Get( void )
 {
-	return sVdtDevInfo.Total_Chip_Cnt;
+	//return sVdtDevInfo.Total_Chip_Cnt;
+	return TOTAL_CHIP_CNT;
 }
 
 NC_U8 DECODER_Chip_ID_Get(int ChipID)
 {
-	return sVdtDevInfo.chip_id[ChipID];
+	//return sVdtDevInfo.chip_id[ChipID];
+	return sVdtDevInfo.chip_id[0];
 }
 
 /****************************************************************************************************************
@@ -94,7 +99,8 @@ void DECODER_Video_SettingStatus_information_get( NC_U8 Chn, NC_CABLE_E *Cable, 
 
 	stVD_Video.Chn = Chn;
 
-	NC_API_DRV_Video_Input_Set_Info_Get(&stVD_Video);
+	//NC_API_DRV_Video_Input_Set_Info_Get(&stVD_Video);
+	nc_drv_video_setting_info_get(&stVD_Video);
 
 	*Cable    = stVD_Video.VideoCable;
 	*Fmt_std  = stVD_Video.FormatStandard;
@@ -108,7 +114,8 @@ NC_U8 DECODER_Video_Input_Format_Detection_Get(NC_U8 Chn, NC_U8 *Vfc, NC_VIVO_CH
 	nc_decoder_s stVD_Video;
 	stVD_Video.Chn = Chn;
 
-	NC_API_DRV_Video_Input_VFC_Get(&stVD_Video);
+	//NC_API_DRV_Video_Input_VFC_Get(&stVD_Video);
+	nc_drv_video_input_vfc_status_get(&stVD_Video);
 
 	*Vfc 		 = stVD_Video.Vfc;
 	*VideoFormat = stVD_Video.VideoFormat;
@@ -121,7 +128,8 @@ NC_U8 DECODER_Video_Input_EQ_Stage_Get(NC_U8 Chn, NC_U32 *pSamVal)
 	nc_decoder_s pstVD_Video;
 
 	pstVD_Video.Chn = Chn;
-	NC_API_DRV_Video_Input_EQ_Stage_Get(&pstVD_Video);
+	//NC_API_DRV_Video_Input_EQ_Stage_Get(&pstVD_Video);
+	nc_drv_video_input_eq_stage_get(&pstVD_Video);
 
 	*pSamVal = pstVD_Video.SamVal;
 
@@ -134,7 +142,8 @@ void DECODER_Video_Input_Auto_Sequence_Set(NC_U8 Chn)
 
 	pstVD_Video.Chn = Chn;
 	pstVD_Video.VideoSetMode = NC_VIDEO_SET_MODE_AUTO;
-	NC_API_DRV_Video_Input_Set(&pstVD_Video);
+	//NC_API_DRV_Video_Input_Set(&pstVD_Video);
+	nc_drv_video_input_set(&pstVD_Video);
 }
 
 void DECODER_Video_Input_Manual_Set(NC_U8 Chn, NC_CABLE_E Cable, NC_FORMAT_STANDARD_E Fmt_std, NC_FORMAT_RESOLUTION_E Fmt_res, NC_FORMAT_FPS_E Fmt_fps)
@@ -148,7 +157,8 @@ void DECODER_Video_Input_Manual_Set(NC_U8 Chn, NC_CABLE_E Cable, NC_FORMAT_STAND
 	pstVD_Video.FormatFps		 = Fmt_fps;
 	pstVD_Video.VideoSetMode     = NC_VIDEO_SET_MODE_MANUAL;
 
-	NC_API_DRV_Video_Input_Manual_Set(&pstVD_Video);
+	//NC_API_DRV_Video_Input_Manual_Set(&pstVD_Video);
+	nc_drv_video_input_manual_set(&pstVD_Video);
 }
 
 void DECODER_Video_Input_EQ_Stage_Set(int Chn, NC_EQ_STAGE_E stage)
@@ -166,7 +176,10 @@ void DECODER_Video_Output_Set(NC_U8 Chip, NC_VO_WORK_MODE_E MuxMode)
 	stVD_Video.Chn 			= Chip;
 	stVD_Video.VO_MuxMode   = MuxMode;
 
-	NC_API_DRV_Video_Output_Set(&stVD_Video);
+	stVD_Video.PortNo = 0;
+
+	//NC_API_DRV_Video_Output_Set(&stVD_Video);
+	nc_drv_video_output_port_set(&stVD_Video);
 }
 
 void DECODER_Video_Output_Manual_Set( NC_U8 Chn, NC_VO_INTF_MODE_E Intf, NC_VO_WORK_MODE_E MuxMode, NC_VO_CLK_EDGE_E Clock, int *pChnSeq)
@@ -184,8 +197,8 @@ void DECODER_Video_Output_Manual_Set( NC_U8 Chn, NC_VO_INTF_MODE_E Intf, NC_VO_W
 		stVD_Video.VO_ChnSeq[ii] = pChnSeq[ii];
 	}
 
-	NC_API_DRV_Video_Output_Manual_Set(&stVD_Video);
-
+	//NC_API_DRV_Video_Output_Manual_Set(&stVD_Video);
+	nc_drv_video_output_port_manual_set(&stVD_Video)
 }
 
 void DECODER_Video_Output_NoVideo_Pattern_Set( NC_U8 Chn, NC_U8 Sel )
@@ -193,7 +206,8 @@ void DECODER_Video_Output_NoVideo_Pattern_Set( NC_U8 Chn, NC_U8 Sel )
 	nc_decoder_s stVD_Video;
 	stVD_Video.Chn   = Chn;
 	stVD_Video.Value = Sel;
-	NC_API_DRV_Video_Output_Pattern_Set(&stVD_Video);
+	//NC_API_DRV_Video_Output_Pattern_Set(&stVD_Video);
+	nc_drv_video_output_color_pattern_set(&stVD_Video);
 }
 
 NC_EQ_STAGE_E DECODER_SDK_Video_EQ_Stage_ReCheck_Get(NC_U8 Chn)
@@ -203,11 +217,13 @@ NC_EQ_STAGE_E DECODER_SDK_Video_EQ_Stage_ReCheck_Get(NC_U8 Chn)
 	nc_decoder_s stVD_Video;
 	memset(&stVD_Video, 0, sizeof(stVD_Video));
 	stVD_Video.Chn = Chn;
-	NC_API_DRV_Video_Input_Set_Info_Get(&stVD_Video);
+	//NC_API_DRV_Video_Input_Set_Info_Get(&stVD_Video);
+	nc_drv_video_setting_info_get(&stVD_Video);
 
 	return stVD_Video.EqStage;
 }
 
+#if 0
 void DECODER_SDK_Video_Format_String_Get(NC_U8 Chn, char *pStr)
 {
 	nc_decoder_s pstVD_Video;
@@ -225,7 +241,6 @@ void DECODER_SDK_Video_Format_String_Get(NC_U8 Chn, char *pStr)
 	sprintf(pStr, "Chn%d: %s", Chn+1, pstVD_Video.FmtStr);
 
 }
-
 void DECODER_SDK_Channel_Video_Format_String_Get(NC_U8 Chn, char *pStr)
 {
 	nc_decoder_s pstVD_Video;
@@ -243,6 +258,7 @@ void DECODER_SDK_Channel_Video_Format_String_Get(NC_U8 Chn, char *pStr)
 	sprintf(pStr, "%s", pstVD_Video.FmtStr);
 
 }
+#endif
 
 
 void DECODER_SDK_Video_Auto_Manual_Mode_Set(NC_U8 Chn, NC_VIDEO_SET_MODE_E Mode)
@@ -251,9 +267,12 @@ void DECODER_SDK_Video_Auto_Manual_Mode_Set(NC_U8 Chn, NC_VIDEO_SET_MODE_E Mode)
 	stVD_Video.Chn	   = Chn;
 	stVD_Video.OP_Mode = Mode;
 
-	NC_API_DRV_Video_Auto_Manual_Mode_Set(&stVD_Video);
+	//NC_API_DRV_Video_Auto_Manual_Mode_Set(&stVD_Video);
+	nc_drv_video_auto_manual_mode_set(&stVD_Video);
 }
 
+
+#if COAXIAL_PROTOCOL == 1
 /****************************************************************************************************************
  * Decoder API
  * Coaxial Protocol
@@ -738,6 +757,9 @@ int DECODER_ISP_Info_Sensor_Maker_Device_Get(unsigned char Maker, unsigned char 
 	return ret;
 }
 
+#endif //COAXIAL_PROTOCOL
+
+
 /*============================================================================================================================
  * Motion
  *
@@ -754,31 +776,36 @@ int DECODER_Motion_Set( int Chn, int SelectItem, int Val )
 	switch(SelectItem)
 	{
 		case    VD_MOTION_SET_ON_OFF :
-			printf("VD_MOTION_SET_ON_OFF\n");
-			NC_API_DRV_Motion_OnOff_Set(&pstMotion);
+			//printf("VD_MOTION_SET_ON_OFF\n");
+			//NC_API_DRV_Motion_OnOff_Set(&pstMotion);
+			nc_drv_motion_onoff_set(&pstMotion);	
 			Ret = 0;
 			break;
 		case    VD_MOTION_SET_ALL_BLOCK_ON_OFF :
-			printf("VD_MOTION_SET_ALL_BLOCK_ON_OFF\n");
-			NC_API_DRV_Motion_AllBlock_OnOff_Set(&pstMotion);
+			//printf("VD_MOTION_SET_ALL_BLOCK_ON_OFF\n");
+			//NC_API_DRV_Motion_AllBlock_OnOff_Set(&pstMotion);
+			nc_drv_motion_all_block_onoff_set(&pstMotion);
 			break;
 		case    VD_MOTION_SET_EACH_BLOCK_ON_OFF :
-			printf("VD_MOTION_SET_EACH_BLOCK_ON_OFF\n");
-			NC_API_DRV_Motion_EachBlock_OnOff_Set(&pstMotion);
+			//printf("VD_MOTION_SET_EACH_BLOCK_ON_OFF\n");
+			//NC_API_DRV_Motion_EachBlock_OnOff_Set(&pstMotion);
+			nc_drv_motion_each_block_onoff_set(&pstMotion);
 			Ret = 0;
 			break;
 		case    VD_MOTION_SET_TSEN :
-			printf("VD_MOTION_SET_TSEN\n");
-			NC_API_DRV_Motion_TSEN_Set(&pstMotion);
+			//printf("VD_MOTION_SET_TSEN\n");
+			//NC_API_DRV_Motion_TSEN_Set(&pstMotion);
+			nc_drv_motion_motion_tsen_set(&pstMotion);
 			Ret = 0;
 			break;
 		case    VD_MOTION_SET_PSEN :
-			printf("VD_MOTION_SET_PSEN\n");
-			NC_API_DRV_Motion_PSEN_Set(&pstMotion);
+			//printf("VD_MOTION_SET_PSEN\n");
+			//NC_API_DRV_Motion_PSEN_Set(&pstMotion);
+			nc_drv_motion_motion_psen_set(&pstMotion);
 			Ret = 0;
 			break;
 		default :
-			printf("[%s]UnKown Motion Select!!\n", __func__);
+			//printf("[%s]UnKown Motion Select!!\n", __func__);
 			Ret = -1;
 			break;
 	}
@@ -797,22 +824,24 @@ NC_U8 DECODER_Motion_Get( int Chn, int SelectItem, int Val )
 	switch(SelectItem)
 	{
 		case    VD_MOTION_GET_DETECT_INFO :
-			NC_API_DRV_Motion_DetectionInfo_Get(&stMotion);
+			//NC_API_DRV_Motion_DetectionInfo_Get(&stMotion);
+			nc_drv_motion_detection_info_get(&stMotion);
 			ReadValue = stMotion.Param;
 			break;
 		case    VD_MOTION_GET_BLOCK_ON_OFF_INFO :
-			NC_API_DRV_Motion_EachBlock_OnOff_Get(&stMotion);
+			//NC_API_DRV_Motion_EachBlock_OnOff_Get(&stMotion);
+			nc_drv_motion_each_block_onoff_get(&stMotion);	
 			ReadValue = stMotion.Param;
 			break;
 		default :
-			printf("[%s]UnKown Motion Select!!\n", __func__);
+			//printf("[%s]UnKown Motion Select!!\n", __func__);
 			break;
 	}
 
 	return ReadValue;
 }
 
-
+#if 0
 /*============================================================================================================================
  * AUDIO
  *
@@ -827,6 +856,7 @@ void DECODER_Audio_Mode_Init(int Chn, int AdMode, int SmpRate, int BitWidth)
 	stAudio.audio_bit_width   = BitWidth;
 	NC_API_DRV_Audio_Init_Set(&stAudio);
 }
+#endif
 
 /*============================================================================================================================
  * ETC
@@ -839,8 +869,9 @@ void DECODER_Bank_Data_Dump(unsigned char slave_addr, unsigned char bank, unsign
 	stRegDumpInfo.Dev  = slave_addr;
 	stRegDumpInfo.Bank = bank;
 
-	NC_API_DRV_Bank_Data_Dump(&stRegDumpInfo);
-
+	//NC_API_DRV_Bank_Data_Dump(&stRegDumpInfo);
+	nc_drv_common_bank_data_get(&stRegDumpInfo);
+	
 	memcpy(pData, stRegDumpInfo.DumpData, sizeof(stRegDumpInfo.DumpData) );
 }
 
@@ -851,7 +882,8 @@ void DECODER_Register_Data_Set(NC_U8 Slave, NC_U8 Bank, NC_U8 Addr, NC_U8 SetVal
 	stRegDumpInfo.Bank  = Bank;
 	stRegDumpInfo.Addr  = Addr;
 	stRegDumpInfo.Param = SetVal;
-	NC_API_DRV_RegisterData_Set(&stRegDumpInfo);
+	//NC_API_DRV_RegisterData_Set(&stRegDumpInfo);
+	nc_drv_common_register_data_set(&stRegDumpInfo);
 }
 
 NC_U8 DECODER_Register_Data_Get(NC_U8 Slave, NC_U8 Bank, NC_U8 Addr)
@@ -860,7 +892,9 @@ NC_U8 DECODER_Register_Data_Get(NC_U8 Slave, NC_U8 Bank, NC_U8 Addr)
 	stRegDumpInfo.Dev   = Slave;
 	stRegDumpInfo.Bank  = Bank;
 	stRegDumpInfo.Addr  = Addr;
-	NC_API_DRV_RegisterData_Get(&stRegDumpInfo);
+	//NC_API_DRV_RegisterData_Get(&stRegDumpInfo);
+	nc_drv_common_register_data_get(&stRegDumpInfo);
+	
 	return stRegDumpInfo.Param;
 }
 

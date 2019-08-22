@@ -5,6 +5,7 @@
 #include <string.h>
 #include "common.h"
 #include "video_loss.h"
+#include "NVP6168.h"
 
 #undef MDIN_TEST_PATTERN
 
@@ -124,8 +125,12 @@ static void PlayBuzzer(void)
 	// Load NV data from flash memory
 	LoadNvDataFromStorage();
 
+#if BD_NVP == NVP6158
 	//NVP6158 device initialization
 	NVP6158_init();
+#elif BD_NVP == NVP6168
+	NVP6168_Init();
+#endif
 	InitVideoLossCheck();
 	InitializeMotionDetect();
 
@@ -156,7 +161,11 @@ static void PlayBuzzer(void)
 	{
 		RTC_CheckTime();
 		Key_Proc();
+#if BD_NVP == NVP6158
 		NVP6158_VideoDetectionProc();
+#elif BD_NVP == NVP6168
+		NVP6168_AutoDetection_Proc();
+#endif
 		Delay_ms(1);
 		
 		ScanVideoLossChannels();

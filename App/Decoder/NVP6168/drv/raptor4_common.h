@@ -15,6 +15,10 @@
 #ifndef __RAPTOR4_COMMON_H__
 #define __RAPTOR4_COMMON_H__
 
+ #include "NVP6168_common.h"
+ 
+ #if PLATFORM_LINUX == 1
+
 #include <linux/kernel.h>
 #include <linux/version.h>
 #include <linux/module.h>
@@ -49,7 +53,7 @@
 #include <linux/kthread.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
-
+#endif
 
 #include "../raptor4_fmt.h"
 #include "../raptor4_ioctl.h"

@@ -799,7 +799,7 @@ void nc_drv_video_output_port_set( void *pParam )
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC8, 0x00); // [7:4] B Port, [3:0] A Port
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC9, 0x00); // [7:4] D Port, [3:0] C Port
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xCA, 0xFF); // [7:4] Clk_EN  [3:0] VD Out EN [4,3,2,1], [4,3,2,1]
-
+#if 0
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC0, 0x00); // Port A - chn1
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC1, 0x00);
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC2, 0x11); // Port B - chn2
@@ -808,7 +808,16 @@ void nc_drv_video_output_port_set( void *pParam )
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC5, 0x22);
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC6, 0x33); // Port D - chn4
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC7, 0x33);
-
+#else
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC0, 0x33); // Port A - chn4
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC1, 0x33);
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC2, 0x22); // Port B - chn3
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC3, 0x22);
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC4, 0x11); // Port C - chn2
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC5, 0x11);
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC6, 0x00); // Port D - chn1
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC7, 0x00);
+#endif
 			NC_DEVICE_DRIVER_BANK_SET(dev, BANK_1);
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xcc + chn, 0x58);
 		}
@@ -1258,7 +1267,7 @@ void nc_drv_video_color_tune_get(void *pParam)
 	}
 	else
 	{
-		printk("[%s]Unknown Color Tuning Selection!!\n", __func__ );
+		//printk("[%s]Unknown Color Tuning Selection!!\n", __func__ );
 	}
 
 	 pVdInfo->Value = val;
@@ -1495,5 +1504,19 @@ void internal_nc_drv_video_output_hide_set( NC_U8 Dev, NC_U8 Chn, NC_U8 Val )
 	{
 		printk("[%s]Error!!\n", __func__);
 		return;
+	}
+}
+
+// kukuri added
+void nc_drv_video_output_port_seq_set( void *pParam )
+{
+	nc_decoder_s *pVdInfo = (nc_decoder_s*)pParam;
+	NC_U8 ii;
+
+	NC_DEVICE_DRIVER_BANK_SET(0, BANK_1);
+	for(ii = 0; ii < 4; ii++)
+	{
+		gpio_i2c_write(g_nc_drv_i2c_addr[0], 0xC0 + (ii*2), pVdInfo->VO_ChnSeq[ii]<<4 | pVdInfo->VO_ChnSeq[ii]);
+		gpio_i2c_write(g_nc_drv_i2c_addr[0], 0xC1 + (ii*2), pVdInfo->VO_ChnSeq[ii]<<4 | pVdInfo->VO_ChnSeq[ii]);
 	}
 }

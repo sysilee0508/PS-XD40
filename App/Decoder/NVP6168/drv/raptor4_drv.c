@@ -16,10 +16,6 @@
 /* ----------------------------------------------------------------------------------
  * 1. Header file include -----------------------------------------------------------
  * --------------------------------------------------------------------------------*/
-#include <linux/string.h>
-#include <linux/delay.h>
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
 
 #include "raptor4_common.h"
 #include "raptor4_video.h"
@@ -35,21 +31,24 @@
 #define RELEASE_MONTH			4
 #define RELEASE_DAY				9
 
+ #if PLATFORM_LINUX == 1
 #define I2C_0       (0)
 #define I2C_1       (1)
 #define I2C_2       (2)
 #define I2C_3       (3)
+#endif
 
 /* ----------------------------------------------------------------------------------
  * 3. Define variable ---------------------------------------------------------------
  * --------------------------------------------------------------------------------*/
-static unsigned int s_nc_drv_chip_cnt = 0;
-static unsigned int s_nc_drv_channel_cnt = 0;
+static const unsigned int s_nc_drv_chip_cnt = 1;
+static const unsigned int s_nc_drv_channel_cnt = 4;
 
 NC_U8 g_nc_drv_chip_id[4]   = { 0xFF, 0xFF, 0xFF, 0xFF };
 NC_U8 g_nc_drv_chip_rev[4]  = { 0xFF, 0xFF, 0xFF, 0xFF };
 NC_U8 g_nc_drv_i2c_addr[4]  = { 0xFF, 0xFF, 0xFF, 0xFF };
 
+#if PLATFORM_LINUX == 1
 struct semaphore  nc_drv_lock;
 struct i2c_client *nc_i2c_client;
 
@@ -57,6 +56,7 @@ static struct i2c_board_info hi_info =
 {
 	I2C_BOARD_INFO("raptor4", 0x60),
 };
+#endif
 
 /* ----------------------------------------------------------------------------------
  * 4. External variable & function --------------------------------------------------
@@ -78,6 +78,7 @@ unsigned char __I2CReadByte8(unsigned char chip_addr, unsigned char reg_addr);
 
 void __I2CWriteByte8(unsigned char chip_addr, unsigned char reg_addr, unsigned char value)
 {
+#if 0
 	int ret;
 	unsigned char buf[2];
 	struct i2c_client* client = nc_i2c_client;
@@ -90,10 +91,15 @@ void __I2CWriteByte8(unsigned char chip_addr, unsigned char reg_addr, unsigned c
 	ret = i2c_master_send(client, buf, 2);
 	udelay(300);
 	//return ret;
+#else
+	I2C_SET_CHANNEL(I2C_MAIN);
+	I2C_WRITE(chip_addr, reg_addr, value);		
+#endif
 }
 
 unsigned char __I2CReadByte8(unsigned char chip_addr, unsigned char reg_addr)
 {
+#if 0
 	int ret_data = 0xFF;
 	int ret;
 	struct i2c_client* client = nc_i2c_client;
@@ -108,11 +114,17 @@ unsigned char __I2CReadByte8(unsigned char chip_addr, unsigned char reg_addr)
 		ret_data = buf[0];
 	}
 	return ret_data;
+#else
+	I2C_SET_CHANNEL(I2C_MAIN);
+
+	return I2C_READ(chip_addr, reg_addr);
+#endif
 }
 
 /*******************************************************************************
  * Print Driver Version
  *******************************************************************************/
+#if PLATFORM_LINUX == 1
 void nc_drv_version_information_print(void)
 {
 	char szAppVersion[32];
@@ -127,70 +139,50 @@ void nc_drv_version_information_print(void)
 	printk("*****************************************************************************\n");
 
 }
+#endif
 
 int nc_drv_chip_infomation_get( void )
 {
 	int ret = -1;
-	int chip;
 	NC_U8 I2C_ACK = 0;
-	NC_U8 NC_Decoder_i2c_addr[4] = { 0x60, 0x62, 0x64, 0x66 };
+	//NC_U8 NC_Decoder_i2c_addr = NVP6168_I2C_ADDR;//{ 0x60, 0x62, 0x64, 0x66 };
 
 	/**********************************************************************************
 	 * I2C Communication(Receive) Check
 	 * 0 == 0x60, 1 == 0x62, 2 == 0x64, 3 == 0x66
 	 * CheckVal == Success 0x00, Fail 0xFF
 	 **********************************************************************************/
-	for(chip=0; chip<4; chip++)
+	gpio_i2c_write(NVP6168_I2C_ADDR, 0xFF, 0x00);
+	I2C_ACK = gpio_i2c_read(NVP6168_I2C_ADDR, 0xFF);
+	if( I2C_ACK == 0 )
 	{
-		gpio_i2c_write(NC_Decoder_i2c_addr[chip], 0xFF, 0x00);
-		I2C_ACK = gpio_i2c_read(NC_Decoder_i2c_addr[chip], 0xFF);
-		if( I2C_ACK == 0 )
-		{
-			g_nc_drv_i2c_addr[s_nc_drv_chip_cnt] = NC_Decoder_i2c_addr[chip];
-			s_nc_drv_chip_cnt++;
-			printk("<<<<<<<<<<< [ Success::0x%02X ] Decoder I2C Communication!!!! >>>>>>>>>>>\n", NC_Decoder_i2c_addr[chip]);
-		}
-		else
-			printk(">>>>>>>>>>> [ Fail::0x%02X ] Decoder I2C Communication!!!! <<<<<<<<<<<\n", NC_Decoder_i2c_addr[chip]);
-	}
-
-	if( s_nc_drv_chip_cnt <= 0 )
-	{
-		printk("Decoder Driver I2C(0x60, 0x62, 0x64, 0x66) Communication Error!!!!\n");
-		return ret;
-	}
-	else
-	{
-		s_nc_drv_channel_cnt = s_nc_drv_chip_cnt * 4;  // Each Chip 4 Channel Input
-	}
-
+		g_nc_drv_i2c_addr[0] = NVP6168_I2C_ADDR;
+		//printk("<<<<<<<<<<< [ Success::0x%02X ] Decoder I2C Communication!!!! >>>>>>>>>>>\n", NC_Decoder_i2c_addr[chip]);
+	}	
+	
 	/**********************************************************************************
 	 * 1. Decoder ID Check
 	 * 2. Decoder Revision Check
 	 **********************************************************************************/
-	for(chip=0; chip<s_nc_drv_chip_cnt; chip++)
-	{
-		/* Decoder Device ID Check */
-		gpio_i2c_write(g_nc_drv_i2c_addr[chip], 0xFF, BANK_0);
-		g_nc_drv_chip_id[chip] = gpio_i2c_read(g_nc_drv_i2c_addr[chip], 0xF4);
+	/* Decoder Device ID Check */
+	gpio_i2c_write(NVP6168_I2C_ADDR, 0xFF, BANK_0);
+	g_nc_drv_chip_id[0] = gpio_i2c_read(NVP6168_I2C_ADDR, 0xF4);
 
-		/* Decoder Device Revision Check */
-		gpio_i2c_write(g_nc_drv_i2c_addr[chip], 0xFF, BANK_0);
-		g_nc_drv_chip_rev[chip] = gpio_i2c_read(g_nc_drv_i2c_addr[chip], 0xF5);
-	}
+	/* Decoder Device Revision Check */
+	gpio_i2c_write(NVP6168_I2C_ADDR, 0xFF, BANK_0);
+	g_nc_drv_chip_rev[0] = gpio_i2c_read(NVP6168_I2C_ADDR, 0xF5);
 
 	ret = 0;
-	printk("********************** Decoder Chip Information *********************\n");
-	printk("Decoder Chip Count = %d\n", s_nc_drv_chip_cnt);
-	printk("SlaveAddress    [0x%02X], [0x%02X], [0x%02X], [0x%02X]\n",g_nc_drv_i2c_addr[0],g_nc_drv_i2c_addr[1],g_nc_drv_i2c_addr[2],g_nc_drv_i2c_addr[3]);
-	printk("DecoderID       [0x%02X], [0x%02X], [0x%02X], [0x%02X]\n",g_nc_drv_chip_id[0],g_nc_drv_chip_id[1],g_nc_drv_chip_id[2],g_nc_drv_chip_id[3]);
-	printk("DecoderRevision [0x%02X], [0x%02X], [0x%02X], [0x%02X]\n",g_nc_drv_chip_rev[0],g_nc_drv_chip_rev[1],g_nc_drv_chip_rev[2],g_nc_drv_chip_rev[3]);
-	printk("**********************************************************************\n");
+	//printk("********************** Decoder Chip Information *********************\n");
+	//printk("Decoder Chip Count = %d\n", s_nc_drv_chip_cnt);
+	//printk("SlaveAddress    [0x%02X], [0x%02X], [0x%02X], [0x%02X]\n",g_nc_drv_i2c_addr[0],g_nc_drv_i2c_addr[1],g_nc_drv_i2c_addr[2],g_nc_drv_i2c_addr[3]);
+	//printk("DecoderID       [0x%02X], [0x%02X], [0x%02X], [0x%02X]\n",g_nc_drv_chip_id[0],g_nc_drv_chip_id[1],g_nc_drv_chip_id[2],g_nc_drv_chip_id[3]);
+	//printk("DecoderRevision [0x%02X], [0x%02X], [0x%02X], [0x%02X]\n",g_nc_drv_chip_rev[0],g_nc_drv_chip_rev[1],g_nc_drv_chip_rev[2],g_nc_drv_chip_rev[3]);
+	//printk("**********************************************************************\n");
 
 	return ret;
 }
 
-#if 1
 void nc_drv_chip_infomation_to_app( nc_decoder_s *psVdtDevInfo )
 {
 	int ii = 0;
@@ -204,8 +196,8 @@ void nc_drv_chip_infomation_to_app( nc_decoder_s *psVdtDevInfo )
 		psVdtDevInfo->chip_addr[ii] = g_nc_drv_i2c_addr[ii];
 	}
 }
-#endif
 
+#if 0
 void nc_drv_decoder_init_test_view_set(NC_U8 dev, NC_U8 addr, NC_U8 val)
 {
 	gpio_i2c_write(dev, addr, val);
@@ -215,7 +207,7 @@ void nc_drv_decoder_init_test_view_set(NC_U8 dev, NC_U8 addr, NC_U8 val)
 	else
 		printk("0x%02X : 0x%02X\n", addr, val);
 }
-
+#endif
 
 void nc_drv_decoder_init_set(void)
 {
@@ -224,7 +216,7 @@ void nc_drv_decoder_init_set(void)
 
 	for(dev=0; dev<s_nc_drv_chip_cnt; dev++)
 	{
-		printk("[%s]SlaveAddr::0x%02X Initialize!!\n", __func__, g_nc_drv_i2c_addr[dev]);
+		//printk("[%s]SlaveAddr::0x%02X Initialize!!\n", __func__, g_nc_drv_i2c_addr[dev]);
 
 		NC_DEVICE_DRIVER_BANK_SET(dev, BANK_1);
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x97, 0x00);	// CH_RST ON
@@ -336,7 +328,7 @@ void nc_drv_decoder_init_set(void)
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xAB, 0x40);  // MPP_TST_SEL4
 #endif
 	}
-
+	
 }
 
 void nc_drv_decoder_initialize(void)
@@ -351,7 +343,7 @@ void nc_drv_decoder_initialize(void)
 	/**********************************************************************
 	 * Device Driver Source Code Version
 	 **********************************************************************/
-	nc_drv_version_information_print();
+	//nc_drv_version_information_print();
 
 	/**********************************************************************
 	 * Raptor4 Device Driver Information Initialize
@@ -368,6 +360,7 @@ void nc_drv_decoder_initialize(void)
  * Initialize Function
  *
  *******************************************************************************************************/
+ #if PLATFORM_LINUX == 1
 int nc_decoder_open(struct inode * inode, struct file * file)
 {
 	printk("[DRV] Raptor4 Driver Open\n");
@@ -562,6 +555,7 @@ module_exit(raptor4_module_exit);
 
 MODULE_LICENSE("GPL");
 
+#endif 	// platform_linux
 /*******************************************************************************
  *	End of file
  *******************************************************************************/

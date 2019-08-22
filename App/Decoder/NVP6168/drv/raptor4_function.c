@@ -1515,7 +1515,7 @@ void nc_drv_motion_motion_tsen_set(void *pParam)
 	//BANK2_MOTION
 	gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xFF, 0x02);
 	gpio_i2c_write(g_nc_drv_i2c_addr[dev], (0x01 +(0x07 * chn)), SetVal);
-	printk("[DRV_Motion]Dev(%d) Chn(%d), TSEN Val(%x)\n", dev, chn, SetVal);
+	//printk("[DRV_Motion]Dev(%d) Chn(%d), TSEN Val(%x)\n", dev, chn, SetVal);
 }
 
 void nc_drv_motion_motion_psen_set(void *pParam)
@@ -1540,7 +1540,7 @@ void nc_drv_motion_motion_psen_set(void *pParam)
 	SetVal = SetVal|msb_mask;
 
 	gpio_i2c_write(g_nc_drv_i2c_addr[dev], (0x02 +(0x07 * chn)), SetVal);
-	printk("[DRV_Motion]Dev(%d), Chn(%d), readVal(%x), SetVal(%x)\n", dev, chn, ReadVal, SetVal);
+	//printk("[DRV_Motion]Dev(%d), Chn(%d), readVal(%x), SetVal(%x)\n", dev, chn, ReadVal, SetVal);
 }
 
 /**************************************************************************************

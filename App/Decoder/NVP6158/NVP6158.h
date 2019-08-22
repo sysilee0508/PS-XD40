@@ -52,8 +52,8 @@ typedef enum _VI_WORK_MODE_E
 typedef enum  
 {
 	VPORT_MAP0,		// 1, 2, 3, 4	// full ch1, 2 split 1&2 , all 4 split, PIP with ch2
-	VPORT_MAP4,		// 1, 3, 2, 4	// PIP with ch3
-	VPORT_MAP5,		// 1, 4, 2, 3	// PIP with ch4
+	VPORT_MAP1,		// 1, 3, 2, 4	// PIP with ch3
+	VPORT_MAP2,		// 1, 4, 2, 3	// PIP with ch4
 	VPORT_MAP_MAX
 } eVPORT_MAP_t;
 
