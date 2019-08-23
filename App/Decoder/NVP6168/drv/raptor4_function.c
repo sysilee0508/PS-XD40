@@ -1302,6 +1302,7 @@ void nc_drv_motion_detection_info_get(void *pParam)
 
 }
 
+extern unsigned char Get_MotionIndication(void);	//kukuri
 void nc_drv_motion_onoff_set(void *pParam)
 {
 	nc_decoder_s *pMotion =  (nc_decoder_s*)pParam;
@@ -1353,8 +1354,13 @@ void nc_drv_motion_onoff_set(void *pParam)
 		case FUNC_OFF : gpio_i2c_write(g_nc_drv_i2c_addr[dev], (0x00 + (0x07 * chn)), 0x0D);
 //						gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x28 + (0x06 * chn), 0x00);
 						break;
-		case FUNC_ON : gpio_i2c_write(g_nc_drv_i2c_addr[dev], (0x00 + (0x07 * chn)), 0x0C);
-					   break;
+		case FUNC_ON :	//kukuri
+			if(Get_MotionIndication() == FUNC_ON)
+				gpio_i2c_write(g_nc_drv_i2c_addr[dev], (0x00 + (0x07 * chn)), 0x0C);
+			else
+				gpio_i2c_write(g_nc_drv_i2c_addr[dev], (0x00 + (0x07 * chn)), 0x00);
+
+			break;
 	}
 
 }
@@ -1396,7 +1402,7 @@ void nc_drv_motion_all_block_onoff_set(void *pParam)
 
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x2B + (0x06 * chn), 0x6);
 
-		printk("[DRV_Motion_OnOff]Dev(%d) Chn(%d) fmtdef(%d)\n", dev, chn, vivofmt);
+		//printk("[DRV_Motion_OnOff]Dev(%d) Chn(%d) fmtdef(%d)\n", dev, chn, vivofmt);
 	}
 	else
 	{
@@ -1450,7 +1456,7 @@ void nc_drv_motion_each_block_onoff_set(void *pParam)
 
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x2B + (0x06 * chn), 0x6);
 
-		printk("[DRV_Motion_OnOff]Dev(%d) Chn(%d) fmtdef(%d)\n", dev, chn, vivofmt);
+		//printk("[DRV_Motion_OnOff]Dev(%d) Chn(%d) fmtdef(%d)\n", dev, chn, vivofmt);
 	}
 	else
 	{

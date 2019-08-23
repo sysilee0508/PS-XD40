@@ -3,7 +3,9 @@
 #include "NVP6168.h"
 #include "delay.h"
 
-const static NC_CH NVP_Ch[4] = 
+#include "raptor4_fmt.h"
+
+const NC_CH NVP_Ch[4] =
 {
 	NC_CH4,
 	NC_CH3,
