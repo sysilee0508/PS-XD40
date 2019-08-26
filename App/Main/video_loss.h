@@ -3,8 +3,6 @@
 
 #define VIDEO_LOSS_CHANNEL_NONE				0x00000000
 #define VIDEO_LOSS_CHANNEL_ALL				0x0000000F
-//#define VIDEO_LOSS_CHANNEL(x)				0x01 << x
-#define VIDEO_LOSS_CHANNEL(x)				0x01 << (3-x)
 
 extern void ScanVideoLossChannels(void);
 

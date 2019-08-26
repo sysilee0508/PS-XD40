@@ -2,14 +2,12 @@
 //  Header Declaration
 //=============================================================================
 #include <stdio.h>
+#include "common.h"
 #if BD_NVP == NVP6158
 #include "NVP6158.h"
 #elif BD_NVP == NVP6168
 #include "NVP6168.h"
 #endif
-#include "common.h"
-
-extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel);
 
 //=============================================================================
 //  Define & MACRO
@@ -27,6 +25,14 @@ eDisplayMode_t prevDisplayMode = DISPLAY_MODE_MAX;
 //=============================================================================
 //  Function Definition
 //=============================================================================
+static BYTE Get_CurrentVideoFormat(eChannel_t channel)
+{
+#if BD_NVP == NVP6158
+	return NVP6158_Current_Video_Format_Check(channel);
+#elif BD_NVP == NVP6168
+	return NVP6168_Current_VideoFormat_Get(channel);
+#endif
+}
 
 static BOOL Check_VideoFormat_Change(void)
 {
@@ -38,10 +44,10 @@ static BOOL Check_VideoFormat_Change(void)
 
 	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
 	{
-		if(NVP6158_Current_Video_Format_Check(channel) != oPreVideofmt[channel])
+		if(Get_CurrentVideoFormat(channel) != oPreVideofmt[channel])
 		{
 			changedChannel |= (0x01 << channel);
-			oPreVideofmt[channel] = NVP6158_Current_Video_Format_Check(channel);
+			oPreVideofmt[channel] = Get_CurrentVideoFormat(channel);
 		}
 	}
 
@@ -295,11 +301,7 @@ void SetSystemSplitMode(eDisplayMode_t split)
 
 BYTE GetInputVideoFormat(eChannel_t channel)
 {
-#if BD_NVP == NVP6158
-	return NVP6158_Current_Video_Format_Check(channel);
-#elif bd_nvp == NVP6168
-	return NVP6168_Current_VideoFormat_Get(channel);
-#endif
+	Get_CurrentVideoFormat(channel);
 }
 
 // return main channel for split or pip mode

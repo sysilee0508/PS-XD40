@@ -22,5 +22,5 @@ typedef enum
 
 void NVP6168_AutoDetection_Proc(void);
 void NVP6168_VO_Port_Set(NC_VPORT_MAP vo_port);
-
+NC_VIVO_CH_FORMATDEF_E NVP6168_Current_VideoFormat_Get(NC_U8 ch);
 #endif

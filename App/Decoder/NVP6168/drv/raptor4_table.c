@@ -11757,7 +11757,7 @@ NC_VIDEO_FMT_INIT_TABLE_S *nc_drv_table_video_init_vlaue_get( NC_VIVO_CH_FORMATD
 	NC_VIDEO_FMT_INIT_TABLE_S *pRet = &video_fmt_setting_value_def[def];
 	if( pRet == NULL )
 	{
-		printk("[DRV]vd_vi_init_list Not Supported format Yet!!!(%d)\n",def);
+		//printk("[DRV]vd_vi_init_list Not Supported format Yet!!!(%d)\n",def);
 		return NULL;
 	}
 	return  pRet;
@@ -11776,7 +11776,7 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_table_video_format_get( NC_FORMAT_STANDARD_E forma
 				if( pFmt->fmt_fps == format_fps )
 					return ii;
 	}
-	printk("[%s::%d]UNKNOWN format!!!std(%d), res(%d), fps(%d)\n", __FILE__, __LINE__, format_standard, format_resolution, format_fps);
+	//printk("[%s::%d]UNKNOWN format!!!std(%d), res(%d), fps(%d)\n", __FILE__, __LINE__, format_standard, format_resolution, format_fps);
 
 	return NC_VIVO_CH_FORMATDEF_UNKNOWN;
 }
@@ -11786,7 +11786,7 @@ NC_COAX_ATTR_TABLE_S *nc_drv_table_coax_normal_initialize_info_get( NC_VIVO_CH_F
 	NC_COAX_ATTR_TABLE_S *pRet = &coax_init_lists[def];
 	if( pRet == NULL )
 	{
-		printk("Not Supported format Yet!!!(%d)\n",def);
+		//printk("Not Supported format Yet!!!(%d)\n",def);
 	}
 	return  pRet;
 }
@@ -11796,7 +11796,7 @@ NC_COAX_ATTR_TABLE_S *nc_drv_table_coax_special_initialize_info_get( NC_VIVO_CH_
 	NC_COAX_ATTR_TABLE_S *pRet = &coax_acp_16bit_init_lists[def];
 	if( pRet == NULL )
 	{
-		printk("Not Supported format Yet!!!(%d)\n",def);
+		//printk("Not Supported format Yet!!!(%d)\n",def);
 	}
 	return  pRet;
 }
@@ -11806,7 +11806,7 @@ NC_COAX_CMD_TABLE_S *nc_drv_table_coax_up_stream_command_get( NC_COAX_CMD_DEF_E 
 	NC_COAX_CMD_TABLE_S *pRet = &coax_cmd_lists[def];
 	if( pRet == NULL )
 	{
-		printk("Not Supported format Yet!!!(%d)\n",def);
+		//printk("Not Supported format Yet!!!(%d)\n",def);
 	}
 	return  pRet;
 }

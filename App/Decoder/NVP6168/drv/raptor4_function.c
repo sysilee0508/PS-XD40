@@ -112,7 +112,7 @@ int __NC_VD_COAX_Command_Copy( NC_FORMAT_STANDARD_E format, NC_VIVO_CH_FORMATDEF
 		}
 	}
 	else
-		printk("NC_VD_COAX_Tx_Command_Send::Command Copy Error!!\n");
+		//printk("NC_VD_COAX_Tx_Command_Send::Command Copy Error!!\n");
 
 
 	return cmd_cnt;
@@ -135,7 +135,7 @@ int __NC_VD_COAX_16bit_Command_Copy( NC_FORMAT_STANDARD_E format, NC_VIVO_CH_FOR
 	}
 	else
 	{
-		printk("[drv_coax] Can not send commands!! Unsupported format!!\n" );
+		//printk("[drv_coax] Can not send commands!! Unsupported format!!\n" );
 		return 0;
 	}
 
@@ -168,7 +168,7 @@ void nc_drv_coax_initialize_set(void *pParam)
 		}
 		else
 		{
-			printk("[%s::%d]AHD16bit or CVI New Command Not Supported Format::%d!!\n", __func__, __LINE__, video_fmt);
+			//printk("[%s::%d]AHD16bit or CVI New Command Not Supported Format::%d!!\n", __func__, __LINE__, video_fmt);
 			return;
 		}
 
@@ -266,7 +266,7 @@ void nc_drv_coax_initialize_manual_set(void *pParam)
 		}
 		else
 		{
-			printk("[%s::%d]AHD16bit or CVI New Command Not Supported Format::%d!!\n", __func__, __LINE__, video_fmt);
+			//printk("[%s::%d]AHD16bit or CVI New Command Not Supported Format::%d!!\n", __func__, __LINE__, video_fmt);
 			return;
 		}
 
@@ -277,7 +277,7 @@ void nc_drv_coax_initialize_manual_set(void *pParam)
 		pCoaxInitTable = nc_drv_table_coax_normal_initialize_info_get( video_fmt );
 	}
 
-	printk( "[drv_coax]dev(%d), chn(%d), fmt(%s)\n", dev, chn, pCoaxInitTable->name );
+	//printk( "[drv_coax]dev(%d), chn(%d), fmt(%s)\n", dev, chn, pCoaxInitTable->name );
 
 	// MPP Coaxial mode select Ch1~4
 	NC_DEVICE_DRIVER_BANK_SET(dev, BANK_1);
@@ -362,7 +362,7 @@ void nc_drv_coax_up_stream_command_set( void *pParam )
 	{
 		// UP Stream command copy in coax command table
 		cmd_cnt = __NC_VD_COAX_16bit_Command_Copy(format_standard, vivofmt, command, pCMD);
-		printk("[drv_coax]Dev(%d), Chn(%d) Command >>>>> %s\n", dev, chn, pCMD->name);
+		//printk("[drv_coax]Dev(%d), Chn(%d) Command >>>>> %s\n", dev, chn, pCMD->name);
 
 		if(vivofmt == AHD_720P_25P || vivofmt == AHD_720P_30P || \
 		   vivofmt == AHD_720P_25P_EX || vivofmt == AHD_720P_30P_EX ||\
@@ -409,7 +409,7 @@ void nc_drv_coax_up_stream_command_set( void *pParam )
 		}
 		else
 		{
-			printk("[%s::%d]AHD16bit or CVI New Command Not Supported Format::%d!!\n", __func__, __LINE__, vivofmt);
+			//printk("[%s::%d]AHD16bit or CVI New Command Not Supported Format::%d!!\n", __func__, __LINE__, vivofmt);
 			return;
 		}
 
@@ -418,7 +418,7 @@ void nc_drv_coax_up_stream_command_set( void *pParam )
 	{
 		// UP Stream command copy in coax command table
 		cmd_cnt = __NC_VD_COAX_Command_Copy( format_standard, vivofmt, command, pCMD );
-		printk("[drv_coax]Dev(%d), Chn(%d) fmt(%d), Command >>>>> %s\n", dev, chn, vivofmt, pCMD->name );
+		//printk("[drv_coax]Dev(%d), Chn(%d) fmt(%d), Command >>>>> %s\n", dev, chn, vivofmt, pCMD->name );
 
 		// fill command + shot
 		if( format_standard == FMT_SD )
@@ -518,7 +518,7 @@ void nc_drv_coax_up_stream_command_set( void *pParam )
 		}
 		else
 		{
-			printk("[%s::%d]Unknown format standard::%d \n", __func__, __LINE__, format_standard);
+			//printk("[%s::%d]Unknown format standard::%d \n", __func__, __LINE__, format_standard);
 		}
 
 	}
@@ -708,13 +708,13 @@ void nc_drv_coax_fwseq_1_ready_header_check_from_isp_recv(void *pParam)
 	/* If the header is (0x50=>0x55) and chip information is (0x51=>0x3X, 0x4X, 0x5X ), it can update firmware */
 	if( gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x50+((chn%2)*0x80) ) == 0x55 )
 	{
-		printk(">>>>> DRV[%s:%d] CH:%d, this camera can update, please, wait! = 0x%x\n", __func__, __LINE__, chn, gpio_i2c_read(g_nc_drv_i2c_addr[chn/4], 0x51+((chn%2)*0x80)));
+		//printk(">>>>> DRV[%s:%d] CH:%d, this camera can update, please, wait! = 0x%x\n", __func__, __LINE__, chn, gpio_i2c_read(g_nc_drv_i2c_addr[chn/4], 0x51+((chn%2)*0x80)));
 		ret = FW_SUCCESS;
 	}
 	else
 	{
 		readval= gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x50+((chn%2)*0x80) );
-		printk(">>>>> DRV[%s:%d] check ACP_STATUS_MODE::0x%x\n", __func__, __LINE__, readval);
+		//printk(">>>>> DRV[%s:%d] check ACP_STATUS_MODE::0x%x\n", __func__, __LINE__, readval);
 		ret = FW_FAILURE;
 	}
 
@@ -761,7 +761,7 @@ void nc_drv_coax_fwseq_2_1_ready_cmd_to_isp_send(void *pParam) // FW Ready
 		msleep(400);
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x09+((chn%2)*0x80), 0x10);	// reset
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x09+((chn%2)*0x80), 0x00);	// trigger Off
-		printk(">>>>> DRV[%s:%d] CH:%d, coax_fw_ready_cmd_to_isp_send!!- AHD\n", __func__, __LINE__, chn );
+		//printk(">>>>> DRV[%s:%d] CH:%d, coax_fw_ready_cmd_to_isp_send!!- AHD\n", __func__, __LINE__, chn );
 		ret = FW_SUCCESS;
 	}
 	else if( (cp_mode == FMT_CVI) || (cp_mode == FMT_TVI) )
@@ -777,12 +777,12 @@ void nc_drv_coax_fwseq_2_1_ready_cmd_to_isp_send(void *pParam) // FW Ready
 		msleep(1000);
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x09+((chn%2)*0x80), 0x10);	// reset
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x09+((chn%2)*0x80), 0x00);	// trigger Off
-		printk(">>>>> DRV[%s:%d] CH:%d, coax_fw_ready_cmd_to_isp_send!!- AHD\n", __func__, __LINE__, chn );
+		//printk(">>>>> DRV[%s:%d] CH:%d, coax_fw_ready_cmd_to_isp_send!!- AHD\n", __func__, __LINE__, chn );
 		ret = FW_SUCCESS;
 	}
 	else
 	{
-		printk(">>>> DRV[%s:%d] CH:%d, FMT:%d > Unknown Format!!! \n", __func__, __LINE__, chn, cp_mode );
+		//printk(">>>> DRV[%s:%d] CH:%d, FMT:%d > Unknown Format!!! \n", __func__, __LINE__, chn, cp_mode );
 		ret = FW_FAILURE;
 	}
 
@@ -822,7 +822,7 @@ void nc_drv_coax_fwseq_2_2_ready_cmd_ack_from_isp_recv(void *pParam)
 		/* get status, If the status is 0x00(Camera information), 0x01(Firmware version) */
 		if( gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x56+((chn%2)*0x80) ) == 0x00 )
 		{
-			printk(">>>>> DRV[%s:%d]CH:%d Receive ISP status : [READY]\n", __func__, __LINE__, chn );
+			//printk(">>>>> DRV[%s:%d]CH:%d Receive ISP status : [READY]\n", __func__, __LINE__, chn );
 			ret = FW_SUCCESS;
 		}
 	}
@@ -830,7 +830,7 @@ void nc_drv_coax_fwseq_2_2_ready_cmd_ack_from_isp_recv(void *pParam)
 	{
 		retval  = gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x56+((chn%2)*0x80) );
 		retval2 = gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x57+((chn%2)*0x80) );
-		printk(">>>>> DRV[%s:%d]CH:%d retry : Receive ISP status[READY], [0x56-true[0x00]:0x%x], [0x57-true[0x02]:0x%x]\n",	__func__, __LINE__, chn, retval, retval2 );
+		//printk(">>>>> DRV[%s:%d]CH:%d retry : Receive ISP status[READY], [0x56-true[0x00]:0x%x], [0x57-true[0x02]:0x%x]\n",	__func__, __LINE__, chn, retval, retval2 );
 		ret = FW_FAILURE;
 	}
 
@@ -874,7 +874,7 @@ void nc_drv_coax_fwseq_3_1_start_cmd_to_isp_send(void *pParam)
 	gpio_i2c_write( g_nc_drv_i2c_addr[dev], 0x09+((chn%2)*0x80), 0x10);	 // reset
 	gpio_i2c_write( g_nc_drv_i2c_addr[dev], 0x09+((chn%2)*0x80), 0x00);	 // trigger Off
 
-	printk(">>>>> DRV[%s:%d]CH:%d >> Send command[START]\n", __func__, __LINE__, chn );
+	//printk(">>>>> DRV[%s:%d]CH:%d >> Send command[START]\n", __func__, __LINE__, chn );
 
 }
 
@@ -903,7 +903,7 @@ void nc_drv_coax_fwseq_3_2_start_cmd_ack_from_isp_recv( void *pParam )
 	{
 		if( gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x56+((chn%2)*0x80) ) == 0x02 )
 		{
-			printk(">>>>> DRV[%s:%d]CH:%d Receive ISP status : [START]\n", __func__, __LINE__, chn );
+			//printk(">>>>> DRV[%s:%d]CH:%d Receive ISP status : [START]\n", __func__, __LINE__, chn );
 			ret = FW_SUCCESS;
 		}
 		else
@@ -914,7 +914,7 @@ void nc_drv_coax_fwseq_3_2_start_cmd_ack_from_isp_recv( void *pParam )
 			retval1 = gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x56+((chn%2)*0x80) );
 			retval2 = gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x57+((chn%2)*0x80) );
 			ret = FW_FAILURE;
-			printk(">>>>> DRV[%s:%d]CH:%d retry : Receive ISP status[START], [0x56-true[0x02]:0x%x], [0x57-true[0x02]:0x%x]\n",	__func__, __LINE__, chn, retval1, retval2 );
+			//printk(">>>>> DRV[%s:%d]CH:%d retry : Receive ISP status[START], [0x56-true[0x02]:0x%x], [0x57-true[0x02]:0x%x]\n",	__func__, __LINE__, chn, retval1, retval2 );
 		}
 	}
 
@@ -1027,7 +1027,7 @@ void nc_drv_coax_fwseq_4_2_one_packet_data_ack_from_isp_recv( void *pPparam )
 			if( gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x56+((chn%2)*0x80) ) == 0x03 )
 			{
 				pFileInfo->result = FW_FAILURE;
-				printk(">>>>> DRV[%s:%d] CH:%d, Failed, error status, code=3..................\n", __func__, __LINE__, chn );
+				//printk(">>>>> DRV[%s:%d] CH:%d, Failed, error status, code=3..................\n", __func__, __LINE__, chn );
 				return;
 			}
 		}
@@ -1085,12 +1085,12 @@ void nc_drv_coax_fwseq_5_1_end_cmd_to_isp_send(void *pParam)
 	if( send_success == FW_FAILURE )
 	{
 		gpio_i2c_write( g_nc_drv_i2c_addr[dev], 0x13+((chn%2)*0x80), 0xE0/*0xC0*/);
-		printk(">>>>> DRV[%s:%d] CH:%d, Camera UPDATE error signal. send Abnormal ending!\n", __func__, __LINE__, chn );
+		//printk(">>>>> DRV[%s:%d] CH:%d, Camera UPDATE error signal. send Abnormal ending!\n", __func__, __LINE__, chn );
 	}
 	else
 	{
 		gpio_i2c_write( g_nc_drv_i2c_addr[dev], 0x13+((chn%2)*0x80), 0x80/*0x60*/);
-		printk(">>>>> DVR[%s:%d] CH:%d, Camera UPDATE ending signal. wait please!\n", __func__, __LINE__, chn );
+		//printk(">>>>> DVR[%s:%d] CH:%d, Camera UPDATE ending signal. wait please!\n", __func__, __LINE__, chn );
 	}
 
 	/* Shot */
@@ -1129,13 +1129,13 @@ void nc_drv_coax_fwseq_5_2_end_cmd_ack_from_isp_recv(void *pParam)
 	isp_status = gpio_i2c_read( g_nc_drv_i2c_addr[dev], 0x57+((chn%2)*0x80) );
 	if( isp_status == 0x02 && ack_return == 0x05 )
 	{
-		printk(">>>>> DRV[%s:%d]CH:%d Receive ISP status : [END]\n", __func__, __LINE__, chn );
+		//printk(">>>>> DRV[%s:%d]CH:%d Receive ISP status : [END]\n", __func__, __LINE__, chn );
 		pFileInfo->result = FW_SUCCESS;
 		return;
 	}
 	else
 	{
-		printk(">>>>> DRV[%s:%d]CH:%d retry : Receive ISP status[END], [0x56-true[0x05]:0x%x], [0x57-true[0x02]:0x%x]\n", __func__, __LINE__, chn, ack_return, isp_status );
+		//printk(">>>>> DRV[%s:%d]CH:%d retry : Receive ISP status[END], [0x56-true[0x05]:0x%x], [0x57-true[0x02]:0x%x]\n", __func__, __LINE__, chn, ack_return, isp_status );
 		pFileInfo->result = FW_FAILURE;
 		return;
 	}
@@ -1206,7 +1206,7 @@ void nc_drv_coax_test_isp_data_set(void *pParam)
 			}
 		}
 		else
-			printk("[%s::%d]Unknown ISP test Command!!\n", __FILE__, __LINE__);
+			//printk("[%s::%d]Unknown ISP test Command!!\n", __FILE__, __LINE__);
 
 		NC_DEVICE_DRIVER_BANK_SET(dev, BANK_3+((chn%4)/2));
 		gpio_i2c_write( g_nc_drv_i2c_addr[dev], 0x09+((chn%2)*0x80), 0x08);
@@ -1336,7 +1336,7 @@ void nc_drv_motion_onoff_set(void *pParam)
 
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x2B + (0x06 * pMotion->Chn), 0x6);
 
-		printk("[DRV_Motion_OnOff]Dev(%d) Chn(%d) fmtdef(%d)\n", dev, chn, pMotion->VideoFormat);
+		//printk("[DRV_Motion_OnOff]Dev(%d) Chn(%d) fmtdef(%d)\n", dev, chn, pMotion->VideoFormat);
 	}
 	else
 	{
@@ -1345,7 +1345,7 @@ void nc_drv_motion_onoff_set(void *pParam)
 
 	if(select<0 || select>1)
 	{
-		printk("[DRV_Motion_OnOff]Error!!Dev(%d) Chn(%d) Setting Value Over:%x!! Only 0 or 1\n", dev, chn, pMotion->Select);
+		//printk("[DRV_Motion_OnOff]Error!!Dev(%d) Chn(%d) Setting Value Over:%x!! Only 0 or 1\n", dev, chn, pMotion->Select);
 		return;
 	}
 
@@ -1571,7 +1571,7 @@ void nc_drv_audio_init_set(void *pParam)
 
 	if(pAdInfo->audio_mode == NC_AD_AOC)
 	{
-		printk("[%s::%d]", __FILE__, __LINE__);
+		//printk("[%s::%d]", __FILE__, __LINE__);
 		audio_mode = NC_AD_AOC;
 		NC_DEVICE_DRIVER_BANK_SET(dev, BANK_1);
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x00, 0x00);
@@ -1594,7 +1594,7 @@ void nc_drv_audio_init_set(void *pParam)
 		{
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x07, 0x80);
 			sample_rate = 0;
-			printk("[%s]Unknown AOC Sampling Rate!!, set 8K mode [%d]\n", __func__, pAdInfo->audio_sample_rate);
+			//printk("[%s]Unknown AOC Sampling Rate!!, set 8K mode [%d]\n", __func__, pAdInfo->audio_sample_rate);
 		}
 
 		NC_DEVICE_DRIVER_BANK_SET(dev, BANK_12);
@@ -1644,7 +1644,7 @@ void nc_drv_audio_init_set(void *pParam)
 		{
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x07, 0x80);
 			sample_rate = 0;
-			printk("[%s]Unknown AOC Sampling Rate!!, set 8K mode [%d]\n", __func__, pAdInfo->audio_sample_rate);
+			//printk("[%s]Unknown AOC Sampling Rate!!, set 8K mode [%d]\n", __func__, pAdInfo->audio_sample_rate);
 		}
 	}
 	else
@@ -1672,7 +1672,7 @@ void nc_drv_audio_init_set(void *pParam)
 		{
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x07, 0x80);
 			sample_rate = 0;
-			printk("[%s]Unknown AOC Sampling Rate!!, set 8K mode [%d]\n", __func__, pAdInfo->audio_sample_rate);
+			//printk("[%s]Unknown AOC Sampling Rate!!, set 8K mode [%d]\n", __func__, pAdInfo->audio_sample_rate);
 		}
 	}
 }
@@ -1693,7 +1693,7 @@ void nc_drv_audio_video_format_set(void *pParam)
 
 	if( (ret = nc_drv_common_total_chn_count_get(info_chn)) != 0 )
 	{
-		printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
+		//printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
 		return;
 	}
 
@@ -1707,7 +1707,7 @@ void nc_drv_audio_video_format_set(void *pParam)
 	}
 	else
 	{
-		printk("[%s::%d]Cable Error!!\n", __func__, __LINE__);
+		//printk("[%s::%d]Cable Error!!\n", __func__, __LINE__);
 		return;
 	}
 
@@ -1730,7 +1730,7 @@ void nc_drv_audio_video_format_set(void *pParam)
 	}
 	else
 	{
-		printk("[%s::%d]Error!! It is a video format without a aoc table!!\n", __func__, __LINE__);
+		//printk("[%s::%d]Error!! It is a video format without a aoc table!!\n", __func__, __LINE__);
 	}
 }
 
@@ -1744,7 +1744,7 @@ void nc_drv_common_bank_data_get(nc_decoder_s *data)
 {
 	int ii = 0;
 
-	printk("[%s::%d]Slave(0x%02X), Bank(0x%02X)\n", __func__, __LINE__, data->Dev, data->Bank);
+	//printk("[%s::%d]Slave(0x%02X), Bank(0x%02X)\n", __func__, __LINE__, data->Dev, data->Bank);
 
 	gpio_i2c_write(data->Dev, 0xFF, data->Bank);
 

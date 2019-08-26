@@ -22,6 +22,8 @@ static NC_CH_E VO_Ch[VPORT_MAP_MAX][4] =
 	{NC_CH2, NC_CH4, NC_CH3, NC_CH1}	// PIP with ch4
 };
 
+NC_VIVO_CH_FORMATDEF_E videoFormat[NUM_OF_CHANNEL] = {0, };
+
 #if 0
 RAPTOR3_INFORMATION_S	s_raptor3_vfmts;
 
@@ -106,7 +108,8 @@ void NVP6168_VO_Port_Set(NC_VPORT_MAP vo_port)
 	}
 }
 
-NC_VIVO_CH_FORMATDEF_E NVP6168_Current_VideoFormat_Get(NC_CH ch)
+NC_VIVO_CH_FORMATDEF_E NVP6168_Current_VideoFormat_Get(NC_U8 ch)
 {
 	return nc_drv_common_info_video_fmt_def_get(NVP_Ch[ch]);
 }
+

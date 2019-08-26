@@ -2,7 +2,11 @@
 // Include files
 // ----------------------------------------------------------------------
 #include "common.h"
-#include "NVP6158.h"        
+#if BD_NVP == NVP6158
+#include "NVP6158.h"
+#elif BD_NVP == NVP6168
+#include "raptor4_fmt.h"
+#endif
 
 // ----------------------------------------------------------------------
 // Struct/Union Types and define

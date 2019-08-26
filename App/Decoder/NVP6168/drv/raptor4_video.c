@@ -77,17 +77,17 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_video_h_v_cnt_check_get(NC_U8 dev, NC_U8 chn)
 	/*********************************************************************
 	 * H, V Count Check
 	 *********************************************************************/
-	printk("============= Signal Information =============\n");
+	//printk("============= Signal Information =============\n");
 	NC_DEVICE_DRIVER_BANK_SET(dev, 0x05 + chn);
 	LowReg  = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xF2);
 	HighReg = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xF3);
 	H_CNT = (HighReg<<8)|LowReg;
-	printk("H_Cnt[%x + %x = %x/%d]\n", HighReg, LowReg, H_CNT, H_CNT);
+	//printk("H_Cnt[%x + %x = %x/%d]\n", HighReg, LowReg, H_CNT, H_CNT);
 
 	LowReg  = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xF4);
 	HighReg = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xF5);
 	V_CNT = (HighReg<<8)|LowReg;
-	printk("V_Cnt[%x + %x = %x/%d]\n", HighReg, LowReg, V_CNT, V_CNT);
+	//printk("V_Cnt[%x + %x = %x/%d]\n", HighReg, LowReg, V_CNT, V_CNT);
 
 	/*********************************************************************
 	 * LE Pulse Check
@@ -97,27 +97,27 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_video_h_v_cnt_check_get(NC_U8 dev, NC_U8 chn)
 	LowReg  = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xa4);
 	HighReg = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xa5);
 	AHD_VBI = (HighReg<<8)|LowReg;
-	printk("AHD_VBI[%x + %x = %x/%d]\n", HighReg, LowReg, AHD_VBI, AHD_VBI);
+	//printk("AHD_VBI[%x + %x = %x/%d]\n", HighReg, LowReg, AHD_VBI, AHD_VBI);
 
 	LowReg  = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xa6);
 	HighReg = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xa7);
 	CVI_VBI = (HighReg<<8)|LowReg;
-	printk("CVI_VBI[%x + %x = %x/%d]\n", HighReg, LowReg, CVI_VBI, CVI_VBI);
+	//printk("CVI_VBI[%x + %x = %x/%d]\n", HighReg, LowReg, CVI_VBI, CVI_VBI);
 
 	LowReg  = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xaa);
 	HighReg = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xab);
 	SyncMax = (HighReg<<8)|LowReg;
-	printk("SyncMax[%x + %x = %x/%d]\n", HighReg, LowReg, SyncMax, SyncMax);
-	printk("==============================================\n");
+	//printk("SyncMax[%x + %x = %x/%d]\n", HighReg, LowReg, SyncMax, SyncMax);
+	//printk("==============================================\n");
 
 	if(H_CNT == 0 && V_CNT == 0)
 	{
-		printk("[%s::%d]NC_VI_NO_SIGNAL\n", __func__, __LINE__);
+		//printk("[%s::%d]NC_VI_NO_SIGNAL\n", __func__, __LINE__);
 		return NC_VI_SIGNAL_OFF;
 	}
 	else
 	{
-		printk("[%s::%d]NC_VI_SIGNAL_ON\n", __func__, __LINE__);
+		//printk("[%s::%d]NC_VI_SIGNAL_ON\n", __func__, __LINE__);
 		return NC_VI_SIGNAL_ON;
 	}
 
@@ -143,7 +143,7 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 	// common - device&channel number check
 	if( (ret = nc_drv_common_total_chn_count_get(info_chn)) != 0 )
 	{
-		printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
+		//printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
 		return;
 	}
 
@@ -194,7 +194,7 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 
 			nc_drv_common_info_chn_alive_set(info_chn, 0);
 			fmt_change = 1;
-			printk("[NC_DRV_VFC]NoVideo >>> Chn::%d[pre(0x%02X)->cur(0x%02X)]\n", info_chn, pre_vfc, cur_vfc);
+			//printk("[NC_DRV_VFC]NoVideo >>> Chn::%d[pre(0x%02X)->cur(0x%02X)]\n", info_chn, pre_vfc, cur_vfc);
 		}
 
 		cur_vfc = 0xFF;
@@ -223,7 +223,7 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 
 			// On Video Format Change
 			fmt_change = 1;
-			printk("[NC_DRV_VFC]OnVideo >>> Chn::%d[pre(0x%02X)->cur(0x%02X)]\n", info_chn, pre_vfc, cur_vfc);
+			//printk("[NC_DRV_VFC]OnVideo >>> Chn::%d[pre(0x%02X)->cur(0x%02X)]\n", info_chn, pre_vfc, cur_vfc);
 		}
 	}
 
@@ -350,7 +350,7 @@ void nc_drv_video_input_eq_stage_get( void *pParam )
 	// common - device&channel number check
 	if( (ret = nc_drv_common_total_chn_count_get(info_chn)) != 0 )
 	{
-		printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
+		//printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
 		return;
 	}
 
@@ -386,7 +386,7 @@ void nc_drv_video_input_eq_stage_get( void *pParam )
 			time_out_cnt++;
 			if(time_out_cnt > 70)
 			{
-				printk("[%s::%d]Chn%d - EQ Stage Get time_out_cnt Error!!(%d / %x)\n", __func__, __LINE__, info_chn, sam_value_cur, sam_value_cur);
+				//printk("[%s::%d]Chn%d - EQ Stage Get time_out_cnt Error!!(%d / %x)\n", __func__, __LINE__, info_chn, sam_value_cur, sam_value_cur);
 				return;
 			}
 		}
@@ -418,7 +418,7 @@ void nc_drv_video_input_eq_stage_get( void *pParam )
 	}
 	else
 	{
-		printk("[%s::%d]Video Cable Error!!\n", __FILE__, __LINE__);
+		//printk("[%s::%d]Video Cable Error!!\n", __FILE__, __LINE__);
 		return;
 	}
 
@@ -470,13 +470,13 @@ void nc_drv_video_input_eq_stage_set( void *pParam )
 	// common - device&channel number check
 	if( (ret = nc_drv_common_total_chn_count_get(info_chn)) != 0 )
 	{
-		printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
+		//printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
 		return;
 	}
 
 	if(nc_drv_common_info_chn_alive_get(pVdInfo->Chn) != 1)
 	{
-		printk("[%s]Video input is not set yet.!! chn(%d)\n", __func__, chn);
+		//printk("[%s]Video input is not set yet.!! chn(%d)\n", __func__, chn);
 		return;
 	}
 
@@ -495,11 +495,11 @@ void nc_drv_video_input_eq_stage_set( void *pParam )
 	}
 	else
 	{
-		printk("\n");
+		//printk("\n");
 		return;
 	}
 
-	printk("[%s]info_chn(%d), Dev(%d), Chn(%d), Fmt(%d::%s), EqStage(%d), Cable(%d)\n", __func__, info_chn, dev, chn, fmt, stTableVideo->name, eq_stage, cable );
+	//printk("[%s]info_chn(%d), Dev(%d), Chn(%d), Fmt(%d::%s), EqStage(%d), Cable(%d)\n", __func__, info_chn, dev, chn, fmt, stTableVideo->name, eq_stage, cable );
 
 	/**************************************************************************************
 	 * eq_base_set_value
@@ -606,7 +606,7 @@ void nc_drv_video_input_set(void *pParam)
 	// common - device&channel number check
 	if( (ret = nc_drv_common_total_chn_count_get(info_chn)) != 0 )
 	{
-		printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn(%d), Chn(%d)\n", __func__, ret, info_chn);
+		//printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn(%d), Chn(%d)\n", __func__, ret, info_chn);
 		return;
 	}
 
@@ -620,20 +620,20 @@ void nc_drv_video_input_set(void *pParam)
 	}
 	else
 	{
-		printk("\n");
+		//printk("\n");
 		return;
 	}
 
 	if(stTableVideo == NULL)
 	{
-		printk("[%s::%d]Can not find Video Table!! Chn(%d)\n", __func__, __LINE__, chn);
+		//printk("[%s::%d]Can not find Video Table!! Chn(%d)\n", __func__, __LINE__, chn);
 		return;
 	}
 	else if( fmt == AHD_8M_CIF_25P || fmt == AHD_8M_CIF_30P ||\
 			 fmt == CVI_HD_25P     || fmt == CVI_HD_30P     ||\
 			 fmt == TVI_HD_B_25P   || fmt == TVI_HD_B_30P   || fmt == TVI_960P_25P   || fmt == TVI_960P_30P )
 	{
-		printk("[%s::%d]It is not yet ready Video Format!! Chn(%d), fmt(%s)\n", __func__, __LINE__, chn, stTableVideo->name);
+		//printk("[%s::%d]It is not yet ready Video Format!! Chn(%d), fmt(%s)\n", __func__, __LINE__, chn, stTableVideo->name);
 		return;
 	}
 
@@ -708,11 +708,11 @@ void nc_drv_video_input_manual_set(void * pParam)
 	}
 	else
 	{
-		printk("\n");
+		//printk("\n");
 		return;
 	}
 
-	printk("[%s]info_chn(%d), Dev(%d), Chn(%d) Video Fmt(%d::%s)\n", __func__, info_chn, dev, chn, fmt, stTableVideo->name);
+	//printk("[%s]info_chn(%d), Dev(%d), Chn(%d) Video Fmt(%d::%s)\n", __func__, info_chn, dev, chn, fmt, stTableVideo->name);
 
 	/********************************************************************************
 	 * Common Information Set
@@ -962,7 +962,7 @@ void nc_drv_video_output_port_set( void *pParam )
 		}
 	}
 
-	printk("[%s::%d]Device (%d), ID(%x), MuxMode %d\n", __func__, __LINE__, dev, chip_id, mux);
+	//printk("[%s::%d]Device (%d), ID(%x), MuxMode %d\n", __func__, __LINE__, dev, chip_id, mux);
 	for(chn = dev*4; chn<(dev*4)+4; chn++)
 		nc_drv_common_info_vo_mode_set(chn, mux);
 }
@@ -985,13 +985,13 @@ void nc_drv_video_output_port_manual_set( void *pParam )
 	NC_U8 ChnSeq_43 = pVdInfo->VO_ChnSeq[3]<<4 | pVdInfo->VO_ChnSeq[2];
 
 
-	printk("[%s]Chn(%d), Intf(%d), Mux(%d), ChnSeq(%02X, %02X)\n", __func__, chn, interface, mux, ChnSeq_21, ChnSeq_43);
+	//printk("[%s]Chn(%d), Intf(%d), Mux(%d), ChnSeq(%02X, %02X)\n", __func__, chn, interface, mux, ChnSeq_21, ChnSeq_43);
 
 
 	// common - device&channel number check
 	if( (ret = nc_drv_common_total_chn_count_get(pVdInfo->Chn)) != 0 )
 	{
-		printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
+		//printk("[%s]nc_drv_common_total_chn_count_get error!!TotalChn>>>%d\n", __func__, ret);
 		return;
 	}
 
@@ -1091,7 +1091,7 @@ void nc_drv_video_output_port_manual_set( void *pParam )
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x56, 0x32);
 	}
 	else
-		printk("[%s::%d]%d::Error!!\n", __func__, __LINE__, mux);
+		//printk("[%s::%d]%d::Error!!\n", __func__, __LINE__, mux);
 
 	if( chn%2 )
 	{
@@ -1227,7 +1227,7 @@ void nc_drv_video_auto_manual_mode_set(void *pParam)
 	}
 	else
 	{
-		printk("[%s::%d]Unknown Video Set Mode!!! %d\n", __FILE__, __LINE__, OpMode);
+		//printk("[%s::%d]Unknown Video Set Mode!!! %d\n", __FILE__, __LINE__, OpMode);
 	}
 }
 
@@ -1309,7 +1309,7 @@ void nc_drv_video_color_tune_set(void *pParam)
 	}
 	else
 	{
-		printk("[%s]Unknown Color Tuning Selection!!\n", __func__ );
+		//printk("[%s]Unknown Color Tuning Selection!!\n", __func__ );
 	}
 }
 
@@ -1502,7 +1502,7 @@ void internal_nc_drv_video_output_hide_set( NC_U8 Dev, NC_U8 Chn, NC_U8 Val )
 	}
 	else
 	{
-		printk("[%s]Error!!\n", __func__);
+		//printk("[%s]Error!!\n", __func__);
 		return;
 	}
 }
