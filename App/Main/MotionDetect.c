@@ -10,6 +10,8 @@
 #include "NVP6168.h"
 #include "nc_sdk_define.h"
 
+extern NC_CH_E NVP_Ch[4];
+
 extern int DECODER_Motion_Set( int Chn, int SelectItem, int Val );
 #endif
 
@@ -36,7 +38,6 @@ static sMotionDetectInfo_t motiondetectionInfo[NUM_OF_CHANNEL] =
 static BYTE motionDetectionSensitivity = 49;
 static BYTE motionBuzzerCountIn500ms = 0;
 
-extern NC_CH NVP_Ch[4];
 //=============================================================================
 //  Array Declaration (data table)
 //=============================================================================
@@ -54,7 +55,9 @@ BOOL Get_MotionDetect_OnOff(eChannel_t channel)
 
 void Set_MotionDetect_Configue(eChannel_t channel)
 {
+#if BD_NVP == NVP6158
 	motion_mode motion;
+#endif
 	BOOL motionOn;
 
 	Read_NvItem_MotionDetectOnOff(&motionOn, channel);
@@ -88,7 +91,9 @@ BYTE Get_MotionDetect_Sensitivity(void)
 void Set_MotionDetect_Sensitivity(BYTE value)
 {
 	eChannel_t channel;
+#if BD_NVP == NVP6158
 	motion_mode motion;
+#endif
 
 	motionDetectionSensitivity = ConvertSensitivity(value);
 
@@ -156,7 +161,7 @@ void MotionDetectCheck(void)
 {
 	eChannel_t channel;
 	BYTE channel_mask;
-	BYTE currentMotion = NVP6158_MotionDetect_Check();
+	BYTE currentMotion = 0;// = Get_MotionDetectedStatus();
 	BYTE alarmBuzzerTime;
 	static BYTE alarmOutTimeCountInSec = 0;
 	static BYTE previousMotion = 0x00;
@@ -164,6 +169,10 @@ void MotionDetectCheck(void)
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn1s = 0;
 
+	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+	{
+		currentMotion |= (Get_MotionDetectedStatus(channel) << channel);
+	}
 	// buzzer
 	if((previousMotion == 0) && (currentMotion > 0) && (alarmOutTimeCountInSec == 0))
 	{
@@ -200,9 +209,13 @@ void MotionDetectCheck(void)
 
 BOOL Get_MotionDetectedStatus(eChannel_t channel)
 {
-	BYTE motion = NVP6158_MotionDetect_Check();
-
-	return ((motion & (0x01 << channel)) == 0)?FALSE:TRUE;
+	BYTE motion;
+#if BD_NVP == NVP6158
+	motion = NVP6158_MotionDetect_Check();
+#elif BD_NVP == NVP6168
+	motion = DECODER_Motion_Get(NVP_Ch[channel], VD_MOTION_GET_DETECT_INFO, 0);
+#endif
+	return ((motion & (0x01 << NVP_Ch[channel])) == 0)?FALSE:TRUE;
 }
 
 BYTE GetMotionBuzzerCount(void)

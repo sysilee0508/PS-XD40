@@ -5,7 +5,7 @@
 
 #include "raptor4_fmt.h"
 
-const NC_CH NVP_Ch[4] =
+const NC_CH_E NVP_Ch[4] =
 {
 	NC_CH4,
 	NC_CH3,
@@ -13,7 +13,8 @@ const NC_CH NVP_Ch[4] =
 	NC_CH1
 };
 
-static NC_VPORT_MAP VO_PortMap = VPORT_MAP0;
+static eVPORT_MAP_t VO_PortMap = VPORT_MAP0;
+static NC_U8 VO_PortMapChanged = 0;
 
 static NC_CH_E VO_Ch[VPORT_MAP_MAX][4] = 
 {
@@ -22,38 +23,6 @@ static NC_CH_E VO_Ch[VPORT_MAP_MAX][4] =
 	{NC_CH2, NC_CH4, NC_CH3, NC_CH1}	// PIP with ch4
 };
 
-NC_VIVO_CH_FORMATDEF_E videoFormat[NUM_OF_CHANNEL] = {0, };
-
-#if 0
-RAPTOR3_INFORMATION_S	s_raptor3_vfmts;
-
-static char g_MergeEn;
-
-const static unsigned char logicalChannel[4] = 
-{
-	CH4,
-	CH3,
-	CH2,
-	CH1
-};
-
-void NVP6168_Set_VportMap(eVPORT_MAP_t map)
-{
-	if(map != s_raptor3_vfmts.vport_map)
-	{
-		s_raptor3_vfmts.vport_map = map;
-		s_raptor3_vfmts.vport_map_changed = 1;
-
-		Write_NvItem_VportMap(map);
-	}
-}
-
-eVPORT_MAP_t NVP6168_Get_VportMap(void)
-{
-	return s_raptor3_vfmts.vport_map;
-}
-
-#endif
 void NVP6168_Init(void)
 {
 	NC_U8 ch;
@@ -76,7 +45,7 @@ void NVP6168_AutoDetection_Proc(void)
 	{
 		if(DECODER_Video_Input_Format_Detection_Get(ch, &VFC, &VideoFormat) )
 		{
-			if( VideoFormat != NC_VIVO_CH_FORMATDEF_UNKNOWN )
+			if(( VideoFormat != NC_VIVO_CH_FORMATDEF_UNKNOWN ) ||(VO_PortMapChanged == 1))
 			{
 				/***********************************************************************
 				 * Decoder Setting : Format Set -> Distance Check -> EQ Set
@@ -84,13 +53,14 @@ void NVP6168_AutoDetection_Proc(void)
 				DECODER_Video_Input_Auto_Sequence_Set(ch);
 				EqStage = DECODER_Video_Input_EQ_Stage_Get(ch, &SamVal);
 				DECODER_Video_Input_EQ_Stage_Set(ch, EqStage);
+				VO_PortMapChanged = 0;
 			}
 		}
 		Delay_ms(500);
 	}
 }
 
-void NVP6168_VO_Port_Set(NC_VPORT_MAP vo_port)
+void NVP6168_VO_Port_Set(eVPORT_MAP_t vo_port)
 {
 	nc_decoder_s video_info;
 	NC_PORT_E port;
@@ -105,6 +75,7 @@ void NVP6168_VO_Port_Set(NC_VPORT_MAP vo_port)
 		nc_drv_video_output_port_seq_set(&video_info);
 
 		VO_PortMap = vo_port;
+		VO_PortMapChanged = 1;
 	}
 }
 

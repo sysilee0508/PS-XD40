@@ -57,12 +57,6 @@ typedef enum
 	VPORT_MAP_MAX
 } eVPORT_MAP_t;
 
-typedef struct
-{
-	unsigned char		h_offset;
-	unsigned char		v_offset;
-} sCroppingOffset_t;
-
 
 // Auto Detection
 typedef struct 

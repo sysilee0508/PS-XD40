@@ -17,7 +17,7 @@
 
 #include "../raptor4_fmt.h"
 
-#define DEV_PATH_VDEC "/dev/raptor4"
+//#define DEV_PATH_VDEC "/dev/raptor4"
 
 #define VD_MOTION_GET_DETECT_INFO 		1
 #define VD_MOTION_GET_BLOCK_ON_OFF_INFO 2
@@ -34,8 +34,8 @@
 
 #define	ONE_PACKET_MAX_SIZE 	139
 
-#define MOUNT_USB_NAME	"/mnt/usb"
-#define MOUNT_NFS_NAME	"/mnt/nfs"
+//#define MOUNT_USB_NAME	"/mnt/usb"
+//#define MOUNT_NFS_NAME	"/mnt/nfs"
 
 #define COAX_FW_SUCCESS 0
 #define COAX_FW_FAILURE -1

@@ -124,6 +124,14 @@ typedef enum
 	CROPPING_H,
 	CROPPING_V
 } eCroppingDirection_t;
+
+typedef struct
+{
+	unsigned char		h_offset;
+	unsigned char		v_offset;
+} sCroppingOffset_t;
+
+
 //=============================================================================
 //  struct
 //=============================================================================

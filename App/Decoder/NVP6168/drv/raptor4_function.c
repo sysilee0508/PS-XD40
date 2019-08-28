@@ -157,6 +157,8 @@ void nc_drv_coax_initialize_set(void *pParam)
 	NC_COAX_CMD_VER_E      coax_ver  = pCoaxInfo->Coax_ver;
 	NC_VIVO_CH_FORMATDEF_E video_fmt = nc_drv_common_info_video_fmt_def_get(chn);  // pCoaxInfo->VideoFormat;
 
+#if COAXIAL_PROTOCOL == 1
+
 	if( coax_ver == COAX_AHD_16BIT || coax_ver == COAX_CVI_NEW )
 	{
 		if( video_fmt == AHD_720P_25P || video_fmt == AHD_720P_30P || video_fmt == AHD_720P_25P_EX || video_fmt == AHD_720P_30P_EX ||\
@@ -178,7 +180,9 @@ void nc_drv_coax_initialize_set(void *pParam)
 		// Normal Case
 		pCoaxInitTable = nc_drv_table_coax_normal_initialize_info_get( video_fmt );
 	}
-
+#else
+	pCoaxInitTable = nc_drv_table_coax_normal_initialize_info_get( video_fmt );
+#endif
 //	printk( "[drv_coax]dev(%d), chn(%d), fmt(%s)\n", dev, chn, pCoaxInitTable->name );
 
 	// Coaxial each mode set
@@ -218,6 +222,7 @@ void nc_drv_coax_initialize_set(void *pParam)
 
 }
 
+#if COAXIAL_PROTOCOL == 1
 /*******************************************************************************************************
 **************************** Coaxial protocol up stream function ***************************************
 ********************************************************************************************************
@@ -1268,7 +1273,7 @@ void nc_drv_coax_down_stream_detection_info_get( void *pParam )
 
 	pCoaxInfo->Param = val_1;
 }
-
+#endif // COAXIAL_PROTOCOL
 
 /*=======================================================================================================
  * Motion
@@ -1549,6 +1554,7 @@ void nc_drv_motion_motion_psen_set(void *pParam)
 	//printk("[DRV_Motion]Dev(%d), Chn(%d), readVal(%x), SetVal(%x)\n", dev, chn, ReadVal, SetVal);
 }
 
+#if 0
 /**************************************************************************************
  * Audio Function
  *
@@ -1733,8 +1739,9 @@ void nc_drv_audio_video_format_set(void *pParam)
 		//printk("[%s::%d]Error!! It is a video format without a aoc table!!\n", __func__, __LINE__);
 	}
 }
+#endif
 
-
+#if 0
 /**************************************************************************************
  * Direct Application Setting Function
  *
@@ -1765,3 +1772,4 @@ void nc_drv_common_register_data_get(nc_decoder_s *data)
 	gpio_i2c_write( data->Dev, 0xFF, data->Bank );
 	data->Param = gpio_i2c_read( data->Dev, data->Addr );
 }
+#endif

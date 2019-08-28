@@ -460,9 +460,9 @@ typedef struct _nc_decoder_s{
 	/**************************************************************************
 	 * AOC
 	 **************************************************************************/
-	NC_U32 audio_mode;			// Analog Input or Audio of Coaxial
-	NC_U32 audio_sample_rate;	// 8, 16Khz
-	NC_U32 audio_bit_width;		// 8, 16Bit
+//	NC_U32 audio_mode;			// Analog Input or Audio of Coaxial
+//	NC_U32 audio_sample_rate;	// 8, 16Khz
+//	NC_U32 audio_bit_width;		// 8, 16Bit
 
 	/**************************************************************************
 	 * Motion
@@ -472,9 +472,9 @@ typedef struct _nc_decoder_s{
 	/**************************************************************************
 	 * ETC
 	 **************************************************************************/
-	NC_U8 Bank;
-	NC_U8 Addr;
-	NC_U8 DumpData[256];
+//	NC_U8 Bank;
+//	NC_U8 Addr;
+//	NC_U8 DumpData[256];
 
 }nc_decoder_s;
 

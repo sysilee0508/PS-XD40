@@ -20,6 +20,7 @@
  * --------------------------------------------------------------------------------*/
 #include "raptor4_common.h"
 #include "raptor4_table.h"
+#include "NVP6168.h"
 
 /* ----------------------------------------------------------------------------------
  * 2. Define ------------------------------------------------------------------------
@@ -876,7 +877,6 @@ NC_VIDEO_FMT_INIT_TABLE_S video_fmt_setting_value_def[ NC_VIVO_CH_FORMATDEF_MAX 
 
 		.nc_table_eq_timing_0x58_h_delay_a = { 0x80, },
 	},
-
 	[ SD_H1280_NT ] = {
 		.name = "SD_H1280_NT",
 
@@ -8884,7 +8884,7 @@ NC_VIDEO_FMT_INIT_TABLE_S video_fmt_setting_value_def[ NC_VIVO_CH_FORMATDEF_MAX 
 
 };
 
-
+#if COAXIAL_PROTOCOL == 1
 NC_COAX_ATTR_TABLE_S coax_acp_16bit_init_lists[]=
 {
 	[ AHD_720P_30P ] = {
@@ -9228,6 +9228,7 @@ NC_COAX_ATTR_TABLE_S coax_acp_16bit_init_lists[]=
 	},
 
 };
+#endif 
 
 NC_COAX_ATTR_TABLE_S coax_init_lists[]=
 {
@@ -11511,8 +11512,8 @@ NC_COAX_ATTR_TABLE_S coax_init_lists[]=
 		.reset_delay = 25,
 	},
 };
-
-
+ 
+#if COAXIAL_PROTOCOL == 1
 NC_COAX_CMD_TABLE_S coax_cmd_lists[]=
 {
 	[ COAX_CMD_IRIS_INC ] = {
@@ -11750,7 +11751,7 @@ NC_COAX_CMD_TABLE_S coax_cmd_lists[]=
 	},
 
 };
-
+#endif
 
 NC_VIDEO_FMT_INIT_TABLE_S *nc_drv_table_video_init_vlaue_get( NC_VIVO_CH_FORMATDEF_E def )
 {
@@ -11791,6 +11792,7 @@ NC_COAX_ATTR_TABLE_S *nc_drv_table_coax_normal_initialize_info_get( NC_VIVO_CH_F
 	return  pRet;
 }
 
+#if COAXIAL_PROTOCOL == 1
 NC_COAX_ATTR_TABLE_S *nc_drv_table_coax_special_initialize_info_get( NC_VIVO_CH_FORMATDEF_E def )
 {
 	NC_COAX_ATTR_TABLE_S *pRet = &coax_acp_16bit_init_lists[def];
@@ -11811,7 +11813,7 @@ NC_COAX_CMD_TABLE_S *nc_drv_table_coax_up_stream_command_get( NC_COAX_CMD_DEF_E 
 	return  pRet;
 }
 
-
+#endif 
 
 
 

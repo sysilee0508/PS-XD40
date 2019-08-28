@@ -1,6 +1,11 @@
 #include "common.h"
 #include "osd_string.h"
+#if BD_NVP == NVP6158
 #include "NVP6158.h"
+#elif BD_NVP == NVP6168
+//#include "NVP6168.h"
+#include "raptor4_fmt.h"
+#endif
 
 #define MARGIN_X						5
 #define MARGIN_Y						5
@@ -924,12 +929,10 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 	switch(GetInputVideoFormat(channel))
 	{
 		// 1080p
-		case AHD20_1080P_60P:
-		case AHD20_1080P_30P:
+		case AHD_1080P_30P:
 			inStr = (u8 *)osdStr_Format_In_AHD_1080p30;
 			break;
-		case AHD20_1080P_50P:
-		case AHD20_1080P_25P:
+		case AHD_1080P_25P:
 			inStr = (u8 *)osdStr_Format_In_AHD_1080p25;
 			break;
 		case TVI_FHD_30P:
@@ -945,16 +948,16 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 			inStr = (u8 *)osdStr_Format_In_CVI_1080p25;
 			break;
 		// 720p
-		case AHD20_720P_60P:
-		case AHD20_720P_30P:
-		case AHD20_720P_30P_EX:
-		case AHD20_720P_30P_EX_Btype:
+		case AHD_720P_60P:
+		case AHD_720P_30P:
+		case AHD_720P_30P_EX:
+		case AHD_720P_30P_EX_Btype:
 			inStr = (u8 *)osdStr_Format_In_AHD_720p30;
 			break;
-		case AHD20_720P_50P:
-		case AHD20_720P_25P:
-		case AHD20_720P_25P_EX:
-		case AHD20_720P_25P_EX_Btype:
+		case AHD_720P_50P:
+		case AHD_720P_25P:
+		case AHD_720P_25P_EX:
+		case AHD_720P_25P_EX_Btype:
 			inStr = (u8 *)osdStr_Format_In_AHD_720p25;
 			break;
 		case TVI_HD_60P:
@@ -982,23 +985,17 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 			inStr = (u8 *)osdStr_Format_In_CVI_720p25;
 			break;
 
-		case AHD20_SD_H960_NT:
-		//case AHD20_SD_SH720_NT:
-		//case AHD20_SD_H1280_NT:
-		//case AHD20_SD_H1440_NT:
-		case AHD20_SD_H960_EX_NT:
-		case AHD20_SD_H960_2EX_NT:
-		case AHD20_SD_H960_2EX_Btype_NT:
+		case SD_H960_NT:
+		case SD_H960_EX_NT:
+		case SD_H960_2EX_NT:
+		case SD_H960_2EX_Btype_NT:
 			inStr = (u8 *)osdStr_Format_In_CVBS_NTSC;
 			break;
 
-		case AHD20_SD_H960_PAL:
-		//case AHD20_SD_SH720_PAL:
-		//case AHD20_SD_H1280_PAL:
-		//case AHD20_SD_H1440_PAL:
-		case AHD20_SD_H960_EX_PAL:
-		case AHD20_SD_H960_2EX_PAL:
-		case AHD20_SD_H960_2EX_Btype_PAL:
+		case SD_H960_PAL:
+		case SD_H960_EX_PAL:
+		case SD_H960_2EX_PAL:
+		case SD_H960_2EX_Btype_PAL:
 			inStr = (u8 *)osdStr_Format_In_CVBS_PAL;
 			break;
 

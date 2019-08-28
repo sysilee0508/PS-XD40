@@ -660,11 +660,13 @@ void nc_drv_video_input_set(void *pParam)
 	pVdInfo->Coax_ver = COAX_COAX_NORMAL;
 	nc_drv_coax_initialize_set(pVdInfo);
 
+#if AUDIO_BLOCK == 1
 	/****************************************************************
 	 * AOC Initialize
 	 ****************************************************************/
 	if(nc_drv_audio_mode_get() == NC_AD_AOC && fmt_std == FMT_AHD)
 		nc_drv_audio_video_format_set(pVdInfo);
+#endif
 
 	/****************************************************************
 	 * Turn on the HPLL again, when finished video settings

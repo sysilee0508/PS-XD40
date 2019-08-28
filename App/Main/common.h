@@ -49,6 +49,7 @@
 #include "display_mode.h"
 #include "video.h"
 #include "osd_display.h"
+#include "NVP6168.h"
 #include "nv_storage.h"
 
 #define NOP()	asm("NOP")

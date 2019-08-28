@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if 0
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -33,7 +34,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <dirent.h>
-
+#endif
 #include "nc_sdk_api_drv.h"
 #include "nc_sdk_define.h"
 #include "nc_sdk_common.h"

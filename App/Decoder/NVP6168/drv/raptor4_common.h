@@ -15,8 +15,6 @@
 #ifndef __RAPTOR4_COMMON_H__
 #define __RAPTOR4_COMMON_H__
 
- #include "NVP6168_common.h"
- 
  #if PLATFORM_LINUX == 1
 
 #include <linux/kernel.h>
@@ -58,6 +56,9 @@
 #include "../raptor4_fmt.h"
 #include "../raptor4_ioctl.h"
 
+#include "delay.h"
+
+#include "NVP6168.h"
 
 typedef struct _nc_decoder_info_s
 {
@@ -147,10 +148,16 @@ extern NC_U8 g_nc_drv_i2c_addr[4];
 
 #define EOD (-1)
 
+#ifndef NULL
+#define NULL			0
+#endif
+
 #if 0
 #define CHANGEDRIVER 1
 #define UNUSED(x) ((void)(x))
 #endif
+
+#define msleep(x)		Delay_ms(x)
 
 extern void __I2CWriteByte8(unsigned char chip_addr, unsigned char reg_addr, unsigned char value);
 extern unsigned char __I2CReadByte8(unsigned char chip_addr, unsigned char reg_addr);

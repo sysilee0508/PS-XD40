@@ -1,12 +1,14 @@
 #include "common.h"
 
-#if BD_NVP == NVP_6158
+#if BD_NVP == NVP6158
 //#define VIDEO_LOSS_CHANNEL(x)				0x01 << x
 #define VIDEO_LOSS_CHANNEL(x)				0x01 << (3-x)
 extern void NVP6158_Video_Loss_Check(unsigned int *pVideoLoss);
 #elif BD_NVP == NVP6168
 #include "raptor4_fmt.h"
 #include "NVP6168.h"
+
+extern NC_CH_E NVP_Ch[4];
 #endif
 
 static u8 videoLossChannels = VIDEO_LOSS_CHANNEL_NONE; /* 1:Loss 0:Video */
@@ -27,7 +29,8 @@ static u8 Get_VideoLossChannels(void)
 	{
 		if(NVP6168_Current_VideoFormat_Get(channel) == NC_VIVO_CH_FORMATDEF_UNKNOWN)
 		{
-			lossChannels |= (0x01) << NVP_Ch[channel];
+			//lossChannels |= (0x01) << NVP_Ch[channel];
+			lossChannels |= (0x01) << channel;
 		}
 	}
 

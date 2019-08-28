@@ -12,10 +12,10 @@
  *
  *
  ********************************************************************************/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if 0
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 #include <sys/stat.h>
@@ -31,7 +31,7 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <time.h>
-
+#endif
 /* 1. Header file include --------------------------------------------------*/
 #include "nc_sdk_define.h"
 #include "nc_sdk_api.h"
@@ -39,6 +39,7 @@
 #include "nc_sdk_coax_firmup.h"
 #include "nc_sdk_api_drv.h"
 
+#include "NVP6168.h"
 /* 2. Define  --------------------------------------------------------------*/
 
 
@@ -166,7 +167,8 @@ void DECODER_Video_Input_EQ_Stage_Set(int Chn, NC_EQ_STAGE_E stage)
 	nc_decoder_s stDecoder;
 	stDecoder.Chn 			 = Chn;
 	stDecoder.EqStage		 = stage;
-	NC_API_DRV_Video_Input_EQ_Stage_Set(&stDecoder);
+	//NC_API_DRV_Video_Input_EQ_Stage_Set(&stDecoder);
+	nc_drv_video_input_eq_stage_set(&stDecoder);
 }
 
 void DECODER_Video_Output_Set(NC_U8 Chip, NC_VO_WORK_MODE_E MuxMode)
@@ -198,7 +200,7 @@ void DECODER_Video_Output_Manual_Set( NC_U8 Chn, NC_VO_INTF_MODE_E Intf, NC_VO_W
 	}
 
 	//NC_API_DRV_Video_Output_Manual_Set(&stVD_Video);
-	nc_drv_video_output_port_manual_set(&stVD_Video)
+	nc_drv_video_output_port_manual_set(&stVD_Video);
 }
 
 void DECODER_Video_Output_NoVideo_Pattern_Set( NC_U8 Chn, NC_U8 Sel )
@@ -858,6 +860,7 @@ void DECODER_Audio_Mode_Init(int Chn, int AdMode, int SmpRate, int BitWidth)
 }
 #endif
 
+#if 0
 /*============================================================================================================================
  * ETC
  *
@@ -897,4 +900,4 @@ NC_U8 DECODER_Register_Data_Get(NC_U8 Slave, NC_U8 Bank, NC_U8 Addr)
 	
 	return stRegDumpInfo.Param;
 }
-
+#endif
