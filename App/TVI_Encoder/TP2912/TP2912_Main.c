@@ -4,8 +4,8 @@
 /*                                                              							*/
 /****************************************************************/
 
-#include <stdio.h>
-#include <string.h>
+//#include <stdio.h>
+//#include <string.h>
 #include "Config.h"
 //#include "reg.h"
 #include "TP2912_Typedefs.h"
@@ -18,11 +18,11 @@
 //#include "Coaxitron.h"
 #include "TP2912.h"
 
-BOOL	I2CInitialBlocking = 1;
-BOOL	DetAutoRes = 0;
-BOOL	ManualEQ=OFF;
-BOOL 	MDIN_debug = 0;
-BOOL 	AHD_nEN = 1;
+//BOOL	I2CInitialBlocking = 1;
+//BOOL	DetAutoRes = 0;
+//BOOL	ManualEQ=OFF;
+//BOOL 	MDIN_debug = 0;
+BOOL 	AHD_nEN = 1;		
 
 //DATA	BYTE	ManChSel;
 //DATA	BYTE	IsChannel;
@@ -32,36 +32,37 @@ BOOL		MaskEcho = 0;
 DATA	BYTE	StoreArg1 = 0, StoreArg2 = 0;
 DATA	BYTE	AddressOffset = 0;
 #endif //TEST_SERCOM
-DATA	WORD    tm01=0;
-DATA    BYTE    tm02=0;
-DATA	BYTE    tic01=0;
-DATA	BYTE	tic_rs485=0;
-DATA	BYTE	mS_timer;
+
+//DATA	WORD    tm01=0;
+//DATA    BYTE    tm02=0;
+//DATA	BYTE    tic01=0;
+//DATA	BYTE	tic_rs485=0;
+//DATA	BYTE	mS_timer;
 DATA	BYTE	I2CAddressDeb = TVII2CAddress;
 
-BOOL     TVI_ISR = 0;
-DATA	BYTE	Ex0_INT=0;
+//BOOL     TVI_ISR = 0;
+//DATA	BYTE	Ex0_INT=0;
 
 DATA	BYTE	ManVidRes;
-extern DATA	BYTE	TVITxID;
-extern DATA BYTE TPIAddr;
+//extern DATA	BYTE	TVITxID;
+//extern DATA BYTE TPIAddr;
 
-extern DATA BYTE cam_ch;
+//extern DATA BYTE cam_ch;
 //extern CODE PelcoD_cmd PelcoD_cmd_dataset[];
 
 //===================== Serial ============================================
-#define BUF_MAX 	10
-static	DATA BYTE	RS_buf[BUF_MAX];
-static	DATA BYTE   RS_in=0, RS_out=0;
-BOOL	        RS_Xbusy=0;			// bit RS_Xbusy=0;
+//#define BUF_MAX 	10
+//static	DATA BYTE	RS_buf[BUF_MAX];
+//static	DATA BYTE   RS_in=0, RS_out=0;
+//BOOL	        RS_Xbusy=0;			// bit RS_Xbusy=0;
 
 //================== Debug key input ======================================
-#define MaxBuf		30					 
-#define MaxArg		30					
-static  PDATA BYTE  commdbuf[MaxBuf];
-static  PDATA BYTE  commdptr;
-static  PDATA BYTE	  bptr;
-static  PDATA BYTE  arg[MaxArg], argn;	
+//#define MaxBuf		30					 
+//#define MaxArg		30					
+//static  PDATA BYTE  commdbuf[MaxBuf];
+//static  PDATA BYTE  commdptr;
+//static  PDATA BYTE	  bptr;
+//static  PDATA BYTE  arg[MaxArg], argn;	
 
 //CODE_P	BYTE	*ptr_TVP7002;
 //CODE_P	BYTE	*ptr_CDCE913;

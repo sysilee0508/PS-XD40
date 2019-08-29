@@ -37,8 +37,8 @@ static void PlayBuzzer(void)
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn100ms = 0;
 	u8 lossCount = GetVideoLossBuzzerCount();
-    u8 alarmCount = GetAlarmBuzzerCount();
-    u8 motionCount = GetMotionBuzzerCount();
+	u8 alarmCount = GetAlarmBuzzerCount();
+	u8 motionCount = GetMotionBuzzerCount();
 	u8 buzzerCount;
 
 	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
@@ -54,7 +54,7 @@ static void PlayBuzzer(void)
 
 			if(lossCount > 0)
 			{
-				DecreaseVideoLossBuzzerCount();
+                          DecreaseVideoLossBuzzerCount();
 			}
 			if(alarmCount > 0)
 			{

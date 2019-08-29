@@ -1970,8 +1970,8 @@ void En_TxD_TVITx(){
 
 	Reg56=TP2912_ReadI2C(TPIAddr,0x56);
 	TP2912_WriteI2C(TPIAddr,0x56,Reg56|0x80);
-	delay(5);
-	TP2912_WriteI2C(TPIAddr,0x56,Reg56&0x7f);
+	//delay(5);
+	//TP2912_WriteI2C(TPIAddr,0x56,Reg56&0x7f);
 }
 
 void Send_TxD_TVITx(_TVITx_Dn_cmd *ptxd_set){

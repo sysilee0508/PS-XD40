@@ -82,6 +82,7 @@
 #define Manual  1
 #define Auto_   0
 
+#if 0
 BYTE RS_ready(void);
 BYTE RS_rx(void);
 void RS_tx(BYTE tx_buf);
@@ -89,16 +90,17 @@ void NewLine(void);
 void PutsP(PDATA_P BYTE *ptr);
 void MonWriteI2C(BYTE addr, BYTE index, BYTE val);
 BYTE MonReadI2C(BYTE addr, BYTE index);
+#endif
 
 void I2CDeviceSet_(BYTE addr, CODE_P BYTE *RegSet);
 
 void I2CDeviceSet( CODE_P BYTE *RegSet); 
 //void Main_Initialize(void);
 
-void Prompt(void);
+//void Prompt(void);
 
 BYTE Asc1Bin(BYTE asc);
 BYTE Asc2Bin(PDATA_P BYTE *s);
-#define DISPLAY_DEBUG_INFO
+//#define DISPLAY_DEBUG_INFO
 #endif	// __MAIN__
 

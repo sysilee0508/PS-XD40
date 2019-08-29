@@ -42,7 +42,7 @@ void ScanVideoLossChannels(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn100ms = 0;
-	static u8 previousLossChannels = (u8)VIDEO_LOSS_CHANNEL_ALL;
+	static u8 previousLossChannels = VIDEO_LOSS_CHANNEL_ALL;
 	u8 lossChannels = 0x00;
 	u8 changedChannels = 0x0F;
 

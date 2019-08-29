@@ -353,6 +353,10 @@
                     <state>$PROJ_DIR$\..\App</state>
                     <state>$PROJ_DIR$\..\App\Splitter</state>
                     <state>$PROJ_DIR$\..\App\Decoder</state>
+                    <state>$PROJ_DIR$\..\App\TVI_Encoder\TP2912</state>
+                    <state>$PROJ_DIR$\..\App\Decoder\NVP6168</state>
+                    <state>$PROJ_DIR$\..\App\Decoder\NVP6168\api</state>
+                    <state>$PROJ_DIR$\..\App\Decoder\NVP6168\drv</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2066,48 +2070,66 @@
         <name>APP</name>
         <group>
             <name>Decoder</name>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\coax_table.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\motion.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\motion.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\NVP6158.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\NVP6158.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\raptor3_api.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\raptor3_drv.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\video_eq.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\video_eq_table.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\video_fmt_info.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\video_fmt_info.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\video_fmt_input.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\video_fmt_output.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\Decoder\video_input_table.h</name>
-            </file>
+            <group>
+                <name>NVP6168</name>
+                <group>
+                    <name>api</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\api\nc_sdk_api.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\api\nc_sdk_api.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\api\nc_sdk_define.h</name>
+                    </file>
+                </group>
+                <group>
+                    <name>drv</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\drv\raptor4_common.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\drv\raptor4_common.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\drv\raptor4_drv.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\drv\raptor4_function.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\drv\raptor4_function.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\drv\raptor4_table.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\drv\raptor4_table.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\drv\raptor4_video.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\App\Decoder\NVP6168\drv\raptor4_video.h</name>
+                    </file>
+                </group>
+                <file>
+                    <name>$PROJ_DIR$\..\App\Decoder\NVP6168\NVP6168.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\App\Decoder\NVP6168\NVP6168.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\App\Decoder\NVP6168\NVP6168_common.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\App\Decoder\NVP6168\raptor4_fmt.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\App\Decoder\NVP6168\raptor4_ioctl.h</name>
+                </file>
+            </group>
         </group>
         <group>
             <name>Drivers</name>
@@ -2353,6 +2375,45 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_usart.c</name>
+            </file>
+        </group>
+    </group>
+    <group>
+        <name>TVI_Encoder</name>
+        <group>
+            <name>TP2912</name>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\Config.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\Device_Tx.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\Devices_Tx.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\Table.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_i2c.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_i2c.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_Main.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_main.h</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_Typedefs.h</name>
             </file>
         </group>
     </group>

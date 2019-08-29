@@ -1,8 +1,8 @@
 #ifndef __VIDEO_LOSS_H__
 #define __VIDEO_LOSS_H__
 
-#define VIDEO_LOSS_CHANNEL_NONE				0x00000000
-#define VIDEO_LOSS_CHANNEL_ALL				0x0000000F
+#define VIDEO_LOSS_CHANNEL_NONE				0x00
+#define VIDEO_LOSS_CHANNEL_ALL				0x0F
 
 extern void ScanVideoLossChannels(void);
 
