@@ -56,7 +56,7 @@ void NVP6168_AutoDetection_Proc(void)
 				VO_PortMapChanged = 0;
 			}
 		}
-		Delay_ms(500);
+		//Delay_ms(500);
 	}
 }
 

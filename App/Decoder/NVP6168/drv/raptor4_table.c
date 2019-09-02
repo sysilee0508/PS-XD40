@@ -39,7 +39,7 @@
 /* ----------------------------------------------------------------------------------
  * 5. Function prototype ------------------------------------------------------------
  * --------------------------------------------------------------------------------*/
-NC_VIDEO_FMT_INIT_TABLE_S video_fmt_setting_value_def[ NC_VIVO_CH_FORMATDEF_MAX ] =
+const NC_VIDEO_FMT_INIT_TABLE_S video_fmt_setting_value_def[ NC_VIVO_CH_FORMATDEF_MAX ] =
 {
 	[ NC_VIVO_CH_FORMATDEF_UNKNOWN ] = {
 		.name = "NC_VIVO_CH_FORMATDEF_UNKNOWN",
@@ -11755,13 +11755,17 @@ NC_COAX_CMD_TABLE_S coax_cmd_lists[]=
 
 NC_VIDEO_FMT_INIT_TABLE_S *nc_drv_table_video_init_vlaue_get( NC_VIVO_CH_FORMATDEF_E def )
 {
+#if 0	//kukuri
 	NC_VIDEO_FMT_INIT_TABLE_S *pRet = &video_fmt_setting_value_def[def];
 	if( pRet == NULL )
 	{
-		//printk("[DRV]vd_vi_init_list Not Supported format Yet!!!(%d)\n",def);
+		printk("[DRV]vd_vi_init_list Not Supported format Yet!!!(%d)\n",def);
 		return NULL;
 	}
 	return  pRet;
+#else
+	return (NC_VIDEO_FMT_INIT_TABLE_S*)&video_fmt_setting_value_def[def];
+#endif
 }
 
 NC_VIVO_CH_FORMATDEF_E nc_drv_table_video_format_get( NC_FORMAT_STANDARD_E format_standard, NC_FORMAT_RESOLUTION_E format_resolution, NC_FORMAT_FPS_E format_fps  )
@@ -11770,7 +11774,7 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_table_video_format_get( NC_FORMAT_STANDARD_E forma
 
 	for(ii=0;ii<NC_VIVO_CH_FORMATDEF_MAX;ii++)
 	{
-		NC_VIDEO_FMT_INIT_TABLE_S *pFmt = &video_fmt_setting_value_def[ ii ];
+		NC_VIDEO_FMT_INIT_TABLE_S *pFmt = (NC_VIDEO_FMT_INIT_TABLE_S*)&video_fmt_setting_value_def[ ii ];
 
 		if( pFmt->fmt_standard == format_standard )
 			if( pFmt->fmt_resolution == format_resolution )
