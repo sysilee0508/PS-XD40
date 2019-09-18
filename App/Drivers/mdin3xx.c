@@ -20,17 +20,18 @@
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
 // -----------------------------------------------------------------------------
-#define M380_NO			MDIN_ID_MAX
+//#define M380_NO		MDIN_ID_MAX		// 4
+
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-WORD mdinERR[M380_NO] = {0, 0, 0, 0}, mdinREV[M380_NO] = {0, 0, 0, 0};
+WORD mdinERR[MDIN_ID_MAX] = {0, 0, 0, 0}, mdinREV[MDIN_ID_MAX] = {0, 0, 0, 0};
 
-static WORD GetDID[M380_NO], GetMEM[M380_NO], GetIRQ[M380_NO] = {0, 0, 0, 0};
-WORD GetROW[M380_NO], fbADDR[M380_NO];
-static WORD GetPRI[M380_NO], GetSTV[M380_NO], GetCLK[M380_NO], GetPAD[M380_NO], GetENC[M380_NO];
-static WORD vpll_P[M380_NO] = {0, 0, 0, 0}, vpll_M[M380_NO] = {0, 0, 0, 0}, vpll_S[M380_NO] = {0, 0, 0, 0};
-static BOOL frez_M[M380_NO] = {0, 0, 0, 0};
+static WORD GetDID[MDIN_ID_MAX], GetMEM[MDIN_ID_MAX], GetIRQ[MDIN_ID_MAX] = {0, 0, 0, 0};
+WORD GetROW[MDIN_ID_MAX], fbADDR[MDIN_ID_MAX];
+static WORD GetPRI[MDIN_ID_MAX], GetSTV[MDIN_ID_MAX], GetCLK[MDIN_ID_MAX], GetPAD[MDIN_ID_MAX], GetENC[MDIN_ID_MAX];
+static WORD vpll_P[MDIN_ID_MAX] = {0, 0, 0, 0}, vpll_M[MDIN_ID_MAX] = {0, 0, 0, 0}, vpll_S[MDIN_ID_MAX] = {0, 0, 0, 0};
+static BOOL frez_M[MDIN_ID_MAX] = {0, 0, 0, 0};
 
 // ----------------------------------------------------------------------
 // External Variable 
@@ -47,7 +48,8 @@ static BOOL frez_M[M380_NO] = {0, 0, 0, 0};
 //--------------------------------------------------------------------------------------------------------------------------
 static MDIN_ERROR_t MDIN3xx_SetVideoPLL(WORD P, WORD M, WORD S, BYTE id)
 {
-	if (vpll_P[id]==P&&vpll_M[id]==M&&vpll_S[id]==S) return MDIN_NO_ERROR;
+//	printf("%d MDIN3xx_SetVideoPLL\n", M380_ID);
+	if (vpll_P[M380_ID]==P&&vpll_M[M380_ID]==M&&vpll_S[M380_ID]==S) return MDIN_NO_ERROR;
 
 	if (MDINHIF_RegField(MDIN_HOST_ID, 0x020, 0, 1, 1)) return MDIN_I2C_ERROR;	// disable PLL
 	if (MDINHIF_RegWrite(MDIN_HOST_ID, 0x02c, P)) return MDIN_I2C_ERROR;		// pre-divider
@@ -710,10 +712,31 @@ static MDIN_ERROR_t MDIN3xx_SetMFCScaleWind(PMDIN_VIDEO_INFO pINFO)
 
 	// in_size_h
 	mode = ((pMFC->stCUT.x&0xfc00)<<3)|pMFC->stCUT.w;
-	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008-nID*2, mode)) return MDIN_I2C_ERROR;
+//	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008-nID*2, mode)) return MDIN_I2C_ERROR;
 
 	// in_size_v
-	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009-nID*2, pMFC->stCUT.h)) return MDIN_I2C_ERROR;
+//	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009-nID*2, pMFC->stCUT.h)) return MDIN_I2C_ERROR;
+
+	switch (pINFO->srcPATH) {
+		case PATH_MAIN_A_AUX_A: case PATH_MAIN_A_AUX_B: case PATH_MAIN_A_AUX_M:
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x006, pINFO->stCROP_m.w)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x007, pINFO->stCROP_m.h)) return MDIN_I2C_ERROR;			
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008, pINFO->stCROP_x.w)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009, pINFO->stCROP_x.h)) return MDIN_I2C_ERROR;			
+			break;
+		case PATH_MAIN_B_AUX_A: case PATH_MAIN_B_AUX_B: case PATH_MAIN_B_AUX_M:
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x006, pINFO->stCROP_x.w)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x007, pINFO->stCROP_x.h)) return MDIN_I2C_ERROR;			
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008, pINFO->stCROP_m.w)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009, pINFO->stCROP_m.h)) return MDIN_I2C_ERROR;			
+			break;
+		default:
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x006, 1920)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x007, 1080)) return MDIN_I2C_ERROR;			
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008, 1920)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009, 1080)) return MDIN_I2C_ERROR;			
+			break;
+	}
 
 	// src_posi_h0/v0 - preload src video position
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x030, pMFC->stSRC.x)) return MDIN_I2C_ERROR;	// 12Apr2013
@@ -1077,7 +1100,8 @@ MDIN_ERROR_t MDIN3xx_SetMemoryMap(PMDIN_VIDEO_INFO pINFO, BYTE nID, BYTE num, WO
 	if ((nID%4)==1) bpp /= 2;	// case Ymh
 	if ((nID%4)==2) pMFC = &pINFO->stMFC_x;	// case Y_x, C_x
 
-	cpl = bpp*pMFC->stMEM.w; cpl = (cpl/bpc) + ((cpl%bpc)? 1 : 0);	// column per line
+	cpl = bpp*pMFC->stCUT.w; cpl = (cpl/bpc) + ((cpl%bpc)? 1 : 0);	// column per line (for setting speed) // modified on 15May2013
+//	cpl = bpp*pMFC->stMEM.w; cpl = (cpl/bpc) + ((cpl%bpc)? 1 : 0);	// column per line
 	rpf = cpl*pMFC->stMEM.h; rpf = (rpf/col) + ((rpf%col)? 1 : 0);	// row per frame
 	rpf = (rpf/2) + (rpf%2);
 
@@ -1101,9 +1125,10 @@ MDIN_ERROR_t MDIN3xx_SetMemoryMap(PMDIN_VIDEO_INFO pINFO, BYTE nID, BYTE num, WO
 	// GetRow: row addr size of each memory block
 	if (pINFO->dacPATH==DAC_PATH_AUX_4CH) num *= 4;	// for 4-CH input mode
 	if (pINFO->dacPATH==DAC_PATH_AUX_2HD) num *= 3;	// for 2-HD input mode
-	GetROW[pINFO->chipID] = LOWORD(rpf)*num;	fbADDR[M380_ID] = addr + GetROW[M380_ID];
-
-	//if ((nID%4)==1) fbADDR[pINFO->chipID] = addr + GetROW[pINFO->chipID];		// save the main end row addr point, modified on 24Apr2013
+//	GetROW[pINFO->chipID] = LOWORD(rpf)*num;	fbADDR[M380_ID] = addr + GetROW[M380_ID];
+	GetROW[pINFO->chipID] = LOWORD(rpf)*num;
+//	fbADDR[pINFO->chipID] = addr + GetROW[pINFO->chipID];
+	if ((nID%4)==1) fbADDR[pINFO->chipID] = addr + GetROW[pINFO->chipID];		// save the main end row addr point, modified on 24Apr2013
 	
 #if __MDIN3xx_DBGPRT__ == 1
 	if ((nID%4)==2) printf("Aux: GetfbADDR = %d\n\r", fbADDR[pINFO->chipID]);
@@ -1265,7 +1290,7 @@ static MDIN_ERROR_t MDIN3xx_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x209, 0, 8, mode)) return MDIN_I2C_ERROR;
 
 	// aux_frame_ptr_ctrl - aux_frame_config, aux_num_frames, aux_frame_delay
-	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x144, 11, 5, 0)) return MDIN_I2C_ERROR; // fix auto mode
+//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x144, 11, 5, 0)) return MDIN_I2C_ERROR; // fix auto mode
 
 	// mem_config
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x1c0, 12, 4, (1<<2))) return MDIN_I2C_ERROR;
@@ -1281,15 +1306,15 @@ static MDIN_ERROR_t MDIN3xx_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)
 	// map of video data frame (Ymh)
 	addr += GetROW[pINFO->chipID];							// fbuf1y
 	if (MDIN3xx_SetMemoryMap(pINFO, 0+1, pMAP->Ymh, addr)) return MDIN_I2C_ERROR;
-
+/*
 	// map of video data frame (Y_x)
-	addr += GetROW;							// fubf2y
+	addr += GetROW[pINFO->chipID];							// fubf2y
 	if (MDIN3xx_SetMemoryMap(pINFO, 0+2, pMAP->Y_x, addr)) return MDIN_I2C_ERROR;
 
 	// map of video data frame (C_x)
-	addr += GetROW;							// fbuf2c
+	addr += GetROW[pINFO->chipID];							// fbuf2c
 	if (MDIN3xx_SetMemoryMap(pINFO, 4+2, pMAP->C_x, addr)) return MDIN_I2C_ERROR;
-
+*/
 	// req_mapping_1
 	mode = (0<<12)|(0<<8)|((8+0)<<0);	// mvfw_nr=0, mvfr_y=0, mvfr_c=0
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1d1, mode)) return MDIN_I2C_ERROR;

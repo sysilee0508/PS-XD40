@@ -179,7 +179,7 @@ void main(void)
 		StoreNvDataToStorage();
 
 		//temp
-		ReadMemoryMapReg();
+		//ReadMemoryMapReg();
     }
 }
 

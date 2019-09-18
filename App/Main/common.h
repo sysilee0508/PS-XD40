@@ -63,6 +63,26 @@
 // Typedef
 // -----------------------------------------------------------------------------
 
+extern BYTE M380_ID;
+
+typedef enum
+{
+	I2C_OK = 0,
+	I2C_NOT_FREE,
+	I2C_NOT_START,
+	I2C_HOST_NACK,
+	I2C_NO_DATA,
+	I2C_TIME_OUT
+}I2C_ErrorCode;
+
+typedef enum {
+	FADE_IN = 0,
+	FADE_OUT,
+	DARK,
+	BRIGHT,
+	FADE_IN_NO
+}FADEIN_NO_t;
+
 // -----------------------------------------------------------------------------
 // External Variables declaration
 // -----------------------------------------------------------------------------

@@ -200,6 +200,30 @@ typedef	enum {
 
 }	MDIN_BLOCK_ID_t;
 
+typedef	enum {
+	MIN1_HOST_ID	= 0xc0,		// host block ID
+	MIN1_LOCAL_ID	= 0xc2,		// local block ID
+	MIN1_HDMI_ID	= 0xc4,		// hdmi block ID
+	MIN1_SDRAM_ID	= 0xc6,		// sdram block ID
+	
+	MIN2_HOST_ID	= 0xd0,		// host block ID
+	MIN2_LOCAL_ID	= 0xd2,		// local block ID
+	MIN2_HDMI_ID	= 0xd4,		// hdmi block ID
+	MIN2_SDRAM_ID	= 0xd6,		// sdram block ID
+	
+	MOUT1_HOST_ID	= 0xe0,		// host block ID
+	MOUT1_LOCAL_ID	= 0xe2,		// local block ID
+	MOUT1_HDMI_ID	= 0xe4,		// hdmi block ID
+	MOUT1_SDRAM_ID	= 0xe6,		// sdram block ID
+
+	MOUT2_HOST_ID	= 0xf0,		// host block ID
+	MOUT2_LOCAL_ID	= 0xf2,		// local block ID
+	MOUT2_HDMI_ID	= 0xf4,		// hdmi block ID
+	MOUT2_SDRAM_ID	= 0xf6,		// sdram block ID
+	
+}	MDINXRC_BLOCK_ID_t;
+
+
 #if			defined(SYSTEM_USE_MDIN380)&&defined(SYSTEM_USE_BUS_HIF)
 	#if		CPU_MEM_XFER_USE_DMA == 1
 		#if		CPU_ACCESS_BUS_NBYTE == 1

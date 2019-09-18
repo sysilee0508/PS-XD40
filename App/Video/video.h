@@ -40,8 +40,8 @@ typedef enum
 	COLOR_YBR
 } eColorFormat_t;
 
-#define 		MDIN_A				0
-#define 		MDIN_B				1
+#define 		MDIN_I2C_L				0
+#define 		MDIN_I2C_H				1
 #define 		SELECT_MDIN(x)			selectedMDIN = x		
 
 #else
@@ -99,7 +99,7 @@ typedef enum
 // ----------------------------------------------------------------------
 // Exported Variables
 // ----------------------------------------------------------------------
-extern MDIN_VIDEO_INFO	 stVideo_A, stVideo_B, stVideo_C;
+extern MDIN_VIDEO_INFO		stVideo[MDIN_ID_MAX];
 
 // -----------------------------------------------------------------------------
 // Exported function Prototype
@@ -109,6 +109,7 @@ MDIN_OUTVIDEO_FORMAT_t GetOutVideoFormat(MDIN_CHIP_ID_t mdin);
 void CreateVideoInstance(void);
 void InitInputSource(void);
 void SetInputSource(BYTE input);
+void SetInputChanged(void);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
 void SetAuxOutMode_C(void);

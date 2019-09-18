@@ -21,6 +21,14 @@
 // ----------------------------------------------------------------------
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
+#if 1
+BYTE M380_ID;
+
+#define	I2C_M380_IN1				I2C_MAIN, 0xDC	// Ch 1 and 2
+#define	I2C_M380_IN2				I2C_MAIN, 0xDE	// Ch 3 and 4
+#define	I2C_M380_OUT1				I2C_SUB, 0xDC
+#define	I2C_M380_OUT2				I2C_SUB, 0xDE
+#else
 #define		I2C_OK				0
 #define		I2C_NOT_FREE		1
 #define		I2C_HOST_NACK		2
@@ -29,7 +37,9 @@
 #define		I2C_MDIN3xx_ADDR_A		0xDC	// MDIN3xx I2C slave address
 #define		I2C_MDIN3xx_ADDR_B		0xDE
 
-#define 		I2C_MDIN3xx_ADDR(x)		(x == MDIN_A)?(I2C_MDIN3xx_ADDR_A):(I2C_MDIN3xx_ADDR_B)
+#define 		I2C_MDIN3xx_ADDR(x)		(x == MDIN_I2C_L)?(I2C_MDIN3xx_ADDR_A):(I2C_MDIN3xx_ADDR_B)
+#endif
+
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -38,7 +48,9 @@ static WORD PageID = 0;
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
-BYTE selectedMDIN = MDIN_A;
+BYTE selectedMDIN = MDIN_I2C_L;
+extern BYTE I2C_Write16(BYTE ID, BYTE dAddr, BYTE page, WORD rAddr, PBYTE pBuff, WORD bytes);
+extern BYTE I2C_Read16(BYTE ID, BYTE dAddr, WORD rAddr, PBYTE pBuff, WORD bytes);
 
 // ----------------------------------------------------------------------
 // Static Prototype Functions
@@ -336,73 +348,33 @@ MDIN_ERROR_t MDINI2C_RegField(BYTE nID, DWORD rAddr, WORD bPos, WORD bCnt, WORD 
 //--------------------------------------------------------------------------------------------------------------------------
 static BYTE MDINI2C_Write(BYTE nID, WORD rAddr, PBYTE pBuff, WORD bytes)
 {
-	WORD i;	
-	BYTE slaveAddr = I2C_MDIN3xx_ADDR(selectedMDIN);
-
-	//printf("[I2C_W] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr,  *((PWORD)pBuff), bytes);
-
-	I2C_Start();
-	I2C_P2S(slaveAddr&0xFE); AckDetect();
-
-	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
-	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
-	
-	I2C_Start(); 
-	I2C_P2S(slaveAddr&0xFE); AckDetect();
-	
-	for (i=0; i<bytes/2-1; i++) 
+	switch (M380_ID)
 	{
-		I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
-		I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); AckDetect();  	
-		//I2C_P2S(pBuff[i+1]);AckDetect();  		
-		//I2C_P2S(pBuff[i]);	AckDetect();  	
+		case MDIN_ID_A:
+			return I2C_Write16(I2C_M380_IN1, nID, rAddr, (PBYTE)pBuff, bytes);
+		case MDIN_ID_B:
+			return I2C_Write16(I2C_M380_IN2, nID, rAddr, (PBYTE)pBuff, bytes);
+		case MDIN_ID_C:
+			return I2C_Write16(I2C_M380_OUT1, nID, rAddr, (PBYTE)pBuff, bytes);
+		case MDIN_ID_D:	default:
+			return I2C_Write16(I2C_M380_OUT2, nID, rAddr, (PBYTE)pBuff, bytes);
 	}
-
-	I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
-	I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); NotAck();//AckDetect();  	
-	//I2C_P2S(pBuff[i+1]); AckDetect();  		
-	//I2C_P2S(pBuff[i]);   NotAck();//AckDetect();  	
-
-
-	I2C_Stop();		
-
-	return I2C_OK;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 static BYTE MDINI2C_Read(BYTE nID, WORD rAddr, PBYTE pBuff, WORD bytes)
 {
-	WORD i;	
-	BYTE slaveAddr = I2C_MDIN3xx_ADDR(selectedMDIN);
-
-	I2C_Start();
-	I2C_P2S(slaveAddr&0xFE); AckDetect();
-
-	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
-	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
-
-	I2C_Start(); 
-	I2C_P2S(slaveAddr|0x01); AckDetect();
-
-	for (i=0; i<bytes/2-1; i++) 
+	switch (M380_ID)
 	{
-		((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();	// Receive a buffer data
-		((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   AckSend();	// Receive a buffer data
-		//pBuff[i+1] = I2C_S2P(); AckSend();	// Receive a buffer data
-		//pBuff[i]   = I2C_S2P(); AckSend();	// Receive a buffer data
+		case MDIN_ID_A:
+			return I2C_Read16(I2C_M380_IN1, rAddr, (PBYTE)pBuff, bytes);
+		case MDIN_ID_B:
+			return I2C_Read16(I2C_M380_IN2, rAddr, (PBYTE)pBuff, bytes);
+		case MDIN_ID_C:
+			return I2C_Read16(I2C_M380_OUT1, rAddr, (PBYTE)pBuff, bytes);
+		case MDIN_ID_D:	default:
+			return I2C_Read16(I2C_M380_OUT2, rAddr, (PBYTE)pBuff, bytes);
 	}
-
-	((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();		// Receive a buffer data
-	((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   NotAck();		// Receive a buffer data
-	//pBuff[i+1] = I2C_S2P();	 AckSend();		// Receive a buffer data
-	//pBuff[i]   = I2C_S2P();	 NotAck();		// Receive a buffer data
-
-
-	I2C_Stop();												
-
-	//printf("[I2C_R] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr, *((PWORD)pBuff), bytes);
-
-	return I2C_OK;
 }
 
 /*  FILE_END_HERE */

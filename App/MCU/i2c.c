@@ -208,3 +208,138 @@ void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char wri
 	
 	I2C_Stop();	
 }
+
+//--------------------------------------------------------------------------------------------------------------------------
+void I2C_MultiWrite(BYTE slaveaddr, BYTE rAddr, PBYTE pBuff, WORD bytes)		// i2c 8bit multiwrite
+{
+	WORD i;	
+
+	//printf("[I2C_W] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr,  *((PWORD)pBuff), bytes);
+
+	I2C_Start();
+	I2C_P2S(slaveaddr&0xFE); AckDetect();
+
+	I2C_P2S(rAddr);   AckDetect();		
+	
+	for (i=0; i<bytes; i++) 
+	{
+		I2C_P2S(pBuff[i]); AckDetect();  		
+		//I2C_P2S(pBuff[i+1]);AckDetect();  		
+		//I2C_P2S(pBuff[i]);	AckDetect();  	
+	}
+	//I2C_P2S(pBuff[i+1]); AckDetect();  		
+	I2C_P2S(pBuff[i]);   NotAck();//AckDetect();  	
+
+	I2C_Stop();		
+
+//	return I2C_OK;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+void I2C_MultiRead(BYTE slaveaddr, BYTE rAddr, PBYTE pBuff, WORD bytes)		// i2c 8bit multiread
+{
+	WORD i;	
+
+	I2C_Start();
+	I2C_P2S(slaveaddr&0xFE); AckDetect();
+
+	I2C_P2S(rAddr & 0xFF); AckDetect();
+
+	I2C_Stop();
+
+	I2C_Start(); 
+	I2C_P2S(slaveaddr|0x01); AckDetect();
+
+	for (i=0; i<bytes; i++) 
+	{
+		//pBuff[i+1] = I2C_S2P(); AckSend();	// Receive a buffer data
+		pBuff[i]   = I2C_S2P(); AckSend();	// Receive a buffer data
+	}
+
+	//pBuff[i+1] = I2C_S2P();	 AckSend();		// Receive a buffer data
+	pBuff[i]   = I2C_S2P();	 NotAck();		// Receive a buffer data
+
+
+	I2C_Stop();												
+
+	//printf("[I2C_R] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr, *((PWORD)pBuff), bytes);
+
+//	return I2C_OK;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+BYTE I2C_Write16(BYTE ID, BYTE dAddr, BYTE page, WORD rAddr, PBYTE pBuff, WORD bytes)	// i2c 16bit multiwrite
+{
+	WORD i;
+
+	i2c_ch = ID;
+//	BYTE slaveAddr = I2C_MDIN3xx_ADDR(selectedMDIN);
+//	printf("[I2C_W] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr,  *((PWORD)pBuff), bytes);
+
+	I2C_Start();
+	I2C_P2S(dAddr&0xFE); AckDetect();
+
+	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
+	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
+	
+	I2C_Start(); 
+	I2C_P2S(dAddr&0xFE); AckDetect();
+	
+	for (i=0; i<bytes/2-1; i++) 
+	{
+		I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
+		I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); AckDetect();  	
+		//I2C_P2S(pBuff[i+1]);AckDetect();  		
+		//I2C_P2S(pBuff[i]);	AckDetect();
+		if (page==MDIN_HOST_ID) MDINDLY_10uSec(1);	// for stability of font osd display on 190906
+	}
+
+	I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
+	I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); NotAck();//AckDetect();  	
+	//I2C_P2S(pBuff[i+1]); AckDetect();  		
+	//I2C_P2S(pBuff[i]);   NotAck();//AckDetect();  	
+
+
+	I2C_Stop();		
+
+	return I2C_OK;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+BYTE I2C_Read16(BYTE ID, BYTE dAddr, WORD rAddr, PBYTE pBuff, WORD bytes)		// i2c 16bit multiread
+{
+	WORD i;
+
+	i2c_ch = ID;
+		
+//	BYTE slaveAddr = I2C_MDIN3xx_ADDR(selectedMDIN);
+
+	I2C_Start();
+	I2C_P2S(dAddr&0xFE); AckDetect();
+
+	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
+	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
+
+	I2C_Start(); 
+	I2C_P2S(dAddr|0x01); AckDetect();
+
+	for (i=0; i<bytes/2-1; i++) 
+	{
+		((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();	// Receive a buffer data
+		((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   AckSend();	// Receive a buffer data
+		//pBuff[i+1] = I2C_S2P(); AckSend();	// Receive a buffer data
+		//pBuff[i]   = I2C_S2P(); AckSend();	// Receive a buffer data
+	}
+
+	((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();		// Receive a buffer data
+	((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   NotAck();		// Receive a buffer data
+	//pBuff[i+1] = I2C_S2P();	 AckSend();		// Receive a buffer data
+	//pBuff[i]   = I2C_S2P();	 NotAck();		// Receive a buffer data
+
+	I2C_Stop();												
+
+	//printf("[I2C_R] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr, *((PWORD)pBuff), bytes);
+
+	return I2C_OK;
+}
+

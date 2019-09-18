@@ -1281,10 +1281,9 @@ typedef	struct
 // Exported Variables
 // ----------------------------------------------------------------------
 // mdin3xx.c
-#define M380_NO			4
 
-extern WORD mdinERR[M380_NO], mdinREV[M380_NO];
-extern WORD fbADDR[M380_NO], GetROW[M380_NO];
+extern WORD mdinERR[MDIN_ID_MAX], mdinREV[MDIN_ID_MAX];
+extern WORD fbADDR[MDIN_ID_MAX], GetROW[MDIN_ID_MAX];
 
 // mdinfrmt.c
 extern ROMDATA MDIN_OUTVIDEO_SYNC defMDINOutSync[];

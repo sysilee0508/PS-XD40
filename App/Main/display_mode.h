@@ -68,7 +68,7 @@ typedef enum
 typedef enum
 {
 	// full
-	DISPLAY_MODE_FULL_CH1,		// full screen - channel 1
+	DISPLAY_MODE_FULL_CH1 = 0,		// full screen - channel 1
 	DISPLAY_MODE_FULL_CH2,
 	DISPLAY_MODE_FULL_CH3,
 	DISPLAY_MODE_FULL_CH4,
@@ -142,6 +142,7 @@ typedef enum
 extern void DisplayScreen(eDisplayMode_t mode);
 extern void UpdateDisplayMode(void);
 extern eDisplayMode_t GetCurrentDisplayMode(void);
+//extern eDisplayMode_t GetSystemSplitMode(void);
 extern BYTE GetInputVideoFormat(eChannel_t channel);
 extern eChannel_t ConvertDisplayMode2Channel(eDisplayMode_t displayMode);
 extern eChannel_t FindMainChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin);

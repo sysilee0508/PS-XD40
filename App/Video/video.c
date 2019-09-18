@@ -43,6 +43,24 @@ static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
 };
 #endif
 
+#if 1
+MDIN_VIDEO_INFO		stVideo[MDIN_ID_MAX];
+
+MDIN_INTER_WINDOW	stInterWND;
+
+MDIN_VIDEO_INPUT_t InputSelect, InputSelOld;
+MDIN_SRCVIDEO_PATH_t SrcPath[MDIN_ID_MAX];
+static MDIN_SRCVIDEO_FORMAT_t SrcMainFrmt[MDIN_ID_MAX], PrevSrcMainFrmt[MDIN_ID_MAX];
+static MDIN_OUTVIDEO_FORMAT_t OutMainFrmt[MDIN_ID_MAX], PrevOutMainFrmt[MDIN_ID_MAX];
+static MDIN_SRCVIDEO_FORMAT_t SrcAuxFrmt[MDIN_ID_MAX], PrevSrcAuxFrmt[MDIN_ID_MAX];
+//static MDIN_OUTPORT_MODE_t OutMainMode_C, PrevOutMainMode_C;
+//MDIN_VENC_FORMAT_t EncVideoFrmt, PrevEncFrmt;
+BOOL fInputChanged;
+
+MDIN_VIDEO_WINDOW stMainVIEW[MDIN_ID_MAX], stAuxVIEW[MDIN_ID_MAX];
+MDIN_VIDEO_WINDOW stMainCROP[MDIN_ID_MAX], stAuxCROP[MDIN_ID_MAX];
+
+#else
 MDIN_VIDEO_INFO	 stVideo_A, stVideo_B, stVideo_C, stVideo_D;
 MDIN_INTER_WINDOW	stInterWND;
 
@@ -59,6 +77,7 @@ MDIN_VIDEO_WINDOW stMainVIEW[MDIN_ID_MAX], stAuxVIEW[MDIN_ID_MAX];
 MDIN_VIDEO_WINDOW stMainCROP[MDIN_ID_MAX], stAuxCROP[MDIN_ID_MAX];
 
 const static PMDIN_VIDEO_INFO pVideoInfo[MDIN_ID_MAX] = {&stVideo_A, &stVideo_B, &stVideo_C, &stVideo_D};
+#endif
 
 // ----------------------------------------------------------------------
 // External Variable 
@@ -77,22 +96,22 @@ void ConfigI2C(MDIN_CHIP_ID_t mdin)
 	{
 		case MDIN_ID_A:
 			I2C_SET_CHANNEL(I2C_MAIN);
-			SELECT_MDIN(MDIN_A);
+			SELECT_MDIN(MDIN_I2C_L);
 			break;
 			
 		case MDIN_ID_B:
 			I2C_SET_CHANNEL(I2C_MAIN);
-			SELECT_MDIN(MDIN_B);
+			SELECT_MDIN(MDIN_I2C_H);
 			break;
 			
 		case MDIN_ID_C:
 			I2C_SET_CHANNEL(I2C_SUB);
-			SELECT_MDIN(MDIN_A);
+			SELECT_MDIN(MDIN_I2C_L);
 			break;
 			
 		case MDIN_ID_D:
 			I2C_SET_CHANNEL(I2C_SUB);
-			SELECT_MDIN(MDIN_B);
+			SELECT_MDIN(MDIN_I2C_H);
 			break;
 
 		default:
@@ -190,7 +209,7 @@ static void SetIPCVideoFine(void)
 static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 {
 	WORD nID = 0;
-	PMDIN_VIDEO_INFO pVideo;
+//	PMDIN_VIDEO_INFO pVideo;
 
 	if((mdin != MDIN_ID_A) && (mdin != MDIN_ID_B))
 	{
@@ -198,11 +217,10 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	}
 	else
 	{
-		pVideo = pVideoInfo[mdin];
-		pVideo->chipID = mdin;
+		M380_ID = mdin;
 	}
 
-	ConfigI2C(mdin);
+//	ConfigI2C(mdin);
 
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
@@ -238,105 +256,109 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 
 	MDIN3xx_SetIPCBlock();		// initialize IPC block (3DNR gain is 37)
 
-	MDIN3xx_SetMFCHYFilterCoef(pVideo, NULL);	// set default MFC filters
-	MDIN3xx_SetMFCHCFilterCoef(pVideo, NULL);
-	MDIN3xx_SetMFCVYFilterCoef(pVideo, NULL);
-	MDIN3xx_SetMFCVCFilterCoef(pVideo, NULL);
+	memset((PBYTE)&stVideo[M380_ID], 0, sizeof(MDIN_VIDEO_INFO));
+
+	MDIN3xx_SetMFCHYFilterCoef(&stVideo[M380_ID], NULL);	// set default MFC filters
+	MDIN3xx_SetMFCHCFilterCoef(&stVideo[M380_ID], NULL);
+	MDIN3xx_SetMFCVYFilterCoef(&stVideo[M380_ID], NULL);
+	MDIN3xx_SetMFCVCFilterCoef(&stVideo[M380_ID], NULL);
+
+	stVideo[M380_ID].chipID = mdin;
 
 	// set aux display ON
-	pVideo->dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
+	stVideo[M380_ID].dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
 
 	// set video path
-	pVideo->srcPATH = PATH_MAIN_A_AUX_B;	// set main is A, aux is main out
-	pVideo->dacPATH = DAC_PATH_MAIN_OUT;	// set main only
-	pVideo->encPATH = VENC_PATH_PORT_X;		// set venc is aux
+	stVideo[M380_ID].srcPATH = PATH_MAIN_A_AUX_B;	// set main is A, aux is main out
+	stVideo[M380_ID].dacPATH = DAC_PATH_MAIN_OUT;	// set main only
+	stVideo[M380_ID].encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
 	// define video format of PORTA-INPUT
-	pVideo->stSRC_a.frmt = VIDSRC_1280x720p60;
-	pVideo->stSRC_a.mode = MDIN_SRC_MUX656_8;
-	//stVideo_A.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
-	pVideo->stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
-	pVideo->stSRC_a.offH = 0;
-	pVideo->stSRC_a.offV = 0;
+	stVideo[M380_ID].stSRC_a.frmt = VIDSRC_1280x720p60;
+	stVideo[M380_ID].stSRC_a.mode = MDIN_SRC_MUX656_8;
+	//stVideo[M380_ID].stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	stVideo[M380_ID].stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
+	stVideo[M380_ID].stSRC_a.offH = 0;
+	stVideo[M380_ID].stSRC_a.offV = 0;
 
 	// define video format of PORTB-INPUT
-	pVideo->stSRC_b.frmt = VIDSRC_1280x720p60;
-	pVideo->stSRC_b.mode = MDIN_SRC_MUX656_8;
+	stVideo[M380_ID].stSRC_b.frmt = VIDSRC_1280x720p60;
+	stVideo[M380_ID].stSRC_b.mode = MDIN_SRC_MUX656_8;
 	//stVideo_A.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
-	pVideo->stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
-	pVideo->stSRC_b.offH = 0;
-	pVideo->stSRC_b.offV = 0;
+	stVideo[M380_ID].stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
+	stVideo[M380_ID].stSRC_b.offH = 0;
+	stVideo[M380_ID].stSRC_b.offV = 0;
 
 	// define video format of MAIN-OUTPUT
-	pVideo->stOUT_m.frmt = VIDOUT_1920x1080pRB; // kukuri  //VIDOUT_1280x720p60;
-	pVideo->stOUT_m.mode = MDIN_OUT_MUX656_8;	 //by hungry 2012.03.06		// test by chungsa
-	pVideo->stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
+	stVideo[M380_ID].stOUT_m.frmt = VIDOUT_1920x1080pRB; // kukuri  //VIDOUT_1280x720p60;
+	stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_MUX656_8;	 //by hungry 2012.03.06		// test by chungsa
+	stVideo[M380_ID].stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
-	pVideo->stOUT_m.brightness = 128;			// set main picture factor
-	pVideo->stOUT_m.contrast = 128;
-	pVideo->stOUT_m.saturation = 128;
-	pVideo->stOUT_m.hue = 128;
+	stVideo[M380_ID].stOUT_m.brightness = 128;			// set main picture factor
+	stVideo[M380_ID].stOUT_m.contrast = 128;
+	stVideo[M380_ID].stOUT_m.saturation = 128;
+	stVideo[M380_ID].stOUT_m.hue = 128;
 
 #if RGB_GAIN_OFFSET_TUNE == 1
-	pVideo->stOUT_m.r_gain = 128;				// set main gain/offset
-	pVideo->stOUT_m.g_gain = 128;
-	pVideo->stOUT_m.b_gain = 128;
-	pVideo->stOUT_m.r_offset = 128;
-	pVideo->stOUT_m.g_offset = 128;
-	pVideo->stOUT_m.b_offset = 128;
+	stVideo[M380_ID].stOUT_m.r_gain = 128;				// set main gain/offset
+	stVideo[M380_ID].stOUT_m.g_gain = 128;
+	stVideo[M380_ID].stOUT_m.b_gain = 128;
+	stVideo[M380_ID].stOUT_m.r_offset = 128;
+	stVideo[M380_ID].stOUT_m.g_offset = 128;
+	stVideo[M380_ID].stOUT_m.b_offset = 128;
 #endif
 
 	// define video format of IPC-block
-	pVideo->stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
-	pVideo->stIPC_m.film = MDIN_DEINT_FILM_OFF;
-	pVideo->stIPC_m.gain = 34;
-	pVideo->stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
+	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
+	stVideo[M380_ID].stIPC_m.gain = 34;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-//	pVideo->stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
-	pVideo->stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_OFF
+//	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_OFF
 	
 	// define video format of AUX-INPUT
-	pVideo->stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
+	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
 	// define video format of AUX-OUTPUT (CVBS output)
-//	pVideo->stOUT_x.frmt = VIDOUT_720x480i60;
-//	pVideo->stOUT_x.mode = MDIN_OUT_MUX656_8;
-//	pVideo->stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
+	stVideo[M380_ID].stOUT_x.frmt = VIDOUT_1920x1080pRB;
+	stVideo[M380_ID].stOUT_x.mode = MDIN_OUT_MUX656_8;
+	stVideo[M380_ID].stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
 
-//	pVideo->stOUT_x.brightness = 128;			// set aux picture factor
-//	pVideo->stOUT_x.contrast = 128;
-//	pVideo->stOUT_x.saturation = 128;
-//	pVideo->stOUT_x.hue = 128;
+	stVideo[M380_ID].stOUT_x.brightness = 128;			// set aux picture factor
+	stVideo[M380_ID].stOUT_x.contrast = 128;
+	stVideo[M380_ID].stOUT_x.saturation = 128;
+	stVideo[M380_ID].stOUT_x.hue = 128;
 
 #if RGB_GAIN_OFFSET_TUNE == 1
-	pVideo->stOUT_x.r_gain = 128;				// set aux gain/offset
-	pVideo->stOUT_x.g_gain = 128;
-	pVideo->stOUT_x.b_gain = 128;
-	pVideo->stOUT_x.r_offset = 128;
-	pVideo->stOUT_x.g_offset = 128;
-	pVideo->stOUT_x.b_offset = 128;
+	stVideo[M380_ID].stOUT_x.r_gain = 128;				// set aux gain/offset
+	stVideo[M380_ID].stOUT_x.g_gain = 128;
+	stVideo[M380_ID].stOUT_x.b_gain = 128;
+	stVideo[M380_ID].stOUT_x.r_offset = 128;
+	stVideo[M380_ID].stOUT_x.g_offset = 128;
+	stVideo[M380_ID].stOUT_x.b_offset = 128;
 #endif
 
 	// define video format of video encoder
-	pVideo->encFRMT = VID_VENC_AUTO;
+	stVideo[M380_ID].encFRMT = VID_VENC_AUTO;
 
 #if 0	// temporary blocked by kukuri
 	// define video format of HDMI-OUTPUT
-	pVideo->stVID_h.mode  = HDMI_OUT_RGB444_8;
-	pVideo->stVID_h.fine  = HDMI_CLK_EDGE_RISE;
+	stVideo[M380_ID].stVID_h.mode  = HDMI_OUT_RGB444_8;
+	stVideo[M380_ID].stVID_h.fine  = HDMI_CLK_EDGE_RISE;
 
 	// audio block
-	pVideo->stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
-	pVideo->stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
-	pVideo->stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
+	stVideo[M380_ID].stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
+	stVideo[M380_ID].stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
+	stVideo[M380_ID].stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
 							AUDIO_SCK_EDGE_RISE | AUDIO_SD_MSB_FIRST | AUDIO_SD_1ST_SHIFT;
 
-	MDINHTX_SetHDMIBlock(pVideo);		// initialize HDMI block
+	MDINHTX_SetHDMIBlock(stVideo[M380_ID]);		// initialize HDMI block
 #endif
-	pVideo->exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
-	MDIN3xx_VideoInProcess(pVideo);
-	MDIN3xx_VideoProcess(pVideo);                            // mdin3xx main video process
-	MDINAUX_VideoProcess(pVideo);             // mdin3xx aux video process
+	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
+	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
+	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
+	MDINAUX_VideoProcess(&stVideo[M380_ID]);             // mdin3xx aux video process
 
 	// define window for inter-area (PIP window? kukuri)
 	stInterWND.lx = 315;
@@ -348,11 +370,11 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 
 	// define variable for EDK application
 	PrevSrcMainFrmt[mdin] = 0xff;
-	SrcMainFrmt[mdin] = pVideo->stSRC_a.frmt;
+	SrcMainFrmt[mdin] = stVideo[M380_ID].stSRC_a.frmt;
 	PrevOutMainFrmt[mdin] = 0xff;
-	OutMainFrmt[mdin] = pVideo->stOUT_m.frmt;
+	OutMainFrmt[mdin] = stVideo[M380_ID].stOUT_m.frmt;
 //	PrevEncFrmt = 0xff;
-//	EncVideoFrmt = pVideo->encFRMT;
+//	EncVideoFrmt = stVideo[M380_ID].encFRMT;
 }
 
 static void MDIN3xx_SetRegInitial_C(void)
@@ -362,11 +384,10 @@ static void MDIN3xx_SetRegInitial_C(void)
 
 	Read_NvItem_AuxVideoFormat(&video);
 
-	ConfigI2C(MDIN_ID_C);
+//	ConfigI2C(MDIN_ID_C);
+	M380_ID = MDIN_ID_C;
 	
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
-
-	stVideo_C.chipID = MDIN_ID_C;
 
 	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
 	MDIN3xx_SetMemoryConfig(MDIN_ID_C);			// initialize DDR memory
@@ -400,104 +421,106 @@ static void MDIN3xx_SetRegInitial_C(void)
 
 	MDIN3xx_SetIPCBlock();		// initialize IPC block (3DNR gain is 37)
 
-//	memset((PBYTE)&stVideo_C, 0, sizeof(MDIN_VIDEO_INFO));
+	memset((PBYTE)&stVideo[M380_ID], 0, sizeof(MDIN_VIDEO_INFO));
+	
+	MDIN3xx_SetMFCHYFilterCoef(&stVideo[M380_ID], NULL);	// set default MFC filters
+	MDIN3xx_SetMFCHCFilterCoef(&stVideo[M380_ID], NULL);
+	MDIN3xx_SetMFCVYFilterCoef(&stVideo[M380_ID], NULL);
+	MDIN3xx_SetMFCVCFilterCoef(&stVideo[M380_ID], NULL);
 
-	MDIN3xx_SetMFCHYFilterCoef(&stVideo_C, NULL);	// set default MFC filters
-	MDIN3xx_SetMFCHCFilterCoef(&stVideo_C, NULL);
-	MDIN3xx_SetMFCVYFilterCoef(&stVideo_C, NULL);
-	MDIN3xx_SetMFCVCFilterCoef(&stVideo_C, NULL);
-
+	stVideo[M380_ID].chipID = MDIN_ID_C;
+	
 	// set aux display ON
-	stVideo_C.dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
+	stVideo[M380_ID].dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
 
 	// set video path
-	stVideo_C.srcPATH = PATH_MAIN_A_AUX_B;	// set main is A, aux is main out
-	stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;	// set main only
-	stVideo_C.encPATH = VENC_PATH_PORT_X;		// set venc is aux
+	stVideo[M380_ID].srcPATH = PATH_MAIN_A_AUX_B;	// set main is A, aux is main out
+	stVideo[M380_ID].dacPATH = DAC_PATH_MAIN_OUT;	// set main only
+	stVideo[M380_ID].encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
 	// define video format of PORTA-INPUT
-	stVideo_C.stSRC_a.frmt = VIDSRC_1920x1080p60;
-	stVideo_C.stSRC_a.mode = MDIN_SRC_MUX656_8;
-	//stVideo_C.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
-	stVideo_C.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
-	stVideo_C.stSRC_a.offH = 0;
-	stVideo_C.stSRC_a.offV = 0;
+	stVideo[M380_ID].stSRC_a.frmt = VIDSRC_1920x1080p60;
+	stVideo[M380_ID].stSRC_a.mode = MDIN_SRC_MUX656_8;
+	//stVideo[M380_ID].stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	stVideo[M380_ID].stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
+	stVideo[M380_ID].stSRC_a.offH = 0;
+	stVideo[M380_ID].stSRC_a.offV = 0;
 
 	// define video format of PORTB-INPUT
-	stVideo_C.stSRC_b.frmt = VIDSRC_1280x720p60;
-	stVideo_C.stSRC_b.mode = MDIN_SRC_MUX656_8;
-	//stVideo_C.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
-	stVideo_C.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
-	stVideo_C.stSRC_b.offH = 0;
-	stVideo_C.stSRC_b.offV = 0;
+	stVideo[M380_ID].stSRC_b.frmt = VIDSRC_1280x720p60;
+	stVideo[M380_ID].stSRC_b.mode = MDIN_SRC_MUX656_8;
+	//stVideo[M380_ID].stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	stVideo[M380_ID].stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
+	stVideo[M380_ID].stSRC_b.offH = 0;
+	stVideo[M380_ID].stSRC_b.offV = 0;
 
 	// define video format of MAIN-OUTPUT
-	stVideo_C.stOUT_m.frmt = VIDOUT_1920x1080p60;
-	stVideo_C.stOUT_m.mode = (video == VIDEO_VGA)? MDIN_OUT_RGB444_8 : MDIN_OUT_EMB422_8;	 //by hungry 2012.03.06		// test by chungsa
-	stVideo_C.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
+	stVideo[M380_ID].stOUT_m.frmt = VIDOUT_1920x1080p60;
+	stVideo[M380_ID].stOUT_m.mode = (video == VIDEO_VGA)? MDIN_OUT_RGB444_8 : MDIN_OUT_EMB422_8;	 //by hungry 2012.03.06		// test by chungsa
+	stVideo[M380_ID].stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
-	stVideo_C.stOUT_m.brightness = 128;			// set main picture factor
-	stVideo_C.stOUT_m.contrast = 128;
-	stVideo_C.stOUT_m.saturation = 128;
-	stVideo_C.stOUT_m.hue = 128;
+	stVideo[M380_ID].stOUT_m.brightness = 128;			// set main picture factor
+	stVideo[M380_ID].stOUT_m.contrast = 128;
+	stVideo[M380_ID].stOUT_m.saturation = 128;
+	stVideo[M380_ID].stOUT_m.hue = 128;
 
 #if RGB_GAIN_OFFSET_TUNE == 1
-	stVideo_C.stOUT_m.r_gain = 128;				// set main gain/offset
-	stVideo_C.stOUT_m.g_gain = 128;
-	stVideo_C.stOUT_m.b_gain = 128;
-	stVideo_C.stOUT_m.r_offset = 128;
-	stVideo_C.stOUT_m.g_offset = 128;
-	stVideo_C.stOUT_m.b_offset = 128;
+	stVideo[M380_ID].stOUT_m.r_gain = 128;				// set main gain/offset
+	stVideo[M380_ID].stOUT_m.g_gain = 128;
+	stVideo[M380_ID].stOUT_m.b_gain = 128;
+	stVideo[M380_ID].stOUT_m.r_offset = 128;
+	stVideo[M380_ID].stOUT_m.g_offset = 128;
+	stVideo[M380_ID].stOUT_m.b_offset = 128;
 #endif
 
 	// define video format of IPC-block
-	stVideo_C.stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
-	stVideo_C.stIPC_m.film = MDIN_DEINT_FILM_OFF;
-	stVideo_C.stIPC_m.gain = 34;
-	stVideo_C.stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
+	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
+	stVideo[M380_ID].stIPC_m.gain = 34;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo_C.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
+	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
 	
 	// define video format of AUX-INPUT
-	stVideo_C.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
-	#if 0
+	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
+	#if 1
 	// define video format of AUX-OUTPUT (CVBS output)
-	stVideo_C.stOUT_x.frmt = VIDOUT_720x480i60;
-	stVideo_C.stOUT_x.mode = MDIN_OUT_MUX656_8;
-	stVideo_C.stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
-	stVideo_C.stOUT_x.brightness = 128;			// set aux picture factor
-	stVideo_C.stOUT_x.contrast = 128;
-	stVideo_C.stOUT_x.saturation = 128;
-	stVideo_C.stOUT_x.hue = 128;
+	stVideo[M380_ID].stOUT_x.frmt = VIDOUT_1920x1080p60;
+	stVideo[M380_ID].stOUT_x.mode = (video == VIDEO_VGA)? MDIN_OUT_RGB444_8 : MDIN_OUT_EMB422_8;;
+	stVideo[M380_ID].stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
+	stVideo[M380_ID].stOUT_x.brightness = 128;			// set aux picture factor
+	stVideo[M380_ID].stOUT_x.contrast = 128;
+	stVideo[M380_ID].stOUT_x.saturation = 128;
+	stVideo[M380_ID].stOUT_x.hue = 128;
 	#endif
 #if RGB_GAIN_OFFSET_TUNE == 1
-	stVideo_C.stOUT_x.r_gain = 128;				// set aux gain/offset
-	stVideo_C.stOUT_x.g_gain = 128;
-	stVideo_C.stOUT_x.b_gain = 128;
-	stVideo_C.stOUT_x.r_offset = 128;
-	stVideo_C.stOUT_x.g_offset = 128;
-	stVideo_C.stOUT_x.b_offset = 128;
+	stVideo[M380_ID].stOUT_x.r_gain = 128;				// set aux gain/offset
+	stVideo[M380_ID].stOUT_x.g_gain = 128;
+	stVideo[M380_ID].stOUT_x.b_gain = 128;
+	stVideo[M380_ID].stOUT_x.r_offset = 128;
+	stVideo[M380_ID].stOUT_x.g_offset = 128;
+	stVideo[M380_ID].stOUT_x.b_offset = 128;
 #endif
 
 	// define video format of video encoder
-	stVideo_C.encFRMT = VID_VENC_AUTO;
+	stVideo[M380_ID].encFRMT = VID_VENC_AUTO;
 	// define video format of HDMI-OUTPUT
-	stVideo_C.stVID_h.mode  =HDMI_OUT_RGB444_8;
-	stVideo_C.stVID_h.fine  = HDMI_CLK_EDGE_RISE;
+	stVideo[M380_ID].stVID_h.mode  =HDMI_OUT_RGB444_8;
+	stVideo[M380_ID].stVID_h.fine  = HDMI_CLK_EDGE_RISE;
 
 	// audio block
-	//stVideo_C.stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
-	//stVideo_C.stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
-	//stVideo_C.stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
+	//stVideo[M380_ID].stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
+	//stVideo[M380_ID].stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
+	//stVideo[M380_ID].stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
 	//						AUDIO_SCK_EDGE_RISE | AUDIO_SD_MSB_FIRST | AUDIO_SD_1ST_SHIFT;
 
-	MDINHTX_SetHDMIBlock(&stVideo_C);		// initialize HDMI block
+	MDINHTX_SetHDMIBlock(&stVideo[M380_ID]);		// initialize HDMI block
 
-	stVideo_C.exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
-	MDIN3xx_VideoInProcess(&stVideo_C);
-	MDIN3xx_VideoProcess(&stVideo_C);                            // mdin3xx main video process
-	MDINAUX_VideoProcess(&stVideo_C);             // mdin3xx aux video process
+	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
+	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
+	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
+	MDINAUX_VideoProcess(&stVideo[M380_ID]);             // mdin3xx aux video process
 
 	// define window for inter-area (PIP window? kukuri)
 	stInterWND.lx = 315;
@@ -508,13 +531,12 @@ static void MDIN3xx_SetRegInitial_C(void)
 	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
 
 	// define variable for EDK application
-
 	PrevSrcMainFrmt[MDIN_ID_C]= 0xff;
-	SrcMainFrmt[MDIN_ID_C] = stVideo_C.stSRC_a.frmt;
+	SrcMainFrmt[MDIN_ID_C] = stVideo[M380_ID].stSRC_a.frmt;
 	PrevOutMainFrmt[MDIN_ID_C] = 0xff;
-	OutMainFrmt[MDIN_ID_C] = stVideo_C.stOUT_m.frmt;
+	OutMainFrmt[MDIN_ID_C] = stVideo[M380_ID].stOUT_m.frmt;
 //	PrevEncFrmt = 0xff;
-//	EncVideoFrmt = stVideo_C.encFRMT;
+//	EncVideoFrmt = stVideo[M380_ID].encFRMT;
 }
 
 static void MDIN3xx_SetRegInitial_D(void)
@@ -522,7 +544,8 @@ static void MDIN3xx_SetRegInitial_D(void)
 	BYTE retry = 0;
 	WORD nID = 0;
 
-	ConfigI2C(MDIN_ID_D);
+	M380_ID = MDIN_ID_D;
+//	ConfigI2C(MDIN_ID_D);
 
 	do
 	{
@@ -534,8 +557,6 @@ static void MDIN3xx_SetRegInitial_D(void)
 	} while((retry <= 3) && (nID != 0x85));
 
 	if(retry > 3)	return;
-
-	stVideo_D.chipID = MDIN_ID_D;
 
 	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
 	MDIN3xx_SetMemoryConfig(MDIN_ID_D);			// initialize DDR memory
@@ -566,92 +587,96 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	MDIN3xx_SetIPCBlock();		// initialize IPC block (3DNR gain is 37)
 
-	MDIN3xx_SetMFCHYFilterCoef(&stVideo_D, NULL);	// set default MFC filters
-	MDIN3xx_SetMFCHCFilterCoef(&stVideo_D, NULL);
-	MDIN3xx_SetMFCVYFilterCoef(&stVideo_D, NULL);
-	MDIN3xx_SetMFCVCFilterCoef(&stVideo_D, NULL);
+	memset((PBYTE)&stVideo[M380_ID], 0, sizeof(MDIN_VIDEO_INFO));
+	
+	MDIN3xx_SetMFCHYFilterCoef(&stVideo[M380_ID], NULL);	// set default MFC filters
+	MDIN3xx_SetMFCHCFilterCoef(&stVideo[M380_ID], NULL);
+	MDIN3xx_SetMFCVYFilterCoef(&stVideo[M380_ID], NULL);
+	MDIN3xx_SetMFCVCFilterCoef(&stVideo[M380_ID], NULL);
 
+	stVideo[M380_ID].chipID = MDIN_ID_D;
+	
 	// set aux display ON
-	stVideo_D.dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
+	stVideo[M380_ID].dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
 
 	// set video path
-	stVideo_D.srcPATH = PATH_MAIN_A_AUX_A;	// set main is A, aux is main out
-	stVideo_D.dacPATH = DAC_PATH_MAIN_OUT;	// set main only
-	stVideo_D.encPATH = VENC_PATH_PORT_X;		// set venc is aux
+	stVideo[M380_ID].srcPATH = PATH_MAIN_A_AUX_A;	// set main is A, aux is main out
+	stVideo[M380_ID].dacPATH = DAC_PATH_MAIN_OUT;	// set main only
+	stVideo[M380_ID].encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
 	// define video format of PORTA-INPUT
-	stVideo_D.stSRC_a.frmt = VIDSRC_1920x1080p60;
-	stVideo_D.stSRC_a.mode = MDIN_SRC_EMB422_8;
-	//stVideo_D.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
-	stVideo_D.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
-	stVideo_D.stSRC_a.offH = 0;
-	stVideo_D.stSRC_a.offV = 0;
+	stVideo[M380_ID].stSRC_a.frmt = VIDSRC_1920x1080p60;
+	stVideo[M380_ID].stSRC_a.mode = MDIN_SRC_EMB422_8;
+	//stVideo[M380_ID].stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
+	stVideo[M380_ID].stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
+	stVideo[M380_ID].stSRC_a.offH = 0;
+	stVideo[M380_ID].stSRC_a.offV = 0;
 
 	// define video format of PORTB-INPUT
-	stVideo_D.stSRC_b.frmt = VIDSRC_1920x1080p60;
-	stVideo_D.stSRC_b.mode = MDIN_SRC_EMB422_8;
+	stVideo[M380_ID].stSRC_b.frmt = VIDSRC_1920x1080p60;
+	stVideo[M380_ID].stSRC_b.mode = MDIN_SRC_EMB422_8;
 //	//stVideo_D.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
-	stVideo_D.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
-	stVideo_D.stSRC_b.offH = 0;
-	stVideo_D.stSRC_b.offV = 0;
+	stVideo[M380_ID].stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
+	stVideo[M380_ID].stSRC_b.offH = 0;
+	stVideo[M380_ID].stSRC_b.offV = 0;
 
 	// define video format of MAIN-OUTPUT
-	stVideo_D.stOUT_m.frmt = VIDOUT_1920x1080p60;
-	stVideo_D.stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
-	stVideo_D.stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
+	stVideo[M380_ID].stOUT_m.frmt = VIDOUT_1920x1080p60;
+	stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
+	stVideo[M380_ID].stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
-	stVideo_D.stOUT_m.brightness = 128;			// set main picture factor
-	stVideo_D.stOUT_m.contrast = 128;
-	stVideo_D.stOUT_m.saturation = 128;
-	stVideo_D.stOUT_m.hue = 128;
+	stVideo[M380_ID].stOUT_m.brightness = 128;			// set main picture factor
+	stVideo[M380_ID].stOUT_m.contrast = 128;
+	stVideo[M380_ID].stOUT_m.saturation = 128;
+	stVideo[M380_ID].stOUT_m.hue = 128;
 
 #if RGB_GAIN_OFFSET_TUNE == 1
-	stVideo_D.stOUT_m.r_gain = 128;				// set main gain/offset
-	stVideo_D.stOUT_m.g_gain = 128;
-	stVideo_D.stOUT_m.b_gain = 128;
-	stVideo_D.stOUT_m.r_offset = 128;
-	stVideo_D.stOUT_m.g_offset = 128;
-	stVideo_D.stOUT_m.b_offset = 128;
+	stVideo[M380_ID].stOUT_m.r_gain = 128;				// set main gain/offset
+	stVideo[M380_ID].stOUT_m.g_gain = 128;
+	stVideo[M380_ID].stOUT_m.b_gain = 128;
+	stVideo[M380_ID].stOUT_m.r_offset = 128;
+	stVideo[M380_ID].stOUT_m.g_offset = 128;
+	stVideo[M380_ID].stOUT_m.b_offset = 128;
 #endif
 
 	// define video format of IPC-block
-	stVideo_D.stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
-	stVideo_D.stIPC_m.film = MDIN_DEINT_FILM_OFF;
-	stVideo_D.stIPC_m.gain = 34;
-	stVideo_D.stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
+	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
+	stVideo[M380_ID].stIPC_m.gain = 34;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo_D.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
+	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
 
 	// define video format of AUX-INPUT
-	stVideo_D.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
+	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
 	// define video format of AUX-OUTPUT (CVBS output)
-	stVideo_D.stOUT_x.frmt = VIDOUT_720x480i60;
-	stVideo_D.stOUT_x.mode = MDIN_OUT_MUX656_8;
-	stVideo_D.stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
-	stVideo_D.stOUT_x.brightness = 128;			// set aux picture factor
-	stVideo_D.stOUT_x.contrast = 128;
-	stVideo_D.stOUT_x.saturation = 128;
-	stVideo_D.stOUT_x.hue = 128;
+	stVideo[M380_ID].stOUT_x.frmt = VIDOUT_720x480i60;
+	stVideo[M380_ID].stOUT_x.mode = MDIN_OUT_MUX656_8;
+	stVideo[M380_ID].stOUT_x.fine = MDIN_SYNC_FREERUN;	// set aux outsync free-run
+	stVideo[M380_ID].stOUT_x.brightness = 128;			// set aux picture factor
+	stVideo[M380_ID].stOUT_x.contrast = 128;
+	stVideo[M380_ID].stOUT_x.saturation = 128;
+	stVideo[M380_ID].stOUT_x.hue = 128;
 #if RGB_GAIN_OFFSET_TUNE == 1
-	stVideo_D.stOUT_x.r_gain = 128;				// set aux gain/offset
-	stVideo_D.stOUT_x.g_gain = 128;
-	stVideo_D.stOUT_x.b_gain = 128;
-	stVideo_D.stOUT_x.r_offset = 128;
-	stVideo_D.stOUT_x.g_offset = 128;
-	stVideo_D.stOUT_x.b_offset = 128;
+	stVideo[M380_ID].stOUT_x.r_gain = 128;				// set aux gain/offset
+	stVideo[M380_ID].stOUT_x.g_gain = 128;
+	stVideo[M380_ID].stOUT_x.b_gain = 128;
+	stVideo[M380_ID].stOUT_x.r_offset = 128;
+	stVideo[M380_ID].stOUT_x.g_offset = 128;
+	stVideo[M380_ID].stOUT_x.b_offset = 128;
 #endif
 
 	// define video format of video encoder
-	stVideo_D.encFRMT = VID_VENC_NTSC_M;	//VID_VENC_AUTO
+	stVideo[M380_ID].encFRMT = VID_VENC_NTSC_M;	//VID_VENC_AUTO
 
-	stVideo_D.exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
-	MDIN3xx_VideoInProcess(&stVideo_D);
-	MDIN3xx_VideoProcess(&stVideo_D);                            // mdin3xx main video process
-	MDINAUX_VideoProcess(&stVideo_D);             // mdin3xx aux video process
+	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
+	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
+	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
+	MDINAUX_VideoProcess(&stVideo[M380_ID]);             // mdin3xx aux video process
 
 	SetIPCVideoFine();
-	MDIN3xx_EnableAuxDisplay(&stVideo_D, ON);
+	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -666,67 +691,74 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 			case VIDEO_DIGITAL_NVP6158_A:	// use only mdin_a
 				if(mode == DISPLAY_MODE_FULL_CH1)
 				{
-					stVideo_A.srcPATH = PATH_MAIN_A_AUX_M;
-					stVideo_A.dacPATH = DAC_PATH_MAIN_OUT;
+					stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_A_AUX_M;
+					stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_OUT;
+//					stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 				else if(mode == DISPLAY_MODE_FULL_CH2)
 				{
-					stVideo_A.srcPATH = PATH_MAIN_B_AUX_M;
-					stVideo_A.dacPATH = DAC_PATH_MAIN_OUT;
+					stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_B_AUX_M;
+					stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_OUT;
+//					stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 				else
 				{
-					stVideo_A.srcPATH = PATH_MAIN_A_AUX_B;
-					stVideo_A.dacPATH = DAC_PATH_MAIN_PIP;
+					stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_A_AUX_B;
+					stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
 				}
-				stVideo_C.srcPATH = PATH_MAIN_A_AUX_M;
-				stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo[MDIN_ID_C].srcPATH = PATH_MAIN_A_AUX_M;
+				stVideo[MDIN_ID_C].dacPATH = DAC_PATH_MAIN_OUT;
+//				stVideo[MDIN_ID_C].dacPATH = DAC_PATH_MAIN_PIP;
 				break;
 
 			case VIDEO_DIGITAL_NVP6158_B:	// use only mdin_b
 				if(mode == DISPLAY_MODE_FULL_CH3)
 				{
-					stVideo_B.srcPATH = PATH_MAIN_A_AUX_M;
-					stVideo_B.dacPATH = DAC_PATH_MAIN_OUT;
+					stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_M;
+					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
+//					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 				else if(mode == DISPLAY_MODE_FULL_CH4)
 				{
-					stVideo_B.srcPATH = PATH_MAIN_B_AUX_M;
-					stVideo_B.dacPATH = DAC_PATH_MAIN_OUT;
+					stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_B_AUX_M;
+					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
+//					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 				else
 				{
-					stVideo_B.srcPATH = PATH_MAIN_A_AUX_B;
-					stVideo_B.dacPATH = DAC_PATH_MAIN_PIP;
+					stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_B;
+					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
 				}
-				stVideo_C.srcPATH = PATH_MAIN_B_AUX_M;
-				stVideo_C.dacPATH = DAC_PATH_MAIN_OUT;
+				stVideo[MDIN_ID_C].srcPATH = PATH_MAIN_B_AUX_M;
+				stVideo[MDIN_ID_C].dacPATH = DAC_PATH_MAIN_OUT;
+//				stVideo[MDIN_ID_C].dacPATH = DAC_PATH_MAIN_PIP;
 				break;
 
 			case VIDEO_DIGITAL_NVP6158_AB:	// use mdin_a & mdin_b
-				stVideo_A.srcPATH = PATH_MAIN_A_AUX_B;
-				stVideo_A.dacPATH = DAC_PATH_MAIN_PIP;
+				stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_A_AUX_B;
+				stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
 
 				if((mode >= DISPLAY_MODE_3SPLIT_R2SCALE) && (mode <= DISPLAY_MODE_3SPLIT_U2CROP))
 				{
-					stVideo_B.srcPATH = PATH_MAIN_A_AUX_M;
-					stVideo_B.dacPATH = DAC_PATH_MAIN_OUT;
+					stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_M;
+					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
+//					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 				else
 				{
-					stVideo_B.srcPATH = PATH_MAIN_A_AUX_B;
-					stVideo_B.dacPATH = DAC_PATH_MAIN_PIP;
+					stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_B;
+					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 
 				if((mode == DISPLAY_MODE_4SPLIT_H) || (mode == DISPLAY_MODE_4SPLIT_X))
 				{
-					stVideo_C.srcPATH = PATH_MAIN_B_AUX_A;
+					stVideo[MDIN_ID_C].srcPATH = PATH_MAIN_B_AUX_A;
 				}
 				else
 				{
-					stVideo_C.srcPATH = PATH_MAIN_A_AUX_B;
+					stVideo[MDIN_ID_C].srcPATH = PATH_MAIN_A_AUX_B;
 				}
-				stVideo_C.dacPATH = DAC_PATH_MAIN_PIP;
+				stVideo[MDIN_ID_C].dacPATH = DAC_PATH_MAIN_PIP;
 				break;
 		}
 	}
@@ -894,9 +926,7 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 	eChannel_t mainChannel, auxChannel;
 	WORD mainTotalWidth, mainTotalHeight;
 	WORD auxTotalWidth, auxTotalHeight;
-#ifndef ADJUST_CROPPING_WINDOW_NVP
 	sCroppingOffset_t croppingOffset;
-#endif
 
 	PMDIN_VIDEO_WINDOW pMainView = &stMainVIEW[MDIN_ID_A];
 	PMDIN_VIDEO_WINDOW pAuxView = &stAuxVIEW[MDIN_ID_A];
@@ -970,8 +1000,10 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 	}
 	if(IsVideoLossChannel(auxChannel) == TRUE)
 	{
+//		auxTotalWidth = DISPLAY_WIDTH_1280x720/2;
+//		auxTotalHeight = DISPLAY_HEIGHT_480/2;
 		auxTotalWidth = DISPLAY_WIDTH_1280x720/2;
-		auxTotalHeight = DISPLAY_HEIGHT_480/2;
+		auxTotalHeight = DISPLAY_HEIGHT_1280x720;
 	}
 
 	pMainCrop->w = mainTotalWidth;
@@ -983,17 +1015,6 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 	switch(displayMode)
 	{	
 		case DISPLAY_MODE_2SPLIT_HCROP_A:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth/2;
-			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-			
-			pAuxCrop->w = auxTotalWidth/2;
-			pAuxCrop->h = auxTotalHeight;
-			pAuxCrop->x = 0;
-			pAuxCrop->y = 0;			
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
@@ -1005,7 +1026,6 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pAuxCrop->h = auxTotalHeight;
 			pAuxCrop->x = (auxTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
 			pAuxCrop->y = 0;	
-#endif
 		case DISPLAY_MODE_2SPLIT_HSCALE_A:
 			pMainView->w = DISPLAY_HALF_WIDTH;
 			pMainView->h = DISPLAY_HEIGHT;
@@ -1014,22 +1034,12 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 
 			pAuxView->w = DISPLAY_HALF_WIDTH;
 			pAuxView->h = DISPLAY_HEIGHT;
-			pAuxView->x = DISPLAY_WIDTH;
+//			pAuxView->x = DISPLAY_WIDTH;
+			pAuxView->x = DISPLAY_WIDTH/2;	// modified on 190905
 			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_2SPLIT_VCROP_A:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth;
-			pMainCrop->h = mainTotalHeight/2;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-			
-			pAuxCrop->w = auxTotalWidth;
-			pAuxCrop->h = auxTotalHeight/2;
-			pAuxCrop->x = 0;
-			pAuxCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth;
 			pMainCrop->h = mainTotalHeight/2;
@@ -1040,7 +1050,6 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pAuxCrop->h = auxTotalHeight/2;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = (auxTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;//0;
-#endif
 		case DISPLAY_MODE_2SPLIT_VSCALE_A:
 			pMainView->w = DISPLAY_HALF_WIDTH;
 			pMainView->h = DISPLAY_HALF_HEIGHT;
@@ -1054,18 +1063,11 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_3SPLIT_R2CROP:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth/2;
-			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
 			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
 			pMainCrop->y = 0;
-#endif
 		case DISPLAY_MODE_3SPLIT_R2SCALE:
 			pMainView->w = DISPLAY_HALF_WIDTH;
 			pMainView->h = DISPLAY_HEIGHT;
@@ -1074,23 +1076,16 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 
 			pAuxView->w = DISPLAY_HALF_WIDTH;
 			pAuxView->h = DISPLAY_HALF_HEIGHT;
-			pAuxView->x = DISPLAY_WIDTH;
+			pAuxView->x = DISPLAY_HALF_WIDTH;
 			pAuxView->y = 0;
 			break;
 			
 		case DISPLAY_MODE_3SPLIT_L2CROP:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth/2;
-			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
 			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
 			pMainCrop->y = 0;
-#endif
 		case DISPLAY_MODE_3SPLIT_L2SCALE:
 			pMainView->w = DISPLAY_HALF_WIDTH;
 			pMainView->h = DISPLAY_HEIGHT;
@@ -1104,18 +1099,11 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 			
 		case DISPLAY_MODE_3SPLIT_D2CROP:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth;
-			pMainCrop->h = mainTotalHeight/2;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth;
 			pMainCrop->h = mainTotalHeight/2;
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
-#endif
 		case DISPLAY_MODE_3SPLIT_D2SCALE:
 			pMainView->w = DISPLAY_WIDTH;
 			pMainView->h = DISPLAY_HALF_HEIGHT;
@@ -1129,18 +1117,11 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 			
 		case DISPLAY_MODE_3SPLIT_U2CROP:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth;
-			pMainCrop->h = mainTotalHeight/2;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth;
 			pMainCrop->h = mainTotalHeight/2;
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
-#endif
 		case DISPLAY_MODE_3SPLIT_U2SCALE:
 			pMainView->w = DISPLAY_WIDTH;
 			pMainView->h = DISPLAY_HALF_HEIGHT;
@@ -1154,19 +1135,27 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_4SPLIT_R3CROP:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth*2/3;
-			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth*2/3;
 			pMainCrop->h = mainTotalHeight;
 			pMainCrop->x = (mainTotalWidth/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
 			pMainCrop->y = 0;
-#endif
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
+#if 1
+			pMainView->w = mainTotalWidth*2/3;
+			pMainView->h = mainTotalHeight;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			//pAuxView->w = auxTotalWidth/3;
+			//pAuxView->h = auxTotalHeight/3;
+			//pAuxView->x = (auxTotalWidth/3)*2;
+			//pAuxView->y = 0;
+			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
+			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
+			pAuxView->x = (DISPLAY_WIDTH_1280x720/3)*4;
+			pAuxView->y = 0;
+#else
 			pMainView->w = DISPLAY_WIDTH_1280x720*2/3;
 			pMainView->h = DISPLAY_HEIGHT_1280x720;
 			pMainView->x = 0;
@@ -1176,21 +1165,15 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
 			pAuxView->x = (DISPLAY_WIDTH_1280x720/3)*4;
 			pAuxView->y = 0;
+#endif
 			break;
 
 		case DISPLAY_MODE_4SPLIT_L3CROP:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth*2/3;
-			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth*2/3;
 			pMainCrop->h = mainTotalHeight;
 			pMainCrop->x = (mainTotalWidth/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;
 			pMainCrop->y = 0;
-#endif
 		case DISPLAY_MODE_4SPLIT_L3SCALE:
 			pMainView->w = DISPLAY_WIDTH*2/3;
 			pMainView->h = DISPLAY_HEIGHT;
@@ -1204,18 +1187,11 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 
 		case DISPLAY_MODE_4SPLIT_D3CROP:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth;
-			pMainCrop->h = mainTotalHeight*2/3;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth;
 			pMainCrop->h = mainTotalHeight*2/3;
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.v_offset;//0;
-#endif
 		case DISPLAY_MODE_4SPLIT_D3SCALE:
 			pMainView->w = DISPLAY_WIDTH;
 			pMainView->h = DISPLAY_HEIGHT*2/3;
@@ -1230,18 +1206,11 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			
 
 		case DISPLAY_MODE_4SPLIT_U3CROP:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth;
-			pMainCrop->h = mainTotalHeight*2/3;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth;
 			pMainCrop->h = mainTotalHeight*2/3;
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.v_offset;//0;
-#endif
 		case DISPLAY_MODE_4SPLIT_U3SCALE:
 			pMainView->w = DISPLAY_WIDTH;
 			pMainView->h = DISPLAY_HEIGHT*2/3;
@@ -1286,54 +1255,84 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 
 			pAuxView->w = DISPLAY_WIDTH_1280x720/2;
 			pAuxView->h = DISPLAY_HEIGHT_1280x720/2;
-			pAuxView->x = DISPLAY_WIDTH_1280x720;
+//			pAuxView->x = DISPLAY_WIDTH_1280x720;
+			pAuxView->x = DISPLAY_WIDTH_1280x720/2;	// modified on 190905
 			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_PIP_A2:
 		case DISPLAY_MODE_PIP_A3:
 		case DISPLAY_MODE_PIP_A4:
+#if 1
+			pAuxView->w = PIP_WINDOW_WIDTH_1080;
+			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
+			pAuxView->x = (DISPLAY_WIDTH_1920X1080-PIP_WINDOW_WIDTH_1080-PIP_POSITION_MARGIN_1080);
+			pAuxView->y = PIP_POSITION_MARGIN_1080;
+#else
 			pAuxView->w = PIP_WINDOW_WIDTH;
 			pAuxView->h = PIP_WINDOW_HEIGHT;
 			pAuxView->x = (DISPLAY_WIDTH_1280x720 - PIP_WINDOW_WIDTH -PIP_POSITION_MARGIN)*2;
 			pAuxView->y = PIP_POSITION_MARGIN;
+#endif
 			break;
 
 		case DISPLAY_MODE_PIP_B2:
 		case DISPLAY_MODE_PIP_B3:
 		case DISPLAY_MODE_PIP_B4:
+#if 1
+			pAuxView->w = PIP_WINDOW_WIDTH_1080;
+			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
+			pAuxView->x = PIP_POSITION_MARGIN_1080;
+			pAuxView->y = DISPLAY_HEIGHT_1920x1080-PIP_WINDOW_HEIGHT_1080-PIP_POSITION_MARGIN_1080;
+#else
 			pAuxView->w = PIP_WINDOW_WIDTH;
 			pAuxView->h = PIP_WINDOW_HEIGHT;
 			pAuxView->x = PIP_POSITION_MARGIN*2;
 			pAuxView->y = DISPLAY_HEIGHT_1280x720 - PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
+#endif
 			break;
 
 		case DISPLAY_MODE_PIP_C2:
 		case DISPLAY_MODE_PIP_C3:
 		case DISPLAY_MODE_PIP_C4:
+#if 1
+			pAuxView->w = PIP_WINDOW_WIDTH_1080;
+			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
+			pAuxView->x = (DISPLAY_WIDTH_1920X1080-PIP_WINDOW_WIDTH_1080-PIP_POSITION_MARGIN_1080);
+			pAuxView->y = DISPLAY_HEIGHT_1920x1080-PIP_WINDOW_HEIGHT_1080-PIP_POSITION_MARGIN_1080;
+#else
 			pAuxView->w = PIP_WINDOW_WIDTH;
 			pAuxView->h = PIP_WINDOW_HEIGHT;
 			pAuxView->x = (DISPLAY_WIDTH_1280x720-PIP_WINDOW_WIDTH-PIP_POSITION_MARGIN)*2;
 			pAuxView->y = DISPLAY_HEIGHT_1280x720-PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
+#endif
 			break;
 
 		case DISPLAY_MODE_PIP_D2:
 		case DISPLAY_MODE_PIP_D3:
 		case DISPLAY_MODE_PIP_D4:
+#if 1
+			pAuxView->w = PIP_WINDOW_WIDTH_1080;
+			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
+			pAuxView->x = PIP_POSITION_MARGIN_1080;
+			pAuxView->y = PIP_POSITION_MARGIN_1080;
+#else
 			pAuxView->w = PIP_WINDOW_WIDTH;
 			pAuxView->h = PIP_WINDOW_HEIGHT;
 			pAuxView->x = PIP_POSITION_MARGIN*2;
 			pAuxView->y = PIP_POSITION_MARGIN;
+#endif
 			break;
 	}
 
-	memcpy(&stVideo_A.stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo_A.stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo_A.stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo_A.stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
-	ConfigI2C(MDIN_ID_A);
-	MDIN3xx_SetScaleProcess(&stVideo_A);
+	M380_ID = MDIN_ID_A;
+	memcpy(&stVideo[M380_ID].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[M380_ID].stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[M380_ID].stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[M380_ID].stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
 
+//	ConfigI2C(MDIN_ID_C);
+	MDIN3xx_SetScaleProcess(&stVideo[M380_ID]);
 }
 
 
@@ -1344,9 +1343,7 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 	eChannel_t mainChannel, auxChannel;
 	WORD mainTotalWidth, mainTotalHeight;
 	WORD auxTotalWidth, auxTotalHeight;
-#ifndef ADJUST_CROPPING_WINDOW_NVP
 	sCroppingOffset_t croppingOffset;
-#endif
 
 	PMDIN_VIDEO_WINDOW pMainView = &stMainVIEW[MDIN_ID_B];
 	PMDIN_VIDEO_WINDOW pAuxView = &stAuxVIEW[MDIN_ID_B];
@@ -1421,8 +1418,10 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 	}
 	if(IsVideoLossChannel(auxChannel) == TRUE)
 	{
+//		auxTotalWidth = DISPLAY_WIDTH_1280x720/2;
+//		auxTotalHeight = DISPLAY_HEIGHT_480;
 		auxTotalWidth = DISPLAY_WIDTH_1280x720/2;
-		auxTotalHeight = DISPLAY_HEIGHT_480/2;
+		auxTotalHeight = DISPLAY_HEIGHT_1280x720;
 	}
 
 	pMainCrop->w = mainTotalWidth;
@@ -1438,17 +1437,6 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 	switch(displayMode)
 	{	
 		case DISPLAY_MODE_2SPLIT_HCROP_B:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth/2;
-			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-
-			pAuxCrop->w = auxTotalWidth/2;
-			pAuxCrop->h = auxTotalHeight;
-			pAuxCrop->x = 0;
-			pAuxCrop->y = 0;	
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL3);
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
@@ -1459,7 +1447,6 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			pAuxCrop->h = auxTotalHeight;
 			pAuxCrop->x = (auxTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
 			pAuxCrop->y = 0;	
-#endif
 		case DISPLAY_MODE_2SPLIT_HSCALE_B:
 			pMainView->w = DISPLAY_HALF_WIDTH;
 			pMainView->h = DISPLAY_HEIGHT;
@@ -1468,22 +1455,11 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 
 			pAuxView->w = DISPLAY_HALF_WIDTH;
 			pAuxView->h = DISPLAY_HEIGHT;
-			pAuxView->x = DISPLAY_WIDTH;
+			pAuxView->x = DISPLAY_HALF_WIDTH;	// modified on 190902
 			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_2SPLIT_VCROP_B:
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-			pMainCrop->w = mainTotalWidth;
-			pMainCrop->h = mainTotalHeight/2;
-			pMainCrop->x = 0;
-			pMainCrop->y = 0;
-
-			pAuxCrop->w = auxTotalWidth;
-			pAuxCrop->h = auxTotalHeight/2;
-			pAuxCrop->x = 0;
-			pAuxCrop->y = 0;
-#else
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL3);
 			pMainCrop->w = mainTotalWidth;
 			pMainCrop->h = mainTotalHeight/2;
@@ -1494,7 +1470,6 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			pAuxCrop->h = auxTotalHeight/2;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = (auxTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;//0;
-#endif
 		case DISPLAY_MODE_2SPLIT_VSCALE_B:
 			pMainView->w = DISPLAY_HALF_WIDTH;
 			pMainView->h = DISPLAY_HALF_HEIGHT;
@@ -1511,6 +1486,17 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 		case DISPLAY_MODE_4SPLIT_U3CROP:
 		case DISPLAY_MODE_4SPLIT_D3SCALE:
 		case DISPLAY_MODE_4SPLIT_D3CROP:
+#if 1	// 190905
+			pMainView->w = PIP_WINDOW_WIDTH_1080;
+			pMainView->h = PIP_WINDOW_HEIGHT_1080;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			pAuxView->w = PIP_WINDOW_WIDTH_1080;
+			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
+			pAuxView->x = PIP_WINDOW_WIDTH_1080;
+			pAuxView->y = 0;
+#else
 			pMainView->w = DISPLAY_WIDTH_1280x720 / 2;
 			pMainView->h = DISPLAY_HEIGHT_1280x720 / 2;
 			pMainView->x = 0;
@@ -1519,14 +1505,36 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			pAuxView->w = DISPLAY_WIDTH_1280x720 / 2;
 			pAuxView->h =  DISPLAY_HEIGHT_1280x720 / 2;
 			pAuxView->x = DISPLAY_WIDTH_1280x720;
-			pAuxView->y = 0; 
+			pAuxView->y = 0;
+#endif
 			break;
 
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
 		case DISPLAY_MODE_4SPLIT_R3CROP:
 		case DISPLAY_MODE_4SPLIT_L3SCALE:
 		case DISPLAY_MODE_4SPLIT_L3CROP:
+			pMainView->w = PIP_WINDOW_WIDTH_1080;
+			pMainView->h = PIP_WINDOW_HEIGHT_1080;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			pAuxView->w = PIP_WINDOW_WIDTH_1080;
+			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
+			pAuxView->x = 0;
+			pAuxView->y = PIP_WINDOW_HEIGHT_1080;
+			break;
 		case DISPLAY_MODE_4SPLIT_QUAD:
+#if 1
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = 0;
+			pAuxView->y = DISPLAY_HALF_HEIGHT;
+#else			
 			pMainView->w = DISPLAY_WIDTH_1280x720 / 2;
 			pMainView->h =  DISPLAY_HEIGHT_1280x720 / 2;
 			pMainView->x = 0;
@@ -1536,6 +1544,7 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			pAuxView->h =  DISPLAY_HEIGHT_1280x720 / 2;
 			pAuxView->x = 0;
 			pAuxView->y =  DISPLAY_HEIGHT_1280x720 / 2;
+#endif
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_H:	
@@ -1551,7 +1560,8 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 
 			pAuxView->w = DISPLAY_WIDTH_1280x720 / 4;
 			pAuxView->h = DISPLAY_HEIGHT_1280x720;
-			pAuxView->x = DISPLAY_WIDTH_1280x720*3/2;
+//			pAuxView->x = DISPLAY_WIDTH_1280x720*3/2;
+			pAuxView->x = DISPLAY_WIDTH_1280x720*3/4;	// 190905
 			pAuxView->y = 0;
 
 			pAuxCrop->w = auxTotalWidth/4;
@@ -1583,13 +1593,14 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			break;
 	}
 
-	memcpy(&stVideo_B.stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo_B.stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo_B.stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo_B.stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
-	ConfigI2C(MDIN_ID_B);
-	MDIN3xx_SetScaleProcess(&stVideo_B);
+	M380_ID = MDIN_ID_B;
+	memcpy(&stVideo[M380_ID].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[M380_ID].stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[M380_ID].stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[M380_ID].stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
 
+//	ConfigI2C(MDIN_ID_C);
+	MDIN3xx_SetScaleProcess(&stVideo[M380_ID]);
 }
 
 
@@ -1619,10 +1630,24 @@ static void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pMainCrop->y = 0;
 			break;
 
+		case DISPLAY_MODE_2SPLIT_HSCALE_A:
+		case DISPLAY_MODE_2SPLIT_HCROP_A:
+		case DISPLAY_MODE_2SPLIT_HSCALE_B:	// 8
+		case DISPLAY_MODE_2SPLIT_HCROP_B:
+			pMainCrop->w = DISPLAY_WIDTH;
+			pMainCrop->h = DISPLAY_HEIGHT;
+			pMainCrop->x = 0;
+			pMainCrop->y = 0;
+			break;
 		case DISPLAY_MODE_3SPLIT_R2SCALE:
 		case DISPLAY_MODE_3SPLIT_R2CROP:
 		case DISPLAY_MODE_3SPLIT_D2SCALE:
 		case DISPLAY_MODE_3SPLIT_D2CROP:
+			pAuxCrop->w = stVideo[MDIN_ID_B].stCROP_m.w;	// src size of MDIN_B
+			pAuxCrop->h = stVideo[MDIN_ID_B].stCROP_m.h;	// src size of MDIN_B
+			pAuxCrop->x = 0;
+			pAuxCrop->y = 0;
+				
 			pAuxView->w = DISPLAY_HALF_WIDTH;
 			pAuxView->h = DISPLAY_HALF_HEIGHT;
 			pAuxView->x = DISPLAY_HALF_WIDTH;
@@ -1661,8 +1686,10 @@ static void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = DISPLAY_HALF_WIDTH;
 			pAuxView->y = 0;
 
-			pAuxCrop->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxCrop->h = DISPLAY_HEIGHT_1280x720;
+//			pAuxCrop->w = DISPLAY_WIDTH_1280x720/2;
+//			pAuxCrop->h = DISPLAY_HEIGHT_1280x720;
+			pAuxCrop->w = DISPLAY_HALF_WIDTH;
+			pAuxCrop->h = DISPLAY_HEIGHT;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
@@ -1749,13 +1776,14 @@ static void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			break;
 	}
 
-	memcpy(&stVideo_C.stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo_C.stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo_C.stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo_C.stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
+	M380_ID = MDIN_ID_C;
+	memcpy(&stVideo[M380_ID].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[M380_ID].stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[M380_ID].stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[M380_ID].stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
 
-	ConfigI2C(MDIN_ID_C);
-	MDIN3xx_SetScaleProcess(&stVideo_C);
+//	ConfigI2C(MDIN_ID_C);
+//	MDIN3xx_SetScaleProcess(&stVideo[M380_ID]);
 	//Delay_ms(100);
 	//stVideo_C.exeFLAG = MDIN_UPDATE_MAINFMT;
 }
@@ -1783,86 +1811,117 @@ static void InputSourceHandler(MDIN_VIDEO_INPUT_t src)
 	InputSelOld = src;
 }
 
-//--------------------------------------------------------------------------------------------------
-static void SetOSDMenuRefresh(void)
+static void FadeInOut(BYTE Flag, FADEIN_NO_t FadeIn, BYTE delay)
 {
-	ConfigI2C(MDIN_ID_C);
-	OSD_ModifyPalette_M((stVideo_C.stOUT_m.mode == MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
-	MDINOSD_EnableLayerRepeat(&stLayer[LAYER_INDEX0], OFF, OFF);
-	MDIN3xx_EnableAuxWithMainOSD(&stVideo_C, ON);
+	BYTE i;
+	MDIN_CSCCTRL_INFO	stCSC, *pCSC;
+
+	if (FadeIn == FADE_IN || FadeIn == FADE_OUT)
+	{
+		 pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscBypass_StdRange;		// YUV(HD or SD) to YUV(HD or SD)
+		memcpy(&stCSC, (PBYTE)pCSC, sizeof(MDIN_CSCCTRL_INFO));
+		for ( i = 0; i <= 16; i++)
+		{
+			if (FadeIn == FADE_IN)
+				{stCSC.coef[0] = stCSC.coef[4] = stCSC.coef[8] = (512/16*i);}
+			else
+				{stCSC.coef[0] = stCSC.coef[4] = stCSC.coef[8] = (512/16*(16 -i));}
+
+			if (Flag&MDIN_UPDATE_MAIN_IN)	MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x00a, (PBYTE)&stCSC, sizeof(WORD) * 9);
+			if (Flag&MDIN_UPDATE_AUX_IN)		MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x181, (PBYTE)&stCSC, sizeof(WORD) * 9);
+			MDINDLY_mSec(delay);
+		}
+	}
+	else if (FadeIn == DARK)
+	{
+		memset(&stCSC, 0,  sizeof(MDIN_CSCCTRL_INFO));
+
+		if (Flag&MDIN_UPDATE_MAIN_IN)	MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x00a, (PBYTE)&stCSC, sizeof(WORD) * 9);
+		if (Flag&MDIN_UPDATE_AUX_IN)		MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x181, (PBYTE)&stCSC, sizeof(WORD) * 9);
+	}
 }
 
 //--------------------------------------------------------------------------------------------------
-static void VideoFrameProcess(MDIN_CHIP_ID_t mdin_id)
+static void SetOSDMenuRefresh(void)
 {
-	PMDIN_VIDEO_INFO pVideo = pVideoInfo[mdin_id];
-#if 0
-	if (EncVideoFrmt!=PrevEncFrmt)
-	{
-		PrevSrcMainFrmt[mdin_id] = 0xff;
-	}
-	pVideo->encFRMT = EncVideoFrmt;
-	PrevEncFrmt = EncVideoFrmt;
+//	ConfigI2C(MDIN_ID_C);
+	M380_ID = MDIN_ID_C;
+	OSD_ModifyPalette_M((stVideo[MDIN_ID_C].stOUT_m.mode == MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
+	MDINOSD_EnableLayerRepeat(&stLayer[LAYER_INDEX0], OFF, OFF);
+	MDIN3xx_EnableAuxWithMainOSD(&stVideo[MDIN_ID_C], ON);
+}
+
+//--------------------------------------------------------------------------------------------------
+static void VideoFrameProcess(void)
+{
+	BYTE ID;
+
+#if defined(__USE_USART_TO_DEBUG__)
+	printf("VideoFrameProcess 1 ----------------------------------\n");
+	printf("stVideo[MDIN_ID_A].exeFLAG = %x\n", stVideo[MDIN_ID_A].exeFLAG);
+	printf("stVideo[MDIN_ID_B].exeFLAG = %x\n", stVideo[MDIN_ID_B].exeFLAG);
+	printf("stVideo[MDIN_ID_C].exeFLAG = %x\n", stVideo[MDIN_ID_C].exeFLAG);
+	printf("stVideo[MDIN_ID_D].exeFLAG = %x\n", stVideo[MDIN_ID_D].exeFLAG);		
 #endif
-	if((SrcMainFrmt[mdin_id] != PrevSrcMainFrmt[mdin_id])|| (SrcPath[mdin_id] != pVideo->srcPATH))
+
+	if (stVideo[MDIN_ID_A].exeFLAG == 0 && stVideo[MDIN_ID_B].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0) 
+		return;
+
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
 	{
-		pVideo->exeFLAG |= MDIN_UPDATE_MAIN_IN;
-	}
-	if(OutMainFrmt[mdin_id] !=PrevOutMainFrmt[mdin_id])
-	{
-		pVideo->exeFLAG |= MDIN_UPDATE_MAIN_OUT;
-	}
-	if (SrcAuxFrmt[mdin_id] !=PrevSrcAuxFrmt[mdin_id])
-	{
-		pVideo->exeFLAG |= MDIN_UPDATE_AUX_IN;
+		M380_ID = ID;
+//		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, FADE_OUT, 20);
+			
+		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN_IN)
+		{
+			MDIN3xx_OutDarkScreen(ON);
+			MDIN3xx_EnableMainDisplay(OFF);
+			MDIN3xx_EnableMainFreeze(ID, ON);
+		}
+		if (stVideo[ID].exeFLAG&MDIN_UPDATE_AUX_IN)
+		{
+			MDIN3xx_AuxDarkScreen(ON);
+			MDIN3xx_EnableAuxDisplay(&stVideo[ID], OFF);
+			MDIN3xx_EnableAuxFreeze(&stVideo[ID], ON);
+		}
 	}
 
-	if (pVideo->exeFLAG!=MDIN_UPDATE_CLEAR) // updated video formats
+//	SetOSDMenuDisable();
+
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
 	{
-		ConfigI2C(mdin_id);
+		M380_ID = ID;	
+		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	MDIN3xx_VideoInProcess(&stVideo[ID]);
+		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN)	MDIN3xx_VideoProcess(&stVideo[ID]);
+		if (stVideo[ID].exeFLAG&MDIN_UPDATE_AUX)	MDINAUX_VideoProcess(&stVideo[ID]);
+		
+//		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, DARK, 0);
+	}
+
 	
-		pVideo->stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
-
-		if (pVideo->srcPATH == PATH_MAIN_B_AUX_B || pVideo->srcPATH == PATH_MAIN_B_AUX_A || pVideo->srcPATH == PATH_MAIN_B_AUX_M)
-		{
-			pVideo->stSRC_b.frmt = SrcMainFrmt[mdin_id];
-			pVideo->stSRC_a.frmt = SrcAuxFrmt[mdin_id];
-		}
-		else
-		{
-			pVideo->stSRC_a.frmt = SrcMainFrmt[mdin_id];
-			pVideo->stSRC_b.frmt = SrcAuxFrmt[mdin_id];
-		}
-		pVideo->stOUT_m.frmt = OutMainFrmt[mdin_id];
-
-		MDIN3xx_EnableAuxDisplay(pVideo, OFF);
-		MDIN3xx_EnableMainDisplay(OFF);
-/*
-		if (OutMainFrmt[mdin_id] !=PrevOutMainFrmt[mdin_id]) 
-		{
-			pVideo->pHY_m		= 	NULL;		// restore MFCHY from API
-			pVideo->pHC_m		= 	NULL;		// restore MFCHY from API
-			pVideo->pVY_m		= 	NULL;		// restore MFCHY from API
-			pVideo->pVC_m		= 	NULL;		// restore MFCHY from API
-		}
-*/
-		//MDIN3xx_VideoProcess(pVideo);		// mdin3xx main video process
-		
-		if (pVideo->exeFLAG&MDIN_UPDATE_IN)                MDIN3xx_VideoInProcess(pVideo);
-		if (pVideo->exeFLAG&MDIN_UPDATE_MAIN)            MDIN3xx_VideoProcess(pVideo);
-		if (pVideo->exeFLAG&MDIN_UPDATE_AUX)             MDINAUX_VideoProcess(pVideo);
-		
-		SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
-
-		MDIN3xx_EnableAuxDisplay(pVideo, ON);
+	M380_ID = MDIN_ID_C;
+	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
+	
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	{
+		M380_ID = ID;
+		MDIN3xx_EnableMainFreeze(ID, OFF);
 		MDIN3xx_EnableMainDisplay(ON);
-
-		PrevSrcMainFrmt[mdin_id] = SrcMainFrmt[mdin_id];
-		PrevOutMainFrmt[mdin_id] = OutMainFrmt[mdin_id];
-
-		PrevSrcAuxFrmt[mdin_id] = SrcAuxFrmt[mdin_id];
-		SrcPath[mdin_id] = pVideo->srcPATH;
+		MDIN3xx_EnableAuxFreeze(&stVideo[ID], OFF);
+		MDIN3xx_EnableAuxDisplay(&stVideo[ID], ON);
 	}
+	
+	MDINDLY_mSec(100);	// delay 100ms
+	
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	{
+		M380_ID = ID;	
+		MDIN3xx_OutDarkScreen(OFF);
+		MDIN3xx_AuxDarkScreen(OFF);
+
+//		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, FADE_IN, 20);
+	}
+	M380_ID = MDIN_ID_C;
 }
 
 
@@ -1872,14 +1931,14 @@ static void VideoFrameProcess(MDIN_CHIP_ID_t mdin_id)
 //--------------------------------------------------------------------------------------------------
 void CreateVideoInstance(void)
 {
-	memset((PBYTE)&stVideo_D, 0, sizeof(MDIN_VIDEO_INFO));
+	memset((PBYTE)&stVideo[MDIN_ID_D], 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_D();
 	
-	memset((PBYTE)&stVideo_A, 0, sizeof(MDIN_VIDEO_INFO));
+	memset((PBYTE)&stVideo[MDIN_ID_A], 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_AB(MDIN_ID_A);
-	memset((PBYTE)&stVideo_B, 0, sizeof(MDIN_VIDEO_INFO));
+	memset((PBYTE)&stVideo[MDIN_ID_B], 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_AB(MDIN_ID_B);
-	memset((PBYTE)&stVideo_C, 0, sizeof(MDIN_VIDEO_INFO));
+	memset((PBYTE)&stVideo[MDIN_ID_C], 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_C();
 	
 	//InputSelect = VIDEO_DIGITAL_NVP6158_FULL;
@@ -1905,6 +1964,9 @@ void SetInputSource(BYTE input)
 void SetInputChanged(void)
 {
 	fInputChanged = TRUE;
+	stVideo[MDIN_ID_A].exeFLAG = stVideo[MDIN_ID_B].exeFLAG = MDIN_UPDATE_ALL;
+	stVideo[MDIN_ID_C].exeFLAG |= MDIN_UPDATE_IN;
+	stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_IN;
 }
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
@@ -1913,17 +1975,22 @@ void VideoProcessHandler(void)
 	{
 		InputSourceHandler(InputSelect);
 
+/*
 		if(InputSelect != VIDEO_DIGITAL_NVP6158_B)
 		{
+			printf("NVP6158_B\n");
 			VideoFrameProcess(MDIN_ID_A);
 			Delay_us(10);
 		}
 		if(InputSelect != VIDEO_DIGITAL_NVP6158_A)
 		{
+			printf("NVP6158_A\n");
 			VideoFrameProcess(MDIN_ID_B);
 			Delay_us(10);
 		}
 		VideoFrameProcess(MDIN_ID_C);
+*/
+		VideoFrameProcess();
 		SetOSDMenuRefresh();
 	}
 	fInputChanged = FALSE;
@@ -1932,8 +1999,8 @@ void VideoProcessHandler(void)
 //--------------------------------------------------------------------------------------------------
 void VideoHTXCtrlHandler(void)
 {
-	ConfigI2C(MDIN_ID_C);
-	MDINHTX_CtrlHandler(&stVideo_C);
+	M380_ID = MDIN_ID_C;
+	MDINHTX_CtrlHandler(&stVideo[MDIN_ID_C]);
 }
 
 
@@ -1944,18 +2011,19 @@ void SetAuxOutMode_C(void)
 
 	Read_NvItem_AuxVideoFormat(&format);
 
-	ConfigI2C(MDIN_ID_C);
+//	ConfigI2C(MDIN_ID_C);
+	M380_ID = MDIN_ID_C;
 	if(format == VIDEO_VGA)
 	{
-		stVideo_C.stOUT_m.mode = MDIN_OUT_RGB444_8;
+		stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_RGB444_8;
 		OSD_ModifyPalette_M(OSD_RGB_PALETTE);
 	}
 	else
 	{
-		stVideo_C.stOUT_m.mode = MDIN_OUT_EMB422_8;
+		stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_EMB422_8;
 		OSD_ModifyPalette_M(OSD_YUV_PALETTE);
 	}
-	stVideo_C.exeFLAG |= MDIN_UPDATE_AUX;
+	stVideo[M380_ID].exeFLAG |= MDIN_UPDATE_AUX;
 }
 
 
@@ -1972,7 +2040,7 @@ eColorFormat_t GetCurrentColorFormat(void)
 
 
 
-
+#if 0
 // test code
 
 #define STRAT_REG 	0x1C1
@@ -1998,5 +2066,5 @@ void ReadMemoryMapReg(void)
 	}
 	count++;
 }
-
+#endif
 /*  FILE_END_HERE */

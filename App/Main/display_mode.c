@@ -205,17 +205,6 @@ void DisplayScreen(eDisplayMode_t mode)
 			break;
 	}
 	Write_NvItem_DisplayMode(mode);
-
-#ifdef ADJUST_CROPPING_WINDOW_NVP
-	if(IsCroppingMode(mode) == TRUE)
-	{
-		NVP6158_AdjustCroppingOffset();
-	}
-	else
-	{
-		NVP6158_ClearWindowOffset();
-	}
-#endif
 }
 
 void UpdateDisplayMode(void)

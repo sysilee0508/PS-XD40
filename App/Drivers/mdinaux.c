@@ -57,7 +57,7 @@ static ROMDATA MDIN_AUXFILT_COEF MDIN_AuxFilterCoef[]	= {
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
-extern WORD GetROW[M380_NO], fbADDR[M380_NO];
+extern WORD GetROW[MDIN_ID_MAX], fbADDR[MDIN_ID_MAX];
 
 // ----------------------------------------------------------------------
 // Static Prototype Functions
@@ -130,7 +130,7 @@ static MDIN_ERROR_t MDINAUX_SetSrcVideoFrmt(PMDIN_VIDEO_INFO pINFO)
 //--------------------------------------------------------------------------------------------------------------------------
 static MDIN_ERROR_t MDINAUX_SetOutVideoFrmt(PMDIN_VIDEO_INFO pINFO)
 {
-	WORD mode = 0;
+	WORD mode = 0;	 BYTE rpt = 0;
 	PMDIN_OUTVIDEO_INFO pOUT = (PMDIN_OUTVIDEO_INFO)&pINFO->stOUT_x;
 
 	if (pOUT->frmt>=VIDOUT_FORMAT_END) return MDIN_INVALID_FORMAT;
@@ -196,6 +196,12 @@ static MDIN_ERROR_t MDINAUX_SetOutVideoFrmt(PMDIN_VIDEO_INFO pINFO)
 	}
 #endif
 */
+	// aux_pixel_repetition(0x145[2:0])
+	rpt = (pOUT->mode==MDIN_OUT_MUX656_8||pOUT->mode==MDIN_OUT_MUX656_10)? 2 :  1; 	// x2 for BT.656 out
+//	rpt = (pINFO->dacPATH==DAC_PATH_AUX_4CH)? rpt*2 : (pINFO->dacPATH==DAC_PATH_AUX_2HD)? rpt*2 : rpt; // x2 for 2ch per port
+//	rpt = (pINFO->dacPATH==DAC_PATH_AUX_4CH)? rpt*4 : (pINFO->dacPATH==DAC_PATH_AUX_2HD)? rpt*2 : rpt; // x4 for 4ch per port (available only for BT.656)
+	mode |= rpt - 1;
+
 	// for 4-CH input mode, 2-HD input mode
 	if (pINFO->dacPATH==DAC_PATH_AUX_4CH||pINFO->dacPATH==DAC_PATH_AUX_2HD) mode |= (1<<8);
 
