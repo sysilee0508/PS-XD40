@@ -1,6 +1,5 @@
 #include "common.h"
 #include "stm32f10x_flash.h"
-#include "NVP6158.h"
 #include "nv_storage.h"
 //-----------------------------------------------------------------------------
 //

@@ -2,7 +2,11 @@
 // Include files
 // ----------------------------------------------------------------------
 #include "common.h"
-#include "NVP6158.h"        
+#if BD_NVP == NVP6158
+#include "NVP6158.h"
+#elif BD_NVP == NVP6168
+#include "raptor4_fmt.h"
+#endif
 
 // ----------------------------------------------------------------------
 // Struct/Union Types and define
@@ -130,37 +134,35 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 
 	switch(GetInputVideoFormat(channel))
 	{
-		case AHD20_SD_H960_NT:
-		case AHD20_SD_H960_EX_NT:
-		case AHD20_SD_H960_2EX_NT:
-		case AHD20_SD_H960_2EX_Btype_NT:
+		case SD_H960_NT:
+		case SD_H960_EX_NT:
+		case SD_H960_2EX_NT:
+		case SD_H960_2EX_Btype_NT:
 			format[channel] = VIDSRC_960x480i60;	//720x480p 60hz
 			break;
 
-		case AHD20_SD_H960_PAL:
-		case AHD20_SD_H960_EX_PAL:
-		case AHD20_SD_H960_2EX_PAL:
-		case AHD20_SD_H960_2EX_Btype_PAL:
+		case SD_H960_PAL:
+		case SD_H960_EX_PAL:
+		case SD_H960_2EX_PAL:
+		case SD_H960_2EX_Btype_PAL:
 			format[channel] = VIDSRC_960x576i50;	//720x576p 50hz
 			break;
-		case AHD20_1080P_60P:
-		case AHD20_1080P_30P:
+		case AHD_1080P_30P:
 		case TVI_FHD_30P:
 		case CVI_FHD_30P:
 			format[channel] = VIDSRC_1920x1080p60;	//1080p60
 			break;
 
-		case AHD20_1080P_50P:
-		case AHD20_1080P_25P:
+		case AHD_1080P_25P:
 		case TVI_FHD_25P:
 		case CVI_FHD_25P:
 			format[channel] = VIDSRC_1920x1080p50;	//1080p50
 			break;
 
-		case AHD20_720P_60P:
-		case AHD20_720P_30P:
-		case AHD20_720P_30P_EX:
-		case AHD20_720P_30P_EX_Btype:
+		case AHD_720P_60P:
+		case AHD_720P_30P:
+		case AHD_720P_30P_EX:
+		case AHD_720P_30P_EX_Btype:
 		case TVI_HD_60P:
 		case TVI_HD_30P:
 		case TVI_HD_30P_EX:
@@ -172,10 +174,10 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 			format[channel] = VIDSRC_1280x720p60;	//720p60
 			break;
 
-		case AHD20_720P_50P:
-		case AHD20_720P_25P:
-		case AHD20_720P_25P_EX:
-		case AHD20_720P_25P_EX_Btype:
+		case AHD_720P_50P:
+		case AHD_720P_25P:
+		case AHD_720P_25P_EX:
+		case AHD_720P_25P_EX_Btype:
 		case TVI_HD_50P:
 		case TVI_HD_25P:
 		case TVI_HD_25P_EX:

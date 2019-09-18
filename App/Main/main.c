@@ -5,11 +5,12 @@
 #include <string.h>
 #include "common.h"
 #include "video_loss.h"
+#include "NVP6168.h"
 
 #undef MDIN_TEST_PATTERN
 
+extern BYTE	TPIAddr;
 
-extern void ReadMemoryMapReg(void);
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -36,8 +37,8 @@ static void PlayBuzzer(void)
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn100ms = 0;
 	u8 lossCount = GetVideoLossBuzzerCount();
-    u8 alarmCount = GetAlarmBuzzerCount();
-    u8 motionCount = GetMotionBuzzerCount();
+	u8 alarmCount = GetAlarmBuzzerCount();
+	u8 motionCount = GetMotionBuzzerCount();
 	u8 buzzerCount;
 
 	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
@@ -53,7 +54,7 @@ static void PlayBuzzer(void)
 
 			if(lossCount > 0)
 			{
-				DecreaseVideoLossBuzzerCount();
+                          DecreaseVideoLossBuzzerCount();
 			}
 			if(alarmCount > 0)
 			{
@@ -125,8 +126,12 @@ void main(void)
 	// Load NV data from flash memory
 	LoadNvDataFromStorage();
 
+#if BD_NVP == NVP6158
 	//NVP6158 device initialization
 	NVP6158_init();
+#elif BD_NVP == NVP6168
+	NVP6168_Init();
+#endif
 	InitVideoLossCheck();
 	InitializeMotionDetect();
 
@@ -138,6 +143,10 @@ void main(void)
 	CreateOSDInstance();
 	Osd_ClearScreen();
 
+	// Init TP2912
+	InitRegisterSet();
+//	Init_UpData_Comm();
+	
 	SetInitialKey();
 	
 #ifdef MDIN_TEST_PATTERN
@@ -153,7 +162,11 @@ void main(void)
 	{
 		RTC_CheckTime();
 		Key_Proc();
+#if BD_NVP == NVP6158
 		NVP6158_VideoDetectionProc();
+#elif BD_NVP == NVP6168
+		NVP6168_AutoDetection_Proc();
+#endif
 		Delay_ms(1);
 		
 		ScanVideoLossChannels();
@@ -175,6 +188,12 @@ void main(void)
 		VideoHTXCtrlHandler();
 
 		OSD_Display();
+
+		if(TPIAddr != 0) 
+		{
+			// tp2912
+			Get_TVI_ISR();
+		}
 
 		StoreNvDataToStorage();
 

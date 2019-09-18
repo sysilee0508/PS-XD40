@@ -49,14 +49,18 @@
 #include "display_mode.h"
 #include "video.h"
 #include "osd_display.h"
+#include "NVP6168.h"
 #include "nv_storage.h"
 
 #define NOP()	asm("NOP")
 
 #define CLEAR							0
 
+#define NVP6158			0
+#define NVP6168			1
 
-//#define ADJUST_CROPPING_WINDOW_NVP
+#define BD_NVP			NVP6168
+
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
