@@ -3,7 +3,11 @@
 //=============================================================================
 #include <stdio.h>
 #include "common.h"
+#if BD_NVP == NVP6158
 #include "NVP6158.h"
+#elif BD_NVP == NVP6168
+#include "NVP6168.h"
+#endif
 
 //=============================================================================
 //  Global Variable Declaration
@@ -246,11 +250,19 @@ void Key_Proc(void)
 
 		if(key == KEY_FULL_CH2)
 		{
+#if BD_NVP == NVP6158
 			NVP6158_Set_VportMap(VPORT_MAP1);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP1);
+#endif
 		}
 		else
 		{
+#if BD_NVP == NVP6158
 			NVP6158_Set_VportMap(VPORT_MAP0);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP0);
+#endif
 		}
 		
 		switch(key)

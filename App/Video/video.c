@@ -2,7 +2,12 @@
 // Include files
 // ----------------------------------------------------------------------
 #include "common.h"
-#include "NVP6158.h"        
+#if BD_NVP == NVP6158
+#include "NVP6158.h"
+#elif BD_NVP == NVP6168
+#include "NVP6168.h"
+#include "raptor4_fmt.h"
+#endif
 
 // ----------------------------------------------------------------------
 // Struct/Union Types and define
@@ -13,6 +18,7 @@
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
+#if 0
 // default value for AUX filter
 static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
   {	{0x00aa, 0x0047, 0x03e4, 0x0000, 0x0000},	// HY - 1920x1080 to 1280x1024
@@ -40,7 +46,7 @@ static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
 	{0x0072, 0x0042, 0x0005},					// VY
 	{0x0072, 0x0047}  },						// VC
 };
-
+#endif
 MDIN_VIDEO_INFO		stVideo;
 MDIN_INTER_WINDOW	stInterWND;
 
@@ -89,16 +95,15 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
 
 	switch(inputFormat)
 	{
-		case AHD20_SD_H960_NT:
-		case AHD20_SD_H960_EX_NT:
-		case AHD20_SD_H960_2EX_NT:
-		case AHD20_SD_H960_2EX_Btype_NT:
-		case AHD20_1080P_60P:
-		case AHD20_1080P_30P:
-		case AHD20_720P_60P:
-		case AHD20_720P_30P:
-		case AHD20_720P_30P_EX:
-		case AHD20_720P_30P_EX_Btype:
+		case SD_H960_NT:
+		case SD_H960_EX_NT:
+		case SD_H960_2EX_NT:
+		case SD_H960_2EX_Btype_NT:
+		case AHD_1080P_30P:
+		case AHD_720P_60P:
+		case AHD_720P_30P:
+		case AHD_720P_30P_EX:
+		case AHD_720P_30P_EX_Btype:
 		case TVI_FHD_30P:
 		case TVI_HD_60P:
 		case TVI_HD_30P:
@@ -119,16 +124,15 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
 			}
 			break;
 
-		case AHD20_SD_H960_PAL:
-		case AHD20_SD_H960_EX_PAL:
-		case AHD20_SD_H960_2EX_PAL:
-		case AHD20_SD_H960_2EX_Btype_PAL:
-		case AHD20_1080P_50P:
-		case AHD20_1080P_25P:
-		case AHD20_720P_50P:
-		case AHD20_720P_25P:
-		case AHD20_720P_25P_EX:
-		case AHD20_720P_25P_EX_Btype:
+		case SD_H960_PAL:
+		case SD_H960_EX_PAL:
+		case SD_H960_2EX_PAL:
+		case SD_H960_2EX_Btype_PAL:
+		case AHD_1080P_25P:
+		case AHD_720P_50P:
+		case AHD_720P_25P:
+		case AHD_720P_25P_EX:
+		case AHD_720P_25P_EX_Btype:
 		case TVI_FHD_25P:
 		case TVI_HD_50P:
 		case TVI_HD_25P:
@@ -181,37 +185,36 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 
 	switch(GetInputVideoFormat(channel))
 	{
-		case AHD20_SD_H960_NT:
-		case AHD20_SD_H960_EX_NT:
-		case AHD20_SD_H960_2EX_NT:
-		case AHD20_SD_H960_2EX_Btype_NT:
+		case SD_H960_NT:
+		case SD_H960_EX_NT:
+		case SD_H960_2EX_NT:
+		case SD_H960_2EX_Btype_NT:
 			format[channel] = VIDSRC_960x480i60;	//720x480p 60hz
 			break;
 
-		case AHD20_SD_H960_PAL:
-		case AHD20_SD_H960_EX_PAL:
-		case AHD20_SD_H960_2EX_PAL:
-		case AHD20_SD_H960_2EX_Btype_PAL:
+		case SD_H960_PAL:
+		case SD_H960_EX_PAL:
+		case SD_H960_2EX_PAL:
+		case SD_H960_2EX_Btype_PAL:
 			format[channel] = VIDSRC_960x576i50;	//720x576p 50hz
 			break;
-		case AHD20_1080P_60P:
-		case AHD20_1080P_30P:
+		case AHD_1080P_30P:
 		case TVI_FHD_30P:
+		case TVI_FHD_60P:
 		case CVI_FHD_30P:
 			format[channel] = VIDSRC_1920x1080p60;	//1080p60
 			break;
 
-		case AHD20_1080P_50P:
-		case AHD20_1080P_25P:
+		case AHD_1080P_25P:
 		case TVI_FHD_25P:
 		case CVI_FHD_25P:
 			format[channel] = VIDSRC_1920x1080p50;	//1080p50
 			break;
 
-		case AHD20_720P_60P:
-		case AHD20_720P_30P:
-		case AHD20_720P_30P_EX:
-		case AHD20_720P_30P_EX_Btype:
+		case AHD_720P_60P:
+		case AHD_720P_30P:
+		case AHD_720P_30P_EX:
+		case AHD_720P_30P_EX_Btype:
 		case TVI_HD_60P:
 		case TVI_HD_30P:
 		case TVI_HD_30P_EX:
@@ -223,10 +226,10 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 			format[channel] = VIDSRC_1280x720p60;	//720p60
 			break;
 
-		case AHD20_720P_50P:
-		case AHD20_720P_25P:
-		case AHD20_720P_25P_EX:
-		case AHD20_720P_25P_EX_Btype:
+		case AHD_720P_50P:
+		case AHD_720P_25P:
+		case AHD_720P_25P_EX:
+		case AHD_720P_25P_EX_Btype:
 		case TVI_HD_50P:
 		case TVI_HD_25P:
 		case TVI_HD_25P_EX:
@@ -453,7 +456,11 @@ static BYTE GetSrcMainFrmt(BYTE src)
 	switch(src)
 	{
 		case VIDEO_DIGITAL_NVP6158_A:
+#if BD_NVP == NVP6158
 			if(NVP6158_Get_VportMap() == VPORT_MAP0)
+#elif BD_NVP == NVP6168
+			if(NVP6168_Get_VportMap() == VPORT_MAP0)
+#endif
 			{
 				currentMainFrmt = GetInSourceFormat(CHANNEL1);//stVideo.stSRC_a.frmt;
 			}
@@ -671,6 +678,7 @@ static void SetIPCVideoFine(BYTE src)
 	MDINHIF_RegField(MDIN_LOCAL_ID, 0x25b, 0, 8,  8);
 }
 
+#if 0
 //--------------------------------------------------------------------------------------------------
 static PMDIN_AUXFILT_COEF GetAUXFilterCoef(void)
 {
@@ -687,7 +695,6 @@ static PMDIN_AUXFILT_COEF GetAUXFilterCoef(void)
 	}
 }
 
-#if 0
 //--------------------------------------------------------------------------------------------------
 static void SetAUXVideoFilter(void)
 {

@@ -1,7 +1,7 @@
 #include "common.h"
 
 //global variables --> should be changed to static
-static sSystemTick_t systemTick = 0;
+static sSystemTick_t systemTick = {0,};
 
 //-----------------------------------------------------------------------------
 //	Process Timer interrupt with 1ms
@@ -48,7 +48,7 @@ void TIM3_Init(void)
 
 void TIM3_IRQHandler(void)
 {
-	static u8 count;
+	//static u8 count;
 
 	TIM3->SR = TIM3->SR & 0xFFFE;			// clear TIM2 update interrupt flag
 

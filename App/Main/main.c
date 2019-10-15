@@ -4,69 +4,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
+#include "NVP6168.h"
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-//static u8 alarmOutRequester = ALARMOUT_REQUESTER_NONE;
-//
-//void TurnOnAlarmOut(u8 requester)
-//{
-//	alarmOutRequester |=  requester;
-//	ALARMOUT_LOW;
-//}
-//
-//void TurnOffAlarmOut(u8 requester)
-//{
-//	alarmOutRequester &= (~requester);
-//
-//	if(alarmOutRequester == ALARMOUT_REQUESTER_NONE)
-//	{
-//		ALARMOUT_HIGH;
-//	}
-//}
 
-//static void PlayBuzzer(void)
-//{
-//	sSystemTick_t* currentSystemTime = GetSystemTime();
-//	static u32 previousSystemTimeIn100ms = 0;
-//	u8 lossCount = GetVideoLossBuzzerCount();
-//    u8 alarmCount = GetAlarmBuzzerCount();
-//    u8 motionCount = GetMotionBuzzerCount();
-//	u8 buzzerCount;
-//
-//	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
-//	{
-//		buzzerCount = MAX(MAX(lossCount, alarmCount), motionCount);
-//
-//		if(buzzerCount > 0)
-//		{
-//			if(buzzerCount%2)
-//				BUZZER_LOW;
-//			else
-//				BUZZER_HIGH;
-//
-//			if(lossCount > 0)
-//			{
-//				DecreaseVideoLossBuzzerCount();
-//			}
-//			if(alarmCount > 0)
-//			{
-//				DecreaseAlarmBuzzerCount();
-//			}
-//			if(motionCount > 0)
-//			{
-//				DecreaseMotionBuzzerCount();
-//			}
-//		}
-//		else
-//		{
-//			BUZZER_LOW;
-//		}
-//		previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
-//	}
-//}
-//
 //=============================================================================
 //  main function
 //=============================================================================
@@ -91,8 +34,12 @@ void main(void)
 	// Load NV data from flash memory
 	LoadNvDataFromStorage();
 
+#if BD_NVP == NVP6158
 	//NVP6158 device initialization
 	NVP6158_init();
+#elif BD_NVP == NVP6168
+	NVP6168_Init();
+#endif
 	InitVideoLossCheck();
 	Delay_ms(1);
 
@@ -128,7 +75,11 @@ void main(void)
 	{
 		RTC_CheckTime();
 		Key_Proc();
+#if BD_NVP == NVP6158
 		NVP6158_VideoDetectionProc();
+#elif BD_NVP == NVP6168
+		NVP6168_AutoDetection_Proc();
+#endif
 
 		Delay_ms(10);
 		// check video loss

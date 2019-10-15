@@ -2,11 +2,14 @@
 //  Header Declaration
 //=============================================================================
 #include <stdio.h>
-#include "NVP6158.h"
 #include "common.h"
-#include "display_mode.h"
+#if BD_NVP == NVP6158
+#include "NVP6158.h"
+#elif BD_NVP == NVP6168
+#include "NVP6168.h"
+#endif
 
-extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel);
+//extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel);
 
 //=============================================================================
 //  Define & MACRO
@@ -15,8 +18,6 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
-//static eDisplayMode_t systemDisplayMode = DISPLAY_MODE_FULL_CH1;
-//static eChannel_t systemDisplayChannel = CHANNEL1;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -25,28 +26,35 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 //=============================================================================
 //  Function Definition
 //=============================================================================
+static BYTE Get_CurrentVideoFormat(eChannel_t channel)
+{
+#if BD_NVP == NVP6158
+	return NVP6158_Current_Video_Format_Check(channel);
+#elif BD_NVP == NVP6168
+	return NVP6168_Current_VideoFormat_Get(channel);
+#endif
+}
 
-static BYTE Check_VideoFormat_Change(void)
+static BOOL Check_VideoFormat_Change(void)
 {
 	eChannel_t channel;
-	//BYTE oCurVideofmt;
 	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0,};
 	BYTE videoFormatChanged = FALSE;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
 	if(displayMode == DISPLAY_MODE_FULL_CH1)
 	{
-		if(NVP6158_Current_Video_Format_Check(CHANNEL1) != oPreVideofmt[CHANNEL1])
+		if(Get_CurrentVideoFormat(CHANNEL1) != oPreVideofmt[CHANNEL1])
 		{
-			oPreVideofmt[CHANNEL1] = NVP6158_Current_Video_Format_Check(CHANNEL1);
+			oPreVideofmt[CHANNEL1] = Get_CurrentVideoFormat(CHANNEL1);
 			videoFormatChanged = TRUE;
 		}
 	}
 	else if(displayMode == DISPLAY_MODE_FULL_CH2)
 	{
-		if(NVP6158_Current_Video_Format_Check(CHANNEL2) != oPreVideofmt[CHANNEL2])
+		if(Get_CurrentVideoFormat(CHANNEL2) != oPreVideofmt[CHANNEL2])
 		{
-			oPreVideofmt[CHANNEL2] = NVP6158_Current_Video_Format_Check(CHANNEL2);
+			oPreVideofmt[CHANNEL2] = Get_CurrentVideoFormat(CHANNEL2);
 			videoFormatChanged = TRUE;
 		}
 	}
@@ -54,9 +62,9 @@ static BYTE Check_VideoFormat_Change(void)
 	{
 		for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
 		{
-			if(NVP6158_Current_Video_Format_Check(channel) != oPreVideofmt[channel])
+			if(Get_CurrentVideoFormat(channel) != oPreVideofmt[channel])
 			{
-				oPreVideofmt[channel] = NVP6158_Current_Video_Format_Check(channel);
+				oPreVideofmt[channel] = Get_CurrentVideoFormat(channel);
 				videoFormatChanged = TRUE;
 				break;
 			}
@@ -72,10 +80,6 @@ void DisplayScreen(eDisplayMode_t mode)
 	{
 		SetInputSource(VIDEO_DIGITAL_NVP6158_A);
 	}
-//	else if(mode == DISPLAY_MODE_FULL_CH2)
-//	{
-//		SetInputSource(VIDEO_DIGITAL_NVP6158_B);
-//	}
 	else
 	{
 		SetInputSource(VIDEO_DIGITAL_NVP6158_2CH);
@@ -103,5 +107,5 @@ eDisplayMode_t GetCurrentDisplayMode(void)
 
 BYTE GetInputVideoFormat(eChannel_t channel)
 {
-	return NVP6158_Current_Video_Format_Check(channel);
+	Get_CurrentVideoFormat(channel);
 }
