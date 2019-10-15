@@ -47,7 +47,6 @@ static ROMDATA MDIN_AUXFILT_COEF defAUXFiltCoef[]	= {
 };
 #endif
 
-#if 1
 MDIN_VIDEO_INFO		stVideo[MDIN_ID_MAX];
 
 MDIN_INTER_WINDOW	stInterWND;
@@ -57,31 +56,10 @@ MDIN_SRCVIDEO_PATH_t SrcPath[MDIN_ID_MAX];
 static MDIN_SRCVIDEO_FORMAT_t SrcMainFrmt[MDIN_ID_MAX], PrevSrcMainFrmt[MDIN_ID_MAX];
 static MDIN_OUTVIDEO_FORMAT_t OutMainFrmt[MDIN_ID_MAX], PrevOutMainFrmt[MDIN_ID_MAX];
 static MDIN_SRCVIDEO_FORMAT_t SrcAuxFrmt[MDIN_ID_MAX], PrevSrcAuxFrmt[MDIN_ID_MAX];
-//static MDIN_OUTPORT_MODE_t OutMainMode_C, PrevOutMainMode_C;
-//MDIN_VENC_FORMAT_t EncVideoFrmt, PrevEncFrmt;
 BOOL fInputChanged;
 
 MDIN_VIDEO_WINDOW stMainVIEW[MDIN_ID_MAX], stAuxVIEW[MDIN_ID_MAX];
 MDIN_VIDEO_WINDOW stMainCROP[MDIN_ID_MAX], stAuxCROP[MDIN_ID_MAX];
-
-#else
-MDIN_VIDEO_INFO	 stVideo_A, stVideo_B, stVideo_C, stVideo_D;
-MDIN_INTER_WINDOW	stInterWND;
-
-MDIN_VIDEO_INPUT_t InputSelect, InputSelOld;
-MDIN_SRCVIDEO_PATH_t SrcPath[MDIN_ID_MAX];
-static MDIN_SRCVIDEO_FORMAT_t SrcMainFrmt[MDIN_ID_MAX], PrevSrcMainFrmt[MDIN_ID_MAX];
-static MDIN_OUTVIDEO_FORMAT_t OutMainFrmt[MDIN_ID_MAX], PrevOutMainFrmt[MDIN_ID_MAX];
-static MDIN_SRCVIDEO_FORMAT_t SrcAuxFrmt[MDIN_ID_MAX], PrevSrcAuxFrmt[MDIN_ID_MAX];
-//static MDIN_OUTPORT_MODE_t OutMainMode_C, PrevOutMainMode_C;
-//MDIN_VENC_FORMAT_t EncVideoFrmt, PrevEncFrmt;
-BOOL fInputChanged;
-
-MDIN_VIDEO_WINDOW stMainVIEW[MDIN_ID_MAX], stAuxVIEW[MDIN_ID_MAX];
-MDIN_VIDEO_WINDOW stMainCROP[MDIN_ID_MAX], stAuxCROP[MDIN_ID_MAX];
-
-const static PMDIN_VIDEO_INFO pVideoInfo[MDIN_ID_MAX] = {&stVideo_A, &stVideo_B, &stVideo_C, &stVideo_D};
-#endif
 
 // ----------------------------------------------------------------------
 // External Variable 
@@ -149,6 +127,7 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 			break;
 		case AHD_1080P_30P:
 		case TVI_FHD_30P:
+		case TVI_FHD_60P:
 		case CVI_FHD_30P:
 			format[channel] = VIDSRC_1920x1080p60;	//1080p60
 			break;
@@ -190,7 +169,6 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 			break;
 
 		default:
-			//format[channel] = VIDSRC_1280x720p60;
 			break;
 	}
 
@@ -211,7 +189,6 @@ static void SetIPCVideoFine(void)
 static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 {
 	WORD nID = 0;
-//	PMDIN_VIDEO_INFO pVideo;
 
 	if((mdin != MDIN_ID_A) && (mdin != MDIN_ID_B))
 	{
@@ -222,7 +199,6 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 		M380_ID = mdin;
 	}
 
-//	ConfigI2C(mdin);
 
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
@@ -234,9 +210,6 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 
 	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP5);		// disable digital out
-	//MDINOSD_SetBGLayerColor(RGB(128,128,128));			// set BG-Layer color
-
-	//MDINOSD_SetBGBoxColor(RGB(255,255,255));			// set BG-BOX color
 
 	// setup enhancement
 	MDIN3xx_SetFrontNRFilterCoef(NULL);		// set default frontNR filter coef
@@ -317,7 +290,6 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-//	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
 	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_OFF
 	
 	// define video format of AUX-INPUT
@@ -344,19 +316,6 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	// define video format of video encoder
 	stVideo[M380_ID].encFRMT = VID_VENC_AUTO;
 
-#if 0	// temporary blocked by kukuri
-	// define video format of HDMI-OUTPUT
-	stVideo[M380_ID].stVID_h.mode  = HDMI_OUT_RGB444_8;
-	stVideo[M380_ID].stVID_h.fine  = HDMI_CLK_EDGE_RISE;
-
-	// audio block
-	stVideo[M380_ID].stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
-	stVideo[M380_ID].stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
-	stVideo[M380_ID].stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
-							AUDIO_SCK_EDGE_RISE | AUDIO_SD_MSB_FIRST | AUDIO_SD_1ST_SHIFT;
-
-	MDINHTX_SetHDMIBlock(stVideo[M380_ID]);		// initialize HDMI block
-#endif
 	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
 	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
 	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
@@ -375,8 +334,6 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	SrcMainFrmt[mdin] = stVideo[M380_ID].stSRC_a.frmt;
 	PrevOutMainFrmt[mdin] = 0xff;
 	OutMainFrmt[mdin] = stVideo[M380_ID].stOUT_m.frmt;
-//	PrevEncFrmt = 0xff;
-//	EncVideoFrmt = stVideo[M380_ID].encFRMT;
 }
 
 static void MDIN3xx_SetRegInitial_C(void)
@@ -386,7 +343,6 @@ static void MDIN3xx_SetRegInitial_C(void)
 
 	Read_NvItem_AuxVideoFormat(&video);
 
-//	ConfigI2C(MDIN_ID_C);
 	M380_ID = MDIN_ID_C;
 	
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
@@ -443,7 +399,6 @@ static void MDIN3xx_SetRegInitial_C(void)
 	// define video format of PORTA-INPUT
 	stVideo[M380_ID].stSRC_a.frmt = VIDSRC_1920x1080p60;
 	stVideo[M380_ID].stSRC_a.mode = MDIN_SRC_MUX656_8;
-	//stVideo[M380_ID].stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
 	stVideo[M380_ID].stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
 	stVideo[M380_ID].stSRC_a.offH = 0;
 	stVideo[M380_ID].stSRC_a.offV = 0;
@@ -451,7 +406,6 @@ static void MDIN3xx_SetRegInitial_C(void)
 	// define video format of PORTB-INPUT
 	stVideo[M380_ID].stSRC_b.frmt = VIDSRC_1280x720p60;
 	stVideo[M380_ID].stSRC_b.mode = MDIN_SRC_MUX656_8;
-	//stVideo[M380_ID].stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
 	stVideo[M380_ID].stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
 	stVideo[M380_ID].stSRC_b.offH = 0;
 	stVideo[M380_ID].stSRC_b.offV = 0;
@@ -511,12 +465,6 @@ static void MDIN3xx_SetRegInitial_C(void)
 	stVideo[M380_ID].stVID_h.mode  =HDMI_OUT_RGB444_8;
 	stVideo[M380_ID].stVID_h.fine  = HDMI_CLK_EDGE_RISE;
 
-	// audio block
-	//stVideo[M380_ID].stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
-	//stVideo[M380_ID].stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
-	//stVideo[M380_ID].stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
-	//						AUDIO_SCK_EDGE_RISE | AUDIO_SD_MSB_FIRST | AUDIO_SD_1ST_SHIFT;
-
 	MDINHTX_SetHDMIBlock(&stVideo[M380_ID]);		// initialize HDMI block
 
 	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
@@ -537,8 +485,6 @@ static void MDIN3xx_SetRegInitial_C(void)
 	SrcMainFrmt[MDIN_ID_C] = stVideo[M380_ID].stSRC_a.frmt;
 	PrevOutMainFrmt[MDIN_ID_C] = 0xff;
 	OutMainFrmt[MDIN_ID_C] = stVideo[M380_ID].stOUT_m.frmt;
-//	PrevEncFrmt = 0xff;
-//	EncVideoFrmt = stVideo[M380_ID].encFRMT;
 }
 
 static void MDIN3xx_SetRegInitial_D(void)
@@ -547,7 +493,6 @@ static void MDIN3xx_SetRegInitial_D(void)
 	WORD nID = 0;
 
 	M380_ID = MDIN_ID_D;
-//	ConfigI2C(MDIN_ID_D);
 
 	do
 	{
@@ -617,7 +562,6 @@ static void MDIN3xx_SetRegInitial_D(void)
 	// define video format of PORTB-INPUT
 	stVideo[M380_ID].stSRC_b.frmt = VIDSRC_1920x1080p60;
 	stVideo[M380_ID].stSRC_b.mode = MDIN_SRC_EMB422_8;
-//	//stVideo_D.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
 	stVideo[M380_ID].stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
 	stVideo[M380_ID].stSRC_b.offH = 0;
 	stVideo[M380_ID].stSRC_b.offV = 0;
@@ -695,13 +639,11 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 				{
 					stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_A_AUX_M;
 					stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_OUT;
-//					stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 				else if(mode == DISPLAY_MODE_FULL_CH2)
 				{
 					stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_B_AUX_M;
 					stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_OUT;
-//					stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 				else
 				{
@@ -710,7 +652,6 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 				}
 				stVideo[MDIN_ID_C].srcPATH = PATH_MAIN_A_AUX_M;
 				stVideo[MDIN_ID_C].dacPATH = DAC_PATH_MAIN_OUT;
-//				stVideo[MDIN_ID_C].dacPATH = DAC_PATH_MAIN_PIP;
 				break;
 
 			case VIDEO_DIGITAL_NVP6158_B:	// use only mdin_b
@@ -718,13 +659,11 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 				{
 					stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_M;
 					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
-//					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 				else if(mode == DISPLAY_MODE_FULL_CH4)
 				{
 					stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_B_AUX_M;
 					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
-//					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
 				}
 				else
 				{
@@ -733,23 +672,56 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 				}
 				stVideo[MDIN_ID_C].srcPATH = PATH_MAIN_B_AUX_M;
 				stVideo[MDIN_ID_C].dacPATH = DAC_PATH_MAIN_OUT;
-//				stVideo[MDIN_ID_C].dacPATH = DAC_PATH_MAIN_PIP;
 				break;
 
 			case VIDEO_DIGITAL_NVP6158_AB:	// use mdin_a & mdin_b
-				stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_A_AUX_B;
-				stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
+				switch(mode)
+				{
+					case DISPLAY_MODE_2SPLIT_HSCALE_A :
+					case DISPLAY_MODE_2SPLIT_HCROP_A :
+					case DISPLAY_MODE_2SPLIT_VSCALE_A :
+					case DISPLAY_MODE_2SPLIT_VCROP_A:
+						stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_A_AUX_B;
+						stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_OUT;
+						
+						stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_B;
+						stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
+						break;
+						
+					case DISPLAY_MODE_2SPLIT_HSCALE_B:	
+					case DISPLAY_MODE_2SPLIT_HCROP_B:
+					case DISPLAY_MODE_2SPLIT_VSCALE_B:
+					case DISPLAY_MODE_2SPLIT_VCROP_B:
+						stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_B_AUX_A;
+						stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_OUT;
+						
+						stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_B_AUX_A;
+						stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
+						break;
 
-				if((mode >= DISPLAY_MODE_3SPLIT_R2SCALE) && (mode <= DISPLAY_MODE_3SPLIT_U2CROP))
-				{
-					stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_M;
-					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
-//					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
-				}
-				else
-				{
-					stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_B;
-					stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
+					case DISPLAY_MODE_3SPLIT_R2SCALE:
+					case DISPLAY_MODE_3SPLIT_R2CROP:
+					case DISPLAY_MODE_3SPLIT_L2SCALE:
+					case DISPLAY_MODE_3SPLIT_L2CROP:
+					case DISPLAY_MODE_3SPLIT_D2SCALE:
+					case DISPLAY_MODE_3SPLIT_D2CROP:
+					case DISPLAY_MODE_3SPLIT_U2SCALE:
+					case DISPLAY_MODE_3SPLIT_U2CROP:
+						stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_A_AUX_B;
+						stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
+						
+						stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_M;
+						stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_OUT;
+						break;
+
+					default:	// 4 splits
+						stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_A_AUX_B;
+						stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_PIP;
+						
+						stVideo[MDIN_ID_B].srcPATH = PATH_MAIN_A_AUX_B;
+						stVideo[MDIN_ID_B].dacPATH = DAC_PATH_MAIN_PIP;
+						break;
+
 				}
 
 				if((mode == DISPLAY_MODE_4SPLIT_H) || (mode == DISPLAY_MODE_4SPLIT_X))
@@ -773,6 +745,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	MDIN_SRCVIDEO_FORMAT_t srcFrmt[NUM_OF_CHANNEL];
 	eChannel_t channel;
+	MDIN_CHIP_ID_t mdin;
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
@@ -847,7 +820,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 				(SrcMainFrmt[MDIN_ID_A] == VIDSRC_1920x1080p60) ||
 				(SrcMainFrmt[MDIN_ID_A] == VIDSRC_1280x720p60))
 			{
-				if((displayMode == DISPLAY_MODE_4SPLIT_H) ||(displayMode == DISPLAY_MODE_4SPLIT_H) )
+				if((displayMode == DISPLAY_MODE_4SPLIT_H) ||(displayMode == DISPLAY_MODE_4SPLIT_X) )
 				{
 					OutMainFrmt[MDIN_ID_A] = VIDOUT_1280x720p60;
 					SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1280x720p60;
@@ -867,7 +840,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			else
 			{
 				
-				if((displayMode == DISPLAY_MODE_4SPLIT_H) ||(displayMode == DISPLAY_MODE_4SPLIT_H) )
+				if((displayMode == DISPLAY_MODE_4SPLIT_H) ||(displayMode == DISPLAY_MODE_4SPLIT_X) )
 				{
 					OutMainFrmt[MDIN_ID_A] = VIDOUT_1280x720p50;
 					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
@@ -889,10 +862,22 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 				(SrcMainFrmt[MDIN_ID_B] == VIDSRC_1920x1080p60) ||
 				(SrcMainFrmt[MDIN_ID_B] == VIDSRC_1280x720p60))
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p60;
-				if((displayMode == DISPLAY_MODE_4SPLIT_H) ||(displayMode == DISPLAY_MODE_4SPLIT_H) )
+				if(IS_2SPLIT_MODE(displayMode) == TRUE)
+				{
+					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB;
+				}
+				else
+				{
+					OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p60;
+				}
+				
+				if((displayMode == DISPLAY_MODE_4SPLIT_H) ||(displayMode == DISPLAY_MODE_4SPLIT_X) )
 				{
 					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p60;
+				}
+				else if(IS_2SPLIT_MODE(displayMode) == TRUE)
+				{
+					SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60;
 				}
 				else
 				{
@@ -901,10 +886,22 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p50;
-				if((displayMode == DISPLAY_MODE_4SPLIT_H) ||(displayMode == DISPLAY_MODE_4SPLIT_H) )
+				if(IS_2SPLIT_MODE(displayMode) == TRUE)
+				{
+					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2;
+				}
+				else
+				{
+					OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p50;
+				}
+				
+				if((displayMode == DISPLAY_MODE_4SPLIT_H) ||(displayMode == DISPLAY_MODE_4SPLIT_X) )
 				{
 					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+				}
+				else if(IS_2SPLIT_MODE(displayMode) == TRUE)
+				{
+					SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50;
 				}
 				else
 				{
@@ -918,16 +915,33 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			break;
 	}
 
+	for(mdin = MDIN_ID_A; mdin <= MDIN_ID_C; mdin++)
+	{
+		if(OutMainFrmt[mdin] != PrevOutMainFrmt[mdin])
+		{
+			stVideo[mdin].exeFLAG |= MDIN_UPDATE_MAIN_OUT;
+		}
+
+		if(SrcMainFrmt[mdin] != PrevSrcMainFrmt[mdin])
+		{
+			stVideo[mdin].exeFLAG |= MDIN_UPDATE_MAIN_IN;
+		}
+
+		if(SrcAuxFrmt[mdin] != PrevSrcAuxFrmt[mdin])
+		{
+			stVideo[mdin].exeFLAG |= MDIN_UPDATE_AUX_IN;
+		}
+	}
+
 }
 
 
 //--------------------------------------------------------------------------------------------------
-//static void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 {
-	eChannel_t mainChannel, auxChannel;
 	WORD mainTotalWidth, mainTotalHeight;
 	WORD auxTotalWidth, auxTotalHeight;
+	WORD winWidth, winHeight;
 	sCroppingOffset_t croppingOffset;
 
 	PMDIN_VIDEO_WINDOW pMainView = &stMainVIEW[MDIN_ID_A];
@@ -992,53 +1006,49 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 
 	}
 
-	mainChannel = FindMainChannel(displayMode, MDIN_ID_A);
-	auxChannel = FindAuxChannel(displayMode, MDIN_ID_A);
-	ScanVideoLossChannels();
-	if(IsVideoLossChannel(mainChannel) == TRUE)
-	{
-		mainTotalWidth = DISPLAY_WIDTH_1280x720/2;
-		mainTotalHeight = DISPLAY_HEIGHT_1280x720;
-	}
-	if(IsVideoLossChannel(auxChannel) == TRUE)
-	{
-//		auxTotalWidth = DISPLAY_WIDTH_1280x720/2;
-//		auxTotalHeight = DISPLAY_HEIGHT_480/2;
-		auxTotalWidth = DISPLAY_WIDTH_1280x720/2;
-		auxTotalHeight = DISPLAY_HEIGHT_1280x720;
-	}
-
 	pMainCrop->w = mainTotalWidth;
 	pMainCrop->h = mainTotalHeight;
 
 	pAuxCrop->w = auxTotalWidth;
 	pAuxCrop->h = auxTotalHeight;
 
+	if(OutMainFrmt[MDIN_ID_A] == VIDOUT_1280x720p60)
+	{
+		winWidth = DISPLAY_WIDTH_1280x720;
+		winHeight = DISPLAY_HEIGHT_1280x720;
+	}
+	else
+	{
+		winWidth = DISPLAY_WIDTH_1920X1080;
+		winHeight = DISPLAY_HEIGHT_1920x1080;
+	}
+	
 	switch(displayMode)
-	{	
+	{
 		case DISPLAY_MODE_2SPLIT_HCROP_A:
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;
 			pMainCrop->y = 0;
-			
-			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL2);
-			pAuxCrop->w = auxTotalWidth/2;
-			pAuxCrop->h = auxTotalHeight;
-			pAuxCrop->x = (auxTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
-			pAuxCrop->y = 0;	
-		case DISPLAY_MODE_2SPLIT_HSCALE_A:
-			pMainView->w = DISPLAY_HALF_WIDTH;
-			pMainView->h = DISPLAY_HEIGHT;
+
+			pMainView->w = winWidth/2;
+			pMainView->h = winHeight;
 			pMainView->x = 0;
 			pMainView->y = 0;
+			break;
 
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HEIGHT;
-//			pAuxView->x = DISPLAY_WIDTH;
-			pAuxView->x = DISPLAY_WIDTH/2;	// modified on 190905
-			pAuxView->y = 0;
+		case DISPLAY_MODE_2SPLIT_HCROP_B:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL3);
+			pMainCrop->w = mainTotalWidth/2;
+			pMainCrop->h = mainTotalHeight;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;
+			pMainCrop->y = 0;
+
+			pMainView->w = winWidth/2;
+			pMainView->h = winHeight;
+			pMainView->x = 0;
+			pMainView->y = 0;
 			break;
 
 		case DISPLAY_MODE_2SPLIT_VCROP_A:
@@ -1047,38 +1057,41 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainCrop->h = mainTotalHeight/2;
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
-			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL2);
-			pAuxCrop->w = auxTotalWidth;
-			pAuxCrop->h = auxTotalHeight/2;
-			pAuxCrop->x = 0;
-			pAuxCrop->y = (auxTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;//0;
-		case DISPLAY_MODE_2SPLIT_VSCALE_A:
-			pMainView->w = DISPLAY_HALF_WIDTH;
-			pMainView->h = DISPLAY_HALF_HEIGHT;
+
+			pMainView->w = winWidth;
+			pMainView->h = winHeight/2;
 			pMainView->x = 0;
 			pMainView->y = 0;
-
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HALF_HEIGHT;
-			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HALF_HEIGHT;
 			break;
 
+		case DISPLAY_MODE_2SPLIT_VCROP_B:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL3);
+			pMainCrop->w = mainTotalWidth;
+			pMainCrop->h = mainTotalHeight/2;
+			pMainCrop->x = 0;
+			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
+
+			pMainView->w = winWidth;
+			pMainView->h = winHeight/2;
+			pMainView->x = 0;
+			pMainView->y = 0;
+			break;
+			
 		case DISPLAY_MODE_3SPLIT_R2CROP:
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;
 			pMainCrop->y = 0;
 		case DISPLAY_MODE_3SPLIT_R2SCALE:
-			pMainView->w = DISPLAY_HALF_WIDTH;
-			pMainView->h = DISPLAY_HEIGHT;
+			pMainView->w = winWidth/2;
+			pMainView->h = winHeight;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HALF_HEIGHT;
-			pAuxView->x = DISPLAY_HALF_WIDTH;
+			pAuxView->w = winWidth/2;
+			pAuxView->h = winHeight/2;
+			pAuxView->x = winWidth/2;
 			pAuxView->y = 0;
 			break;
 			
@@ -1086,16 +1099,16 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;
 			pMainCrop->y = 0;
 		case DISPLAY_MODE_3SPLIT_L2SCALE:
-			pMainView->w = DISPLAY_HALF_WIDTH;
-			pMainView->h = DISPLAY_HEIGHT;
-			pMainView->x = DISPLAY_WIDTH;
+			pMainView->w = winWidth/2;
+			pMainView->h = winHeight;
+			pMainView->x = winWidth;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->w = winWidth/2;
+			pAuxView->h = winHeight/2;
 			pAuxView->x = 0;
 			pAuxView->y = 0;
 			break;
@@ -1107,15 +1120,15 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
 		case DISPLAY_MODE_3SPLIT_D2SCALE:
-			pMainView->w = DISPLAY_WIDTH;
-			pMainView->h = DISPLAY_HALF_HEIGHT;
+			pMainView->w = winWidth;
+			pMainView->h = winHeight/2;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->w = winWidth/2;
+			pAuxView->h = winHeight/2;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HALF_HEIGHT;
+			pAuxView->y = winHeight/2;
 			break;
 			
 		case DISPLAY_MODE_3SPLIT_U2CROP:
@@ -1125,13 +1138,13 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
 		case DISPLAY_MODE_3SPLIT_U2SCALE:
-			pMainView->w = DISPLAY_WIDTH;
-			pMainView->h = DISPLAY_HALF_HEIGHT;
+			pMainView->w = winWidth;
+			pMainView->h = winHeight/2;
 			pMainView->x = 0;
-			pMainView->y = DISPLAY_HALF_HEIGHT;
+			pMainView->y = winHeight/2;
 
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->w = winWidth/2;
+			pAuxView->h = winHeight/2;
 			pAuxView->x = 0;
 			pAuxView->y = 0;
 			break;
@@ -1143,51 +1156,35 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainCrop->x = (mainTotalWidth/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
 			pMainCrop->y = 0;
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
-#if 1
-			pMainView->w = mainTotalWidth*2/3;
-			pMainView->h = mainTotalHeight;
+			pMainView->w = winWidth*2/3 + 1;
+			pMainView->h = winHeight;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			//pAuxView->w = auxTotalWidth/3;
-			//pAuxView->h = auxTotalHeight/3;
-			//pAuxView->x = (auxTotalWidth/3)*2;
-			//pAuxView->y = 0;
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
-			pAuxView->x = (DISPLAY_WIDTH_1280x720/3)*4;
+			pAuxView->w = winWidth/3;
+			pAuxView->h = winHeight/3;
+			pAuxView->x = (winWidth/3)*2;
 			pAuxView->y = 0;
-#else
-			pMainView->w = DISPLAY_WIDTH_1280x720*2/3;
-			pMainView->h = DISPLAY_HEIGHT_1280x720;
-			pMainView->x = 0;
-			pMainView->y = 0;
-
-			pAuxView->w = DISPLAY_WIDTH_1280x720/3;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/3;
-			pAuxView->x = (DISPLAY_WIDTH_1280x720/3)*4;
-			pAuxView->y = 0;
-#endif
 			break;
 
 		case DISPLAY_MODE_4SPLIT_L3CROP:
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth*2/3;
 			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = (mainTotalWidth/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;
+			pMainCrop->x = (mainTotalWidth/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
 			pMainCrop->y = 0;
 		case DISPLAY_MODE_4SPLIT_L3SCALE:
-			pMainView->w = DISPLAY_WIDTH*2/3;
-			pMainView->h = DISPLAY_HEIGHT;
-			pMainView->x = DISPLAY_WIDTH*2/3;
+			pMainView->w = winWidth*2/3;
+			pMainView->h = winHeight;
+			pMainView->x = winWidth*2/3;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH/3;
-			pAuxView->h = DISPLAY_HEIGHT/3;
+			pAuxView->w = winWidth/3;
+			pAuxView->h = winHeight/3;
 			pAuxView->x = 0;
 			pAuxView->y = 0;
 			break;
-
+			
 		case DISPLAY_MODE_4SPLIT_D3CROP:
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth;
@@ -1195,18 +1192,17 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.v_offset;//0;
 		case DISPLAY_MODE_4SPLIT_D3SCALE:
-			pMainView->w = DISPLAY_WIDTH;
-			pMainView->h = DISPLAY_HEIGHT*2/3;
+			pMainView->w = winWidth;
+			pMainView->h = winHeight*2/3;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH/3;
-			pAuxView->h = DISPLAY_HEIGHT/3;
+			pAuxView->w = winWidth/3;
+			pAuxView->h = winHeight/3;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HEIGHT*2/3;
+			pAuxView->y = (winHeight/3)*2;
 			break;
 			
-
 		case DISPLAY_MODE_4SPLIT_U3CROP:
 			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL1);
 			pMainCrop->w = mainTotalWidth;
@@ -1214,137 +1210,104 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(3*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.v_offset;//0;
 		case DISPLAY_MODE_4SPLIT_U3SCALE:
-			pMainView->w = DISPLAY_WIDTH;
-			pMainView->h = DISPLAY_HEIGHT*2/3;
+			pMainView->w = winWidth;
+			pMainView->h = winHeight*2/3;
 			pMainView->x = 0;
-			pMainView->y = DISPLAY_HEIGHT/3;
+			pMainView->y = winHeight/3;
 			
-			pAuxView->w = DISPLAY_WIDTH/3;
-			pAuxView->h = DISPLAY_HEIGHT/3;
+			pAuxView->w = winWidth/3;
+			pAuxView->h = winHeight/3;
 			pAuxView->x = 0;
 			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_4SPLIT_QUAD:
-			pMainView->w = DISPLAY_HALF_WIDTH;
-			pMainView->h = DISPLAY_HALF_HEIGHT;
+			pMainView->w = winWidth/2;
+			pMainView->h = winHeight/2;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->w = winWidth/2;
+			pAuxView->h = winHeight/2;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HALF_HEIGHT;
+			pAuxView->y = winHeight/2;
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_H:		
-			pMainView->w = DISPLAY_WIDTH_1280x720/2;
-			pMainView->h = DISPLAY_HEIGHT_1280x720/2;
+			pMainView->w = winWidth/2;
+			pMainView->h = winHeight/2;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/2;
+			pAuxView->w = winWidth/2;
+			pAuxView->h = winHeight/2;
 			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HEIGHT_1280x720/2;
+			pAuxView->y = winHeight/2;
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_X:
-			pMainView->w = DISPLAY_WIDTH_1280x720/2;
-			pMainView->h = DISPLAY_HEIGHT_1280x720/2;
+			pMainView->w = winWidth/2;
+			pMainView->h = winHeight/2;
 			pMainView->x = 0;
 			pMainView->y = 0;
 
-			pAuxView->w = DISPLAY_WIDTH_1280x720/2;
-			pAuxView->h = DISPLAY_HEIGHT_1280x720/2;
-//			pAuxView->x = DISPLAY_WIDTH_1280x720;
-			pAuxView->x = DISPLAY_WIDTH_1280x720/2;	// modified on 190905
+			pAuxView->w = winWidth/2;
+			pAuxView->h = winHeight/2;
+			pAuxView->x = winWidth/2;
 			pAuxView->y = 0;
 			break;
 
 		case DISPLAY_MODE_PIP_A2:
 		case DISPLAY_MODE_PIP_A3:
 		case DISPLAY_MODE_PIP_A4:
-#if 1
-			pAuxView->w = PIP_WINDOW_WIDTH_1080;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
-			pAuxView->x = (DISPLAY_WIDTH_1920X1080-PIP_WINDOW_WIDTH_1080-PIP_POSITION_MARGIN_1080);
-			pAuxView->y = PIP_POSITION_MARGIN_1080;
-#else
 			pAuxView->w = PIP_WINDOW_WIDTH;
 			pAuxView->h = PIP_WINDOW_HEIGHT;
-			pAuxView->x = (DISPLAY_WIDTH_1280x720 - PIP_WINDOW_WIDTH -PIP_POSITION_MARGIN)*2;
+			pAuxView->x = (DISPLAY_WIDTH_1280x720 - PIP_WINDOW_WIDTH -PIP_POSITION_MARGIN);
 			pAuxView->y = PIP_POSITION_MARGIN;
-#endif
 			break;
 
 		case DISPLAY_MODE_PIP_B2:
 		case DISPLAY_MODE_PIP_B3:
 		case DISPLAY_MODE_PIP_B4:
-#if 1
-			pAuxView->w = PIP_WINDOW_WIDTH_1080;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
-			pAuxView->x = PIP_POSITION_MARGIN_1080;
-			pAuxView->y = DISPLAY_HEIGHT_1920x1080-PIP_WINDOW_HEIGHT_1080-PIP_POSITION_MARGIN_1080;
-#else
 			pAuxView->w = PIP_WINDOW_WIDTH;
 			pAuxView->h = PIP_WINDOW_HEIGHT;
-			pAuxView->x = PIP_POSITION_MARGIN*2;
+			pAuxView->x = PIP_POSITION_MARGIN;
 			pAuxView->y = DISPLAY_HEIGHT_1280x720 - PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
-#endif
 			break;
 
 		case DISPLAY_MODE_PIP_C2:
 		case DISPLAY_MODE_PIP_C3:
 		case DISPLAY_MODE_PIP_C4:
-#if 1
-			pAuxView->w = PIP_WINDOW_WIDTH_1080;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
-			pAuxView->x = (DISPLAY_WIDTH_1920X1080-PIP_WINDOW_WIDTH_1080-PIP_POSITION_MARGIN_1080);
-			pAuxView->y = DISPLAY_HEIGHT_1920x1080-PIP_WINDOW_HEIGHT_1080-PIP_POSITION_MARGIN_1080;
-#else
 			pAuxView->w = PIP_WINDOW_WIDTH;
 			pAuxView->h = PIP_WINDOW_HEIGHT;
-			pAuxView->x = (DISPLAY_WIDTH_1280x720-PIP_WINDOW_WIDTH-PIP_POSITION_MARGIN)*2;
+			pAuxView->x = (DISPLAY_WIDTH_1280x720-PIP_WINDOW_WIDTH-PIP_POSITION_MARGIN);
 			pAuxView->y = DISPLAY_HEIGHT_1280x720-PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
-#endif
 			break;
 
 		case DISPLAY_MODE_PIP_D2:
 		case DISPLAY_MODE_PIP_D3:
 		case DISPLAY_MODE_PIP_D4:
-#if 1
-			pAuxView->w = PIP_WINDOW_WIDTH_1080;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
-			pAuxView->x = PIP_POSITION_MARGIN_1080;
-			pAuxView->y = PIP_POSITION_MARGIN_1080;
-#else
 			pAuxView->w = PIP_WINDOW_WIDTH;
 			pAuxView->h = PIP_WINDOW_HEIGHT;
-			pAuxView->x = PIP_POSITION_MARGIN*2;
+			pAuxView->x = PIP_POSITION_MARGIN;
 			pAuxView->y = PIP_POSITION_MARGIN;
-#endif
 			break;
 	}
 
-	M380_ID = MDIN_ID_A;
-	memcpy(&stVideo[M380_ID].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo[M380_ID].stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo[M380_ID].stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo[M380_ID].stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
-
-//	ConfigI2C(MDIN_ID_C);
-	MDIN3xx_SetScaleProcess(&stVideo[M380_ID]);
+	memcpy(&stVideo[MDIN_ID_A].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[MDIN_ID_A].stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[MDIN_ID_A].stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[MDIN_ID_A].stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
 }
 
 
 //--------------------------------------------------------------------------------------------------
-//static void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 {
-	eChannel_t mainChannel, auxChannel;
+	//eChannel_t mainChannel, auxChannel;
 	WORD mainTotalWidth, mainTotalHeight;
 	WORD auxTotalWidth, auxTotalHeight;
+//	WORD winWidth, winHeight;
 	sCroppingOffset_t croppingOffset;
 
 	PMDIN_VIDEO_WINDOW pMainView = &stMainVIEW[MDIN_ID_B];
@@ -1409,96 +1372,70 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 
 	}
 
-
-	mainChannel = FindMainChannel(displayMode, MDIN_ID_B);
-	auxChannel = FindAuxChannel(displayMode, MDIN_ID_B);
-	ScanVideoLossChannels();
-	if(IsVideoLossChannel(mainChannel) == TRUE)
-	{
-		mainTotalWidth = DISPLAY_WIDTH_1280x720/2;
-		mainTotalHeight = DISPLAY_HEIGHT_1280x720;
-	}
-	if(IsVideoLossChannel(auxChannel) == TRUE)
-	{
-//		auxTotalWidth = DISPLAY_WIDTH_1280x720/2;
-//		auxTotalHeight = DISPLAY_HEIGHT_480;
-		auxTotalWidth = DISPLAY_WIDTH_1280x720/2;
-		auxTotalHeight = DISPLAY_HEIGHT_1280x720;
-	}
-
 	pMainCrop->w = mainTotalWidth;
 	pMainCrop->h = mainTotalHeight;
-	//pMainCrop->x = 0;
-	//pMainCrop->y = 0;
 
 	pAuxCrop->w = auxTotalWidth;
 	pAuxCrop->h = auxTotalHeight;
-	//pAuxCrop->x = 0;
-	//pAuxCrop->y = 0;
 
 	switch(displayMode)
-	{	
-		case DISPLAY_MODE_2SPLIT_HCROP_B:
-			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL3);
+	{
+		case DISPLAY_MODE_2SPLIT_HCROP_A:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL2);
 			pMainCrop->w = mainTotalWidth/2;
 			pMainCrop->h = mainTotalHeight;
-			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;
 			pMainCrop->y = 0;
-			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL4);
-			pAuxCrop->w = auxTotalWidth/2;
-			pAuxCrop->h = auxTotalHeight;
-			pAuxCrop->x = (auxTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;//0;
-			pAuxCrop->y = 0;	
-		case DISPLAY_MODE_2SPLIT_HSCALE_B:
+
 			pMainView->w = DISPLAY_HALF_WIDTH;
 			pMainView->h = DISPLAY_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
-
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HEIGHT;
-			pAuxView->x = DISPLAY_HALF_WIDTH;	// modified on 190902
-			pAuxView->y = 0;
 			break;
 
-		case DISPLAY_MODE_2SPLIT_VCROP_B:
-			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL3);
+		case DISPLAY_MODE_2SPLIT_HCROP_B:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL4);
+			pMainCrop->w = mainTotalWidth/2;
+			pMainCrop->h = mainTotalHeight;
+			pMainCrop->x = (mainTotalWidth /(2*ADJUST_WINDOW_STEP_MAX)) * croppingOffset.h_offset;
+			pMainCrop->y = 0;
+
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = 0;
+			break;
+
+		case DISPLAY_MODE_2SPLIT_VCROP_A:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL2);
 			pMainCrop->w = mainTotalWidth;
 			pMainCrop->h = mainTotalHeight/2;
 			pMainCrop->x = 0;
 			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
-			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL4);
-			pAuxCrop->w = auxTotalWidth;
-			pAuxCrop->h = auxTotalHeight/2;
-			pAuxCrop->x = 0;
-			pAuxCrop->y = (auxTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;//0;
-		case DISPLAY_MODE_2SPLIT_VSCALE_B:
-			pMainView->w = DISPLAY_HALF_WIDTH;
+
+			pMainView->w = DISPLAY_WIDTH;
 			pMainView->h = DISPLAY_HALF_HEIGHT;
 			pMainView->x = 0;
 			pMainView->y = 0;
-
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HALF_HEIGHT;
-			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HALF_HEIGHT;
 			break;
 
+		case DISPLAY_MODE_2SPLIT_VCROP_B:
+			Read_NvItem_CroppingOffset(&croppingOffset, CHANNEL4);
+			pMainCrop->w = mainTotalWidth;
+			pMainCrop->h = mainTotalHeight/2;
+			pMainCrop->x = 0;
+			pMainCrop->y = (mainTotalHeight/(2*ADJUST_WINDOW_STEP_MAX))*croppingOffset.v_offset;
+
+			pMainView->w = DISPLAY_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = 0;
+			break;
+			
 		case DISPLAY_MODE_4SPLIT_U3SCALE:
 		case DISPLAY_MODE_4SPLIT_U3CROP:
 		case DISPLAY_MODE_4SPLIT_D3SCALE:
 		case DISPLAY_MODE_4SPLIT_D3CROP:
-#if 1	// 190905
-			pMainView->w = PIP_WINDOW_WIDTH_1080;
-			pMainView->h = PIP_WINDOW_HEIGHT_1080;
-			pMainView->x = 0;
-			pMainView->y = 0;
-
-			pAuxView->w = PIP_WINDOW_WIDTH_1080;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
-			pAuxView->x = PIP_WINDOW_WIDTH_1080;
-			pAuxView->y = 0;
-#else
 			pMainView->w = DISPLAY_WIDTH_1280x720 / 2;
 			pMainView->h = DISPLAY_HEIGHT_1280x720 / 2;
 			pMainView->x = 0;
@@ -1506,37 +1443,15 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 
 			pAuxView->w = DISPLAY_WIDTH_1280x720 / 2;
 			pAuxView->h =  DISPLAY_HEIGHT_1280x720 / 2;
-			pAuxView->x = DISPLAY_WIDTH_1280x720;
+			pAuxView->x = DISPLAY_WIDTH_1280x720 / 2;
 			pAuxView->y = 0;
-#endif
 			break;
 
 		case DISPLAY_MODE_4SPLIT_R3SCALE:
 		case DISPLAY_MODE_4SPLIT_R3CROP:
 		case DISPLAY_MODE_4SPLIT_L3SCALE:
 		case DISPLAY_MODE_4SPLIT_L3CROP:
-			pMainView->w = PIP_WINDOW_WIDTH_1080;
-			pMainView->h = PIP_WINDOW_HEIGHT_1080;
-			pMainView->x = 0;
-			pMainView->y = 0;
-
-			pAuxView->w = PIP_WINDOW_WIDTH_1080;
-			pAuxView->h = PIP_WINDOW_HEIGHT_1080;
-			pAuxView->x = 0;
-			pAuxView->y = PIP_WINDOW_HEIGHT_1080;
-			break;
 		case DISPLAY_MODE_4SPLIT_QUAD:
-#if 1
-			pMainView->w = DISPLAY_HALF_WIDTH;
-			pMainView->h = DISPLAY_HALF_HEIGHT;
-			pMainView->x = 0;
-			pMainView->y = 0;
-
-			pAuxView->w = DISPLAY_HALF_WIDTH;
-			pAuxView->h = DISPLAY_HALF_HEIGHT;
-			pAuxView->x = 0;
-			pAuxView->y = DISPLAY_HALF_HEIGHT;
-#else			
 			pMainView->w = DISPLAY_WIDTH_1280x720 / 2;
 			pMainView->h =  DISPLAY_HEIGHT_1280x720 / 2;
 			pMainView->x = 0;
@@ -1546,7 +1461,6 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			pAuxView->h =  DISPLAY_HEIGHT_1280x720 / 2;
 			pAuxView->x = 0;
 			pAuxView->y =  DISPLAY_HEIGHT_1280x720 / 2;
-#endif
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_H:	
@@ -1562,8 +1476,7 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 
 			pAuxView->w = DISPLAY_WIDTH_1280x720 / 4;
 			pAuxView->h = DISPLAY_HEIGHT_1280x720;
-//			pAuxView->x = DISPLAY_WIDTH_1280x720*3/2;
-			pAuxView->x = DISPLAY_WIDTH_1280x720*3/4;	// 190905
+			pAuxView->x = DISPLAY_WIDTH_1280x720*3/4;
 			pAuxView->y = 0;
 
 			pAuxCrop->w = auxTotalWidth/4;
@@ -1595,24 +1508,21 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			break;
 	}
 
-	M380_ID = MDIN_ID_B;
-	memcpy(&stVideo[M380_ID].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo[M380_ID].stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo[M380_ID].stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo[M380_ID].stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
-
-//	ConfigI2C(MDIN_ID_C);
-	MDIN3xx_SetScaleProcess(&stVideo[M380_ID]);
+	memcpy(&stVideo[MDIN_ID_B].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[MDIN_ID_B].stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[MDIN_ID_B].stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[MDIN_ID_B].stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
 }
 
 
 //--------------------------------------------------------------------------------------------------
-static void CreateDisplayWindow_C(eDisplayMode_t displayMode)
+void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 {
 	PMDIN_VIDEO_WINDOW pMainView = &stMainVIEW[MDIN_ID_C];
 	PMDIN_VIDEO_WINDOW pAuxView = &stAuxVIEW[MDIN_ID_C];
 	PMDIN_VIDEO_WINDOW pMainCrop = &stMainCROP[MDIN_ID_C];
 	PMDIN_VIDEO_WINDOW pAuxCrop = &stAuxCROP[MDIN_ID_C];
+	sCroppingOffset_t croppingOffset;
 	
 	// initialize each object
 	memset(pMainView, 0x00, sizeof(MDIN_VIDEO_WINDOW));
@@ -1622,34 +1532,60 @@ static void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 
 	switch(displayMode)
 	{
-		case DISPLAY_MODE_2SPLIT_VSCALE_A:
-		case DISPLAY_MODE_2SPLIT_VCROP_A:
-		case DISPLAY_MODE_2SPLIT_VSCALE_B:
-		case DISPLAY_MODE_2SPLIT_VCROP_B:
+		case DISPLAY_MODE_2SPLIT_HCROP_A:
+		case DISPLAY_MODE_2SPLIT_HCROP_B:
 			pMainCrop->w = DISPLAY_HALF_WIDTH;
 			pMainCrop->h = DISPLAY_HEIGHT;
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
+
+			pAuxCrop->w = DISPLAY_HALF_WIDTH;
+			pAuxCrop->h = DISPLAY_HEIGHT;
+			pAuxCrop->x = 0;
+			pAuxCrop->y = 0;	
+		case DISPLAY_MODE_2SPLIT_HSCALE_A:
+		case DISPLAY_MODE_2SPLIT_HSCALE_B:
+			pMainView->w = DISPLAY_HALF_WIDTH;
+			pMainView->h = DISPLAY_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_HALF_WIDTH;
+			pAuxView->h = DISPLAY_HEIGHT;
+			pAuxView->x = DISPLAY_HALF_WIDTH;
+			pAuxView->y = 0;
 			break;
 
-		case DISPLAY_MODE_2SPLIT_HSCALE_A:
-		case DISPLAY_MODE_2SPLIT_HCROP_A:
-		case DISPLAY_MODE_2SPLIT_HSCALE_B:	// 8
-		case DISPLAY_MODE_2SPLIT_HCROP_B:
+		case DISPLAY_MODE_2SPLIT_VCROP_A:
+		case DISPLAY_MODE_2SPLIT_VCROP_B:
 			pMainCrop->w = DISPLAY_WIDTH;
-			pMainCrop->h = DISPLAY_HEIGHT;
+			pMainCrop->h = DISPLAY_HALF_HEIGHT;
 			pMainCrop->x = 0;
 			pMainCrop->y = 0;
+			
+			pAuxCrop->w = DISPLAY_WIDTH;
+			pAuxCrop->h = DISPLAY_HALF_HEIGHT;
+			pAuxCrop->x = 0;
+			pAuxCrop->y = 0;
+		
+		case DISPLAY_MODE_2SPLIT_VSCALE_A:
+		case DISPLAY_MODE_2SPLIT_VSCALE_B:
+			pMainView->w = DISPLAY_WIDTH;
+			pMainView->h = DISPLAY_HALF_HEIGHT;
+			pMainView->x = 0;
+			pMainView->y = 0;
+
+			pAuxView->w = DISPLAY_WIDTH;
+			pAuxView->h = DISPLAY_HALF_HEIGHT;
+			pAuxView->x = 0;
+			pAuxView->y = DISPLAY_HALF_HEIGHT;
 			break;
+			
+
 		case DISPLAY_MODE_3SPLIT_R2SCALE:
 		case DISPLAY_MODE_3SPLIT_R2CROP:
 		case DISPLAY_MODE_3SPLIT_D2SCALE:
 		case DISPLAY_MODE_3SPLIT_D2CROP:
-			pAuxCrop->w = stVideo[MDIN_ID_B].stCROP_m.w;	// src size of MDIN_B
-			pAuxCrop->h = stVideo[MDIN_ID_B].stCROP_m.h;	// src size of MDIN_B
-			pAuxCrop->x = 0;
-			pAuxCrop->y = 0;
-				
 			pAuxView->w = DISPLAY_HALF_WIDTH;
 			pAuxView->h = DISPLAY_HALF_HEIGHT;
 			pAuxView->x = DISPLAY_HALF_WIDTH;
@@ -1688,10 +1624,8 @@ static void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxView->x = DISPLAY_HALF_WIDTH;
 			pAuxView->y = 0;
 
-//			pAuxCrop->w = DISPLAY_WIDTH_1280x720/2;
-//			pAuxCrop->h = DISPLAY_HEIGHT_1280x720;
-			pAuxCrop->w = DISPLAY_HALF_WIDTH;
-			pAuxCrop->h = DISPLAY_HEIGHT;
+			pAuxCrop->w = DISPLAY_WIDTH_1280x720/2;
+			pAuxCrop->h = DISPLAY_HEIGHT_1280x720;
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
@@ -1778,16 +1712,10 @@ static void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			break;
 	}
 
-	M380_ID = MDIN_ID_C;
-	memcpy(&stVideo[M380_ID].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo[M380_ID].stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo[M380_ID].stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
-	memcpy(&stVideo[M380_ID].stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
-
-//	ConfigI2C(MDIN_ID_C);
-//	MDIN3xx_SetScaleProcess(&stVideo[M380_ID]);
-	//Delay_ms(100);
-	//stVideo_C.exeFLAG = MDIN_UPDATE_MAINFMT;
+	memcpy(&stVideo[MDIN_ID_C].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[MDIN_ID_C].stVIEW_m, pMainView, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[MDIN_ID_C].stCROP_x, pAuxCrop, sizeof(MDIN_VIDEO_WINDOW));
+	memcpy(&stVideo[MDIN_ID_C].stVIEW_x, pAuxView, sizeof(MDIN_VIDEO_WINDOW));
 }
 
 
@@ -1809,38 +1737,8 @@ static void InputSourceHandler(MDIN_VIDEO_INPUT_t src)
 		CreateDisplayWindow_B(dispalyMode);
 	}
 	CreateDisplayWindow_C(dispalyMode);
-	
+
 	InputSelOld = src;
-}
-
-static void FadeInOut(BYTE Flag, FADEIN_NO_t FadeIn, BYTE delay)
-{
-	BYTE i;
-	MDIN_CSCCTRL_INFO	stCSC, *pCSC;
-
-	if (FadeIn == FADE_IN || FadeIn == FADE_OUT)
-	{
-		 pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscBypass_StdRange;		// YUV(HD or SD) to YUV(HD or SD)
-		memcpy(&stCSC, (PBYTE)pCSC, sizeof(MDIN_CSCCTRL_INFO));
-		for ( i = 0; i <= 16; i++)
-		{
-			if (FadeIn == FADE_IN)
-				{stCSC.coef[0] = stCSC.coef[4] = stCSC.coef[8] = (512/16*i);}
-			else
-				{stCSC.coef[0] = stCSC.coef[4] = stCSC.coef[8] = (512/16*(16 -i));}
-
-			if (Flag&MDIN_UPDATE_MAIN_IN)	MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x00a, (PBYTE)&stCSC, sizeof(WORD) * 9);
-			if (Flag&MDIN_UPDATE_AUX_IN)		MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x181, (PBYTE)&stCSC, sizeof(WORD) * 9);
-			MDINDLY_mSec(delay);
-		}
-	}
-	else if (FadeIn == DARK)
-	{
-		memset(&stCSC, 0,  sizeof(MDIN_CSCCTRL_INFO));
-
-		if (Flag&MDIN_UPDATE_MAIN_IN)	MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x00a, (PBYTE)&stCSC, sizeof(WORD) * 9);
-		if (Flag&MDIN_UPDATE_AUX_IN)		MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x181, (PBYTE)&stCSC, sizeof(WORD) * 9);
-	}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1858,21 +1756,31 @@ static void VideoFrameProcess(void)
 {
 	BYTE ID;
 
-#if defined(__USE_USART_TO_DEBUG__)
-	printf("VideoFrameProcess 1 ----------------------------------\n");
-	printf("stVideo[MDIN_ID_A].exeFLAG = %x\n", stVideo[MDIN_ID_A].exeFLAG);
-	printf("stVideo[MDIN_ID_B].exeFLAG = %x\n", stVideo[MDIN_ID_B].exeFLAG);
-	printf("stVideo[MDIN_ID_C].exeFLAG = %x\n", stVideo[MDIN_ID_C].exeFLAG);
-	printf("stVideo[MDIN_ID_D].exeFLAG = %x\n", stVideo[MDIN_ID_D].exeFLAG);		
-#endif
-
 	if (stVideo[MDIN_ID_A].exeFLAG == 0 && stVideo[MDIN_ID_B].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0) 
 		return;
 
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	for(ID = MDIN_ID_A; ID <= MDIN_ID_C; ID++)
+	{
+		if (stVideo[ID].srcPATH == PATH_MAIN_B_AUX_B || stVideo[ID].srcPATH == PATH_MAIN_B_AUX_A || stVideo[ID].srcPATH == PATH_MAIN_B_AUX_M)
+		{
+			stVideo[ID].stSRC_b.frmt = SrcMainFrmt[ID];
+			stVideo[ID].stSRC_a.frmt = SrcAuxFrmt[ID];
+		}
+		else
+		{
+			stVideo[ID].stSRC_a.frmt = SrcMainFrmt[ID];
+			stVideo[ID].stSRC_b.frmt = SrcAuxFrmt[ID];
+		}
+		stVideo[ID].stOUT_m.frmt = OutMainFrmt[ID];
+
+		PrevOutMainFrmt[ID] = OutMainFrmt[ID];
+		PrevSrcMainFrmt[ID] = SrcMainFrmt[ID];
+		PrevSrcAuxFrmt[ID] = SrcAuxFrmt[ID];
+	}
+
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
 	{
 		M380_ID = ID;
-//		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, FADE_OUT, 20);
 			
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN_IN)
 		{
@@ -1888,23 +1796,19 @@ static void VideoFrameProcess(void)
 		}
 	}
 
-//	SetOSDMenuDisable();
-
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
 	{
 		M380_ID = ID;	
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	MDIN3xx_VideoInProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN)	MDIN3xx_VideoProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_AUX)	MDINAUX_VideoProcess(&stVideo[ID]);
-		
-//		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, DARK, 0);
 	}
 
 	
 	M380_ID = MDIN_ID_C;
 	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
 	
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
 	{
 		M380_ID = ID;
 		MDIN3xx_EnableMainFreeze(ID, OFF);
@@ -1915,18 +1819,54 @@ static void VideoFrameProcess(void)
 	
 	MDINDLY_mSec(100);	// delay 100ms
 	
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
 	{
 		M380_ID = ID;	
 		MDIN3xx_OutDarkScreen(OFF);
 		MDIN3xx_AuxDarkScreen(OFF);
 
-//		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, FADE_IN, 20);
 	}
 	M380_ID = MDIN_ID_C;
 }
 
 
+static void TurnOff_VideoLossChannels(MDIN_VIDEO_INPUT_t src)
+{
+	eChannel_t channel;
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+
+	ScanVideoLossChannels();
+
+	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+	{
+
+		if(IsVideoLossChannel(channel) == TRUE)
+		{
+			if(channel == FindMainChannel(displayMode, MDIN_ID_A))
+			{
+				M380_ID =  MDIN_ID_A;
+				MDIN3xx_OutDarkScreen(ON);
+			}
+			else if(channel == FindAuxChannel(displayMode, MDIN_ID_A))
+			{
+				M380_ID =  MDIN_ID_A;
+				MDIN3xx_AuxDarkScreen(ON);
+			}
+			else if(channel == FindMainChannel(displayMode, MDIN_ID_B))
+			{
+				M380_ID =  MDIN_ID_B;
+				MDIN3xx_OutDarkScreen(ON);
+			}
+			else if(channel == FindAuxChannel(displayMode, MDIN_ID_B))
+			{
+				M380_ID =  MDIN_ID_B;
+				MDIN3xx_AuxDarkScreen(ON);
+			}
+		}
+	}
+
+	M380_ID =  MDIN_ID_C;
+}
 // ----------------------------------------------------------------------
 // Exported functions
 // ----------------------------------------------------------------------
@@ -1943,7 +1883,6 @@ void CreateVideoInstance(void)
 	memset((PBYTE)&stVideo[MDIN_ID_C], 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_C();
 	
-	//InputSelect = VIDEO_DIGITAL_NVP6158_FULL;
 	InitInputSource();
 }
 
@@ -1973,26 +1912,13 @@ void SetInputChanged(void)
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
 {
+	eDisplayMode_t dispalyMode = GetCurrentDisplayMode();
+	
 	if(fInputChanged == TRUE)
 	{
 		InputSourceHandler(InputSelect);
-
-/*
-		if(InputSelect != VIDEO_DIGITAL_NVP6158_B)
-		{
-			printf("NVP6158_B\n");
-			VideoFrameProcess(MDIN_ID_A);
-			Delay_us(10);
-		}
-		if(InputSelect != VIDEO_DIGITAL_NVP6158_A)
-		{
-			printf("NVP6158_A\n");
-			VideoFrameProcess(MDIN_ID_B);
-			Delay_us(10);
-		}
-		VideoFrameProcess(MDIN_ID_C);
-*/
 		VideoFrameProcess();
+		TurnOff_VideoLossChannels(InputSelect);
 		SetOSDMenuRefresh();
 	}
 	fInputChanged = FALSE;
@@ -2013,7 +1939,6 @@ void SetAuxOutMode_C(void)
 
 	Read_NvItem_AuxVideoFormat(&format);
 
-//	ConfigI2C(MDIN_ID_C);
 	M380_ID = MDIN_ID_C;
 	if(format == VIDEO_VGA)
 	{
@@ -2025,7 +1950,7 @@ void SetAuxOutMode_C(void)
 		stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_EMB422_8;
 		OSD_ModifyPalette_M(OSD_YUV_PALETTE);
 	}
-	stVideo[M380_ID].exeFLAG |= MDIN_UPDATE_AUX;
+	stVideo[M380_ID].exeFLAG |= MDIN_UPDATE_ALL;//MDIN_UPDATE_AUX;
 }
 
 
@@ -2038,35 +1963,15 @@ eColorFormat_t GetCurrentColorFormat(void)
 	return (out == VIDEO_VGA) ? COLOR_RGB : COLOR_YBR;;
 }
 
-
-
-
-
-#if 0
-// test code
-
-#define STRAT_REG 	0x1C1
-#define NUM_OF_REG	16
-
-WORD readReg[MDIN_ID_MAX][NUM_OF_REG];
-
-void ReadMemoryMapReg(void)
+void UpdateCroppingScreen(eChannel_t channel)
 {
-	static BYTE count = 0;
-	WORD ii;
-	MDIN_CHIP_ID_t mdin;
-
-	if((count % 20) == 0)
+	if((channel == CHANNEL2) || (channel == CHANNEL4))
 	{
-		for(mdin = MDIN_ID_A; mdin < MDIN_ID_MAX; mdin++)
-		{
-			for(ii = 0; ii < NUM_OF_REG; ii++)
-			{
-				MDINHIF_RegRead(MDIN_LOCAL_ID, ii+STRAT_REG, &readReg[mdin][ii]);
-			}
-		}
+		MDIN3xx_SetScaleProcess(&stVideo[MDIN_ID_B]);
 	}
-	count++;
+	else
+	{
+		MDIN3xx_SetScaleProcess(&stVideo[MDIN_ID_A]);
+	}
 }
-#endif
 /*  FILE_END_HERE */

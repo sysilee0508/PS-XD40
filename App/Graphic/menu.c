@@ -1584,7 +1584,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 					}
 					Write_NvItem_CroppingOffset(croppingOffset, croppingChannel);
 
-					if((split == DISPLAY_MODE_2SPLIT_HCROP_B) || (split == DISPLAY_MODE_2SPLIT_VCROP_B))
+					if((IS_2SPLIT_MODE(split) == TRUE) && ((croppingChannel == CHANNEL2) || (croppingChannel == CHANNEL4)))
 					{
 						CreateDisplayWindow_B(split);
 					}
@@ -1592,6 +1592,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 					{
 						CreateDisplayWindow_A(split);
 					}
+					UpdateCroppingScreen( croppingChannel);
 				}
 			}
 			break;

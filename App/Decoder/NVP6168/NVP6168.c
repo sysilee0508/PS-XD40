@@ -20,7 +20,8 @@ static NC_CH_E VO_Ch[VPORT_MAP_MAX][4] =
 {
 	{NC_CH4, NC_CH3, NC_CH2, NC_CH1},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
 	{NC_CH4, NC_CH2, NC_CH3, NC_CH1},	 // PIP with ch3, quad
-	{NC_CH2, NC_CH4, NC_CH3, NC_CH1}	// PIP with ch4
+	//{NC_CH2, NC_CH4, NC_CH3, NC_CH1}	// PIP with ch4
+	{NC_CH4, NC_CH1, NC_CH3, NC_CH2}	// PIP with ch4
 };
 
 void NVP6168_Init(void)
@@ -54,6 +55,10 @@ void NVP6168_AutoDetection_Proc(void)
 				EqStage = DECODER_Video_Input_EQ_Stage_Get(ch, &SamVal);
 				DECODER_Video_Input_EQ_Stage_Set(ch, EqStage);
 				VO_PortMapChanged = 0;
+			}
+			else if( VideoFormat == NC_VIVO_CH_FORMATDEF_UNKNOWN )
+			{
+				DECODER_Video_Output_NoVideo_Pattern_Set(ch, 0);
 			}
 		}
 		//Delay_ms(500);

@@ -210,9 +210,9 @@ void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char wri
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-void I2C_MultiWrite(BYTE slaveaddr, BYTE rAddr, PBYTE pBuff, WORD bytes)		// i2c 8bit multiwrite
+void I2C_MultiWrite(unsigned char slaveaddr, unsigned char rAddr, unsigned char* pBuff, unsigned short bytes)		// i2c 8bit multiwrite
 {
-	WORD i;	
+	unsigned short i;	
 
 	//printf("[I2C_W] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr,  *((PWORD)pBuff), bytes);
 
@@ -236,9 +236,9 @@ void I2C_MultiWrite(BYTE slaveaddr, BYTE rAddr, PBYTE pBuff, WORD bytes)		// i2c
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-void I2C_MultiRead(BYTE slaveaddr, BYTE rAddr, PBYTE pBuff, WORD bytes)		// i2c 8bit multiread
+void I2C_MultiRead(unsigned char slaveaddr, unsigned char rAddr, unsigned char* pBuff, unsigned short bytes)		// i2c 8bit multiread
 {
-	WORD i;	
+	unsigned short i;	
 
 	I2C_Start();
 	I2C_P2S(slaveaddr&0xFE); AckDetect();
@@ -268,9 +268,9 @@ void I2C_MultiRead(BYTE slaveaddr, BYTE rAddr, PBYTE pBuff, WORD bytes)		// i2c 
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-BYTE I2C_Write16(BYTE ID, BYTE dAddr, BYTE page, WORD rAddr, PBYTE pBuff, WORD bytes)	// i2c 16bit multiwrite
+unsigned char I2C_Write16(unsigned char ID, unsigned char dAddr, unsigned char page, unsigned short rAddr, unsigned char* pBuff, unsigned short bytes)	// i2c 16bit multiwrite
 {
-	WORD i;
+	unsigned short i;
 
 	i2c_ch = ID;
 //	BYTE slaveAddr = I2C_MDIN3xx_ADDR(selectedMDIN);
@@ -291,7 +291,7 @@ BYTE I2C_Write16(BYTE ID, BYTE dAddr, BYTE page, WORD rAddr, PBYTE pBuff, WORD b
 		I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); AckDetect();  	
 		//I2C_P2S(pBuff[i+1]);AckDetect();  		
 		//I2C_P2S(pBuff[i]);	AckDetect();
-		if (page==MDIN_HOST_ID) MDINDLY_10uSec(1);	// for stability of font osd display on 190906
+		if (page==MDIN_HOST_ID) MDINDLY_10uSec(5);	// for stability of font osd display on 190906
 	}
 
 	I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
@@ -306,9 +306,9 @@ BYTE I2C_Write16(BYTE ID, BYTE dAddr, BYTE page, WORD rAddr, PBYTE pBuff, WORD b
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-BYTE I2C_Read16(BYTE ID, BYTE dAddr, WORD rAddr, PBYTE pBuff, WORD bytes)		// i2c 16bit multiread
+unsigned char I2C_Read16(unsigned char ID, unsigned char dAddr, unsigned short	 rAddr, unsigned char* pBuff, unsigned short bytes)		// i2c 16bit multiread
 {
-	WORD i;
+	unsigned short i;
 
 	i2c_ch = ID;
 		

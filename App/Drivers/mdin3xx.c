@@ -1493,6 +1493,7 @@ MDIN_ERROR_t MDIN3xx_SetScaleProcess(PMDIN_VIDEO_INFO pINFO)
 //	if (MDIN3xx_SetFrameBuffer(pINFO)) return MDIN_I2C_ERROR;	// no need for zoom-out function
 
 //	if (MDIN3xx_EnableWriteFRMB(pINFO, 1)) return MDIN_I2C_ERROR;	// enable write FB
+
 	return MDIN_NO_ERROR;
 }
 

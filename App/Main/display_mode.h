@@ -6,6 +6,7 @@
 //=============================================================================
 #define IS_FULL_MODE(mode)						(mode <= DISPLAY_MODE_FULL_CH4)?TRUE:FALSE
 #define IS_PIP_MODE(mode)						((mode >= DISPLAY_MODE_PIP_A2)&&(mode <= DISPLAY_MODE_PIP_D4))?TRUE:FALSE
+#define IS_2SPLIT_MODE(mode)					((mode >= DISPLAY_MODE_2SPLIT_HSCALE_A)&&(mode <= DISPLAY_MODE_2SPLIT_VCROP_B))?TRUE:FALSE
 
 //=============================================================================
 //  define

@@ -50,7 +50,7 @@ static void PlayBuzzer(void)
 			if(buzzerCount%2)
 				BUZZER_LOW;
 			else
-				BUZZER_HIGH;
+				//BUZZER_HIGH;
 
 			if(lossCount > 0)
 			{
@@ -188,13 +188,13 @@ void main(void)
 		VideoHTXCtrlHandler();
 
 		OSD_Display();
-
+#if 0
 		if(TPIAddr != 0) 
 		{
 			// tp2912
 			Get_TVI_ISR();
 		}
-
+#endif
 		StoreNvDataToStorage();
 
 		//temp

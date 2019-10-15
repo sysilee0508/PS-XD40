@@ -2445,14 +2445,14 @@ void TVI_Init(){
 				//else ;
 				//Printf("\r\nSetting registers for QHD 25F...");
 				break;
-			//case R1080P60:
+			case R1080P60:
 				//if((TVITxID==TP2912B)||(TVITxID==TP2915)){
-				//	ptr_TVI_Res = TP2912B_1080P60_DataSet;
+					//ptr_TVI_Res = TP2912B_1080P60_DataSet;
 					//Printf("\r\nSetting registers for 1080P 60F...");
 				//}
 				//else
 					//Printf("\r\n1080P 60F not supported...");
-				//break;
+				break;
 			case R1080P30:
 				//if(TVITxID==TP2912)
 					ptr_TVI_Res = TP2912_1080P30_DataSet;
@@ -2607,28 +2607,34 @@ void Init_TVITx_RegSet(){
 			TP2912_WriteI2C(TPIAddr,0x45,0x8b);
 //		else
 //			I2CDeviceSet_(TPIAddr,TP2910_DataSet);
-  
+
+ // 		Set_CDCE913_PLLIC(); //kukuri
 		Set_PLL();
 		Set_PLL_StartUp();
 		delay(20);
 		if((TVITxID==TP2801B)||(TVITxID==TP2803))
 			TP2912_WriteI2C(TPIAddr,0x43,0x47);
 	}
-	if(AHD_nEN==0){
-		ManVidRes |= 0x10;
-		AHD_Init();
-	}
-	else
+//	if(AHD_nEN==0){
+//		ManVidRes |= 0x10;
+//		AHD_Init();
+//	}
+//	else
 		TVI_Init();
 
 	Set_OutputMode();	
-	Init_UpData_Comm();
+	//Init_UpData_Comm();
 
 	if(!Test_Pat){		//for internal test pattern out
 		dat = TP2912_ReadI2C(TPIAddr,0x02)| 0x40;
 		TP2912_WriteI2C(TPIAddr,0x02,dat);
 	}
-		
+	else{
+		dat = TP2912_ReadI2C(TPIAddr,0x02) & 0xBF;
+		TP2912_WriteI2C(TPIAddr,0x02,dat);
+
+		//Send_TxD(1);
+	}		
 	
 }
 
@@ -2666,6 +2672,9 @@ void InitRegisterSet()
 	I2CAddressDeb=TPIAddr;
 	Init_RegSet_For_Devices();
 	delay(5);
+
+	//delay(10);
+	//Send_TxD_TVITx(&TVITx_Dn_cmd_dataset[0]);
 }
 
 void Get_TVI_ISR()

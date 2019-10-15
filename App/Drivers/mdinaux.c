@@ -196,11 +196,13 @@ static MDIN_ERROR_t MDINAUX_SetOutVideoFrmt(PMDIN_VIDEO_INFO pINFO)
 	}
 #endif
 */
+#if 1
 	// aux_pixel_repetition(0x145[2:0])
 	rpt = (pOUT->mode==MDIN_OUT_MUX656_8||pOUT->mode==MDIN_OUT_MUX656_10)? 2 :  1; 	// x2 for BT.656 out
 //	rpt = (pINFO->dacPATH==DAC_PATH_AUX_4CH)? rpt*2 : (pINFO->dacPATH==DAC_PATH_AUX_2HD)? rpt*2 : rpt; // x2 for 2ch per port
 //	rpt = (pINFO->dacPATH==DAC_PATH_AUX_4CH)? rpt*4 : (pINFO->dacPATH==DAC_PATH_AUX_2HD)? rpt*2 : rpt; // x4 for 4ch per port (available only for BT.656)
 	mode |= rpt - 1;
+#endif
 
 	// for 4-CH input mode, 2-HD input mode
 	if (pINFO->dacPATH==DAC_PATH_AUX_4CH||pINFO->dacPATH==DAC_PATH_AUX_2HD) mode |= (1<<8);

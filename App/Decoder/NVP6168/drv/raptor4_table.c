@@ -11850,7 +11850,8 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_table_vfc_to_formatdef_get( NC_U8 vfc,  char *pstr
 		case    0x34  : strcpy(pstr, "TVI_FHD_25P");  				 	Video_Fmt = TVI_FHD_25P;					break;
 		case    0x35  : strcpy(pstr, "CVI_FHD_30P");  				 	Video_Fmt = CVI_FHD_30P;					break;
 		case    0x36  : strcpy(pstr, "CVI_FHD_25P");  				 	Video_Fmt = CVI_FHD_25P;					break;
-		case    0x3A  : strcpy(pstr, "TVI_FHD_60P");  			     	Video_Fmt = TVI_FHD_60P;					break;
+		//case    0x3A  : strcpy(pstr, "TVI_FHD_60P");  			     	Video_Fmt = TVI_FHD_60P;					break;
+		case    0x3A  : strcpy(pstr, "TVI_FHD_30P");  			     	Video_Fmt = TVI_FHD_30P;					break;	//kukuri
 		case    0x3B  : strcpy(pstr, "TVI_FHD_50P");  			     	Video_Fmt = TVI_FHD_50P;					break;
 		case    0x40  : strcpy(pstr, "AHD_3M_30P");  				 	Video_Fmt = AHD_3M_30P;						break;
 		case    0x41  : strcpy(pstr, "AHD_3M_25P"); 				 	Video_Fmt = AHD_3M_25P;						break;

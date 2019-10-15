@@ -171,6 +171,18 @@ void DisplayScreen(eDisplayMode_t mode)
 		case DISPLAY_MODE_2SPLIT_HCROP_A:
 		case DISPLAY_MODE_2SPLIT_VSCALE_A:
 		case DISPLAY_MODE_2SPLIT_VCROP_A:
+		case DISPLAY_MODE_2SPLIT_HSCALE_B:
+		case DISPLAY_MODE_2SPLIT_HCROP_B:
+		case DISPLAY_MODE_2SPLIT_VSCALE_B:
+		case DISPLAY_MODE_2SPLIT_VCROP_B:
+#if BD_NVP == NVP6158
+			NVP6158_Set_VportMap(VPORT_MAP1);
+#elif BD_NVP == NVP6168
+			NVP6168_VO_Port_Set(VPORT_MAP1);
+#endif
+			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
+			break;
+		
 		case DISPLAY_MODE_PIP_A2:
 		case DISPLAY_MODE_PIP_B2:
 		case DISPLAY_MODE_PIP_C2:
@@ -181,18 +193,6 @@ void DisplayScreen(eDisplayMode_t mode)
 			NVP6168_VO_Port_Set(VPORT_MAP0);
 #endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_A);
-			break;
-
-		case DISPLAY_MODE_2SPLIT_HSCALE_B:
-		case DISPLAY_MODE_2SPLIT_HCROP_B:
-		case DISPLAY_MODE_2SPLIT_VSCALE_B:
-		case DISPLAY_MODE_2SPLIT_VCROP_B:
-#if BD_NVP == NVP6158
-			NVP6158_Set_VportMap(VPORT_MAP0);
-#elif BD_NVP == NVP6168
-			NVP6168_VO_Port_Set(VPORT_MAP0);
-#endif
-			SetInputSource(VIDEO_DIGITAL_NVP6158_B);
 			break;
 
 		case DISPLAY_MODE_3SPLIT_R2SCALE:
@@ -337,7 +337,7 @@ eChannel_t ConvertDisplayMode2Channel(eDisplayMode_t displayMode)
 
 eChannel_t FindMainChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin)
 {
-	eChannel_t main= CHANNEL1;
+	eChannel_t main;
 
 	if(mdin == MDIN_ID_A)
 	{
@@ -345,14 +345,27 @@ eChannel_t FindMainChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin)
 		{
 			main = CHANNEL2;
 		}
+		else if((displayMode == DISPLAY_MODE_2SPLIT_HSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_B) ||
+				(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_B))
+		{
+			main = CHANNEL3;
+		}
+		else
+		{
+			main = CHANNEL1;
+		}
 	}
 	else if(mdin == MDIN_ID_B)
 	{
-		if(displayMode == DISPLAY_MODE_FULL_CH4)
+		if((displayMode == DISPLAY_MODE_FULL_CH4) ||
+				(displayMode == DISPLAY_MODE_2SPLIT_HSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_B) ||
+				(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_B))
 		{
 			main = CHANNEL4;
 		}
-		else if(displayMode == DISPLAY_MODE_4SPLIT_QUAD)
+		else if((displayMode == DISPLAY_MODE_4SPLIT_QUAD) ||
+				(displayMode == DISPLAY_MODE_2SPLIT_HSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_A) ||
+				(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_A))
 		{
 			main = CHANNEL2;
 		}
@@ -373,7 +386,9 @@ eChannel_t FindAuxChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin)
 	{
 		if((displayMode == DISPLAY_MODE_PIP_A3) || (displayMode == DISPLAY_MODE_PIP_B3) ||
 			(displayMode == DISPLAY_MODE_PIP_C3) || (displayMode == DISPLAY_MODE_PIP_D3) ||
-			(displayMode == DISPLAY_MODE_4SPLIT_QUAD))
+			(displayMode == DISPLAY_MODE_4SPLIT_QUAD) ||
+			(displayMode == DISPLAY_MODE_2SPLIT_HSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_A) ||
+			(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_A))
 		{
 			aux = CHANNEL3;
 		}
@@ -382,9 +397,26 @@ eChannel_t FindAuxChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin)
 		{
 			aux = CHANNEL4;
 		}
+		else if((displayMode == DISPLAY_MODE_2SPLIT_HSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_B) ||
+			(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_B))
+		{
+			aux = CHANNEL1;
+		}
 		else
 		{
 			aux = CHANNEL2;
+		}
+	}
+	else if(mdin == MDIN_ID_B)
+	{
+		if((displayMode == DISPLAY_MODE_2SPLIT_HSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_B) ||
+			(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_B))
+		{
+			aux = CHANNEL2;
+		}
+		else
+		{
+			aux = CHANNEL4;
 		}
 	}
 	

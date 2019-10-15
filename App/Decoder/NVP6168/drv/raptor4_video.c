@@ -1153,12 +1153,16 @@ void nc_drv_video_output_color_pattern_set( void *pParam )
 	{
 		// Color Pattern ON
 		NC_DEVICE_DRIVER_BANK_SET(dev, BANK_0);
+#if 0 
 		bgdcol = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x78 + (chn/2));
 		bgdcol = bgdcol & chn_mask;
 		if( chn%2 )
 			bgdcol = bgdcol | (0x0A<<4);
 		else
 			bgdcol = bgdcol | 0x0A;
+#else
+		bgdcol = 0x88;
+#endif
 
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x78 + (chn/2), bgdcol);
 
@@ -1170,13 +1174,16 @@ void nc_drv_video_output_color_pattern_set( void *pParam )
 	{
 		// Color Pattern OFF
 		NC_DEVICE_DRIVER_BANK_SET(dev, BANK_0);
+#if 0
 		bgdcol = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x78 + (chn/2));
 		bgdcol = bgdcol & chn_mask;
 		if( chn%2 )
 			bgdcol = bgdcol | (0x08<<4);
 		else
 			bgdcol = bgdcol | 0x08;
-
+#else
+		bgdcol = 0x88;
+#endif
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x78 + (chn/2), bgdcol);
 
 		NC_DEVICE_DRIVER_BANK_SET(dev, BANK_5 + chn);

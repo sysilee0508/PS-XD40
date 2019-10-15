@@ -27,10 +27,10 @@ void NotAck(void);
 unsigned char I2C_S2P(void);
 unsigned char I2C_READ(unsigned char slaveaddr,unsigned char regaddr);
 void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char write_data);
-void I2C_MultiWrite(BYTE slaveaddr, BYTE rAddr, PBYTE pBuff, WORD bytes);
-void I2C_MultiRead(BYTE slaveaddr, BYTE rAddr, PBYTE pBuff, WORD bytes);
+void I2C_MultiWrite(unsigned char slaveaddr, unsigned char rAddr, unsigned char* pBuff, unsigned short bytes);
+void I2C_MultiRead(unsigned char slaveaddr, unsigned char rAddr, unsigned char* pBuff, unsigned short bytes);
 
-BYTE I2C_Write16(BYTE ID, BYTE dAddr, BYTE page, WORD rAddr, PBYTE pBuff, WORD bytes);
-BYTE I2C_Read16(BYTE ID, BYTE dAddr, WORD rAddr, PBYTE pBuff, WORD bytes);
+unsigned char I2C_Write16(unsigned char ID, unsigned char dAddr, unsigned char page, unsigned short rAddr, unsigned char* pBuff, unsigned short bytes);
+unsigned char I2C_Read16(unsigned char ID, unsigned char dAddr, unsigned short	 rAddr, unsigned char* pBuff, unsigned short bytes);
 
 #endif	

@@ -116,6 +116,7 @@ void SetAuxOutMode_C(void);
 eColorFormat_t GetCurrentColorFormat(void);
 void CreateDisplayWindow_A(eDisplayMode_t displayMode);
 void CreateDisplayWindow_B(eDisplayMode_t displayMode);
-//void CreateDisplayWindow_C(eDisplayMode_t displayMode);
+void CreateDisplayWindow_C(eDisplayMode_t displayMode);
+void UpdateCroppingScreen(eChannel_t channel);
 
 #endif	/* __VIDEO_H__ */

@@ -936,6 +936,7 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 			inStr = (u8 *)osdStr_Format_In_AHD_1080p25;
 			break;
 		case TVI_FHD_30P:
+		case TVI_FHD_60P:
 			inStr = (u8 *)osdStr_Format_In_TVI_1080p30;
 			break;
 		case TVI_FHD_25P:
@@ -1647,6 +1648,7 @@ void OSD_RefreshScreen(void)
 void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 {
 //	ConfigI2C(MDIN_ID_C);
+	M380_ID = MDIN_ID_C;
 	
 	OSD_SetFontGAC(SPRITE_INDEX0);
 	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pData, size, 0);
@@ -1880,6 +1882,7 @@ void OSD_DrawBorderLine(void)	//DONE
 	if(border_line == ON)
 	{
 //		ConfigI2C(MDIN_ID_C);
+
 		MDINOSD_SetBGBoxColor(WHITE(GetCurrentColorFormat()));
 		switch(displayMode)
 		{
