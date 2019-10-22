@@ -2389,7 +2389,7 @@ const NC_VIDEO_FMT_INIT_TABLE_S video_fmt_setting_value_def[ NC_VIVO_CH_FORMATDE
 		.nc_table_fmt_std_0x3c_saturation 		= 0x80,
 		.nc_table_fmt_std_0x5c_v_delay 			= 0x80,
 
-		.nc_table_fmt_std_1xcc_vport_oclk_sel = 0x58,
+		.nc_table_fmt_std_1xcc_vport_oclk_sel = 0x00, //0x58,	//kukuri
 
 		.nc_table_fmt_std_5x00_a_cmp 		  = 0xd0,
 		.nc_table_fmt_std_5x1b_comb_th_a	  = 0x08,
@@ -2522,7 +2522,7 @@ const NC_VIDEO_FMT_INIT_TABLE_S video_fmt_setting_value_def[ NC_VIVO_CH_FORMATDE
 		.nc_table_fmt_std_0x3c_saturation 		= 0x80,
 		.nc_table_fmt_std_0x5c_v_delay 			= 0x00,
 
-		.nc_table_fmt_std_1xcc_vport_oclk_sel = 0x58,
+		.nc_table_fmt_std_1xcc_vport_oclk_sel = 0x00, //0x58,	//kukuri
 
 		.nc_table_fmt_std_5x00_a_cmp 		  = 0xd0,
 		.nc_table_fmt_std_5x1b_comb_th_a	  = 0x08,
@@ -11820,7 +11820,7 @@ NC_COAX_CMD_TABLE_S *nc_drv_table_coax_up_stream_command_get( NC_COAX_CMD_DEF_E 
 #endif 
 
 
-
+#define USE_EXTENDED_RESOLUTION
 
 NC_VIVO_CH_FORMATDEF_E nc_drv_table_vfc_to_formatdef_get( NC_U8 vfc,  char *pstr )
 {
@@ -11828,10 +11828,17 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_table_vfc_to_formatdef_get( NC_U8 vfc,  char *pstr
 
 	switch( vfc )
 	{
+#ifdef USE_EXTENDED_RESOLUTION	//kukuri
 		case    0x00  : strcpy(pstr, "SD_H960_2EX_Btype_NT") ; 			Video_Fmt = SD_H960_2EX_Btype_NT ; 			break;
 		case    0x10  : strcpy(pstr, "SD_H960_2EX_Btype_PAL"); 			Video_Fmt = SD_H960_2EX_Btype_PAL; 			break;
 		case    0x20  : strcpy(pstr, "AHD_720P_30P_EX_Btype");     		Video_Fmt = AHD_720P_30P_EX_Btype;  		break;
 		case    0x21  : strcpy(pstr, "AHD_720P_25P_EX_Btype");     		Video_Fmt = AHD_720P_25P_EX_Btype;  		break;
+#else
+		case    0x00  : strcpy(pstr, "SD_H960_EX_NT") ; 			Video_Fmt = SD_H960_EX_NT ; 			break;
+		case    0x10  : strcpy(pstr, "SD_H960_EX_PAL"); 			Video_Fmt = SD_H960_EX_PAL; 			break;
+		case    0x20  : strcpy(pstr, "AHD_720P_30P");     		Video_Fmt = AHD_720P_30P;  		break;
+		case    0x21  : strcpy(pstr, "AHD_720P_25P");     		Video_Fmt = AHD_720P_25P;  		break;
+#endif // kukuri
 		case    0x22  : strcpy(pstr, "AHD_720P_60P"); 			 		Video_Fmt = AHD_720P_60P; 			 		break;
 		case    0x23  : strcpy(pstr, "AHD_720P_50P"); 			 		Video_Fmt = AHD_720P_50P; 			 		break;
 		case    0x25  : strcpy(pstr, "TVI_HD_30P_EX"); 				 	Video_Fmt = TVI_HD_30P_EX; 		 			break;
@@ -11901,10 +11908,17 @@ NC_U8 nc_drv_table_formatdef_to_vfc_get( NC_VIVO_CH_FORMATDEF_E fmt_def,  char *
 
 	switch( fmt_def )
 	{
+#ifdef USE_EXTENDED_RESOLUTION	//kukuri
 		case    SD_H960_2EX_Btype_NT    : strcpy(pstr, "SD_H960_2EX_Btype_NT"); 		vfc = 0x00; 				break;
 		case    SD_H960_2EX_Btype_PAL   : strcpy(pstr, "SD_H960_2EX_Btype_PAL"); 		vfc = 0x10; 				break;
 		case    AHD_720P_30P			: strcpy(pstr, "AHD_720P_30P_EX_Btype");     	vfc = 0x20;  				break;
 		case	AHD_720P_25P			: strcpy(pstr, "AHD_720P_25P_EX_Btype");     	vfc = 0x21;  				break;
+#else
+		case    SD_H960_EX_NT    : strcpy(pstr, "SD_H960_EX_NT"); 		vfc = 0x00; 				break;
+		case    SD_H960_EX_PAL   : strcpy(pstr, "SD_H960_EX_PAL"); 		vfc = 0x10; 				break;
+		case    AHD_720P_30P			: strcpy(pstr, "AHD_720P_30P");     				vfc = 0x20;  				break;
+		case	AHD_720P_25P			: strcpy(pstr, "AHD_720P_25P");     	vfc = 0x21;  				break;
+#endif
 		case    AHD_720P_60P   			: strcpy(pstr, "AHD_720P_60P"); 			 	vfc = 0x22; 			 	break;
 		case    AHD_720P_50P   			: strcpy(pstr, "AHD_720P_50P"); 			 	vfc = 0x23; 			 	break;
 		case    TVI_HD_30P_EX   		: strcpy(pstr, "TVI_HD_30P_EX"); 				vfc = 0x25; 		 		break;

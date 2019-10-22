@@ -54,7 +54,7 @@ void nc_drv_common_info_chip_data_init_set( int ChipCnt, NC_U8 *id, NC_U8 *rev, 
 	memset( &s_nc_decoder_info, 0, sizeof(nc_decoder_info_s));
 
 	s_nc_decoder_info.Total_Chip_Cnt = ChipCnt;
-	s_nc_decoder_info.Total_Chn_Cnt  = ChipCnt * 4;
+	s_nc_decoder_info.Total_Chn_Cnt  = TOTAL_CHANNEL_CNT;//ChipCnt * 4;
 
 	for(ii=0; ii<4; ii++)
 	{

@@ -43,8 +43,8 @@
 /* ----------------------------------------------------------------------------------
  * 3. Define variable ---------------------------------------------------------------
  * --------------------------------------------------------------------------------*/
-static const unsigned int s_nc_drv_chip_cnt = 1;
-static const unsigned int s_nc_drv_channel_cnt = 4;
+static const unsigned int s_nc_drv_chip_cnt = TOTAL_CHIP_CNT;
+static const unsigned int s_nc_drv_channel_cnt = 2;
 
 NC_U8 g_nc_drv_chip_id[4]   = { 0xFF, 0xFF, 0xFF, 0xFF };
 NC_U8 g_nc_drv_chip_rev[4]  = { 0xFF, 0xFF, 0xFF, 0xFF };
@@ -168,8 +168,8 @@ int nc_drv_chip_infomation_get( void )
 	g_nc_drv_chip_id[0] = gpio_i2c_read(NVP6168_I2C_ADDR, 0xF4);
 
 	/* Decoder Device Revision Check */
-	gpio_i2c_write(NVP6168_I2C_ADDR, 0xFF, BANK_0);
-	g_nc_drv_chip_rev[0] = gpio_i2c_read(NVP6168_I2C_ADDR, 0xF5);
+	//gpio_i2c_write(NVP6168_I2C_ADDR, 0xFF, BANK_0);
+	//g_nc_drv_chip_rev[0] = gpio_i2c_read(NVP6168_I2C_ADDR, 0xF5);
 
 	ret = 0;
 	//printk("********************** Decoder Chip Information *********************\n");
@@ -188,7 +188,8 @@ void nc_drv_chip_infomation_to_app( nc_decoder_s *psVdtDevInfo )
 
 	psVdtDevInfo->Total_Chip_Cnt = s_nc_drv_chip_cnt;
 
-	for(ii=0; ii<4; ii++)
+	//for(ii=0; ii<4; ii++)
+	for(ii=0; ii<2; ii++) //kukuri
 	{
 		psVdtDevInfo->chip_id[ii]   = g_nc_drv_chip_id[ii];
 		psVdtDevInfo->chip_rev[ii]  = g_nc_drv_chip_rev[ii];
