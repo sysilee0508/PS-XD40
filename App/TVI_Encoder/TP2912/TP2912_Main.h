@@ -54,14 +54,14 @@
 
 #endif
 
-#define Test_Pat			0//P0_4		// 0:Test Pattern  1:Input Video 
+#define Test_Pat			0 //P0_4		// 0:Test Pattern  1:Input Video 
 //#define	F37M125		P0_5
 //#define CurDrive_MD			P0_5
 #define CurDrive_MD		1		//Set Voltage Mode, 0=Current Mode
 #define Mode_1920x532			0//P0_5
 
 //#define AHD_nEN			P0_6
-#define Diff_nEN				0//P0_6
+#define Diff_nEN				0//P0_6	
 
 #ifdef TP2915BD
 #define nRGB			P0_7

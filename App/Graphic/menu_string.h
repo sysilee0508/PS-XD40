@@ -38,8 +38,8 @@ const u8 menuStr_Euro[] = "EURO (dd-mm-yyyy)";
 const u8 menuStr_Skip[] = "SKIP(ON)";
 const u8 menuStr_Show[] = "SHOW(OFF)";
 
-//const u8 menuStr_Resolution1920X1080_60P[] = "1920 X 1080 60P";
-//const u8 menuStr_Resolution1920X1080_50P[] = "1920 X 1080 50P";
+const u8 menuStr_Resolution1920X1080_60P[] = "1920 X 1080 60(50)P";
+const u8 menuStr_Resolution1920X1080_30P[] = "1920 X 1080 30(25)P";
 
 const u8 menuStr_DisplayMode_2SplitHScale_A[] = "2Split H-Scale Ch1&Ch2";
 const u8 menuStr_DisplayMode_2SplitHCrop_A[] = "2Split H-Crop Ch1&Ch2";
@@ -187,11 +187,11 @@ const u8 menuStr_AutoSeq_NoVideoSkip[] =     "5. NO VIDEO CHANNEL SKIP : "; // S
 
 // Display
 const u8 menuStr_Display_Title[] =      "-- DISPLAY OPTION --";
-//const u8 menuStr_Display_Resolution[] = "1. RESOLUTION : ";
-const u8 menuStr_Display_OsdDisplay[] = "1. OSD DISPLAY : ";
-const u8 menuStr_Display_BorderLine[] = "2. BORDER LINE DISPLAY : ";
-const u8 menuStr_Display_SplitMode[] = "3. SPLIT MODE : ";
-const u8 menuStr_Display_VideoOutFormat[] = "4. AUX VIDEO OUT : ";
+const u8 menuStr_Display_Resolution[] = "1. RESOLUTION : ";
+const u8 menuStr_Display_OsdDisplay[] = "2. OSD DISPLAY : ";
+const u8 menuStr_Display_BorderLine[] = "3. BORDER LINE DISPLAY : ";
+const u8 menuStr_Display_SplitMode[] = "4. SPLIT MODE : ";
+const u8 menuStr_Display_VideoOutFormat[] = "5. AUX VIDEO OUT : ";
 
 // Alarm
 const u8 menuStr_Alarm_Title[] =               "-- ALARM / REMOTE OPTION --";

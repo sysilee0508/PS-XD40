@@ -52,7 +52,7 @@ typedef enum
 	NV_ITEM_TITLE_DISPLAY_ON,
 	NV_ITEM_AUTO_SEQ_TIME,
 	NV_ITEM_AUTO_SEQ_LOSS_SKIP,
-//	NV_ITEM_OUTPUT_RESOLUTION,
+	NV_ITEM_OUTPUT_RESOLUTION,
 	NV_ITEM_OSD_DISPLAY,
 	NV_ITEM_BORDER_LINE,
 	NV_ITEM_USER_ALARM_OPTION,
@@ -167,7 +167,7 @@ typedef struct
 	BOOL 					titleDisplayOn;
 	uint8_t					autoSeqTime[NUM_OF_CHANNEL];
 	BOOL					autoSeqLossSkip;
-//	eResolution_t 			outputResolution;
+	eResolution_t 			outputResolution;
 	BOOL					osdOn;
 	BOOL					borderLineOn;
 	eAlarmOption_t 			alarmOption[NUM_OF_CHANNEL];
@@ -247,8 +247,8 @@ extern void Read_NvItem_YearFormat(BOOL* pData);
 extern void Write_NvItem_YearFormat(BOOL data);
 extern void Read_NvItem_VideoLossDisplayOn(BOOL* pData);
 extern void Write_NvItem_VideoLossDisplayOn(BOOL data);
-//extern void Read_NvItem_Resolution(eResolution_t *pData);
-//extern void Write_NvItem_Resolution(eResolution_t data);
+extern void Read_NvItem_Resolution(eResolution_t *pData);
+extern void Write_NvItem_Resolution(eResolution_t data);
 extern void Read_NvItem_BorderLineDisplay(BOOL *pData);
 extern void Write_NvItem_BorderLineDisplay(BOOL data);
 extern void Read_NvItem_AlarmRemoconSelect(BOOL *pData);

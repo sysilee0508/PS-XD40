@@ -38,10 +38,10 @@ void I2C_CntDelay(int cnt){
 
 
 
-void TP2912_WriteI2C(BYTE addr, BYTE index, BYTE val)
+void TP2912_WriteI2C(BYTE addr, BYTE reg, BYTE val)
 {
 	I2C_SET_CHANNEL(I2C_SUB);
-	I2C_WRITE(addr, index, val);
+	I2C_WRITE(addr, reg, val);
 }
 
 void TP2912_WriteI2C16(BYTE addr, BYTE indexH, BYTE indexL, BYTE valH, BYTE valL)
@@ -71,14 +71,14 @@ void TP2912_WriteI2C16(BYTE addr, BYTE indexH, BYTE indexL, BYTE valH, BYTE valL
 	I2C_Stop();	
 }
 
-BYTE TP2912_ReadI2C(BYTE addr, BYTE index)
+BYTE TP2912_ReadI2C(BYTE addr, BYTE reg)
 {
 #ifdef TP2912_I2C_FUNC
 	BYTE val;
 
 	I2C_Start();
 	TP2912_I2CWriteData(addr);
-	TP2912_I2CWriteData(index);
+	TP2912_I2CWriteData(reg);
 	I2C_Start();
 	TP2912_I2CWriteData(addr | 0x01);
 	val = TP2912_I2CReadData();
@@ -87,7 +87,7 @@ BYTE TP2912_ReadI2C(BYTE addr, BYTE index)
 	return val;
 #else
 	I2C_SET_CHANNEL(I2C_SUB);
-	return I2C_READ(addr, index);
+	return I2C_READ(addr, reg);
 #endif
 
 }

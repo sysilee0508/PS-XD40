@@ -26,13 +26,19 @@
 
 #ifdef MDIN_MULTI_DEVICE		// added by kukuri
 
+typedef enum
+{
+	RESOLUTION_1920_1080_60P,
+	RESOLUTION_1920_1080_30P,
+	RESOLUTION_MAX
+} eResolution_t;
+
 typedef enum {
 	VIDEO_INPUT_NONE = 0,
 	VIDEO_DIGITAL_NVP6158_A,
 	VIDEO_DIGITAL_NVP6158_B,
 	VIDEO_DIGITAL_NVP6158_AB
 } MDIN_VIDEO_INPUT_t;
-
 
 typedef enum
 {

@@ -112,7 +112,7 @@ enum
 enum
 {
 	DISPLAY_ITEM_Y_TITLE = 0,
-//	DISPLAY_ITEM_Y_RESOLUTION,
+	DISPLAY_ITEM_Y_RESOLUTION,
 	DISPLAY_ITEM_Y_OSD_DISPLAY,
 	DISPLAY_ITEM_Y_BORDER_LINE_DISPLAY,
 	DISPLAY_ITEM_Y_SPLIT_MODE,
@@ -182,81 +182,6 @@ const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklm
 // declare global variables
 //---------------------------------------------------------------
 
-#if 0	//blocked by kukuri
-//-----------------------------------------------------------------
-// constant variables
-//-----------------------------------------------------------------
-static BYTE demoIPCMode[sizeof(defIPCModeSize)];
-static BYTE demoNRMode[sizeof(defNRModeSize)];
-static BYTE demoEnhance[sizeof(defEnhanceSize)];
-static BYTE demoInOutMode[sizeof(defInOutModeSize)];
-static BYTE demoPicture[sizeof(defPictureSize)];
-static BYTE demoSetUp[sizeof(defSetUpSize)];
-static BYTE demoFilter[sizeof(defFilterSize)];
-static BYTE demoAudio[sizeof(defAudioSize)];	   //by hungry 2012.03.14
-
-// ----------------------------------------------------------------------
-// External Variable 
-// ----------------------------------------------------------------------
-
-// ----------------------------------------------------------------------
-// Static Prototype Functions
-// ----------------------------------------------------------------------
-
-// ----------------------------------------------------------------------
-// Static functions
-// ----------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------
-WORD GetOSDMenuID(void)
-{
-	return OSDMenuID;
-}
-
-//--------------------------------------------------------------------------------------------------
-WORD GetMenuStatus(BYTE nID, BYTE sID)
-{
-	if (nID==1) return demoIPCMode[sID-1];
-	if (nID==2) return demoNRMode[sID-1];
-	if (nID==3) return demoEnhance[sID-1];
-	if (nID==4) return demoInOutMode[sID-1];
-	if (nID==5) return demoPicture[sID-1];
-	if (nID==6) return demoSetUp[sID-1];
-	if (nID==7) return demoFilter[sID-1];
-//	if (nID==8) return demoEVideo[sID-1];		 //by hungry 2012.03.14
-	if (nID==8) return demoAudio[sID-1];		 //by hungry 2012.03.14
-	return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-void SetMenuStatus(BYTE nID, BYTE sID, BYTE val)
-{
-	if (nID==1) demoIPCMode[sID-1] = val;
-	if (nID==2) demoNRMode[sID-1] = val;
-	if (nID==3) demoEnhance[sID-1] = val;
-	if (nID==4) demoInOutMode[sID-1] = val;
-	if (nID==5) demoPicture[sID-1] = val;
-	if (nID==6) demoSetUp[sID-1] = val;
-	if (nID==7) demoFilter[sID-1] = val;
-//	if (nID==8) demoEVideo[sID-1] = val;		   //by hungry 2012.03.14
-	if (nID==8) demoAudio[sID-1] = val;		   //by hungry 2012.03.14
-}
-
-//--------------------------------------------------------------------------------------------------
-void SetMenuDefaultStatus(void)
-{
-	memcpy(demoIPCMode, defIPCMode, sizeof(defIPCMode));
-	memcpy(demoNRMode, defNRMode, sizeof(defNRMode));
-	memcpy(demoEnhance, defEnhance, sizeof(defEnhance));
-	memcpy(demoInOutMode, defInOutMode, sizeof(defInOutMode));
-	memcpy(demoPicture, defPicture, sizeof(defPicture));
-	memcpy(demoSetUp, defSetUp, sizeof(defSetUp));
-	memcpy(demoFilter, defFilter, sizeof(defFilter));
-//	memcpy(demoEVideo, defEVideo, sizeof(defEVideo));		//by hungry 2012.03.14
-	memcpy(demoAudio, defAudio, sizeof(defAudio));		//by hungry 2012.03.14
-}
-
-#endif
 //--------------------------------------------------------------------------------------------------
 static void Toggle(BOOL* pObject)
 {
@@ -1344,11 +1269,11 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 {
 	{24, LINE0_OFFSET_Y, menuStr_Display_Title},
-//	{20, LINE1_OFFSET_Y, menuStr_Display_Resolution},
-	{20, LINE1_OFFSET_Y, menuStr_Display_OsdDisplay},
-	{20, LINE2_OFFSET_Y, menuStr_Display_BorderLine},
-	{20, LINE3_OFFSET_Y, menuStr_Display_SplitMode},
-	{20, LINE4_OFFSET_Y, menuStr_Display_VideoOutFormat}
+	{20, LINE1_OFFSET_Y, menuStr_Display_Resolution},
+	{20, LINE2_OFFSET_Y, menuStr_Display_OsdDisplay},
+	{20, LINE3_OFFSET_Y, menuStr_Display_BorderLine},
+	{20, LINE4_OFFSET_Y, menuStr_Display_SplitMode},
+	{20, LINE5_OFFSET_Y, menuStr_Display_VideoOutFormat}
 };
 static BOOL splitModeSelecting = FALSE;
 static BOOL selectCroppingWindow = FALSE; 
@@ -1375,7 +1300,7 @@ static void DisplayPage_DisplaySplitMode(eDisplayMode_t split)
 
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
-//	eResolution_t resolution;
+	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
 	eDisplayMode_t split;
@@ -1384,6 +1309,29 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 
 	switch(itemY)
 	{
+		case DISPLAY_ITEM_Y_RESOLUTION:
+			Read_NvItem_Resolution(&resolution);
+			switch(resolution)
+			{
+				case RESOLUTION_1920_1080_60P:
+					Print_StringWithSelectedMark(
+							displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+							displayMenu[itemY].offset_y,
+							menuStr_Resolution1920X1080_60P,
+							attribute,
+							strlen(menuStr_Resolution1920X1080_60P));
+					break;
+				case RESOLUTION_1920_1080_30P:
+					Print_StringWithSelectedMark(
+							displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
+							displayMenu[itemY].offset_y,
+							menuStr_Resolution1920X1080_30P,
+							attribute,
+							strlen(menuStr_Resolution1920X1080_30P));
+					break;
+			}
+			break;
+			
 		case DISPLAY_ITEM_Y_OSD_DISPLAY:
 			Read_NvItem_OsdOn(&osdOn);
 			Print_StringOnOff(
@@ -1462,8 +1410,8 @@ static void DisplayPage_Entry(void)
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
 
-	//DrawSelectMark(DISPLAY_ITEM_Y_RESOLUTION);
-	DrawSelectMark(DISPLAY_ITEM_Y_OSD_DISPLAY);
+	DrawSelectMark(DISPLAY_ITEM_Y_RESOLUTION);
+	//DrawSelectMark(DISPLAY_ITEM_Y_OSD_DISPLAY);
 	for(index = 0; index < DISPLAY_ITEM_Y_MAX; index++)
 	{
 		Print_StringWithSelectedMarkSize(
@@ -1514,6 +1462,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 	static u8 itemY = DISPLAY_ITEM_Y_OSD_DISPLAY;
 	u8 inc_dec = DECREASE;
 	eOutVideoFormat_t auxVideo;
+	eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
 	eDisplayMode_t split;
@@ -1530,6 +1479,11 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			{
 				switch(itemY)
 				{
+					case DISPLAY_ITEM_Y_RESOLUTION:
+						Read_NvItem_Resolution(&resolution);
+						IncreaseDecreaseCount(RESOLUTION_MAX - 1, 0, inc_dec, &resolution, TRUE);
+						Write_NvItem_Resolution(resolution);
+						break;
 					case DISPLAY_ITEM_Y_OSD_DISPLAY:
 						Read_NvItem_OsdOn(&osdOn);
 						Toggle(&osdOn);

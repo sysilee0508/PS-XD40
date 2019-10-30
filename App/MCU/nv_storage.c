@@ -1,6 +1,6 @@
 #include "common.h"
 #include "stm32f10x_flash.h"
-#include "nv_storage.h"
+
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_TITLE_DISPLAY_ON,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_AUTO_SEQ_TIME,				NUM_OF_CHANNEL,								CLEAR},
 		{NV_ITEM_AUTO_SEQ_LOSS_SKIP,		sizeof(BOOL),								CLEAR},
-//		{NV_ITEM_OUTPUT_RESOLUTION,			sizeof(eResolution_t),						CLEAR},
+		{NV_ITEM_OUTPUT_RESOLUTION,			sizeof(eResolution_t),						CLEAR},
 		{NV_ITEM_OSD_DISPLAY,				sizeof(BOOL),								CLEAR},
 		{NV_ITEM_BORDER_LINE,				sizeof(BOOL),								CLEAR},
 		{NV_ITEM_USER_ALARM_OPTION, 		sizeof(eAlarmOption_t),						CLEAR},
@@ -131,7 +131,7 @@ static void LoadDefaultNvData(void)
 		nv_data.data.autoSeqTime[index] = 7;
 	}
 	nv_data.data.autoSeqLossSkip = ON;
-	//nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
+	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
 	nv_data.data.osdOn = ON;
 	nv_data.data.borderLineOn = ON;
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
@@ -454,6 +454,19 @@ void Write_NvItem_VideoLossDisplayOn(BOOL data)
 {
 	nv_data.data.videoLossDisplayOn = data;
 	nvInfo[NV_ITEM_VIDEO_LOSS_DISPLAY_ON].dirty = SET;
+}
+
+void Read_NvItem_Resolution(eResolution_t *pData)
+{
+	*pData = nv_data.data.outputResolution;
+}
+void Write_NvItem_Resolution(eResolution_t data)
+{
+	if(data < RESOLUTION_MAX)
+	{
+		nv_data.data.outputResolution = data;
+		nvInfo[NV_ITEM_OUTPUT_RESOLUTION].dirty = SET;
+	}
 }
 
 void Read_NvItem_BorderLineDisplay(BOOL *pData)

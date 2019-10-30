@@ -1006,6 +1006,7 @@ CODE BYTE TP2912_1080P30_DataSet[] = {
 	0x02, 0x83,
 	0x03, 0x42,
 	0x05, 0x40,
+	0x07, 0x41,
 	0x08, 0x58,
 	0x09, 0x2c,
 	0x0a, 0x2c,
@@ -1023,7 +1024,13 @@ CODE BYTE TP2912_1080P30_DataSet[] = {
 	0x21, 0xbb,
 	0x22, 0x2e,
 	0x23, 0x8b,
+//	0x29, 0x35,	// kukuri
+//	0x2A, 0x19,	// kukuri
+//	0x3B, 0xD0,	// kukuri
 	0x3c, 0x50,
+//	0x3d, 0x80, 	// kukuri
+//	0x3e, 0x18, 	// kukuri
+//	0x45, 0x40, 	// kukuri
 
 	0xff, 0xff
 };
@@ -2641,6 +2648,7 @@ void Init_TVITx_RegSet(){
 //----------------------------------------------------------------------------------------------------
 // main
 //----------------------------------------------------------------------------------------------------
+#if 0
 BYTE SW_Sel_Resolution(){
 	
 	BYTE res=0;
@@ -2662,7 +2670,7 @@ BYTE SW_Sel_Resolution(){
 	//Printf("\r\nres:%02x\r\n",(WORD)res);
 	return res;
 }
-
+#endif 
 
 void InitRegisterSet()
 {
