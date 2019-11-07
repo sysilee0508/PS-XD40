@@ -295,7 +295,7 @@ int RAPTOR3_SAL_OnVIdeoSetFormat( unsigned char ch, RAPTOR3_INFORMATION_S *pInfo
 			FmtDef == CVI_HD_25P_EX
 			)
 	{
-	    	NC_VD_VO_Mode_Set_New( oChannel, oDevNum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, (ch%4)+8, (ch%4)+8, (ch%4)+8, (ch%4)+8 );
+	    	NC_VD_VO_Mode_Set_New( oChannel, oDevNum, iPort, pPortFmt, oMux, oInterface, oClkEdge/*N/A*/, oChannel+8, oChannel+8, oChannel+8, oChannel+8 );
 	}
 	else
 	{
