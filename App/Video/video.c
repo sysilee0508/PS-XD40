@@ -749,6 +749,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 	eChannel_t channel;
 	MDIN_CHIP_ID_t mdin;
 	eResolution_t outRes;
+	
 	static MDIN_OUTVIDEO_FORMAT_t preOutAuxFrmt = VIDOUT_720x480i60;
 	static MDIN_VENC_FORMAT_t preEncFrmt = VID_VENC_NTSC_M;
 
@@ -837,7 +838,6 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			{
 				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2; // VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
-				//OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 				if(outRes == RESOLUTION_1920_1080_60P)
 				{
 					OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
@@ -1255,7 +1255,7 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 		case DISPLAY_MODE_4SPLIT_L3SCALE:
 			pMainView->w = winWidth*2/3;
 			pMainView->h = winHeight;
-			pMainView->x = winWidth*2/3;
+			pMainView->x = winWidth/3;
 			pMainView->y = 0;
 
 			pAuxView->w = winWidth/3;
@@ -1997,7 +1997,7 @@ void VideoProcessHandler(void)
 	{
 		InputSourceHandler(InputSelect);
 		VideoFrameProcess();
-		TurnOff_VideoLossChannels(InputSelect);
+		//TurnOff_VideoLossChannels(InputSelect);
 		SetOSDMenuRefresh();
 	}
 	fInputChanged = FALSE;
