@@ -387,7 +387,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.st4CH_x.order = MDIN_4CHID_A1A2B1B2; // set CH-ID mapping
 	stVideo.st4CH_x.view  = MDIN_4CHVIEW_ALL;	 // set 4CH view mode
 #endif
-	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
+	stVideo.exeFLAG = MDIN_UPDATE_MAIN;	// execution of video process
 	MDIN3xx_VideoProcess(&stVideo);			// mdin3xx main video process
 
 	// define window for inter-area (PIP window? kukuri)
@@ -729,13 +729,13 @@ static void VideoFrameProcess(BYTE src)
 	if (SrcMainFrmt!=PrevSrcMainFrmt||SrcMainMode!=PrevSrcMainMode||
 		OutMainFrmt!=PrevOutMainFrmt||OutMainMode!=PrevOutMainMode)
 	{
-		stVideo.exeFLAG |= MDIN_UPDATE_MAINFMT;
+		stVideo.exeFLAG |= MDIN_UPDATE_MAIN;
 	}
 
 	if (SrcAuxFrmt!=PrevSrcAuxFrmt||SrcAuxMode!=PrevSrcAuxMode||
 		OutAuxFrmt!=PrevOutAuxFrmt||OutAuxMode!=PrevOutAuxMode)
 	{
-		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
+		stVideo.exeFLAG |= MDIN_UPDATE_AUX;
 	}
 
 	if (stVideo.exeFLAG!=MDIN_UPDATE_CLEAR) // updated video formats
@@ -840,7 +840,7 @@ void VideoHTXCtrlHandler(void)
 
 void Request2VideoProcess(void)
 {
-	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT | MDIN_UPDATE_AUXFMT;
+	stVideo.exeFLAG = MDIN_UPDATE_MAIN | MDIN_UPDATE_AUX;
 }
 
 void Set_DisplayWindow(eDisplayMode_t displayMode)

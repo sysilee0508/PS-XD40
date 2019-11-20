@@ -150,7 +150,13 @@ MDIN_ERROR_t MDINGAC_SetDrawXYMode(WORD y, WORD x, PBYTE pBuff, WORD len, BYTE a
 //	for (i=0; i<len; i++) pChar[i] = MAKEWORD(attb, pBuff[i]-0x20);
 	for (i=0; i<len; i++) pChar[i] = pBuff[i]-0x20;
 
+#if 0
+	for(i=0; i<len; i++) {
+		MDINHIF_RegWrite(MDIN_HOST_ID, 0x200, pChar[i]);	// gac_process_en
+	}
+#else
 	if (MDINI2C_MultiWrite(MDIN_HOST_ID, 0x200, (PBYTE)pChar, len*2)) return MDIN_I2C_ERROR;
+#endif
 
 	return MDIN_NO_ERROR;
 }

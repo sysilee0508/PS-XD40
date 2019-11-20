@@ -75,7 +75,6 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 //#define CH3					2
 //#define CH4					3
 
-
 #define 	SYSTEM_USE_MDIN380			// for use MDIN380
 
 //#define		SYSTEM_USE_4D1_IN		// by hungry 2012.02.08
@@ -162,6 +161,21 @@ typedef DWORD				MDIN_COLORYBR, *PMDIN_COLORYBR;	// YCbCr color
 #define		stPACKED
 #endif
 
+#define                SYSTEM_USE_FIXED_MEMMAP                     1 // "1" fix the aux start row, "0" according to the calculated main end row
+
+#if                       SYSTEM_USE_FIXED_MEMMAP == 1 // row addr : 0~8191
+
+//#define             AUX_START_ADDR                          3810       // 1080i input
+
+//#define             AUX_START_ADDR                          4572       //when 2HD mode (1080p input)
+
+#define  AUX_START_ADDR                          4956       //when 2HD mode (1080i input)
+
+#endif 
+
+#define  SYSTEM_USE_AUDLY_MEMSIZE                   16          // memory size for hdmi audio delay (lip sync)
+
+
 #define 	__MDIN3xx_DBGPRT__		0	// "1" for debug print, "0" for disable debug
 #define 	__MDINHTX_DBGPRT__		0	// "1" for debug print, "0" for disable debug
 #define 	__MDINSDI_DBGPRT__		0	// "1" for debug print, "0" for disable debug	 //by hungry 2012.03.15
@@ -187,6 +201,30 @@ typedef	enum {
 	MDIN_SDRAM_ID	= 0xc6		// sdram block ID
 
 }	MDIN_BLOCK_ID_t;
+
+typedef	enum {
+	MIN1_HOST_ID	= 0xc0,		// host block ID
+	MIN1_LOCAL_ID	= 0xc2,		// local block ID
+	MIN1_HDMI_ID	= 0xc4,		// hdmi block ID
+	MIN1_SDRAM_ID	= 0xc6,		// sdram block ID
+	
+	MIN2_HOST_ID	= 0xd0,		// host block ID
+	MIN2_LOCAL_ID	= 0xd2,		// local block ID
+	MIN2_HDMI_ID	= 0xd4,		// hdmi block ID
+	MIN2_SDRAM_ID	= 0xd6,		// sdram block ID
+	
+	MOUT1_HOST_ID	= 0xe0,		// host block ID
+	MOUT1_LOCAL_ID	= 0xe2,		// local block ID
+	MOUT1_HDMI_ID	= 0xe4,		// hdmi block ID
+	MOUT1_SDRAM_ID	= 0xe6,		// sdram block ID
+
+	MOUT2_HOST_ID	= 0xf0,		// host block ID
+	MOUT2_LOCAL_ID	= 0xf2,		// local block ID
+	MOUT2_HDMI_ID	= 0xf4,		// hdmi block ID
+	MOUT2_SDRAM_ID	= 0xf6,		// sdram block ID
+	
+}	MDINXRC_BLOCK_ID_t;
+
 
 #if			defined(SYSTEM_USE_MDIN380)&&defined(SYSTEM_USE_BUS_HIF)
 	#if		CPU_MEM_XFER_USE_DMA == 1
