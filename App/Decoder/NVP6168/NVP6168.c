@@ -8,8 +8,8 @@
 
 const NC_CH_E NVP_Ch[4] =
 {
-	NC_CH3,
 	NC_CH4,
+	NC_CH3,
 	NC_CH2,
 	NC_CH1
 };
@@ -19,8 +19,8 @@ static NC_U8 VO_PortMapChanged = 0;
 
 static NC_CH_E VO_Port[VPORT_MAP_MAX][4] = 
 {
-	{NC_PORT_C, NC_PORT_D, NC_PORT_B, NC_PORT_A},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
-	{NC_PORT_D, NC_PORT_C, NC_PORT_B, NC_PORT_A}	 // PIP with ch3, quad
+	{NC_PORT_D, NC_PORT_C, NC_PORT_B, NC_PORT_A},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
+	{NC_PORT_D, NC_PORT_C, NC_PORT_A, NC_PORT_B}	 // PIP with ch3, quad
 };
 
 void NVP6168_Init(void)
@@ -59,7 +59,7 @@ void NVP6168_AutoDetection_Proc(void)
 				DECODER_Video_Output_NoVideo_Pattern_Set(ch, 0);
 			}
 		}
-		//Delay_ms(50);
+		Delay_ms(70);
 	}
 	VO_PortMapChanged = 0;
 }
@@ -85,7 +85,7 @@ void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt)
 {
 	NC_U8 seq;
 	NC_U8 vo_clk;
-	NC_PORT_E port;
+	static NC_PORT_E port;
 	
 
 	port = VO_Port[VO_PortMap][chn];

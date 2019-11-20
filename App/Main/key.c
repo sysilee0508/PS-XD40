@@ -35,8 +35,8 @@ static eKeyData_t scanKey = KEY_NONE;
 #define GPIO_ALL_KEYS			GPIO_KEY_CH1 | GPIO_KEY_CH2 | GPIO_KEY_SPLIT
 
 #define GPIO_LED_SPLIT			GPIO_Pin_15	//sw2
-#define GPIO_LED_CH2			GPIO_Pin_9	//sw1
-#define GPIO_LED_CH1			GPIO_Pin_3	//sw3
+#define GPIO_LED_CH1			GPIO_Pin_9	//sw1
+#define GPIO_LED_CH2			GPIO_Pin_3	//sw3
 #define GPIO_ALL_LEDS			GPIO_LED_CH1 | GPIO_LED_CH2 | GPIO_LED_SPLIT
 
 #define NUM_OF_KEYS				sizeof(key_table) //3

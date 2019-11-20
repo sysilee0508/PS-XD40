@@ -84,7 +84,7 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
 	{
 		inputFormat = GetInputVideoFormat(CHANNEL1);
 	}
-	else if(GetInputVideoFormat(CHANNEL1) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
+	else if(GetInputVideoFormat(CHANNEL2) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
 	{
 		inputFormat = GetInputVideoFormat(CHANNEL2);
 	}
