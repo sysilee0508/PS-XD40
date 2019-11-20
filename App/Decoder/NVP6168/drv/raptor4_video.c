@@ -46,6 +46,10 @@ void   internal_nc_drv_video_sd_format_set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORM
 void   internal_nc_drv_video_input_format_set(NC_U8 dev, NC_U8 chn, NC_VO_WORK_MODE_E mux_mode, NC_VIDEO_FMT_INIT_TABLE_S *stTableVideo);
 void   internal_nc_drv_video_output_hide_set( NC_U8 Dev, NC_U8 Chn, NC_U8 Val );
 
+// kukuri
+extern void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt);
+
+
 void nc_drv_video_setting_info_get( void *pParam )
 {
 	nc_decoder_s *pVdInfo = (nc_decoder_s*)pParam;
@@ -680,6 +684,8 @@ void nc_drv_video_input_set(void *pParam)
 		NC_DEVICE_DRIVER_BANK_SET(dev, 0x05 + chn);
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xB8, 0x39);
 	}
+
+	NVP6168_OutPort_Set(dev, chn, fmt);
 }
 
 void nc_drv_video_input_manual_set(void * pParam)
@@ -1507,6 +1513,7 @@ void internal_nc_drv_video_output_hide_set( NC_U8 Dev, NC_U8 Chn, NC_U8 Val )
 	}
 }
 
+#if 0
 // kukuri added
 void nc_drv_video_output_port_seq_set( void *pParam )
 {
@@ -1520,3 +1527,4 @@ void nc_drv_video_output_port_seq_set( void *pParam )
 		gpio_i2c_write(g_nc_drv_i2c_addr[0], 0xC1 + (ii*2), pVdInfo->VO_ChnSeq[ii]<<4 | pVdInfo->VO_ChnSeq[ii]);
 	}
 }
+#endif
