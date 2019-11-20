@@ -6,13 +6,21 @@
 #include "raptor4_common.h"
 #include "raptor4_fmt.h"
 
+const NC_CH_E NVP_Ch[4] =
+{
+	NC_CH3,
+	NC_CH4,
+	NC_CH2,
+	NC_CH1
+};
+
 static eVPORT_MAP_t VO_PortMap = VPORT_MAP0;
 static NC_U8 VO_PortMapChanged = 0;
 
 static NC_CH_E VO_Port[VPORT_MAP_MAX][4] = 
 {
-	{NC_PORT_A, NC_PORT_B, NC_PORT_C, NC_PORT_D},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
-	{NC_PORT_B, NC_PORT_A, NC_PORT_C, NC_PORT_D}	 // PIP with ch3, quad
+	{NC_PORT_C, NC_PORT_D, NC_PORT_B, NC_PORT_A},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
+	{NC_PORT_D, NC_PORT_C, NC_PORT_B, NC_PORT_A}	 // PIP with ch3, quad
 };
 
 void NVP6168_Init(void)
@@ -37,7 +45,7 @@ void NVP6168_AutoDetection_Proc(void)
 	{
 		if((DECODER_Video_Input_Format_Detection_Get(ch, &VFC, &VideoFormat)) ||(VO_PortMapChanged == 1))
 		{
-			if( VideoFormat != NC_VIVO_CH_FORMATDEF_UNKNOWN ) //( ||(VO_PortMapChanged == 1))
+			if( VideoFormat != NC_VIVO_CH_FORMATDEF_UNKNOWN )
 			{
 				/***********************************************************************
 				 * Decoder Setting : Format Set -> Distance Check -> EQ Set
@@ -51,7 +59,7 @@ void NVP6168_AutoDetection_Proc(void)
 				DECODER_Video_Output_NoVideo_Pattern_Set(ch, 0);
 			}
 		}
-		Delay_ms(50);
+		//Delay_ms(50);
 	}
 	VO_PortMapChanged = 0;
 }
@@ -114,7 +122,7 @@ void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt)
 
 NC_VIVO_CH_FORMATDEF_E NVP6168_Current_VideoFormat_Get(NC_U8 ch)
 {
-	return nc_drv_common_info_video_fmt_def_get(ch);
+	return nc_drv_common_info_video_fmt_def_get(NVP_Ch[ch]);
 }
 
 eVPORT_MAP_t NVP6168_Get_VportMap(void)

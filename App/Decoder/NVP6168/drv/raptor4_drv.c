@@ -43,8 +43,8 @@
 /* ----------------------------------------------------------------------------------
  * 3. Define variable ---------------------------------------------------------------
  * --------------------------------------------------------------------------------*/
-static const unsigned int s_nc_drv_chip_cnt = TOTAL_CHIP_CNT;
-static const unsigned int s_nc_drv_channel_cnt = 2;
+static const unsigned int s_nc_drv_chip_cnt = 1;
+static const unsigned int s_nc_drv_channel_cnt = 4;
 
 NC_U8 g_nc_drv_chip_id[4]   = { 0xFF, 0xFF, 0xFF, 0xFF };
 NC_U8 g_nc_drv_chip_rev[4]  = { 0xFF, 0xFF, 0xFF, 0xFF };
@@ -188,8 +188,7 @@ void nc_drv_chip_infomation_to_app( nc_decoder_s *psVdtDevInfo )
 
 	psVdtDevInfo->Total_Chip_Cnt = s_nc_drv_chip_cnt;
 
-	//for(ii=0; ii<4; ii++)
-	for(ii=0; ii<2; ii++) //kukuri
+	for(ii=0; ii<4; ii++)
 	{
 		psVdtDevInfo->chip_id[ii]   = g_nc_drv_chip_id[ii];
 		psVdtDevInfo->chip_rev[ii]  = g_nc_drv_chip_rev[ii];

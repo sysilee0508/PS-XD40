@@ -17,7 +17,7 @@ typedef enum
 #define AUDIO_BLOCK						0
 
 #define TOTAL_CHIP_CNT					1
-#define TOTAL_CHANNEL_CNT				TOTAL_CHIP_CNT * 2 // 4
+#define TOTAL_CHANNEL_CNT				4 * TOTAL_CHIP_CNT
 
 
 void NVP6168_Init(void);

@@ -28,8 +28,8 @@ static eKeyData_t scanKey = KEY_NONE;
 //=============================================================================
 
 #define GPIO_KEY_SPLIT			GPIO_Pin_13	//SW2
-#define GPIO_KEY_CH2			GPIO_Pin_12	//SW1
-#define GPIO_KEY_CH1			GPIO_Pin_14	//SW3
+#define GPIO_KEY_CH1			GPIO_Pin_12	//SW1
+#define GPIO_KEY_CH2			GPIO_Pin_14	//SW3
 #define GPIO_KEY_LEFT			GPIO_KEY_SPLIT | GPIO_KEY_CH1
 #define	GPIO_KEY_RIGHT			GPIO_KEY_SPLIT | GPIO_KEY_CH2
 #define GPIO_ALL_KEYS			GPIO_KEY_CH1 | GPIO_KEY_CH2 | GPIO_KEY_SPLIT
