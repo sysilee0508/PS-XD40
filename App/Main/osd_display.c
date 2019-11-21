@@ -1,5 +1,11 @@
 #include "common.h"
 #include "osd_string.h"
+#if BD_NVP == NVP6158
+#include "NVP6158.h"
+#elif BD_NVP == NVP6168
+//#include "NVP6168.h"
+#include "raptor4_fmt.h"
+#endif
 
 #define MARGIN_X						5
 #define MARGIN_Y						5

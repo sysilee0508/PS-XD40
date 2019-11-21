@@ -131,8 +131,12 @@ void main(void)
 	//VS4210 device initialization
 	vs4210_system_init();
 	Delay_ms(10);
+#if BD_NVP == NVP6158
 	//NVP6158 device initialization
 	NVP6158_init();
+#elif BD_NVP == NVP6168
+	NVP6168_Init();
+#endif
 	InitVideoLossCheck();
 //	NVP6158_VideoDetectionProc();
 //	Delay_ms(1);
@@ -149,7 +153,13 @@ void main(void)
 
 	while(TRUE)
 	{
+		RTC_CheckTime();
+		Key_Proc();
+#if BD_NVP == NVP6158
 		NVP6158_VideoDetectionProc();
+#elif BD_NVP == NVP6168
+		NVP6168_AutoDetection_Proc();
+#endif
 		Delay_ms(1);
 		Set_DisplayoutputMode_table();
 		
@@ -161,8 +171,6 @@ void main(void)
 		UpdateAutoSeqCount();
 		DisplayAutoSeqChannel();
 
-		Key_Proc();
-		RTC_CheckTime();
 		
 		// video process handler
 		VideoProcessHandler();

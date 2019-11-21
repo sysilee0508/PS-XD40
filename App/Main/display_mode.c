@@ -2,11 +2,13 @@
 //  Header Declaration
 //=============================================================================
 #include <stdio.h>
-#include "NVP6158.h"
 #include "common.h"
 #include "display_mode.h"
-
-extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLogicalChannel);
+#if BD_NVP == NVP6158
+#include "NVP6158.h"
+#elif BD_NVP == NVP6168
+#include "NVP6168.h"
+#endif
 
 //=============================================================================
 //  Define & MACRO
@@ -17,7 +19,13 @@ extern NC_VIVO_CH_FORMATDEF NVP6158_Current_Video_Format_Check(unsigned char oLo
 	(mode == DISPLAY_MODE_3SPLIT_D_CROP) || (mode == DISPLAY_MODE_QUAD_B_CROP) || \
 	(mode == DISPLAY_MODE_QUAD_C_CROP) || (mode == DISPLAY_MODE_QUAD_D_CROP) || \
 	 (mode == DISPLAY_MODE_QUAD_E_CROP))?TRUE:FALSE
-	 
+
+
+#if BD_NVP == NVP6158
+#define Get_Current_Video_Format(ch)				 NVP6158_Current_Video_Format_Check(ch)
+#elif BD_NVP == NVP6168
+#define Get_Current_Video_Format(ch)				 NVP6168_Current_VideoFormat_Get(ch)
+#endif
 //=============================================================================
 //  Static Variable Declaration
 //=============================================================================
@@ -37,13 +45,13 @@ static eVideoResolution_t Get_Current_Video_Resolution_Each_Channel(eChannel_t c
 	BYTE oCurVideofmt =0x00;
 	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_720P;
 	
-	oCurVideofmt = NVP6158_Current_Video_Format_Check(ch);
+	oCurVideofmt = Get_Current_Video_Format(ch);
 	switch(oCurVideofmt)
 	{
-		case AHD20_1080P_60P:
-		case AHD20_1080P_50P:
-		case AHD20_1080P_30P:
-		case AHD20_1080P_25P:
+		//case AHD20_1080P_60P:
+		//case AHD20_1080P_50P:
+		case AHD_1080P_30P:
+		case AHD_1080P_25P:
 		case TVI_FHD_30P:
 		case TVI_FHD_25P:
 		case CVI_FHD_30P:
@@ -51,14 +59,14 @@ static eVideoResolution_t Get_Current_Video_Resolution_Each_Channel(eChannel_t c
 			oCurVideoRes = VIDEO_RESOLUTION_1080P;
 			break;
 
-		case AHD20_720P_60P:
-		case AHD20_720P_50P:
-		case AHD20_720P_30P:
-		case AHD20_720P_25P:
-		case AHD20_720P_30P_EX:
-		case AHD20_720P_25P_EX:
-		case AHD20_720P_30P_EX_Btype:
-		case AHD20_720P_25P_EX_Btype:
+		case AHD_720P_60P:
+		case AHD_720P_50P:
+		case AHD_720P_30P:
+		case AHD_720P_25P:
+		case AHD_720P_30P_EX:
+		case AHD_720P_25P_EX:
+		case AHD_720P_30P_EX_Btype:
+		case AHD_720P_25P_EX_Btype:
 		case TVI_HD_60P:
 		case TVI_HD_50P:
 		case TVI_HD_30P:
@@ -746,7 +754,7 @@ static BYTE Check_VideoFormat_Change(void)
 
 	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
 	{
-		oCurVideofmt = NVP6158_Current_Video_Format_Check(channel);
+		oCurVideofmt = Get_Current_Video_Format(channel);
 		if(oCurVideofmt != oPreVideofmt[channel])
 		{
 			oPreVideofmt[channel] = oCurVideofmt;
@@ -903,26 +911,26 @@ eInputVideoMode_t Get_InputVideoMode(eChannel_t channel)
 {
 	eInputVideoMode_t videoMode;
 
-	switch(NVP6158_Current_Video_Format_Check(channel))
+	switch(Get_Current_Video_Format(channel))
 	{
-		case AHD20_1080P_60P:
-		case AHD20_1080P_30P:
+		//case AHD20_1080P_60P:
+		case AHD_1080P_30P:
 		case TVI_FHD_30P:
 		case CVI_FHD_30P:
 			videoMode = INPUT_VIDEO_1080P30;
 			break;
 
-		case AHD20_1080P_50P:
-		case AHD20_1080P_25P:
+		//case AHD20_1080P_50P:
+		case AHD_1080P_25P:
 		case TVI_FHD_25P:
 		case CVI_FHD_25P:
 			videoMode = INPUT_VIDEO_1080P25;
 			break;
 
-		case AHD20_720P_60P:
-		case AHD20_720P_30P:
-		case AHD20_720P_30P_EX:
-		case AHD20_720P_30P_EX_Btype:
+		case AHD_720P_60P:
+		case AHD_720P_30P:
+		case AHD_720P_30P_EX:
+		case AHD_720P_30P_EX_Btype:
 		case TVI_HD_60P:
 		case TVI_HD_30P:
 		case TVI_HD_30P_EX:
@@ -934,10 +942,10 @@ eInputVideoMode_t Get_InputVideoMode(eChannel_t channel)
 			videoMode = INPUT_VIDEO_720P30;
 			break;
 
-		case AHD20_720P_50P:
-		case AHD20_720P_25P:
-		case AHD20_720P_25P_EX:
-		case AHD20_720P_25P_EX_Btype:
+		case AHD_720P_50P:
+		case AHD_720P_25P:
+		case AHD_720P_25P_EX:
+		case AHD_720P_25P_EX_Btype:
 		case TVI_HD_50P:
 		case TVI_HD_25P:
 		case TVI_HD_25P_EX:
@@ -949,23 +957,23 @@ eInputVideoMode_t Get_InputVideoMode(eChannel_t channel)
 			videoMode = INPUT_VIDEO_720P25;
 			break;
 
-		case AHD20_SD_H960_NT:
-		case AHD20_SD_SH720_NT:
-		case AHD20_SD_H1280_NT:
-		case AHD20_SD_H1440_NT:
-		case AHD20_SD_H960_EX_NT:
-		case AHD20_SD_H960_2EX_NT:
-		case AHD20_SD_H960_2EX_Btype_NT:
+		case SD_H960_NT:
+		case SD_SH720_NT:
+		case SD_H1280_NT:
+		case SD_H1440_NT:
+		case SD_H960_EX_NT:
+		case SD_H960_2EX_NT:
+		case SD_H960_2EX_Btype_NT:
 			videoMode = INPUT_VIDEO_CVBS_NTSC;
 			break;
 			
-		case AHD20_SD_H960_PAL:
-		case AHD20_SD_SH720_PAL:
-		case AHD20_SD_H1280_PAL:
-		case AHD20_SD_H1440_PAL:
-		case AHD20_SD_H960_EX_PAL:
-		case AHD20_SD_H960_2EX_PAL:
-		case AHD20_SD_H960_2EX_Btype_PAL:
+		case SD_H960_PAL:
+		case SD_SH720_PAL:
+		case SD_H1280_PAL:
+		case SD_H1440_PAL:
+		case SD_H960_EX_PAL:
+		case SD_H960_2EX_PAL:
+		case SD_H960_2EX_Btype_PAL:
 			videoMode = INPUT_VIDEO_CVBS_PAL;
 			break;
 
