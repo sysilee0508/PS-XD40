@@ -549,7 +549,7 @@ static void MDIN3xx_SetRegInitial_D(void)
 	stVideo[M380_ID].dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
 
 	// set video path
-	stVideo[M380_ID].srcPATH = PATH_MAIN_A_AUX_A;	// set main is A, aux is main out
+	stVideo[M380_ID].srcPATH = PATH_MAIN_A_AUX_M;	// set main is A, aux is main out
 	stVideo[M380_ID].dacPATH = DAC_PATH_MAIN_OUT;	// set main only
 	stVideo[M380_ID].encPATH = VENC_PATH_PORT_X;		// set venc is aux
 

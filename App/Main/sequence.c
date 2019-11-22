@@ -68,6 +68,7 @@ static void InitializeAutoSeq_Normal(void)
 	OSD_EraseAllText();
 	// update display mode as full screen
 	DisplayScreen((eDisplayMode_t)displayChannel);
+	SetInputChanged();
 	// set autoSeqOn
 	ChangeAutoSeqOn(SET);
 	OSD_DrawBorderLine();
