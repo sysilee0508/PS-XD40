@@ -42,11 +42,10 @@ static eChannel_t systemDisplayChannel = CHANNEL_SPLIT;
 
 static eVideoResolution_t Get_Current_Video_Resolution_Each_Channel(eChannel_t ch)
 {
-	BYTE oCurVideofmt =0x00;
-	eVideoResolution_t oCurVideoRes = VIDEO_RESOLUTION_720P;
+	static eVideoResolution_t oCurVideoRes[NUM_OF_CHANNEL] = {0,};
+				//{VIDEO_RESOLUTION_720P, VIDEO_RESOLUTION_720P, VIDEO_RESOLUTION_720P, VIDEO_RESOLUTION_720P};
 	
-	oCurVideofmt = Get_Current_Video_Format(ch);
-	switch(oCurVideofmt)
+	switch(Get_Current_Video_Format(ch))
 	{
 		//case AHD20_1080P_60P:
 		//case AHD20_1080P_50P:
@@ -56,7 +55,7 @@ static eVideoResolution_t Get_Current_Video_Resolution_Each_Channel(eChannel_t c
 		case TVI_FHD_25P:
 		case CVI_FHD_30P:
 		case CVI_FHD_25P:
-			oCurVideoRes = VIDEO_RESOLUTION_1080P;
+			oCurVideoRes[ch] = VIDEO_RESOLUTION_1080P;
 			break;
 
 		case AHD_720P_60P:
@@ -83,11 +82,11 @@ static eVideoResolution_t Get_Current_Video_Resolution_Each_Channel(eChannel_t c
 		case CVI_HD_25P:
 		case CVI_HD_30P_EX:
 		case CVI_HD_25P_EX:
-			oCurVideoRes = VIDEO_RESOLUTION_720P;
+			oCurVideoRes[ch] = VIDEO_RESOLUTION_720P;
 			break;
 	}
 
-	return oCurVideoRes;	
+	return oCurVideoRes[ch];	
 }
 
 static void Display_FullMode(eChannel_t ch)
@@ -838,12 +837,13 @@ void Set_DisplayoutputMode_table(void)
 		if(displayMode == DISPLAY_MODE_FULL)
 		{
 			Display_FullMode(Get_SystemDisplayChannel());
+			//DisplayMode_FullScreen(Get_SystemDisplayChannel());
 		}
 		else
 		{
-			Display_SplitMode(Get_SystemSplitMode());
+			//Display_SplitMode(Get_SystemSplitMode());
+			DisplayMode_SplitScreen(Get_SystemSplitMode());
 		}
-		Delay_ms(500);
 	}
 }
 

@@ -13,6 +13,8 @@ void NVP6168_Init(void)
 	nc_drv_decoder_initialize();
 
 	DECODER_Video_Output_Set(0, NC_VO_WORK_MODE_1MUX);
+	Delay_ms(300);
+	NVP6168_AutoDetection_Proc();
 }
 
 void NVP6168_AutoDetection_Proc(void)
@@ -42,7 +44,7 @@ void NVP6168_AutoDetection_Proc(void)
 				DECODER_Video_Output_NoVideo_Pattern_Set(ch, 0);
 			}
 		}
-		//Delay_ms(500);
+		Delay_ms(10);
 	}
 }
 
@@ -52,7 +54,8 @@ void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt)
 	NC_U8 vo_clk;
 	
 	seq = ((chn&0x0F) << 4) | (chn&0x0F);
-/*	
+
+#if 0
 	if(fmt == SD_H960_2EX_Btype_NT || \
 		fmt == SD_H960_2EX_Btype_PAL || \
 		fmt == AHD_720P_30P_EX_Btype || \
@@ -68,7 +71,8 @@ void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt)
 		seq |= 0x88;
 		vo_clk = 0x00;
 	}
-	else */
+	else 
+#endif
 	{
 		vo_clk = 0x58;
 	}
