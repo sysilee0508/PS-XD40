@@ -474,7 +474,8 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						ConfigI2C(MDIN_ID_C);
+						//ConfigI2C(MDIN_ID_C);
+						M380_ID = MDIN_ID_C;
 						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					
@@ -494,7 +495,8 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						ConfigI2C(MDIN_ID_C);
+						//ConfigI2C(MDIN_ID_C);
+						M380_ID = MDIN_ID_C;
 						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_EraseAllText();
@@ -512,7 +514,8 @@ void Key_Proc(void)
 
 			case KEY_FREEZE :
 				InitializeAutoSeq(AUTO_SEQ_NONE);
-				ConfigI2C(MDIN_ID_C);
+				//ConfigI2C(MDIN_ID_C);
+				M380_ID = MDIN_ID_C;
 				if(screenFreezeOn == CLEAR)
 				{
 					screenFreezeOn = SET;
@@ -532,7 +535,8 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						ConfigI2C(MDIN_ID_C);
+						//ConfigI2C(MDIN_ID_C);
+						M380_ID = MDIN_ID_C;
 						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_RefreshScreen();
@@ -546,7 +550,8 @@ void Key_Proc(void)
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
-					ConfigI2C(MDIN_ID_C);
+					//ConfigI2C(MDIN_ID_C);
+					M380_ID = MDIN_ID_C;
 					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				Enter_MainMenu();
@@ -557,7 +562,8 @@ void Key_Proc(void)
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
-					ConfigI2C(MDIN_ID_C);
+					//ConfigI2C(MDIN_ID_C);
+					M380_ID = MDIN_ID_C;
 					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 				}
 				OSD_EraseAllText();

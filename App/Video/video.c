@@ -512,6 +512,8 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
 	MDIN3xx_EnableClockDrive(MDIN_ID_D, MDIN_CLK_DRV_ALL, ON);
+	MDIN3xx_SetDelayCLK_A(3);      // delay=0~7
+
 
 	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP5);		// disable digital out
@@ -549,7 +551,7 @@ static void MDIN3xx_SetRegInitial_D(void)
 	stVideo[M380_ID].dspFLAG = MDIN_AUX_DISPLAY_ON | MDIN_AUX_FREEZE_OFF;
 
 	// set video path
-	stVideo[M380_ID].srcPATH = PATH_MAIN_A_AUX_M;	// set main is A, aux is main out
+	stVideo[M380_ID].srcPATH = PATH_MAIN_A_AUX_A;	// set main is A, aux is main out
 	stVideo[M380_ID].dacPATH = DAC_PATH_MAIN_OUT;	// set main only
 	stVideo[M380_ID].encPATH = VENC_PATH_PORT_X;		// set venc is aux
 
@@ -616,7 +618,7 @@ static void MDIN3xx_SetRegInitial_D(void)
 #endif
 
 	// define video format of video encoder
-	stVideo[M380_ID].encFRMT = VID_VENC_NTSC_M;	//VID_VENC_AUTO
+	stVideo[M380_ID].encFRMT = VID_VENC_NTSC_M;	
 
 	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
 	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
@@ -1857,10 +1859,10 @@ static void VideoFrameProcess(void)
 		PrevSrcAuxFrmt[ID] = SrcAuxFrmt[ID];
 	}
 
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
 	{
 		M380_ID = ID;
-			
+
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN_IN)
 		{
 			MDIN3xx_OutDarkScreen(ON);
@@ -1873,41 +1875,35 @@ static void VideoFrameProcess(void)
 			MDIN3xx_EnableAuxDisplay(&stVideo[ID], OFF);
 			MDIN3xx_EnableAuxFreeze(&stVideo[ID], ON);
 		}
-	}
-
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
-	{
-		M380_ID = ID;	
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	MDIN3xx_VideoInProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN)	MDIN3xx_VideoProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_AUX)	MDINAUX_VideoProcess(&stVideo[ID]);
+
 	}
 
-	
 	M380_ID = MDIN_ID_C;
 	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
-	
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
+
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
 	{
 		M380_ID = ID;
+
 		MDIN3xx_EnableMainFreeze(ID, OFF);
 		MDIN3xx_EnableMainDisplay(ON);
 		MDIN3xx_EnableAuxFreeze(&stVideo[ID], OFF);
 		MDIN3xx_EnableAuxDisplay(&stVideo[ID], ON);
 	}
-	
 	MDINDLY_mSec(100);	// delay 100ms
 	
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
 	{
 		M380_ID = ID;	
 		MDIN3xx_OutDarkScreen(OFF);
 		MDIN3xx_AuxDarkScreen(OFF);
-
 	}
+
 	M380_ID = MDIN_ID_C;
 }
-
 
 static void TurnOff_VideoLossChannels(MDIN_VIDEO_INPUT_t src)
 {
@@ -1957,8 +1953,10 @@ void CreateVideoInstance(void)
 	
 	memset((PBYTE)&stVideo[MDIN_ID_A], 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_AB(MDIN_ID_A);
+
 	memset((PBYTE)&stVideo[MDIN_ID_B], 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_AB(MDIN_ID_B);
+
 	memset((PBYTE)&stVideo[MDIN_ID_C], 0, sizeof(MDIN_VIDEO_INFO));
 	MDIN3xx_SetRegInitial_C();
 	

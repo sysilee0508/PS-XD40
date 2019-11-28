@@ -8,7 +8,7 @@
 #include "NVP6168.h"
 
 #undef MDIN_TEST_PATTERN
-
+//#define MDIN_TEST_PATTERN
 extern BYTE	TPIAddr;
 
 // ----------------------------------------------------------------------
@@ -151,11 +151,11 @@ void main(void)
 	
 #ifdef MDIN_TEST_PATTERN
 //	I2C_SET_CHANNEL(I2C_MAIN);
-	I2C_SET_CHANNEL(I2C_SUB);
-	SELECT_MDIN(MDIN_B);
-	MDIN3xx_SetSrcTestPattern(&stVideo_D, MDIN_IN_TEST_H_COLOR);
+//	I2C_SET_CHANNEL(I2C_SUB);
+	//SELECT_MDIN(MDIN_I2C_H);
+	M380_ID = MDIN_ID_D;
+	MDIN3xx_SetSrcTestPattern(&stVideo[MDIN_ID_D], MDIN_IN_TEST_H_COLOR);
 //	MDIN3xx_SetSrcTestPattern(&stVideo_C, MDIN_IN_TEST_H_COLOR);
-
 //	MDIN3xx_SetOutTestPattern(MDIN_OUT_TEST_COLOR);
 #endif
 	while(TRUE)

@@ -26,6 +26,8 @@
 /* ----------------------------------------------------------------------------------
  * 2. Define ------------------------------------------------------------------------
  * --------------------------------------------------------------------------------*/
+#define DATA_OUT_MODE_ON_VIDEO		0x11
+#define DATA_OUT_MODE_NO_VIDEO		0xFF
 
 
 /* ----------------------------------------------------------------------------------
@@ -163,12 +165,6 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 	cur_vfc = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xF0);
 	pre_vfc = nc_drv_common_info_vfc_get( info_chn );
 
-// kukuri
-//	if(info_chn == 0)
-//	{
-//		cur_vfc = 0x3A;
-//	}
-
 	/**********************************************************
 	 * No Video Status
 	 * 0xFF, 0xF0, 0x0F
@@ -186,21 +182,25 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 			NC_U8 mask = 0;
 			NC_U8 output = 0x0F;
 			NC_DEVICE_DRIVER_BANK_SET(dev, 0x00);
-			mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2));
+			//mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2));
 			if(chn%2)
 			{
 				// Channel 1, 3, 5, 7, 9, 11, 13, 15
-				output = (output<<4)|mask;
+				//output = (output<<4)|mask;
+				output = DATA_OUT_MODE_NO_VIDEO & 0xF0;
 			}
 			else
 			{
 				// Channel 0, 2, 4, 6, 8, 10, 12, 14
-				output = output|mask;
+				//output = output|mask;
+				output = DATA_OUT_MODE_NO_VIDEO & 0x0F;
 			}
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2), output); // black screen
-			// kukuri 
+			// kukuri added -->
 			// addr 7A and 7B - sholud be 0xFF
 			// addr 78 79 (background color) --> black
+			//gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x78, 0x88);
+			//gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x79, 0x88);
 
 			/* On -> No video -----------*/
 			NC_DEVICE_DRIVER_BANK_SET(dev, 0x05 + chn);
@@ -476,7 +476,7 @@ void nc_drv_video_input_eq_stage_set( void *pParam )
 	NC_CABLE_E cable 			 = 0;
 	NC_U8 eq_stage 			   	 = 0;
 
-	NC_U8 mask = 0;
+	//NC_U8 mask = 0;
 	NC_U8 output = 0x01;
 
 	NC_VIDEO_FMT_INIT_TABLE_S *stTableVideo;
@@ -578,20 +578,22 @@ void nc_drv_video_input_eq_stage_set( void *pParam )
 	 * DATA_OUT_MODE :: 0001  :  Y_(001~254), Cb_(001~254), Cr_(001~254)
 	 **************************************************************************************/
 	NC_DEVICE_DRIVER_BANK_SET(dev, 0x00);
-	mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2));
+	//mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2));
 	if(chn%2)
 	{
 		// Channel 1, 3, 5, 7, 9, 11, 13, 15
-		mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2));
-		mask = mask&0x0F;
-		output = (output<<4)|mask;
+		//mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2));
+		//mask = mask&0x0F;
+		//output = (output<<4)|mask;
+		output = DATA_OUT_MODE_ON_VIDEO & 0xF0;
 	}
 	else
 	{
 		// Channel 0, 2, 4, 6, 8, 10, 12, 14
-		mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2));
-		mask = mask&0xF0;
-		output = output|mask;
+		//mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2));
+		//mask = mask&0xF0;
+		//output = output|mask;
+		output = DATA_OUT_MODE_ON_VIDEO & 0x0F;
 	}
 	gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2), output);
 
@@ -699,44 +701,6 @@ void nc_drv_video_input_set(void *pParam)
 	}
 
 	NVP6168_OutPort_Set(dev, chn, fmt);
-/*
-	 if(fmt == SD_H960_2EX_Btype_NT || fmt == SD_H960_2EX_Btype_PAL)
-	 {
-	      NC_DEVICE_DRIVER_BANK_SET(dev, 0x01);
-	      gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC0 + (chn*2), 0x88);
-	      gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xcc+chn, 0x0);
-	 }
-*/
-#if 0
-         NC_DEVICE_DRIVER_BANK_SET(dev, 0x01);
-         
-	  if(fmt == AHD_720P_30P_EX_Btype|| fmt == AHD_720P_25P_EX_Btype)
-	 {
-	      //NC_DEVICE_DRIVER_BANK_SET(dev, 0x01);
-	      //gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC0 + (chn*2), 0x88);
-
-	      //seq01 = (((chn+8) & 0x0f) | (((chn+8) & 0xf)<<4));
-	      //seq23 = (((chn+8) & 0x0f) | (((chn+8) & 0xf)<<4));
-	      //gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC0 + (chn*2), seq01);
-	      //gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC1 + (chn*2), seq23);
-
-	      gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xcc+chn, 0x0);
-	      //gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xcd, 0x0);
-
-//	      gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x84+chn, 0x00);
-//	      gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x8c+chn, 0x40);
-
-	 }
-	else
-	{
-	      //seq01 = ((chn & 0x0f) | ((chn & 0xf)<<4));
-	      //seq23 = ((chn & 0x0f) | ((chn & 0xf)<<4));
-	      //gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC0 + (chn*2), seq01);
-	      //gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC1 + (chn*2), seq23);
-	      //gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC0 + (chn*2), chn);
-	      gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xcc+chn, 0x58);
-	}
-#endif
 }
 
 void nc_drv_video_input_manual_set(void * pParam)

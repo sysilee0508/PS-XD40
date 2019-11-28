@@ -414,6 +414,10 @@ eChannel_t FindAuxChannel(eDisplayMode_t displayMode, MDIN_CHIP_ID_t mdin)
 		{
 			aux = CHANNEL2;
 		}
+		else if(displayMode == DISPLAY_MODE_FULL_CH4)
+		{
+			aux = CHANNEL3;
+		}
 		else
 		{
 			aux = CHANNEL4;
