@@ -402,10 +402,10 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stVID_h.fine  = HDMI_CLK_EDGE_RISE;
 
 	// audio block
-	stVideo.stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
-	stVideo.stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
-	stVideo.stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
-							AUDIO_SCK_EDGE_RISE | AUDIO_SD_MSB_FIRST | AUDIO_SD_1ST_SHIFT;
+//	stVideo.stAUD_h.frmt  = AUDIO_INPUT_I2S_0;						// audio input format
+//	stVideo.stAUD_h.freq  = AUDIO_MCLK_256Fs | AUDIO_FREQ_48kHz;	// sampling frequency
+//	stVideo.stAUD_h.fine  = AUDIO_MAX24B_MINUS0 | AUDIO_SD_JUST_LEFT | AUDIO_WS_POLAR_HIGH |
+//							AUDIO_SCK_EDGE_RISE | AUDIO_SD_MSB_FIRST | AUDIO_SD_1ST_SHIFT;
 
 	MDINHTX_SetHDMIBlock(&stVideo);		// initialize HDMI block
 
