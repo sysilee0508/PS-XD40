@@ -52,7 +52,17 @@
 #define NVP6158			0
 #define NVP6168			1
 
+#define HW_VER_01		1			// nvp6158
+#define HW_VER_02		2			// nvp6168
+#define HW_VER_03		3			// nvp6168 - input&output remap
+
+#define HW_REV			HW_VER_03
+
+#if HW_REV == HW_VER_01
+#define BD_NVP 			NVP6158
+#else
 #define BD_NVP			NVP6168
+#endif
 
 // -----------------------------------------------------------------------------
 

@@ -2370,7 +2370,8 @@ MDIN_ERROR_t MDIN3xx_EnableMainDisplay(BOOL OnOff)
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 5, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 	if (OnOff==ON)	MDINDLY_mSec(80);	// delay 80ms when ON
 
-	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x043, 1, 1, RBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	//if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x043, 1, 1, RBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x043, 1, 1, 0)) return MDIN_I2C_ERROR;
 	if (OnOff==OFF)	MDINDLY_mSec(40);	// delay 40ms when OFF
 	return MDIN_NO_ERROR;
 }

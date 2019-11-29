@@ -13,7 +13,7 @@
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
 #define GPIO_JUMP				GPIO_Pin_1	//PC1
-#define COMPENSATION_MARGIN	40
+#define COMPENSATION_MARGIN	0//40
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -63,6 +63,8 @@ BOOL fInputChanged;
 MDIN_VIDEO_WINDOW stMainVIEW, stAuxVIEW;
 MDIN_VIDEO_WINDOW stMainCROP, stAuxCROP;
 
+//static BOOL enableMain = TRUE;
+//static BOOL enableAux = TRUE;
 
 // ----------------------------------------------------------------------
 // External Variable 
@@ -75,6 +77,32 @@ MDIN_VIDEO_WINDOW stMainCROP, stAuxCROP;
 // ----------------------------------------------------------------------
 // Static functions
 // ----------------------------------------------------------------------
+static void TurnOnDisplay(void)
+{
+	eChannel_t mainCh;//, auxCh;
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+
+	if(displayMode != DISPLAY_MODE_FULL_CH2)
+	{
+		mainCh = CHANNEL1;
+	}
+	else
+	{
+		mainCh = CHANNEL2;
+	}
+
+	if((InputSelect == VIDEO_DIGITAL_NVP6158_A) || 
+		((InputSelect == VIDEO_DIGITAL_NVP6158_2CH) && (GetInputVideoFormat(CHANNEL2) != NC_VIVO_CH_FORMATDEF_UNKNOWN)))
+	{
+		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
+	}
+	
+	if(GetInputVideoFormat(mainCh) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
+	{
+		MDIN3xx_EnableMainDisplay(ON);
+	}
+}
+
 static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
 {
 	BYTE inputFormat = NC_VIVO_CH_FORMATDEF_UNKNOWN;
@@ -88,10 +116,10 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutVideoFrameRate(void)
 	{
 		inputFormat = GetInputVideoFormat(CHANNEL2);
 	}
-	else
-	{
-		inputFormat = CVI_HD_30P;
-	}
+//	else
+//	{
+//		inputFormat = CVI_HD_30P;
+//	}
 
 	switch(inputFormat)
 	{
@@ -716,7 +744,6 @@ static void SetOSDMenuRefresh(void)
 //--------------------------------------------------------------------------------------------------
 static void VideoFrameProcess(BYTE src)
 {
-	//if (fSyncParsed==FALSE) return;		// wait for sync detection
 	if(fInputChanged == FALSE) return;
 
 	if (EncVideoFrmt!=PrevEncFrmt)
@@ -782,8 +809,11 @@ static void VideoFrameProcess(BYTE src)
 		SetIPCVideoFine(src);	// tune IPC-register (CVBS or HDMI)
 		//SetAUXVideoFilter();	// tune AUX-filter (DUAL or CVBS)
 
-		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-		MDIN3xx_EnableMainDisplay(ON);
+		
+		//MDIN3xx_EnableAuxDisplay(&stVideo, ON);
+		//MDIN3xx_EnableMainDisplay(ON);
+		TurnOnDisplay();
+		
 
 		//SetOSDMenuRefresh();
 		
@@ -904,13 +934,14 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 	}
-
+/*
 	//Check video loss channel
 	if((GetInputVideoFormat(CHANNEL1) == NC_VIVO_CH_FORMATDEF_UNKNOWN) && (displayMode != DISPLAY_MODE_FULL_CH2))
 	{
 		// channel 1 is always main
 		mainWidth = DISPLAY_WIDTH_1280x720/2;
 		mainHeight = DISPLAY_HEIGHT_1280x720;
+		//enableMain = TRUE;
 	}
 
 	if((GetInputVideoFormat(CHANNEL2) == NC_VIVO_CH_FORMATDEF_UNKNOWN) && (displayMode != DISPLAY_MODE_FULL_CH1))
@@ -927,7 +958,7 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			auxHeight = DISPLAY_HEIGHT_480/2;
 		}
 	}
-
+*/
 	stMainCROP.w = mainWidth;
 	stMainCROP.h = mainHeight;
 	stMainCROP.x = 0;

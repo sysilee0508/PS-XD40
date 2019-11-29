@@ -6,6 +6,7 @@
 #include "raptor4_common.h"
 #include "raptor4_fmt.h"
 
+#if HW_REV == HW_VER_03
 const NC_CH_E NVP_Ch[4] =
 {
 	NC_CH4,
@@ -13,15 +14,32 @@ const NC_CH_E NVP_Ch[4] =
 	NC_CH2,
 	NC_CH1
 };
+#else
+const NC_CH_E NVP_Ch[4] =
+{
+	NC_CH1,
+	NC_CH2,
+	NC_CH3,
+	NC_CH4
+};
+#endif
 
 static eVPORT_MAP_t VO_PortMap = VPORT_MAP0;
 static NC_U8 VO_PortMapChanged = 0;
 
+#if HW_REV == HW_VER_03
 static NC_CH_E VO_Port[VPORT_MAP_MAX][4] = 
 {
 	{NC_PORT_D, NC_PORT_C, NC_PORT_B, NC_PORT_A},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
 	{NC_PORT_D, NC_PORT_C, NC_PORT_A, NC_PORT_B}	 // PIP with ch3, quad
 };
+#else
+static NC_CH_E VO_Port[VPORT_MAP_MAX][4] = 
+{
+	{NC_PORT_A, NC_PORT_B, NC_PORT_C, NC_PORT_D},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
+	{NC_PORT_B, NC_PORT_A, NC_PORT_C, NC_PORT_D}	 // PIP with ch3, quad
+};
+#endif
 
 void NVP6168_Init(void)
 {
