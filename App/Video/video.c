@@ -14,6 +14,8 @@
 
 #define COMPENSATION_MARGIN					0
 
+#define DUMP_REG								0
+
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -58,6 +60,10 @@ static MDIN_OUTVIDEO_FORMAT_t OutMainFrmt[MDIN_ID_MAX], PrevOutMainFrmt[MDIN_ID_
 static MDIN_SRCVIDEO_FORMAT_t SrcAuxFrmt[MDIN_ID_MAX], PrevSrcAuxFrmt[MDIN_ID_MAX];
 BOOL fInputChanged;
 
+#if DUMP_REG
+BOOL fRegDump = FALSE;
+#endif
+
 MDIN_VIDEO_WINDOW stMainVIEW[MDIN_ID_MAX], stAuxVIEW[MDIN_ID_MAX];
 MDIN_VIDEO_WINDOW stMainCROP[MDIN_ID_MAX], stAuxCROP[MDIN_ID_MAX];
 
@@ -70,6 +76,9 @@ static BOOL fUpdatedOutResolution;
 // ----------------------------------------------------------------------
 // Static Prototype Functions
 // ----------------------------------------------------------------------
+#if DUMP_REG
+void MDIN_DumpRegister(BYTE id, WORD start, WORD len);
+#endif
 
 // ----------------------------------------------------------------------
 // Static functions
@@ -512,8 +521,7 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
 	MDIN3xx_EnableClockDrive(MDIN_ID_D, MDIN_CLK_DRV_ALL, ON);
-	MDIN3xx_SetDelayCLK_A(3);      // delay=0~7
-
+//	MDIN3xx_SetDelayCLK_A(3);      // delay=0~7
 
 	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP5);		// disable digital out
@@ -621,12 +629,31 @@ static void MDIN3xx_SetRegInitial_D(void)
 	stVideo[M380_ID].encFRMT = VID_VENC_NTSC_M;	
 
 	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
+
+	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
+
+/*	
+//	MDIN3xx_AuxDarkScreen(ON);
+	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], OFF);
+//	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
+	
 	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
 	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
 	MDINAUX_VideoProcess(&stVideo[M380_ID]);             // mdin3xx aux video process
 
-	SetIPCVideoFine();
+	//SetIPCVideoFine();
+	//MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
+
+	MDIN3xx_EnableMainDisplay(ON);		// set main display off
+
+//	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
+
+//	MDINDLY_mSec(100);	// delay 100ms
+	
+//	MDIN3xx_OutDarkScreen(OFF);
+//	MDIN3xx_AuxDarkScreen(OFF);
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1837,10 +1864,10 @@ static void VideoFrameProcess(void)
 {
 	BYTE ID;
 
-	if (stVideo[MDIN_ID_A].exeFLAG == 0 && stVideo[MDIN_ID_B].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0) 
+	if (stVideo[MDIN_ID_A].exeFLAG == 0 && stVideo[MDIN_ID_B].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0)// && stVideo[MDIN_ID_D].exeFLAG == 0) 
 		return;
 
-	for(ID = MDIN_ID_A; ID <= MDIN_ID_C; ID++)
+	for(ID = MDIN_ID_A; ID < MDIN_ID_MAX-1; ID++)
 	{
 		if (stVideo[ID].srcPATH == PATH_MAIN_B_AUX_B || stVideo[ID].srcPATH == PATH_MAIN_B_AUX_A || stVideo[ID].srcPATH == PATH_MAIN_B_AUX_M)
 		{
@@ -1984,7 +2011,7 @@ void SetInputChanged(void)
 	fInputChanged = TRUE;
 	stVideo[MDIN_ID_A].exeFLAG = stVideo[MDIN_ID_B].exeFLAG = MDIN_UPDATE_ALL;
 	stVideo[MDIN_ID_C].exeFLAG |= MDIN_UPDATE_IN;
-	stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_IN;
+	//stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_IN;
 }
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
@@ -1997,8 +2024,21 @@ void VideoProcessHandler(void)
 		VideoFrameProcess();
 		TurnOff_VideoLossChannels(InputSelect);
 		SetOSDMenuRefresh();
+#if DUMP_REG
+		fRegDump = TRUE;
+#endif
 	}
 	fInputChanged = FALSE;
+
+#if DUMP_REG
+		if(fRegDump == TRUE)
+	{
+		MDIN_DumpRegister(MDIN_HOST_ID, 0x0000, 0x100); // Host Register 0x000~0x0FF
+		MDINDLY_mSec(1);
+		MDIN_DumpRegister(MDIN_LOCAL_ID, 0x0000, 0x400); // Local Register 0x000~0x3FF
+		fRegDump = FALSE;
+	}
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2051,4 +2091,32 @@ void UpdateCroppingScreen(eChannel_t channel)
 		MDIN3xx_SetScaleProcess(&stVideo[MDIN_ID_A]);
 	}
 }
+
+#if DUMP_REG
+// register dump
+WORD regHost[256];
+WORD regLocal[1024];	// 2k
+
+void MDIN_DumpRegister(BYTE id, WORD start, WORD len)
+{
+	WORD addr, index;
+	PWORD pBuf;
+	
+	// init
+	addr = start;
+	index = 0;
+
+	if(id == MDIN_HOST_ID)	pBuf = regHost;
+	else if(id == MDIN_LOCAL_ID)	pBuf = regLocal;
+	
+	memset(pBuf, 0x0000, sizeof(pBuf));
+	
+	for(index = 0; index < len; index++)
+	{
+		MDINHIF_RegRead(id, addr, pBuf+index);
+		addr++;
+	}
+}
+#endif
 /*  FILE_END_HERE */
+
