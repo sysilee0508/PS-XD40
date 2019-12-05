@@ -1280,6 +1280,7 @@ static void OSD_DisplayNoVideo(void)
 {
 	sPosition_t position;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	eChannel_t chan;
 	BOOL videoLossDiplayOn;
 
 	Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
@@ -1287,7 +1288,6 @@ static void OSD_DisplayNoVideo(void)
 	if((GetVideoLossEvent() == SET) || (requestRefreshScreen == SET))
 	{
 		SetVideoLossEvent(CLEAR);
-
 		if(IS_FULL_MODE(displayMode))
 		{
 			position.pos_x = (DISPLAY_WIDTH - (strlen(osdStr_NoVideoFull)*CHAR_WIDTH))/2;
@@ -1338,7 +1338,7 @@ void OSD_DisplayVideoMode(void)
 		inPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
 		outPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
 		
-		if((IsVideoLossChannel(channel) != TRUE) && (GetAutoSeqOn() == FALSE))
+		if((GetInputVideoFormat(channel)  != NC_VIVO_CH_FORMATDEF_UNKNOWN) && (GetAutoSeqOn() == FALSE))
 		{
 			if(videoModeDisplayCount[channel] > 0)
 			{
@@ -1386,7 +1386,9 @@ void OSD_DisplayVideoMode(void)
 	{
 		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 		{
-			if(IsVideoLossChannel(channel) != TRUE)
+			inPosition =  OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
+			outPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
+			if(GetInputVideoFormat(channel)  != NC_VIVO_CH_FORMATDEF_UNKNOWN)
 			{
 				if(videoModeDisplayCount[channel] > 0)
 				{
@@ -1399,9 +1401,6 @@ void OSD_DisplayVideoMode(void)
 					pOutVideoStr = (u8*)osdStr_Space20;
 				}
 				
-				inPosition =  OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
-				outPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
-
 				if((displayMode == DISPLAY_MODE_2SPLIT_HSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_A) ||
 					(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_A))
 				{
@@ -1433,6 +1432,11 @@ void OSD_DisplayVideoMode(void)
 			else
 			{
 				videoModeDisplayCount[channel] = VIDEO_MODE_DISPLAY_TIME;
+				
+				pInVideoStr = (u8*)osdStr_Space20;
+				pOutVideoStr = (u8*)osdStr_Space20;
+				OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
+				OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
 			}
 		}
 	}
@@ -1849,6 +1853,7 @@ void OSD_Display(void)
 		OSD_DisplayDateTime();
 		OSD_DisplayChannelName();
 		OSD_DisplayVideoMode();
+		Delay_us(10);
 		//OSD_DisplayNoVideo();
 		OSD_DisplayAuto();
 		OSD_DisplayIndicator();

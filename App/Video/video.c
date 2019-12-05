@@ -196,7 +196,6 @@ static void SetIPCVideoFine(void)
 	MDINHIF_RegField(MDIN_LOCAL_ID, 0x25b, 0, 8,  8);
 }
 
-
 static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 {
 	WORD nID = 0;
@@ -632,28 +631,26 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
 
-/*	
-//	MDIN3xx_AuxDarkScreen(ON);
+	MDIN3xx_AuxDarkScreen(ON);
 	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], OFF);
-//	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
+	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
 	
 	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
 	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
 	MDINAUX_VideoProcess(&stVideo[M380_ID]);             // mdin3xx aux video process
 
 	//SetIPCVideoFine();
-	//MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
+	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
 
 	MDIN3xx_EnableMainDisplay(ON);		// set main display off
 
-//	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
+	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
 
-//	MDINDLY_mSec(100);	// delay 100ms
+	MDINDLY_mSec(100);	// delay 100ms
 	
-//	MDIN3xx_OutDarkScreen(OFF);
-//	MDIN3xx_AuxDarkScreen(OFF);
-*/
+	MDIN3xx_OutDarkScreen(OFF);
+	MDIN3xx_AuxDarkScreen(OFF);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1896,12 +1893,14 @@ static void VideoFrameProcess(void)
 			MDIN3xx_EnableMainDisplay(OFF);
 			MDIN3xx_EnableMainFreeze(ID, ON);
 		}
+
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_AUX_IN)
 		{
 			MDIN3xx_AuxDarkScreen(ON);
 			MDIN3xx_EnableAuxDisplay(&stVideo[ID], OFF);
 			MDIN3xx_EnableAuxFreeze(&stVideo[ID], ON);
 		}
+
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	MDIN3xx_VideoInProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN)	MDIN3xx_VideoProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_AUX)	MDINAUX_VideoProcess(&stVideo[ID]);
@@ -1914,7 +1913,6 @@ static void VideoFrameProcess(void)
 	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
 	{
 		M380_ID = ID;
-
 		MDIN3xx_EnableMainFreeze(ID, OFF);
 		MDIN3xx_EnableMainDisplay(ON);
 		MDIN3xx_EnableAuxFreeze(&stVideo[ID], OFF);
@@ -1937,32 +1935,30 @@ static void TurnOff_VideoLossChannels(MDIN_VIDEO_INPUT_t src)
 	eChannel_t channel;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
-	ScanVideoLossChannels();
-
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
-
-		if(IsVideoLossChannel(channel) == TRUE)
+		if(GetInputVideoFormat(channel)  == NC_VIVO_CH_FORMATDEF_UNKNOWN)
 		{
 			if(channel == FindMainChannel(displayMode, MDIN_ID_A))
 			{
 				M380_ID =  MDIN_ID_A;
-				MDIN3xx_OutDarkScreen(ON);
+				//MDIN3xx_OutDarkScreen(ON);
+				MDIN3xx_EnableMainDisplay(OFF);
 			}
 			else if(channel == FindAuxChannel(displayMode, MDIN_ID_A))
 			{
 				M380_ID =  MDIN_ID_A;
-				MDIN3xx_AuxDarkScreen(ON);
+				MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_A], OFF);
 			}
 			else if(channel == FindMainChannel(displayMode, MDIN_ID_B))
 			{
 				M380_ID =  MDIN_ID_B;
-				MDIN3xx_OutDarkScreen(ON);
+				MDIN3xx_EnableMainDisplay(OFF);
 			}
 			else if(channel == FindAuxChannel(displayMode, MDIN_ID_B))
 			{
 				M380_ID =  MDIN_ID_B;
-				MDIN3xx_AuxDarkScreen(ON);
+				MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_B], OFF);
 			}
 		}
 	}
@@ -2031,11 +2027,18 @@ void VideoProcessHandler(void)
 	fInputChanged = FALSE;
 
 #if DUMP_REG
-		if(fRegDump == TRUE)
+	if(fRegDump == TRUE)
 	{
+		M380_ID = MDIN_ID_C;
 		MDIN_DumpRegister(MDIN_HOST_ID, 0x0000, 0x100); // Host Register 0x000~0x0FF
 		MDINDLY_mSec(1);
 		MDIN_DumpRegister(MDIN_LOCAL_ID, 0x0000, 0x400); // Local Register 0x000~0x3FF
+
+		M380_ID = MDIN_ID_D;
+		MDIN_DumpRegister(MDIN_HOST_ID, 0x0000, 0x100); // Host Register 0x000~0x0FF
+		MDINDLY_mSec(1);
+		MDIN_DumpRegister(MDIN_LOCAL_ID, 0x0000, 0x400); // Local Register 0x000~0x3FF
+		
 		fRegDump = FALSE;
 	}
 #endif
@@ -2059,15 +2062,15 @@ void SetAuxOutMode_C(void)
 	M380_ID = MDIN_ID_C;
 	if(format == VIDEO_VGA)
 	{
-		stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_RGB444_8;
+		stVideo[MDIN_ID_C].stOUT_m.mode = MDIN_OUT_RGB444_8;
 		OSD_ModifyPalette_M(OSD_RGB_PALETTE);
 	}
 	else
 	{
-		stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_EMB422_8;
+		stVideo[MDIN_ID_C].stOUT_m.mode = MDIN_OUT_EMB422_8;
 		OSD_ModifyPalette_M(OSD_YUV_PALETTE);
 	}
-	stVideo[M380_ID].exeFLAG |= MDIN_UPDATE_ALL;//MDIN_UPDATE_AUX;
+	stVideo[MDIN_ID_C].exeFLAG |= MDIN_UPDATE_ALL;//MDIN_UPDATE_AUX;
 }
 
 
