@@ -596,6 +596,7 @@ static void InputSourceHandler(BYTE src)
 	OutAuxMode = GetOutAuxMode(src);
 
 	Set_DisplayWindow(GetCurrentDisplayMode());
+
 	InputSelOld = src;
 
 	//PrevSrcMainFrmt = PrevSrcMainMode = PrevAdcFrmt = 0xff;
@@ -813,7 +814,15 @@ static void VideoFrameProcess(BYTE src)
 		//MDIN3xx_EnableAuxDisplay(&stVideo, ON);
 		//MDIN3xx_EnableMainDisplay(ON);
 		TurnOnDisplay();
-		
+
+		if(src == VIDEO_DIGITAL_NVP6158_A)
+		{
+			MDIN3xx_EnableOutputPAD(MDIN_PAD_ENC_OUT, ON);
+		}
+		else
+		{
+			MDIN3xx_EnableOutputPAD(MDIN_PAD_ENC_OUT, OFF);
+		}
 
 		//SetOSDMenuRefresh();
 		
