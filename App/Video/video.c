@@ -91,15 +91,15 @@ static void TurnOnDisplay(void)
 		mainCh = CHANNEL2;
 	}
 
+	if(GetInputVideoFormat(mainCh) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
+	{
+		MDIN3xx_EnableMainDisplay(ON);
+	}
+	
 	if((InputSelect == VIDEO_DIGITAL_NVP6158_A) || 
 		((InputSelect == VIDEO_DIGITAL_NVP6158_2CH) && (GetInputVideoFormat(CHANNEL2) != NC_VIVO_CH_FORMATDEF_UNKNOWN)))
 	{
 		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
-	}
-	
-	if(GetInputVideoFormat(mainCh) != NC_VIVO_CH_FORMATDEF_UNKNOWN)
-	{
-		MDIN3xx_EnableMainDisplay(ON);
 	}
 }
 
@@ -768,7 +768,7 @@ static void VideoFrameProcess(BYTE src)
 
 	if (stVideo.exeFLAG!=MDIN_UPDATE_CLEAR) // updated video formats
 	{
-		stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
+		//stVideo.stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON;   //3DNR off
 
 		if (stVideo.srcPATH == PATH_MAIN_B_AUX_B || stVideo.srcPATH == PATH_MAIN_B_AUX_A || stVideo.srcPATH == PATH_MAIN_B_AUX_M)
 		{
@@ -813,7 +813,7 @@ static void VideoFrameProcess(BYTE src)
 		
 		//MDIN3xx_EnableAuxDisplay(&stVideo, ON);
 		//MDIN3xx_EnableMainDisplay(ON);
-		TurnOnDisplay();
+		//TurnOnDisplay();
 
 		if(src == VIDEO_DIGITAL_NVP6158_A)
 		{
@@ -859,6 +859,7 @@ void SetInputSource(BYTE input)
 void SetInputChanged(void)
 {
 	fInputChanged = TRUE;
+//	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT |MDIN_UPDATE_AUXFMT ;
 }
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
@@ -867,6 +868,7 @@ void VideoProcessHandler(void)
 //	InputSyncHandler_A(InputSelect);
 //	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
 	VideoFrameProcess(InputSelect);
+	TurnOnDisplay();
 	SetOSDMenuRefresh();
 	fInputChanged = FALSE;
 }
