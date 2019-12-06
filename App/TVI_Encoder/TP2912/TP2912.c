@@ -16,15 +16,19 @@
 DATA	BYTE	TVITxID;
 DATA 	BYTE	TPIAddr;
 
-extern DATA	BYTE	I2CAddressDeb ;
-extern DATA	BYTE ManVidRes;
-extern  BOOL		AHD_nEN;
+DATA	BYTE	I2CAddressDeb = TVII2CAddress;
+DATA	BYTE	ManVidRes;
 
+//extern DATA	BYTE	I2CAddressDeb ;
+//extern DATA	BYTE ManVidRes;
+//extern  BOOL		AHD_nEN;
+
+/*
 CODE _TVITx_Dn_cmd TVITx_Dn_cmd_dataset[] = {
 		{0x88,0x00,0x00,0x00,0x00},		//No command
 		{0x88,0xff,0x00,0x00,0x00},		//Ack
 };
-/*
+
 enum{
 	TP2801A=0,
 	TP2801B,
@@ -33,6 +37,74 @@ enum{
 };
 */
 
+
+#ifdef BD_TP2912B
+CODE BYTE TP2912B_1080P30_DataSet[] = {
+
+//	27,		
+	0x02, 0x83,
+	0x03, 0x42,
+	0x05, 0x40,
+	0x07, 0x42,	// 16-bit 0x42, 8-bit 0x41
+	0x08, 0x58,
+	0x09, 0x2c,
+	0x0a, 0x2c,
+	0x0b, 0x00,
+	0x0c, 0xc0,
+	0x0d, 0xc0,
+	0x0e, 0x28,
+	0x0f, 0x98,
+	0x10, 0x08,
+	0x11, 0x69, //0x6c,
+	0x12, 0x04,
+	0x13, 0x3c,
+	0x15, 0x38,
+	0x20, 0x48,
+	0x21, 0xba,	// MCU source=0xbb 
+	0x22, 0x2e,
+	0x23, 0x8b,
+	0x29, 0x35,
+	0x2a, 0x19,
+	0x3b, 0xd0,
+	0x3c, 0x50,
+	0x45, 0x40,
+	0xf4, 0x21,
+
+	0xff, 0xff
+};
+#endif
+
+CODE BYTE TP2912_1080P30_DataSet[] = {
+
+//	21,		
+	0x02, 0x83,
+	0x03, 0x42,
+	0x05, 0x40,
+	0x07, 0x41,
+	0x08, 0x58,
+	0x09, 0x2c,
+	0x0a, 0x2c,
+	0x0b, 0x00,
+	0x0c, 0xc0,
+	0x0d, 0xc0,
+	0x0f, 0x98,
+	0x10, 0x08,
+	0x11, 0x6c,
+	0x12, 0x04,
+	0x1c, 0xa6,
+	0x1d, 0xe6,
+	0x1e, 0xf8,
+	0x20, 0x48,
+	0x21, 0xbb,
+	0x22, 0x2e,
+	0x23, 0x8b,
+	0x3c, 0x50,
+
+	0xff, 0xff
+};
+
+
+#if 0
 #ifdef BD_TP2912B
 CODE BYTE TP2912B_Reg_Set[] = {
 		
@@ -1908,6 +1980,9 @@ CODE BYTE TP2912_AHD_720P_36M_UpData_DataSet[] = {
 	0xff, 0xff
 };
 
+#endif
+
+#if 0 // do not use
 void TVI_RegBit_Write(BYTE addr, BYTE lsb_pos, BYTE bWid, BYTE bDat){
 	BYTE reg;
 	reg = TP2912_ReadI2C(TPIAddr,addr);
@@ -1920,6 +1995,7 @@ void TVI_RegBit_Write(BYTE addr, BYTE lsb_pos, BYTE bWid, BYTE bDat){
 BYTE getbits(BYTE x, BYTE p, BYTE n) {
     return (x >> (p + 1 - n)) & ~(~0 << n);
 }
+#endif
 
 
 void Set_PLL_StartUp(){
@@ -1972,6 +2048,7 @@ BYTE Det_TVI_addr(){
 	return 0;//0x88;	
 }
 
+#if 0
 void En_TxD_TVITx(){
 	BYTE Reg56;
 
@@ -2001,7 +2078,10 @@ void Send_TxD_TVITx(_TVITx_Dn_cmd *ptxd_set){
 	En_TxD_TVITx();
 	
 }
+#endif
 
+
+#if 0
 void Init_UpData_Comm(){		
 	BYTE *ptr_UpData;
 	BYTE Reg94;
@@ -2068,6 +2148,7 @@ void Send_TxD(BYTE dat_set){
 	Send_TxD_TVITx(&TVITx_Dn_cmd_dataset[dat_set]);
 }
 
+
 void Get_RxD(){
 	BYTE dat_cnt=0;
 	BYTE *pRxD;
@@ -2112,6 +2193,9 @@ void Get_RxD(){
 #endif
 }
 
+
+#endif
+
 /*
 void Get_RxD(){
 	BYTE dat_cnt;
@@ -2136,6 +2220,8 @@ void Get_RxD(){
 
 }
 */
+
+#if 0
 BYTE BitsReverse(BYTE val){
 	BYTE i;
 	BYTE cnt=7;
@@ -2264,7 +2350,9 @@ void Get_AHD_RxD(){
 	
 	//Printf("\r\nAHD Data1:%02xh, Data2:%02xh, Data3:%02xh, Data4:%02xh\r\n",(WORD)*pAHD_RxD,(WORD)*(pAHD_RxD+1), (WORD)*(pAHD_RxD+2),(WORD)*(pAHD_RxD+3));
 }
+#endif
 
+#if 0
 void Get_Interrupt(){
 	//if((TP2912_ReadI2C(TPIAddr,0x69)&0x01)==0x01){
 		delay(10);
@@ -2285,6 +2373,7 @@ void Clear_Interrupt(){
 	BYTE Reg69;
 	Reg69=TP2912_ReadI2C(TPIAddr,0x69);
 }
+#endif
 
 BYTE CHIPnREV_ID(){
 	BYTE Reg01, Reg04, Regff,Regfd;
@@ -2334,6 +2423,8 @@ BYTE CHIPnREV_ID(){
 
 	return ChipID;
 }
+
+#if 0
 void AHD_Init(){
 	
 	BYTE *ptr_AHD_Res;
@@ -2407,10 +2498,14 @@ void AHD_Init(){
 	}
 	I2CDeviceSet_(TPIAddr, ptr_AHD_Res);
 }
+#endif
 
 void TVI_Init(){
 	BYTE *ptr_TVI_Res;
-	
+
+#if 1
+	ptr_TVI_Res = TP2912_1080P30_DataSet;
+#else
 	switch (ManVidRes) {
 			case R8M15:
 				//if(TVITxID==TP2912)
@@ -2550,7 +2645,7 @@ void TVI_Init(){
 				break;
 			
 		}
-
+#endif
 		I2CDeviceSet_(TPIAddr, ptr_TVI_Res);
 #ifdef TP2915BD
 		if(nRGB==0){
@@ -2570,11 +2665,13 @@ void Set_OutputMode(){
 			TP2912_WriteI2C(TPIAddr,0x3e,(TP2912_ReadI2C(TPIAddr,0x3e)|0x08));
 			if(Diff_nEN==0){						//Diff mode
 				TP2912_WriteI2C(TPIAddr,0x3e,(TP2912_ReadI2C(TPIAddr,0x3e)|0x80));
+				//TP2912_WriteI2C(TPIAddr,0x3e,0x98);
 				TP2912_WriteI2C(TPIAddr,0x3b,0x90);
 				TP2912_WriteI2C(TPIAddr,0x45,0x40);
 			}
 			else
 				TP2912_WriteI2C(TPIAddr,0x3e,(TP2912_ReadI2C(TPIAddr,0x3e)&0x7f));
+				//TP2912_WriteI2C(TPIAddr,0x3e,0x18);
 			}
 		else if(TVITxID==TP2912){
 			TP2912_WriteI2C(TPIAddr,0x3e,(TP2912_ReadI2C(TPIAddr,0x3e)|0x08));
@@ -2595,7 +2692,6 @@ void Set_OutputMode(){
 }
 	
 void Init_TVITx_RegSet(){
-
 	BYTE dat;
 
 	TPIAddr = Det_TVI_addr();
@@ -2606,6 +2702,7 @@ void Init_TVITx_RegSet(){
 	}
 	
 	TVITxID=CHIPnREV_ID();
+
 	if((TVITxID==TP2915)||(TVITxID==TP2912B)){
 		TP2912_WriteI2C(TPIAddr,0x3a,0x00);
 	}
@@ -2642,7 +2739,11 @@ void Init_TVITx_RegSet(){
 
 		//Send_TxD(1);
 	}		
-	
+
+	// kukuri	
+	dat = TP2912_ReadI2C(TPIAddr, 0x45) & 0x8F;
+	dat |= 0x70;
+	TP2912_WriteI2C(TPIAddr,0x45,dat);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -2678,13 +2779,14 @@ void InitRegisterSet()
 	ManVidRes=R1080P30;
 	Init_TVITx_RegSet();
 	I2CAddressDeb=TPIAddr;
-	Init_RegSet_For_Devices();
+	//Init_RegSet_For_Devices();
 	delay(5);
 
 	//delay(10);
 	//Send_TxD_TVITx(&TVITx_Dn_cmd_dataset[0]);
 }
 
+#if 0
 void Get_TVI_ISR()
 {
 #if 0
@@ -2700,6 +2802,7 @@ void Get_TVI_ISR()
 #endif
 }
 
+#endif
 
 
 //main.c

@@ -73,18 +73,20 @@ enum{
 };
 
 
+
+
 //extern CODE BYTE TP2910_AHD1080_UpData_DataSet[];
-void Get_TVI_ISR();
+//void Get_TVI_ISR();
 void InitRegisterSet();
 
-void Get_AHD_RxD();
+//void Get_AHD_RxD();
 void Set_PLL();
 
-void Init_UpData_Comm();
-void Get_Interrupt();
-void Clear_Interrupt();
+//void Init_UpData_Comm();
+//void Get_Interrupt();
+//void Clear_Interrupt();
 void TVI_Init();
-void AHD_Init();
+//void AHD_Init();
 void Set_OutputMode();
 
 void Init_TVITx_RegSet();

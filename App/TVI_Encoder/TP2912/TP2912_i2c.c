@@ -137,6 +137,76 @@ WORD TP2912_ReadI2C16(BYTE addr, BYTE indexH, BYTE indexL)
 	return val;
 }
 
+
+
+void I2CDeviceSet_( BYTE addr, CODE_P BYTE *RegSet)
+{
+	int	cnt=0;
+	BYTE index, val;
+
+	// Output discription
+	#ifdef TASKING
+	while( *RegSet ) 
+		RS_tx( *RegSet++ );
+	RegSet++;
+	#endif
+
+	while ( *RegSet != 0xFF ) {
+/*		if( cnt==0 ) {
+			cnt = *RegSet;
+			RegSet+=1;
+		}
+*/
+		index = *RegSet;
+		val = *(RegSet+1);
+//		MonWriteI2C(addr, index, val);
+		TP2912_WriteI2C(addr, index, val);
+
+//		Puts("\r\n");
+
+		RegSet+=2;
+
+		cnt--;
+	}
+
+	delay(50);
+}
+
+void I2CDeviceSet( CODE_P BYTE *RegSet)
+{
+	int	cnt=0;
+	BYTE addr, index, val;
+
+	// Output discription
+	#ifdef TASKING
+	while( *RegSet ) 
+		RS_tx( *RegSet++ );
+	RegSet++;
+	#endif
+
+	while ( *RegSet != 0xFF ) {
+		if( cnt==0 ) {
+			addr = *RegSet;
+
+			cnt = *(RegSet+1);
+			RegSet+=2;
+		}
+		index = *RegSet;
+		val = *(RegSet+1);
+//		MonWriteI2C(addr, index, val);
+		TP2912_WriteI2C(addr, index, val);
+
+//		Puts("\r\n");
+
+		RegSet+=2;
+
+		cnt--;
+	}
+
+	delay(50);
+}
+
+
 #ifdef TP2912_I2C_FUNC
 BYTE TP2912_I2CReadDataWithNAK(void)
 {

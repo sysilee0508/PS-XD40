@@ -515,12 +515,11 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	if(retry > 3)	return;
 
-	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
+//	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
 	MDIN3xx_SetMemoryConfig(MDIN_ID_D);			// initialize DDR memory
 
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
 	MDIN3xx_EnableClockDrive(MDIN_ID_D, MDIN_CLK_DRV_ALL, ON);
-//	MDIN3xx_SetDelayCLK_A(3);      // delay=0~7
 
 	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
 	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP5);		// disable digital out
@@ -600,10 +599,10 @@ static void MDIN3xx_SetRegInitial_D(void)
 	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo[M380_ID].stIPC_m.gain = 34;
-	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
+	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
 
 	// define video format of AUX-INPUT
 	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -629,28 +628,14 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
 
-	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
-
-	MDIN3xx_AuxDarkScreen(ON);
-	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], OFF);
-	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
-	
 	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
 	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
 	MDINAUX_VideoProcess(&stVideo[M380_ID]);             // mdin3xx aux video process
 
-	//SetIPCVideoFine();
-	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
-
-	MDIN3xx_EnableMainDisplay(ON);		// set main display off
-
+	//MDIN3xx_EnableMainDisplay(ON);
 	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
 
-	MDINDLY_mSec(100);	// delay 100ms
-	
-	MDIN3xx_OutDarkScreen(OFF);
-	MDIN3xx_AuxDarkScreen(OFF);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -995,23 +980,27 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			//currentMainFrmt = VIDSRC_1280x720p60;
 			break;
 	}
-/*
+
 	// MDIN_D
 	switch(OutMainFrmt[MDIN_ID_C])
 	{
 		case VIDOUT_1920x1080p60:
 		case VIDOUT_1920x1080p30:
+			stVideo[MDIN_ID_D].stSRC_a.frmt = VIDSRC_1920x1080p60;
+			stVideo[MDIN_ID_D].stSRC_b.frmt = VIDSRC_1920x1080p60;
 			stVideo[MDIN_ID_D].stOUT_x.frmt = VIDOUT_720x480i60;
 			stVideo[MDIN_ID_D].encFRMT = VID_VENC_NTSC_M;
 			break;
 
 		case VIDOUT_1920x1080p50:
 		case VIDOUT_1920x1080p25:
+			stVideo[MDIN_ID_D].stSRC_a.frmt = VIDSRC_1920x1080p50;
+			stVideo[MDIN_ID_D].stSRC_b.frmt = VIDSRC_1920x1080p50;
 			stVideo[MDIN_ID_D].stOUT_x.frmt = VIDOUT_720x576i50;
 			stVideo[MDIN_ID_D].encFRMT = VID_VENC_PAL_B;
 			break;
 	}
-*/
+
 	for(mdin = MDIN_ID_A; mdin <= MDIN_ID_MAX; mdin++)
 	{
 		if(OutMainFrmt[mdin] != PrevOutMainFrmt[mdin])
@@ -1028,14 +1017,13 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 		{
 			stVideo[mdin].exeFLAG |= MDIN_UPDATE_AUX_IN;
 		}
-/*
+
 		if(stVideo[MDIN_ID_D].stOUT_x.frmt != preOutAuxFrmt)
 		{
 			stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_AUX_OUT | MDIN_UPDATE_ENC;
 			preOutAuxFrmt = stVideo[MDIN_ID_D].stOUT_x.frmt;
 			preEncFrmt = stVideo[MDIN_ID_D].encFRMT;
 		}
-*/		
 	}
 
 }
@@ -1883,7 +1871,7 @@ static void VideoFrameProcess(void)
 		PrevSrcAuxFrmt[ID] = SrcAuxFrmt[ID];
 	}
 
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
 	{
 		M380_ID = ID;
 
@@ -1910,7 +1898,7 @@ static void VideoFrameProcess(void)
 	M380_ID = MDIN_ID_C;
 	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
 
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
 	{
 		M380_ID = ID;
 		MDIN3xx_EnableMainFreeze(ID, OFF);
@@ -1920,13 +1908,25 @@ static void VideoFrameProcess(void)
 	}
 	MDINDLY_mSec(100);	// delay 100ms
 	
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
 	{
 		M380_ID = ID;	
 		MDIN3xx_OutDarkScreen(OFF);
 		MDIN3xx_AuxDarkScreen(OFF);
 	}
 
+	// MDIN_ID_D
+	if(stVideo[MDIN_ID_D].exeFLAG != MDIN_UPDATE_CLEAR)
+	{
+		MDIN3xx_EnableAuxDisplay(&stVideo[ID], OFF);
+		
+		MDIN3xx_VideoInProcess(&stVideo[MDIN_ID_D]);
+		MDIN3xx_VideoProcess(&stVideo[MDIN_ID_D]);
+		MDINAUX_VideoProcess(&stVideo[MDIN_ID_D]);
+
+		MDIN3xx_EnableAuxDisplay(&stVideo[ID], ON);
+	}
+	
 	M380_ID = MDIN_ID_C;
 }
 
@@ -1948,6 +1948,7 @@ static void TurnOff_VideoLossChannels(MDIN_VIDEO_INPUT_t src)
 			else if(channel == FindAuxChannel(displayMode, MDIN_ID_A))
 			{
 				M380_ID =  MDIN_ID_A;
+				//MDIN3xx_AuxDarkScreen(ON);
 				MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_A], OFF);
 			}
 			else if(channel == FindMainChannel(displayMode, MDIN_ID_B))
@@ -1958,6 +1959,7 @@ static void TurnOff_VideoLossChannels(MDIN_VIDEO_INPUT_t src)
 			else if(channel == FindAuxChannel(displayMode, MDIN_ID_B))
 			{
 				M380_ID =  MDIN_ID_B;
+				//MDIN3xx_AuxDarkScreen(ON);
 				MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_B], OFF);
 			}
 		}
@@ -2012,7 +2014,7 @@ void SetInputChanged(void)
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
 {
-	eDisplayMode_t dispalyMode = GetCurrentDisplayMode();
+	//eDisplayMode_t dispalyMode = GetCurrentDisplayMode();
 	
 	if(fInputChanged == TRUE)
 	{

@@ -54,7 +54,7 @@
 
 #endif
 
-#define Test_Pat			0 //P0_4		// 0:Test Pattern  1:Input Video 
+#define Test_Pat			1 //P0_4		// 0:Test Pattern  1:Input Video 
 //#define	F37M125		P0_5
 //#define CurDrive_MD			P0_5
 #define CurDrive_MD		1		//Set Voltage Mode, 0=Current Mode

@@ -180,23 +180,13 @@ void main(void)
 		UpdateDisplayMode();
 		// video process handler
 		VideoProcessHandler();
-
 		// delay for HDMI-Tx register !!
 		MDINDLY_mSec(1);
-
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.
 		VideoHTXCtrlHandler();
-
 		OSD_Display();
-#if 0
-		if(TPIAddr != 0) 
-		{
-			// tp2912
-			Get_TVI_ISR();
-		}
-#endif
-		StoreNvDataToStorage();
 
+		StoreNvDataToStorage();
 		//temp
 		//ReadMemoryMapReg();
     }

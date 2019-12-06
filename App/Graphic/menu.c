@@ -1459,7 +1459,7 @@ static void DisplayPage_RedrawPage(u8 itemY)
 
 static void DisplayPage_KeyHandler(eKeyData_t key)
 {
-	static u8 itemY = DISPLAY_ITEM_Y_OSD_DISPLAY;
+	static u8 itemY = DISPLAY_ITEM_Y_RESOLUTION;
 	u8 inc_dec = DECREASE;
 	eOutVideoFormat_t auxVideo;
 	eResolution_t resolution;
