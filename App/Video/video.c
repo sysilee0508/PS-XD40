@@ -276,7 +276,7 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 
 	// define video format of MAIN-OUTPUT
 	stVideo[M380_ID].stOUT_m.frmt = VIDOUT_1920x1080pRB; // kukuri  //VIDOUT_1280x720p60;
-	stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_MUX656_8;	 //by hungry 2012.03.06		// test by chungsa
+	stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_EMB422_8 ; // MDIN_OUT_MUX656_8;	 //by hungry 2012.03.06		// test by chungsa
 	stVideo[M380_ID].stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
 	stVideo[M380_ID].stOUT_m.brightness = 128;			// set main picture factor
@@ -363,8 +363,8 @@ static void MDIN3xx_SetRegInitial_C(void)
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
 	MDIN3xx_EnableClockDrive(MDIN_ID_C, MDIN_CLK_DRV_ALL, ON);
 
-	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
-	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP2);		// disable digital out
+	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA36_MAP1); //MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
+	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP7);	//MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP2);		// disable digital out
 	MDINOSD_SetBGLayerColor(GRAY(GetCurrentColorFormat()));			// set BG-Layer color
 
 	MDINOSD_SetBGBoxColor(WHITE(GetCurrentColorFormat()));			// set BG-BOX color
@@ -408,14 +408,14 @@ static void MDIN3xx_SetRegInitial_C(void)
 
 	// define video format of PORTA-INPUT
 	stVideo[M380_ID].stSRC_a.frmt = VIDSRC_1920x1080p60;
-	stVideo[M380_ID].stSRC_a.mode = MDIN_SRC_MUX656_8;
+	stVideo[M380_ID].stSRC_a.mode = MDIN_SRC_EMB422_8; //MDIN_SRC_MUX656_8;
 	stVideo[M380_ID].stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
 	stVideo[M380_ID].stSRC_a.offH = 0;
 	stVideo[M380_ID].stSRC_a.offV = 0;
 
 	// define video format of PORTB-INPUT
 	stVideo[M380_ID].stSRC_b.frmt = VIDSRC_1280x720p60;
-	stVideo[M380_ID].stSRC_b.mode = MDIN_SRC_MUX656_8;
+	stVideo[M380_ID].stSRC_b.mode = MDIN_SRC_EMB422_8; //MDIN_SRC_MUX656_8;
 	stVideo[M380_ID].stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
 	stVideo[M380_ID].stSRC_b.offH = 0;
 	stVideo[M380_ID].stSRC_b.offV = 0;
@@ -760,6 +760,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 	eChannel_t channel;
 	MDIN_CHIP_ID_t mdin;
 	eResolution_t outRes;
+	
 	static MDIN_OUTVIDEO_FORMAT_t preOutAuxFrmt = VIDOUT_720x480i60;
 	static MDIN_VENC_FORMAT_t preEncFrmt = VID_VENC_NTSC_M;
 
@@ -848,7 +849,6 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			{
 				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2; // VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
-				//OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
 				if(outRes == RESOLUTION_1920_1080_60P)
 				{
 					OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
@@ -1269,7 +1269,7 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 		case DISPLAY_MODE_4SPLIT_L3SCALE:
 			pMainView->w = winWidth*2/3;
 			pMainView->h = winHeight;
-			pMainView->x = winWidth*2/3;
+			pMainView->x = winWidth/3;
 			pMainView->y = 0;
 
 			pAuxView->w = winWidth/3;
@@ -2032,7 +2032,7 @@ void VideoProcessHandler(void)
 	{
 		InputSourceHandler(InputSelect);
 		VideoFrameProcess();
-		TurnOff_VideoLossChannels(InputSelect);
+		//TurnOff_VideoLossChannels(InputSelect);
 		SetOSDMenuRefresh();
 #if DUMP_REG
 		fRegDump = TRUE;
