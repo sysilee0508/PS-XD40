@@ -1948,8 +1948,20 @@ static void TurnOff_VideoLossChannels(MDIN_VIDEO_INPUT_t src)
 			else if(channel == FindAuxChannel(displayMode, MDIN_ID_A))
 			{
 				M380_ID =  MDIN_ID_A;
-				//MDIN3xx_AuxDarkScreen(ON);
-				MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_A], OFF);
+#if 0
+				if(IS_PIP_MODE(displayMode) == TRUE)
+				{
+					MDINHIF_RegField(MDIN_LOCAL_ID, 0x145, 4, 2, 3);
+				}
+				else
+				{
+					MDIN3xx_AuxDarkScreen(ON);
+					MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_A], OFF);
+				}
+#else
+				MDIN3xx_AuxDarkScreen(ON);
+				MDINHIF_RegField(MDIN_LOCAL_ID, 0x145, 4, 2, 3);
+#endif
 			}
 			else if(channel == FindMainChannel(displayMode, MDIN_ID_B))
 			{
@@ -1959,7 +1971,7 @@ static void TurnOff_VideoLossChannels(MDIN_VIDEO_INPUT_t src)
 			else if(channel == FindAuxChannel(displayMode, MDIN_ID_B))
 			{
 				M380_ID =  MDIN_ID_B;
-				//MDIN3xx_AuxDarkScreen(ON);
+				MDIN3xx_AuxDarkScreen(ON);
 				MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_B], OFF);
 			}
 		}
