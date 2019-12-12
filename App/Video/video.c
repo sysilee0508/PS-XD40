@@ -2032,7 +2032,7 @@ void VideoProcessHandler(void)
 	{
 		InputSourceHandler(InputSelect);
 		VideoFrameProcess();
-		//TurnOff_VideoLossChannels(InputSelect);
+		TurnOff_VideoLossChannels(InputSelect);
 		SetOSDMenuRefresh();
 #if DUMP_REG
 		fRegDump = TRUE;

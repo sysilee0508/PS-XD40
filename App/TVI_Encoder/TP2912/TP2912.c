@@ -38,7 +38,7 @@ enum{
 */
 
 
-#ifdef BD_TP2912B
+//#ifdef BD_TP2912B
 CODE BYTE TP2912B_1080P30_DataSet[] = {
 
 //	27,		
@@ -72,7 +72,7 @@ CODE BYTE TP2912B_1080P30_DataSet[] = {
 
 	0xff, 0xff
 };
-#endif
+//#endif
 
 CODE BYTE TP2912_1080P30_DataSet[] = {
 
@@ -99,6 +99,25 @@ CODE BYTE TP2912_1080P30_DataSet[] = {
 	0x22, 0x2e,
 	0x23, 0x8b,
 	0x3c, 0x50,
+
+	0xff, 0xff
+};
+
+CODE BYTE TP2910_1080P30_DataSet[] = {
+
+//	12,		
+	0x02, 0x87,
+	0x05, 0x40,
+	0x08, 0x58,
+	0x09, 0x2c,
+	0x0a, 0x2c,
+	0x0b, 0x00,
+	0x0c, 0xc0,
+	0x0d, 0xc0,
+	0x0f, 0x98,
+	0x10, 0x08,
+	0x11, 0x6c,
+	0x3c, 0x00,
 
 	0xff, 0xff
 };
@@ -2504,7 +2523,12 @@ void TVI_Init(){
 	BYTE *ptr_TVI_Res;
 
 #if 1
-	ptr_TVI_Res = TP2912_1080P30_DataSet;
+	if(TVITxID==TP2912)
+		ptr_TVI_Res = TP2912_1080P30_DataSet;
+	else if((TVITxID==TP2912B)||(TVITxID==TP2915))
+		ptr_TVI_Res = TP2912B_1080P30_DataSet;
+	else
+		ptr_TVI_Res = TP2910_1080P30_DataSet;
 #else
 	switch (ManVidRes) {
 			case R8M15:
@@ -2706,9 +2730,9 @@ void Init_TVITx_RegSet(){
 	if((TVITxID==TP2915)||(TVITxID==TP2912B)){
 		TP2912_WriteI2C(TPIAddr,0x3a,0x00);
 	}
-	else{
-//		if(TVITxID==TP2912)
-			TP2912_WriteI2C(TPIAddr,0x45,0x8b);
+	else if(TVITxID==TP2912){
+		TP2912_WriteI2C(TPIAddr,0x45,0x8b);
+	}
 //		else
 //			I2CDeviceSet_(TPIAddr,TP2910_DataSet);
 
@@ -2716,18 +2740,12 @@ void Init_TVITx_RegSet(){
 		Set_PLL();
 		Set_PLL_StartUp();
 		delay(20);
-		if((TVITxID==TP2801B)||(TVITxID==TP2803))
-			TP2912_WriteI2C(TPIAddr,0x43,0x47);
-	}
-//	if(AHD_nEN==0){
-//		ManVidRes |= 0x10;
-//		AHD_Init();
+//		if((TVITxID==TP2801B)||(TVITxID==TP2803))
+//			TP2912_WriteI2C(TPIAddr,0x43,0x47);
 //	}
-//	else
-		TVI_Init();
 
+	TVI_Init();
 	Set_OutputMode();	
-	//Init_UpData_Comm();
 
 	if(!Test_Pat){		//for internal test pattern out
 		dat = TP2912_ReadI2C(TPIAddr,0x02)| 0x40;
@@ -2736,8 +2754,6 @@ void Init_TVITx_RegSet(){
 	else{
 		dat = TP2912_ReadI2C(TPIAddr,0x02) & 0xBF;
 		TP2912_WriteI2C(TPIAddr,0x02,dat);
-
-		//Send_TxD(1);
 	}		
 
 	// kukuri	
@@ -2775,15 +2791,10 @@ BYTE SW_Sel_Resolution(){
 
 void InitRegisterSet()
 {
-	//ManVidRes = SW_Sel_Resolution();
 	ManVidRes=R1080P30;
 	Init_TVITx_RegSet();
 	I2CAddressDeb=TPIAddr;
-	//Init_RegSet_For_Devices();
 	delay(5);
-
-	//delay(10);
-	//Send_TxD_TVITx(&TVITx_Dn_cmd_dataset[0]);
 }
 
 #if 0

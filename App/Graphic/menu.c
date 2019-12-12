@@ -1603,7 +1603,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
-				itemY = DISPLAY_ITEM_Y_OSD_DISPLAY;
+				itemY = DISPLAY_ITEM_Y_RESOLUTION;
 				splitModeSelecting = FALSE;
 				MainMenu_Entry(currentPage);
 			}
