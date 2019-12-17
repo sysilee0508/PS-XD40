@@ -72,12 +72,12 @@ void NVP6168_AutoDetection_Proc(void)
 				EqStage = DECODER_Video_Input_EQ_Stage_Get(ch, &SamVal);
 				DECODER_Video_Input_EQ_Stage_Set(ch, EqStage);
 			}
-			else if( VideoFormat == NC_VIVO_CH_FORMATDEF_UNKNOWN )
-			{
-				DECODER_Video_Output_NoVideo_Pattern_Set(ch, 0);
-			}
+//			else if( VideoFormat == NC_VIVO_CH_FORMATDEF_UNKNOWN )
+//			{
+//				DECODER_Video_Output_NoVideo_Pattern_Set(ch, 0);
+//			}
 		}
-		Delay_ms(70);
+		//Delay_ms(500);
 	}
 	VO_PortMapChanged = 0;
 }
@@ -103,7 +103,7 @@ void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt)
 {
 	NC_U8 seq;
 	NC_U8 vo_clk;
-	static NC_PORT_E port;
+	NC_PORT_E port;
 	
 
 	port = VO_Port[VO_PortMap][chn];

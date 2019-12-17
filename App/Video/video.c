@@ -12,6 +12,8 @@
 // ----------------------------------------------------------------------
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
+#define DUMP_REG								0
+
 #define GPIO_JUMP				GPIO_Pin_1	//PC1
 #define COMPENSATION_MARGIN	0//40
 
@@ -73,6 +75,9 @@ MDIN_VIDEO_WINDOW stMainCROP, stAuxCROP;
 // ----------------------------------------------------------------------
 // Static Prototype Functions
 // ----------------------------------------------------------------------
+#if DUMP_REG
+void MDIN_DumpRegister(BYTE id, WORD start, WORD len);
+#endif
 
 // ----------------------------------------------------------------------
 // Static functions
@@ -333,16 +338,24 @@ static void MDIN3xx_SetRegInitial(void)
 	// define video format of PORTA-INPUT
 	stVideo.stSRC_a.frmt = VIDSRC_1280x720p60;
 	stVideo.stSRC_a.mode = MDIN_SRC_MUX656_8;
+	
 	//stVideo.stSRC_a.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
 	stVideo.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2012.02.27
+	//stVideo.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_HIGH_IS_TOPFLD; //by hungry 2012.02.27
+	//stVideo.stSRC_a.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_BYPASS; //by hungry 2012.02.27
+
 	stVideo.stSRC_a.offH = 0;
 	stVideo.stSRC_a.offV = 0;
 
 	// define video format of PORTB-INPUT
 	stVideo.stSRC_b.frmt = VIDSRC_1280x720p60;
 	stVideo.stSRC_b.mode = MDIN_SRC_MUX656_8;
+
 	//stVideo.stSRC_b.fine = MDIN_FIELDID_BYPASS | MDIN_LOW_IS_TOPFLD;
 	stVideo.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //by hungry 2013.04.23
+	//stVideo.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_HIGH_IS_TOPFLD; //by hungry 2013.04.23
+	//stVideo.stSRC_b.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_BYPASS; //by hungry 2012.02.27
+
 	stVideo.stSRC_b.offH = 0;
 	stVideo.stSRC_b.offV = 0;
 
@@ -370,9 +383,11 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo.stIPC_m.gain = 34;
 	stVideo.stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
+//	stVideo.stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
 	stVideo.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+//	stVideo.stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
 	// define video format of AUX-INPUT
 	stVideo.stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
 
@@ -859,7 +874,7 @@ void SetInputSource(BYTE input)
 void SetInputChanged(void)
 {
 	fInputChanged = TRUE;
-//	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT |MDIN_UPDATE_AUXFMT ;
+	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT |MDIN_UPDATE_AUXFMT ;
 }
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
@@ -870,6 +885,16 @@ void VideoProcessHandler(void)
 	VideoFrameProcess(InputSelect);
 	TurnOnDisplay();
 	SetOSDMenuRefresh();
+
+#if DUMP_REG
+	if(fInputChanged == TRUE)
+	{
+		MDIN_DumpRegister(MDIN_HOST_ID, 0x0000, 0x100); // Host Register 0x000~0x0FF
+		MDINDLY_mSec(1);
+		MDIN_DumpRegister(MDIN_LOCAL_ID, 0x0000, 0x400); // Local Register 0x000~0x3FF
+	}
+#endif
+
 	fInputChanged = FALSE;
 }
 
@@ -911,12 +936,12 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 
 		case VIDSRC_960x480i60:
 			mainWidth = DISPLAY_WIDTH_960*2;
-			mainHeight = DISPLAY_HEIGHT_480/2;
+			mainHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
 			mainWidth = DISPLAY_WIDTH_960*2;
-			mainHeight = DISPLAY_HEIGHT_576/2;
+			mainHeight = DISPLAY_HEIGHT_576;
 			break;
 	}
 
@@ -936,12 +961,12 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			
 		case VIDSRC_960x480i60:
 			auxWidth = DISPLAY_WIDTH_960*2;
-			auxHeight = DISPLAY_HEIGHT_480/2;
+			auxHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
 			auxWidth = DISPLAY_WIDTH_960*2;
-			auxHeight = DISPLAY_HEIGHT_576/2;
+			auxHeight = DISPLAY_HEIGHT_576;
 			break;
 
 	}
@@ -1129,5 +1154,32 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 	MDINAUX_SetVideoWindowVIEW(&stVideo, stAuxVIEW);
 }
 
+
+#if DUMP_REG
+// register dump
+WORD regHost[256];
+WORD regLocal[1024];	// 2k
+
+void MDIN_DumpRegister(BYTE id, WORD start, WORD len)
+{
+	WORD addr, index;
+	PWORD pBuf;
+	
+	// init
+	addr = start;
+	index = 0;
+
+	if(id == MDIN_HOST_ID)	pBuf = regHost;
+	else if(id == MDIN_LOCAL_ID)	pBuf = regLocal;
+	
+	memset((void *)pBuf, 0x00, sizeof(WORD)*len);
+	
+	for(index = 0; index < len; index++)
+	{
+		MDINHIF_RegRead(id, addr, pBuf+index);
+		addr++;
+	}
+}
+#endif
 
 /*  FILE_END_HERE */
