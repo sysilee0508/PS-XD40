@@ -932,7 +932,7 @@ static void VideoFrameProcess(void)
 //		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, FADE_IN, 20);
 	}
 	//M380_ID = MDIN_ID_C;
-		if(src == VIDEO_DIGITAL_NVP6158_A)
+		if(InputSelect== VIDEO_DIGITAL_NVP6158_A)
 		{
 			MDIN3xx_EnableOutputPAD(MDIN_PAD_ENC_OUT, ON);
 		}
@@ -980,7 +980,7 @@ void VideoProcessHandler(void)
 	{
 		InputSourceHandler(InputSelect);
 		VideoFrameProcess();
-	TurnOnDisplay();
+		TurnOnDisplay();
 		SetOSDMenuRefresh();
 
 #if DUMP_REG
@@ -988,7 +988,7 @@ void VideoProcessHandler(void)
 		MDINDLY_mSec(1);
 		MDIN_DumpRegister(MDIN_LOCAL_ID, 0x0000, 0x400); // Local Register 0x000~0x3FF
 #endif
-    }
+	}
 	fInputChanged = FALSE;
 }
 

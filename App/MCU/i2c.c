@@ -271,7 +271,7 @@ unsigned char I2C_Write16(unsigned char dAddr, unsigned char page, unsigned shor
 	{
 		I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
 		I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); AckDetect();  	
-		if (page==MDIN_HOST_ID) MDINDLY_10uSec(5);	// for stability of font osd display on 190906
+		if (page==MDIN_HOST_ID) MDINDLY_10uSec(10);	// for stability of font osd display on 190906
 	}
 
 	I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
