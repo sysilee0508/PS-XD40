@@ -34,6 +34,8 @@ static WORD PageID = 0;
 // ----------------------------------------------------------------------
 // External Variable 
 // ----------------------------------------------------------------------
+extern BYTE I2C_Write16(BYTE dAddr, BYTE page, WORD rAddr, PBYTE pBuff, WORD bytes);
+extern BYTE I2C_Read16(BYTE dAddr, WORD rAddr, PBYTE pBuff, WORD bytes);
 
 // ----------------------------------------------------------------------
 // Static Prototype Functions
@@ -173,7 +175,7 @@ static BYTE MHDMI_HOSTRead(WORD rAddr, PBYTE pBuff)
 	if (err) return err;
 
 	// check done flag
-	err = MHDMI_GetWriteDone(); if (err) {mdinERR = 4; return err;}
+	err = MHDMI_GetWriteDone();// if (err) {mdinERR = 4; return err;}	// blocked by kukuri
 	
 	err = MDINI2C_Read(MDIN_HOST_ID, 0x026, (PBYTE)pBuff, 2);
 	return err;
@@ -331,71 +333,13 @@ MDIN_ERROR_t MDINI2C_RegField(BYTE nID, DWORD rAddr, WORD bPos, WORD bCnt, WORD 
 //--------------------------------------------------------------------------------------------------------------------------
 static BYTE MDINI2C_Write(BYTE nID, WORD rAddr, PBYTE pBuff, WORD bytes)
 {
-	WORD i;	
-
-	//printf("[I2C_W] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr,  *((PWORD)pBuff), bytes);
-
-	I2C_Start();
-	I2C_P2S(I2C_MDIN3xx_ADDR&0xFE); AckDetect();
-
-	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
-	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
-	
-	I2C_Start(); 
-	I2C_P2S(I2C_MDIN3xx_ADDR&0xFE); AckDetect();
-	
-	for (i=0; i<bytes/2-1; i++) 
-	{
-		I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
-		I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); AckDetect();  	
-		//I2C_P2S(pBuff[i+1]);AckDetect();  		
-		//I2C_P2S(pBuff[i]);	AckDetect();  	
-	}
-
-	I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
-	I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); NotAck();//AckDetect();  	
-	//I2C_P2S(pBuff[i+1]); AckDetect();  		
-	//I2C_P2S(pBuff[i]);   NotAck();//AckDetect();  	
-
-
-	I2C_Stop();		
-
-	return I2C_OK;
+	return I2C_Write16(I2C_MDIN3xx_ADDR, nID, rAddr, (PBYTE)pBuff, bytes);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 static BYTE MDINI2C_Read(BYTE nID, WORD rAddr, PBYTE pBuff, WORD bytes)
 {
-	WORD i;	
-
-	I2C_Start();
-	I2C_P2S(I2C_MDIN3xx_ADDR&0xFE); AckDetect();
-
-	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
-	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
-
-	I2C_Start(); 
-	I2C_P2S(I2C_MDIN3xx_ADDR|0x01); AckDetect();
-
-	for (i=0; i<bytes/2-1; i++) 
-	{
-		((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();	// Receive a buffer data
-		((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   AckSend();	// Receive a buffer data
-		//pBuff[i+1] = I2C_S2P(); AckSend();	// Receive a buffer data
-		//pBuff[i]   = I2C_S2P(); AckSend();	// Receive a buffer data
-	}
-
-	((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();		// Receive a buffer data
-	((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   NotAck();		// Receive a buffer data
-	//pBuff[i+1] = I2C_S2P();	 AckSend();		// Receive a buffer data
-	//pBuff[i]   = I2C_S2P();	 NotAck();		// Receive a buffer data
-
-
-	I2C_Stop();												
-
-	//printf("[I2C_R] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr, *((PWORD)pBuff), bytes);
-
-	return I2C_OK;
+	return I2C_Read16(I2C_MDIN3xx_ADDR, rAddr, (PBYTE)pBuff, bytes);
 }
 
 /*  FILE_END_HERE */

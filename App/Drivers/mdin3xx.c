@@ -26,10 +26,10 @@
 // ----------------------------------------------------------------------
 WORD		mdinERR = 0, mdinREV = 0;
 
-static WORD fbADDR, GetDID, GetMEM, GetROW, GetIRQ = 0;
-static WORD GetPRI, GetSTV, GetCLK, GetPAD, GetENC;
-static WORD vpll_P = 0, vpll_M = 0, vpll_S = 0;
-static BOOL frez_M = 0;
+WORD fbADDR, GetDID, GetMEM, GetROW, GetIRQ = 0;
+WORD GetPRI, GetSTV, GetCLK, GetPAD, GetENC;
+WORD vpll_P = 0, vpll_M = 0, vpll_S = 0;
+BOOL frez_M = 0;
 
 // ----------------------------------------------------------------------
 // External Variable 
@@ -489,9 +489,7 @@ MDIN_ERROR_t MDIN3xx_SetOutVideoCSC(PMDIN_VIDEO_INFO pINFO)
 			else pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscHDtoSD_StdRange;	// RGB or YUV(HD) to YUV(SD)
 		}
 		else {
-			if (pOUT->stATTB.attb&MDIN_QUALITY_HD)
 				 pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscYUVtoRGB_HD_StdRange;	// RGB or YUV(HD) to RGB(HD)
-			else pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscYUVtoRGB_HD_StdRange;	// RGB or YUV(HD) to RGB(SD)
 		}
 	}
 	else {
@@ -501,9 +499,7 @@ MDIN_ERROR_t MDIN3xx_SetOutVideoCSC(PMDIN_VIDEO_INFO pINFO)
 			else pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscBypass_StdRange;	// RGB or YUV(SD) to YUV(SD)
 		}
 		else {
-			if (pOUT->stATTB.attb&MDIN_QUALITY_HD)
 				 pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscYUVtoRGB_SD_StdRange;	// RGB or YUV(SD) to RGB(HD)
-			else pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscYUVtoRGB_SD_StdRange;	// RGB or YUV(SD) to RGB(SD)
 		}
 	}
 #else	/* OUTPUT_CSC_STD_RANGE == 0 */
@@ -514,9 +510,7 @@ MDIN_ERROR_t MDIN3xx_SetOutVideoCSC(PMDIN_VIDEO_INFO pINFO)
 			else pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscHDtoSD_StdRange;	// RGB or YUV(HD) to YUV(SD)
 		}
 		else {
-			if (pOUT->stATTB.attb&MDIN_QUALITY_HD)
 				 pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscYUVtoRGB_HD_FullRange;	// RGB or YUV(HD) to RGB(HD)
-			else pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscYUVtoRGB_HD_FullRange;	// RGB or YUV(HD) to RGB(SD)
 		}
 	}
 	else {
@@ -526,9 +520,7 @@ MDIN_ERROR_t MDIN3xx_SetOutVideoCSC(PMDIN_VIDEO_INFO pINFO)
 			else pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscBypass_StdRange;	// RGB or YUV(SD) to YUV(SD)
 		}
 		else {
-			if (pOUT->stATTB.attb&MDIN_QUALITY_HD)
 				 pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscYUVtoRGB_SD_FullRange;	// RGB or YUV(SD) to RGB(HD)
-			else pCSC = (PMDIN_CSCCTRL_INFO)&MDIN_CscYUVtoRGB_SD_FullRange;	// RGB or YUV(SD) to RGB(SD)
 		}
 	}
 #endif	/* OUTPUT_CSC_STD_RANGE */
@@ -616,8 +608,10 @@ static MDIN_ERROR_t MDIN3xx_SetOutVideoSYNC(PMDIN_VIDEO_INFO pINFO)
 
 	if (pINFO->dacPATH==DAC_PATH_AUX_4CH) {		// for 4-CH input mode
 		memcpy(&stSYNC.vclkP, (PBYTE)&defMDINOutSync[pAUX->frmt].vclkP, 6);
-		if (pAUX->frmt==VIDOUT_1920x1080p60 || pAUX->frmt==VIDOUT_1920x1080p59 /*|| pAUX->frmt==VIDOUT_1920x1080p30*/) stSYNC.totHS = 1082;
+//		if (pAUX->frmt==VIDOUT_1920x1080p60 || pAUX->frmt==VIDOUT_1920x1080p59 || pAUX->frmt==VIDOUT_1920x1080p30) stSYNC.totHS = 1082;
 //		if (pAUX->frmt==VIDOUT_1920x1080p50 || pAUX->frmt==VIDOUT_1920x1080p25 || pAUX->frmt==VIDOUT_1920x1080p24) stSYNC.totHS = 1090;
+		if (pAUX->frmt==VIDOUT_1920x1080p60) stSYNC.totHS = 1082;
+		if (pAUX->frmt==VIDOUT_1920x1080p50) stSYNC.totHS = 1090;
 	}
 
 	if (pINFO->dacPATH==DAC_PATH_AUX_2HD) {		// for 2-HD input mode
@@ -746,10 +740,31 @@ static MDIN_ERROR_t MDIN3xx_SetMFCScaleWind(PMDIN_VIDEO_INFO pINFO)
 
 	// in_size_h
 	mode = ((pMFC->stCUT.x&0xfc00)<<3)|pMFC->stCUT.w;
-	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008-nID*2, mode)) return MDIN_I2C_ERROR;
+//	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008-nID*2, mode)) return MDIN_I2C_ERROR;
 
 	// in_size_v
-	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009-nID*2, pMFC->stCUT.h)) return MDIN_I2C_ERROR;
+//	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009-nID*2, pMFC->stCUT.h)) return MDIN_I2C_ERROR;
+
+	switch (pINFO->srcPATH) {
+		case PATH_MAIN_A_AUX_A: case PATH_MAIN_A_AUX_B: case PATH_MAIN_A_AUX_M:
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x006, pINFO->stCROP_m.w)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x007, pINFO->stCROP_m.h)) return MDIN_I2C_ERROR;			
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008, pINFO->stCROP_x.w)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009, pINFO->stCROP_x.h)) return MDIN_I2C_ERROR;			
+			break;
+		case PATH_MAIN_B_AUX_A: case PATH_MAIN_B_AUX_B: case PATH_MAIN_B_AUX_M:
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x006, pINFO->stCROP_x.w)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x007, pINFO->stCROP_x.h)) return MDIN_I2C_ERROR;			
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008, pINFO->stCROP_m.w)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009, pINFO->stCROP_m.h)) return MDIN_I2C_ERROR;			
+			break;
+		default:
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x006, 1920)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x007, 1080)) return MDIN_I2C_ERROR;			
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x008, 1920)) return MDIN_I2C_ERROR;
+			if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x009, 1080)) return MDIN_I2C_ERROR;			
+			break;
+	}
 
 	// src_posi_h0/v0 - preload src video position
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x030, pMFC->stSRC.x)) return MDIN_I2C_ERROR;	// 12Apr2013
@@ -842,7 +857,15 @@ static MDIN_ERROR_t MDIN3xx_SetMFCFilterCoef(PMDIN_VIDEO_INFO pINFO, WORD nID)
 	for (i=0; i<sizeof(MDIN_MFCFILT_COEF)/4; i++) {			// for 2-word write
 		memcpy(buff, ((PWORD)pCoef)+i*2, 4);	buff[4] = MAKEWORD(nID,(0x80|i));
 
-	if (MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x13b, (PBYTE)buff, 10)) return MDIN_I2C_ERROR;
+#if defined(SYSTEM_USE_MDIN380)&&defined(SYSTEM_USE_PCI_HIF)
+		if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x13b, buff[0])) return MDIN_I2C_ERROR;
+		if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x13c, buff[1])) return MDIN_I2C_ERROR;
+		if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x13d, buff[2])) return MDIN_I2C_ERROR;
+		if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x13e, buff[3])) return MDIN_I2C_ERROR;
+		if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x13f, buff[4])) return MDIN_I2C_ERROR;
+#else
+		if (MDINHIF_MultiWrite(MDIN_LOCAL_ID, 0x13b, (PBYTE)buff, 10)) return MDIN_I2C_ERROR;
+#endif
 
 		err = MDIN3xx_GetMFCFilterDone(); if (err) break;	// check done flag
 	}
@@ -854,7 +877,15 @@ static MDIN_ERROR_t MDIN3xx_SetMFCFilterCoef(PMDIN_VIDEO_INFO pINFO, WORD nID)
 static MDIN_ERROR_t MDIN3xx_SetMFCScaleCtrl(PMDIN_VIDEO_INFO pINFO)
 {
 	PMDIN_MFCSCALE_INFO	pMFC = (PMDIN_MFCSCALE_INFO)&pINFO->stMFC_m;
-	WORD mode = (pMFC->stFFC.sh>=pMFC->stDST.h*2)? (3<<2)|3 : (2<<2)|2;
+	PMDIN_OUTVIDEO_INFO	pOUT = (PMDIN_OUTVIDEO_INFO)&pINFO->stOUT_m;
+	WORD mode;
+
+	if ((pOUT->stATTB.attb&MDIN_SCANTYPE_PROG)==0) 
+			mode = (pMFC->stFFC.sh>=pMFC->stDST.h*4)? (3<<2)|3 : (2<<2)|2;
+	else 	mode = (pMFC->stFFC.sh>=pMFC->stDST.h*2)? (3<<2)|3 : (2<<2)|2;
+//	printf("pMFC->stFFC.sh = %d, pMFC->stDST.h = %d\n\r", pMFC->stFFC.sh, pMFC->stDST.h);
+//	WORD mode = (pMFC->stFFC.sh>=pMFC->stDST.h*2)? (3<<2)|3 : (2<<2)|2;	
+//	WORD mode = (pMFC->stFFC.sh*2>=pMFC->stDST.h*3)? (3<<2)|3 : (2<<2)|2;	// set VY, VC mfc filter on 16Aug2012
 
 	// mfc_control1 - HY(low), HC(low), VY(dual), VC(low)
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x100, 8, 8, (2<<6)|(2<<4)|mode)) return MDIN_I2C_ERROR;
@@ -863,8 +894,8 @@ static MDIN_ERROR_t MDIN3xx_SetMFCScaleCtrl(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x100, 2, 1, 0)) return MDIN_I2C_ERROR;		// enable MFC filter
 
 	// if src is interlace & scale ratio <= 0.5 , then use bilinear filter
-//	mode = ((pMFC->stFFC.dh>pMFC->stMEM.h)&&((mode&3)==3))? 1 : 0;
-	mode = ((pMFC->stFFC.dh>pMFC->stMEM.h)&&(pMFC->stSRC.h>pMFC->stDST.h*2))? 1 : 0;
+	mode = ((pMFC->stFFC.dh>pMFC->stMEM.h)&&((mode&3)==3))? 1 : 0;
+//	mode = ((pMFC->stFFC.dh>pMFC->stMEM.h)&&(pMFC->stSRC.h>pMFC->stDST.h*2))? 1 : 0;
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x100, 1, 1, mode)) return MDIN_I2C_ERROR;
 
 	// mfc coefficient
@@ -912,7 +943,8 @@ static MDIN_ERROR_t MDIN3xx_SetFFCNRProcess(PMDIN_VIDEO_INFO pINFO)
 	else if (pMFC->stFFC.dw>= 720&&pMFC->stFFC.dw<1024)	nID = 2;
 	else if (pMFC->stFFC.dw>= 640&&pMFC->stFFC.dw< 720)	nID = 3;
 	else if (pMFC->stFFC.dw>= 480&&pMFC->stFFC.dw< 640)	nID = 4;
-	else												nID = 0;
+	else if (pMFC->stFFC.dw < 480)						nID = 4;	// added on 12Apr2013
+	else										nID = 0;
 
 //	Current version of API support only for 1920x1080i/p input
 	if (pMFC->stFFC.sw!=1920) nID = 0;
@@ -976,23 +1008,25 @@ static MDIN_ERROR_t MDIN3xx_SetIPCCtrlFlags(PMDIN_VIDEO_INFO pINFO)
 		 pIPC->attb |=  MDIN_DEINT_MFC_BUFF;
 	else pIPC->attb &= ~MDIN_DEINT_MFC_BUFF;
 
-	// set p-mode ipc flag, if source is 1080i and output is 480i	// 20Mar2012
-	if (pIPC->attb&MDIN_DEINT_HD_1080i&&pOUT->frmt==VIDOUT_720x480i60)
+	// set p-mode ipc flag, if source is 1080i and output is 480i/576i	// 20Mar2012, 30Dec2015
+	if ((pIPC->attb&MDIN_DEINT_HD_1080i&&pOUT->frmt==VIDOUT_720x480i60)||
+		(pIPC->attb&MDIN_DEINT_HD_1080i&&pOUT->frmt==VIDOUT_720x576i50))
 		 pIPC->attb |=  MDIN_DEINT_PROG_IPC;
 	else pIPC->attb &= ~MDIN_DEINT_PROG_IPC;
-	
-	// set frc down flag, if output is 720p30,25,1080p30 // 05Apr2012
-	if (pOUT->frmt==VIDOUT_1280x720p30||pOUT->frmt==VIDOUT_1280x720p25||//pOUT->frmt==VIDOUT_1280x720p24||	  //by hungry 2012.05.14
-	  pOUT->frmt==VIDOUT_1920x1080p30||pOUT->frmt==VIDOUT_1920x1080p25||pOUT->frmt==VIDOUT_1920x1080p24)
-	   pIPC->fine |= MDIN_DEINT_FRC_DOWN;
-	else 
+
+	// set frc down flag, if output is 720p30,25,1080p30,25	// 05Apr2012
+//	if (pOUT->frmt==VIDOUT_1280x720p30||pOUT->frmt==VIDOUT_1280x720p25||pOUT->frmt==VIDOUT_1280x720p24||
+//		pOUT->frmt==VIDOUT_1920x1080p30||pOUT->frmt==VIDOUT_1920x1080p25||pOUT->frmt==VIDOUT_1920x1080p24)
+//		 pIPC->fine |=  MDIN_DEINT_FRC_DOWN;
+//	else 
 		pIPC->fine &= ~MDIN_DEINT_FRC_DOWN;
 		
 	return MDIN_NO_ERROR;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-static MDIN_ERROR_t MDIN3xx_SetDeinterCtrl(PMDIN_VIDEO_INFO pINFO)
+//static MDIN_ERROR_t MDIN3xx_SetDeinterCtrl(PMDIN_VIDEO_INFO pINFO)
+MDIN_ERROR_t MDIN3xx_SetDeinterCtrl(PMDIN_VIDEO_INFO pINFO)
 {
 	PMDIN_DEINTCTL_INFO pIPC = (PMDIN_DEINTCTL_INFO)&pINFO->stIPC_m;
 	PMDIN_MFCSCALE_INFO	pMFC = (PMDIN_MFCSCALE_INFO)&pINFO->stMFC_m;
@@ -1081,7 +1115,8 @@ static MDIN_ERROR_t MDIN3xx_SetDeinterCtrl(PMDIN_VIDEO_INFO pINFO)
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-static MDIN_ERROR_t MDIN3xx_SetMemoryMap(PMDIN_VIDEO_INFO pINFO, BYTE nID, BYTE num, WORD addr)
+//static MDIN_ERROR_t MDIN3xx_SetMemoryMap(PMDIN_VIDEO_INFO pINFO, BYTE nID, BYTE num, WORD addr)
+MDIN_ERROR_t MDIN3xx_SetMemoryMap(PMDIN_VIDEO_INFO pINFO, BYTE nID, BYTE num, WORD addr)
 {
 	PMDIN_SRCVIDEO_INFO pSRC = (PMDIN_SRCVIDEO_INFO)&pINFO->stSRC_m;
 	PMDIN_MFCSCALE_INFO	pMFC = (PMDIN_MFCSCALE_INFO)&pINFO->stMFC_m;
@@ -1094,17 +1129,40 @@ static MDIN_ERROR_t MDIN3xx_SetMemoryMap(PMDIN_VIDEO_INFO pINFO, BYTE nID, BYTE 
 	if ((nID%4)==1) bpp /= 2;	// case Ymh
 	if ((nID%4)==2) pMFC = &pINFO->stMFC_x;	// case Y_x, C_x
 
-	cpl = bpp*pMFC->stMEM.w; cpl = (cpl/bpc) + ((cpl%bpc)? 1 : 0);
-	rpf = cpl*pMFC->stMEM.h; rpf = (rpf/col) + ((rpf%col)? 1 : 0);
+	cpl = bpp*pMFC->stCUT.w; cpl = (cpl/bpc) + ((cpl%bpc)? 1 : 0);	// column per line (for setting speed) // modified on 15May2013
+//	cpl = bpp*pMFC->stMEM.w; cpl = (cpl/bpc) + ((cpl%bpc)? 1 : 0);	// column per line
+	rpf = cpl*pMFC->stMEM.h; rpf = (rpf/col) + ((rpf%col)? 1 : 0);	// row per frame
 	rpf = (rpf/2) + (rpf%2);
 
 #if __MDIN3xx_DBGPRT__ == 1
-	printf("used FB cpl is %d, rpf is %d\n", cpl, rpf);
+	if ((nID%4)==2) {	 // case Y_x, C_x
+		printf("for Y_x, C_x: pMFC->stMEM.w=%d, pMFC->stMEM.h=%d\n\r", pMFC->stMEM.w, pMFC->stMEM.h);
+	}
+	else if ((nID%4)==0) {
+		printf("for Y_m, C_m: pMFC->stCUT.w=%d, pMFC->stMEM.w=%d, pMFC->stMEM.h=%d\n\r", pMFC->stCUT.w, pMFC->stMEM.w, pMFC->stMEM.h);
+	}
 #endif
 
+#if __MDIN3xx_DBGPRT__ == 1
+	printf("used FB cpl is %d, rpf is %d\n\r", cpl, rpf);
+#endif
+
+	// nID: the number of memory block 
+	// num: a number of frame memory
+	// addr: start row addr point for appending
+	// fbADDR[pINFO->chipID]: end row addr point
+	// GetRow: row addr size of each memory block
 	if (pINFO->dacPATH==DAC_PATH_AUX_4CH) num *= 4;	// for 4-CH input mode
 	if (pINFO->dacPATH==DAC_PATH_AUX_2HD) num *= 3;	// for 2-HD input mode
-	GetROW = LOWORD(rpf)*num;	fbADDR = addr + GetROW;
+//	GetROW = LOWORD(rpf)*num;	fbADDR = addr + GetROW;
+	GetROW = LOWORD(rpf)*num;
+//	fbADDR = addr + GetROW;
+	if ((nID%4)==1) fbADDR = addr + GetROW;		// save the main end row addr point, modified on 24Apr2013
+	
+#if __MDIN3xx_DBGPRT__ == 1
+	if ((nID%4)==2) printf("Aux: GetfbADDR = %d\n\r", fbADDR);
+	else printf("Main: GetfbADDR = %d\n\r", fbADDR);
+#endif
 
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1c1+nID, addr)) return MDIN_I2C_ERROR;
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1c9+(nID%4), LOWORD(rpf))) return MDIN_I2C_ERROR;
@@ -1124,6 +1182,39 @@ static MDIN_ERROR_t MDIN3xx_SetMemoryMap(PMDIN_VIDEO_INFO pINFO, BYTE nID, BYTE 
 
 	return MDIN_NO_ERROR;
 }
+
+#if 0	//kukuri 
+//--------------------------------------------------------------------------------------------------------------------------
+MDIN_ERROR_t MDIN3xx_SetMemoryReAlloc(PMDIN_VIDEO_INFO pINFO)
+{
+	PMDIN_FRAMEMAP_INFO pMAP = (PMDIN_FRAMEMAP_INFO)&pINFO->stMAP_m;
+	PMDIN_DEINTCTL_INFO pIPC = (PMDIN_DEINTCTL_INFO)&pINFO->stIPC_m;
+	WORD addr = 0;	WORD AdelayState;
+	
+	// re-allocation memory buffer
+	if (MDIN3xx_SetMemoryMap(pINFO, 0+0, pMAP->Y_m+pMAP->Ynr, addr)) return MDIN_I2C_ERROR; // fbuf0y, // map of video data frame (Y_m+Ynr)
+	addr += GetROW;							// fbuf0c, // map of video data frame (C_m)
+	if (MDIN3xx_SetMemoryMap(pINFO, 4+0, pMAP->C_m*(1+MBIT(pIPC->fine,MDIN_PROCESS_444)), addr)) return MDIN_I2C_ERROR;
+	addr += GetROW;							// fbuf1y, // map of video data frame (Ymh)
+	if (MDIN3xx_SetMemoryMap(pINFO, 0+1, pMAP->Ymh, addr)) return MDIN_I2C_ERROR;
+	addr += GetROW;							// fubf2y, // map of video data frame (Y_x)
+	if (MDIN3xx_SetMemoryMap(pINFO, 0+2, pMAP->Y_x, addr)) return MDIN_I2C_ERROR;
+	addr += GetROW;							// fbuf2c, // map of video data frame (C_x)
+	if (MDIN3xx_SetMemoryMap(pINFO, 4+2, pMAP->C_x, addr)) return MDIN_I2C_ERROR;
+
+	// ad_start_row, ad_end_row (for hdmi audio)
+	if (MDINHIF_RegRead(MDIN_LOCAL_ID, 0x1fb, &AdelayState)) return MDIN_I2C_ERROR;	// read current status of audio delay function
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x1fb, 0, 2, 0)) return MDIN_I2C_ERROR;		// disable audio delay & disable audio output
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1f8, fbADDR)) return MDIN_I2C_ERROR;
+#if	defined(SYSTEM_USE_MDIN380)
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1f9, fbADDR+48)) return MDIN_I2C_ERROR; // for audio delay buffer
+#elif defined(SYSTEM_USE_MDIN340)
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1f9, fbADDR+96)) return MDIN_I2C_ERROR; // for audio delay buffer
+#endif
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x1fb, 0, 2, AdelayState&0x03)) return MDIN_I2C_ERROR;	// enable audio delay & enable audio output
+	return MDIN_NO_ERROR;
+}
+#endif
 
 //--------------------------------------------------------------------------------------------------------------------------
 static MDIN_ERROR_t MDIN3xx_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)
@@ -1213,7 +1304,7 @@ static MDIN_ERROR_t MDIN3xx_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)
 	}
 
 #if __MDIN3xx_DBGPRT__ == 1
-	printf("numY=0x%02X numC=0x%02X Y_m=%d Ynr=%d C_m=%d Ymh=%d Y_x=%d C_x=%d\n",
+	printf("numY=0x%02X numC=0x%02X Y_m=%d Ynr=%d C_m=%d Ymh=%d Y_x=%d C_x=%d\n\r",
 		numY, numC, pMAP->Y_m, pMAP->Ynr, pMAP->C_m, pMAP->Ymh, pMAP->Y_x, pMAP->C_x);
 #endif
 
@@ -1228,7 +1319,7 @@ static MDIN_ERROR_t MDIN3xx_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x209, 0, 8, mode)) return MDIN_I2C_ERROR;
 
 	// aux_frame_ptr_ctrl - aux_frame_config, aux_num_frames, aux_frame_delay
-	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x144, 11, 5, 0)) return MDIN_I2C_ERROR; // fix auto mode
+//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x144, 11, 5, 0)) return MDIN_I2C_ERROR; // fix auto mode
 
 	// mem_config
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x1c0, 12, 4, (1<<2))) return MDIN_I2C_ERROR;
@@ -1244,7 +1335,7 @@ static MDIN_ERROR_t MDIN3xx_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)
 	// map of video data frame (Ymh)
 	addr += GetROW;							// fbuf1y
 	if (MDIN3xx_SetMemoryMap(pINFO, 0+1, pMAP->Ymh, addr)) return MDIN_I2C_ERROR;
-
+/*
 	// map of video data frame (Y_x)
 	addr += GetROW;							// fubf2y
 	if (MDIN3xx_SetMemoryMap(pINFO, 0+2, pMAP->Y_x, addr)) return MDIN_I2C_ERROR;
@@ -1252,7 +1343,7 @@ static MDIN_ERROR_t MDIN3xx_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)
 	// map of video data frame (C_x)
 	addr += GetROW;							// fbuf2c
 	if (MDIN3xx_SetMemoryMap(pINFO, 4+2, pMAP->C_x, addr)) return MDIN_I2C_ERROR;
-
+*/
 	// req_mapping_1
 	mode = (0<<12)|(0<<8)|((8+0)<<0);	// mvfw_nr=0, mvfr_y=0, mvfr_c=0
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1d1, mode)) return MDIN_I2C_ERROR;
@@ -1277,10 +1368,18 @@ static MDIN_ERROR_t MDIN3xx_SetFrameBuffer(PMDIN_VIDEO_INFO pINFO)
 	mode = (pINFO->dacPATH==DAC_PATH_AUX_4CH)? 0x8020 : 0x3020;
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1de, mode)) return MDIN_I2C_ERROR;
 
-	// ad_start_row, ad_end_row
+	// ad_start_row, ad_end_row : set memory for hdmi audio delay (lip sync)
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1f8, fbADDR)) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1f9, fbADDR+15)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1f9, fbADDR+SYSTEM_USE_AUDLY_MEMSIZE-1)) return MDIN_I2C_ERROR;
 	fbADDR += 16;
+	
+#if SYSTEM_USE_FIXED_MEMMAP == 1
+#if	defined(SYSTEM_USE_MDIN325)||defined(SYSTEM_USE_MDIN340)
+	fbADDR = AUX_START_ADDR*2 + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+#else
+	fbADDR = AUX_START_ADDR + SYSTEM_USE_AUDLY_MEMSIZE;		// max row-end addr of main (when 1080i input)
+#endif
+#endif
 
 #if __MDIN3xx_DBGPRT__ == 1
 	printf("used FB[AUDIO] row is %d, GetROW=%d\n", fbADDR, 16);
@@ -1298,28 +1397,14 @@ MDIN_ERROR_t MDIN3xx_EnableWriteFRMB(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	BOOL ctrl;
 
 	// main_display
-	if(OnOff == OFF)	
-	{
-		if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 5, 1, (OnOff)? ON : OFF)) return MDIN_I2C_ERROR;
-	}
-	
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 5, 1, (OnOff)? ON : OFF)) return MDIN_I2C_ERROR;
+
 	// main_freeze
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, (OnOff)? frez_M : 1)) return MDIN_I2C_ERROR;
 
-	//if(aux_display_flag && (ch9_loss == 0) && (SDIRX_change_flag == 0))
-	//if(aux_display_flag && (ch9_loss == 0))
-
-	//if(aux_display_flag) // we don't 
 	// aux_display
-	//if(OnOff == OFF)	
-	//{
-	//	ctrl = MBIT(pINFO->dspFLAG,MDIN_AUX_DISPLAY_ON);
-	//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 0, 1, (OnOff)? ctrl : OFF)) return MDIN_I2C_ERROR;
-	//}
-	//else 
-	{
-		if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 0, 1, OFF)) return MDIN_I2C_ERROR;
-	}
+	ctrl = MBIT(pINFO->dspFLAG,MDIN_AUX_DISPLAY_ON);
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 0, 1, (OnOff)? ctrl : OFF)) return MDIN_I2C_ERROR;
 
 	
 	// aux_freeze
@@ -1334,6 +1419,20 @@ MDIN_ERROR_t MDIN3xx_EnableWriteFRMB(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x205, 3, 1, (OnOff)? ON : OFF)) return MDIN_I2C_ERROR;
 	return MDINDLY_mSec(40);		// delay 40ms
 }
+
+MDIN_ERROR_t MDIN3xx_VideoInProcess(PMDIN_VIDEO_INFO pINFO)
+{
+	if ((pINFO->exeFLAG&(MDIN_UPDATE_MAIN_IN|MDIN_UPDATE_AUX_IN))==0)
+		return MDIN_NO_ERROR;
+
+		if (MDIN3xx_SetSrcClockPath(pINFO)) return MDIN_I2C_ERROR;		// set source clock path
+		if (MDIN3xx_SetSrcVideoPort(pINFO, 1)) return MDIN_I2C_ERROR;		// set source video port A
+		if (MDIN3xx_SetSrcVideoPort(pINFO, 0)) return MDIN_I2C_ERROR;		// set source video port B
+
+	return MDIN_NO_ERROR;
+}
+
+#if 0 //kukuri
 
 #if	defined(SYSTEM_USE_MDIN325A)||defined(SYSTEM_USE_MDIN380)
 //--------------------------------------------------------------------------------------------------------------------------
@@ -1391,57 +1490,63 @@ static MDIN_ERROR_t MDIN3xx_Set4CHProcess(PMDIN_VIDEO_INFO pINFO)
 }
 #endif	/* defined(SYSTEM_USE_MDIN325A)||defined(SYSTEM_USE_MDIN380) */
 
+#endif //kukuri
 //--------------------------------------------------------------------------------------------------------------------------
 // Drive Function for Video Process Block (Input/Output/Scaler/Deinterlace/CSC/PLL)
 //--------------------------------------------------------------------------------------------------------------------------
 MDIN_ERROR_t MDIN3xx_VideoProcess(PMDIN_VIDEO_INFO pINFO)
 {
-	if (pINFO->exeFLAG==MDIN_UPDATE_CLEAR)	return MDIN_NO_ERROR;
-	pINFO->exeFLAG = MDIN_UPDATE_CLEAR;		// clear update flag
+	if ((pINFO->exeFLAG&MDIN_UPDATE_MAIN)==0)	return MDIN_NO_ERROR;
+	
+	if ((pINFO->exeFLAG&MDIN_UPDATE_MAIN_IN))
+	{
+		if (MDIN3xx_SetSrcVideoFrmt(pINFO)) return MDIN_I2C_ERROR;		// set source video format
+		if (MDIN3xx_SetSrcVideoCSC(pINFO)) return MDIN_I2C_ERROR;		// set source video CSC
+	}
+	
+	if ((pINFO->exeFLAG&MDIN_UPDATE_MAIN_OUT)) 
+	{
+		if (MDIN3xx_SetOutVideoFrmt(pINFO)) return MDIN_I2C_ERROR;		// set output video format
+		if (MDIN3xx_SetOutVideoCSC(pINFO)) return MDIN_I2C_ERROR;		// set output video CSC
 
-	if (MDIN3xx_EnableWriteFRMB(pINFO, 0)) return MDIN_I2C_ERROR;	// disable write FB
-	if (MDIN3xx_SetSrcClockPath(pINFO)) return MDIN_I2C_ERROR;		// set source clock path
-	
-	if (MDIN3xx_SetSrcVideoPort(pINFO, 1)) return MDIN_I2C_ERROR;	// set source video port A
-	if (MDIN3xx_SetSrcVideoPort(pINFO, 0)) return MDIN_I2C_ERROR;	// set source video port B
-	
-	if (MDIN3xx_SetSrcVideoFrmt(pINFO)) return MDIN_I2C_ERROR;		// set source video format
-	if (MDIN3xx_SetOutVideoFrmt(pINFO)) return MDIN_I2C_ERROR;		// set output video format
-	
-	if (MDIN3xx_SetSrcVideoCSC(pINFO)) return MDIN_I2C_ERROR;		// set source video CSC
-	if (MDIN3xx_SetOutVideoCSC(pINFO)) return MDIN_I2C_ERROR;		// set output video CSC
-	
-	if (MDIN3xx_SetOutVideoDAC(pINFO)) return MDIN_I2C_ERROR;		// set output video DAC
-	if (MDIN3xx_SetOutVideoSYNC(pINFO)) return MDIN_I2C_ERROR;		// set output video SYNC
-	
+		if (MDIN3xx_SetOutVideoDAC(pINFO)) return MDIN_I2C_ERROR;		// set output video DAC
+		if (MDIN3xx_SetOutVideoSYNC(pINFO)) return MDIN_I2C_ERROR;		// set output video SYNC
+	}
+
 	memset((PBYTE)&pINFO->stZOOM_m, 0, sizeof(MDIN_VIDEO_WINDOW));	// clear main ZOOM window
 	memset((PBYTE)&pINFO->stZOOM_x, 0, sizeof(MDIN_VIDEO_WINDOW));	// clear aux ZOOM window
 
 	if (MDIN3xx_SetMFCScaleWind(pINFO)) return MDIN_I2C_ERROR;		// set MFC scaler window
 	if (MDIN3xx_SetMFCScaleCtrl(pINFO)) return MDIN_I2C_ERROR;		// set MFC scaler control
-	
 	if (MDIN3xx_Set10BITProcess(pINFO)) return MDIN_I2C_ERROR;		// set 10BIT process
 	if (MDIN3xx_SetFFCNRProcess(pINFO)) return MDIN_I2C_ERROR;		// set FFC-NR process
-	
 	if (MDIN3xx_SetIPCCtrlFlags(pINFO)) return MDIN_I2C_ERROR;		// set IPC control flags
-//	if (MDIN3xx_SetDeinterCtrl(pINFO)) return MDIN_I2C_ERROR;		// set deinterlace control
 
-	if (MDINAUX_VideoProcess(pINFO)) return MDIN_I2C_ERROR;			// set aux-video process
-	if (MDIN3xx_SetFrameBuffer(pINFO)) return MDIN_I2C_ERROR;		// set frame buffer memory
+	if ((pINFO->exeFLAG&MDIN_UPDATE_MAIN_IN))
+	{
+		if (MDIN3xx_SetFrameBuffer(pINFO)) return MDIN_I2C_ERROR;	// set frame buffer memory
+//		if (MDIN3xx_SoftReset()) return MDIN_I2C_ERROR;					// soft reset
+	}
 
+#if SYSTEM_USE_FIXED_MEMMAP == 0
+	// even if no update on aux block, aux mem map should be re-allocated
+//	if ((pINFO->exeFLAG&MDIN_UPDATE_AUX_IN))
+	{
+		if (MDINAUX_SetFrameBuffer(pINFO)) return MDIN_I2C_ERROR;	// set frame buffer memory
+	}
+#endif
+
+	if (MDIN3xx_SetDeinterCtrl(pINFO)) return MDIN_I2C_ERROR;			// set deinterlace control	// move to here on 16Aug2012
+	
+	if ((pINFO->exeFLAG&MDIN_UPDATE_MAIN_OUT))
+	{
 #if	defined(SYSTEM_USE_MDIN340)||defined(SYSTEM_USE_MDIN380)
 	if (MDINHTX_VideoProcess(pINFO)) return MDIN_I2C_ERROR;			// set htx-video process
 #endif
+		if (MDIN3xx_ResetOutSync(100)) return MDIN_I2C_ERROR;		// reset output sync
+	}
 
-	if (MDIN3xx_SoftReset()) return MDIN_I2C_ERROR;					// soft reset
-	if (MDIN3xx_ResetOutSync(100)) return MDIN_I2C_ERROR;			// reset output sync
-	if (MDIN3xx_SetDeinterCtrl(pINFO)) return MDIN_I2C_ERROR;		// set deinterlace control	// move to here on 24May2012
-	if (MDIN3xx_EnableWriteFRMB(pINFO, 1)) return MDIN_I2C_ERROR;	// enable write FB
-
-#if	defined(SYSTEM_USE_MDIN325A)||defined(SYSTEM_USE_MDIN380)
-	if (MDIN3xx_Set4CHProcess(pINFO)) return MDIN_I2C_ERROR;		// set 4CH-display process
-#endif
-
+	pINFO->exeFLAG &= ~MDIN_UPDATE_MAIN;		// clear main update flag
 	return MDIN_NO_ERROR;
 }
 
@@ -1464,11 +1569,7 @@ MDIN_ERROR_t MDIN3xx_SetScaleProcess(PMDIN_VIDEO_INFO pINFO)
 
 	if (MDIN3xx_SetZoomProcess(pINFO)) return MDIN_I2C_ERROR;
 	if (MDINAUX_SetScaleProcess(pINFO)) return MDIN_I2C_ERROR;
-	if (MDIN3xx_SetFrameBuffer(pINFO)) return MDIN_I2C_ERROR;
-
-#if	defined(SYSTEM_USE_MDIN325A)||defined(SYSTEM_USE_MDIN380)
-	if (MDIN3xx_Set4CHProcess(pINFO)) return MDIN_I2C_ERROR;
-#endif
+//	if (MDIN3xx_SetFrameBuffer(pINFO)) return MDIN_I2C_ERROR;	// no need for zoom-out function
 
 //	if (MDIN3xx_EnableWriteFRMB(pINFO, 1)) return MDIN_I2C_ERROR;	// enable write FB
 	return MDIN_NO_ERROR;
@@ -2132,7 +2233,7 @@ MDIN_ERROR_t MDIN3xx_SetMemoryConfig(void)
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1a7, 0x4008)) return MDIN_I2C_ERROR;	// ddr initialize
 #endif
 	if (MDINHIF_RegWrite(MDIN_HOST_ID,  0x093, 0x2f80)) return MDIN_I2C_ERROR;	// dfi latency init
-	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x1a7, 13, 1,  1)) return MDIN_I2C_ERROR;	// ddr access enable
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1a7, 0x2008)) return MDIN_I2C_ERROR;	// ddr access enable, bit13=ddr access enable
 
 	// bank_2kb, ddr_7bit, mem_7bit, audio_8bit, osd_7bit, axosd_7bit
 	if (MDINHIF_RegField(MDIN_HOST_ID,  0x005,  8, 1, ~GetMEM&1)) return MDIN_I2C_ERROR;
@@ -2162,7 +2263,7 @@ MDIN_ERROR_t MDIN3xx_SetMemoryConfig(void)
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1d5, 0xeac2)) return MDIN_I2C_ERROR;	// fix
 
 	// ddr_if_ctrl - ddr_drv_strength
-//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x1a7, 0, 12, 4)) return MDIN_I2C_ERROR;	// fix
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x1a7, 0, 12, 4)) return MDIN_I2C_ERROR;	// fix
 
 	// ack_count - dma_ack_count
 	if (MDINHIF_RegField(MDIN_HOST_ID,  0x005, 0, 8, 16)) return MDIN_I2C_ERROR;	// fix
@@ -2235,9 +2336,8 @@ MDIN_ERROR_t MDIN3xx_GetChipID(PWORD pID)
 	if (MDINHIF_RegRead(MDIN_HOST_ID, 0x000, pID)) return MDIN_I2C_ERROR;
 
 #if __MDIN3xx_DBGPRT__ == 1
-	printf("MDIN3xx_GetChipID = 0x%04X\n", *pID);
+	printf("MDIN3xx_GetChipID = 0x%04X\n\r", *pID);
 #endif
-
 	return MDIN_NO_ERROR;
 }
 
@@ -2245,11 +2345,6 @@ MDIN_ERROR_t MDIN3xx_GetChipID(PWORD pID)
 MDIN_ERROR_t MDIN3xx_GetDeviceID(PWORD pID)
 {
 	if (MDINHIF_RegRead(MDIN_HOST_ID, 0x004, pID)) return MDIN_I2C_ERROR;
-
-#if __MDIN3xx_DBGPRT__ == 1
-	printf("MDIN3xx_GetDeviceID = 0x%04X\n", *pID);
-#endif
-
 	return MDIN_NO_ERROR;
 }
 
@@ -2260,7 +2355,7 @@ MDIN_ERROR_t MDIN3xx_GetVersionID(PWORD pID)
 	*pID &= 0x0001;
 
 #if __MDIN3xx_DBGPRT__ == 1
-	printf("MDIN3xx_GetVersionID = 0x%04X\n", *pID);
+	printf("MDIN3xx_GetVersionID = 0x%04X\n\r", *pID);
 #endif
 	return MDIN_NO_ERROR;
 }
@@ -2338,6 +2433,15 @@ MDIN_ERROR_t MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_t src)
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
+MDIN_ERROR_t MDIN3xx_EnableActVideoOffset(BYTE Offset_S, BYTE Offset_E, BOOL OnOff) 	// added on 12Apr2013
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x0a1, 8, 4, Offset_S)) return MDIN_I2C_ERROR;	// vid_act_start_offset
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x0a1, 4, 4, Offset_E)) return MDIN_I2C_ERROR;	// vid_act_end_offset
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x0a1, 0, 1, OnOff)) return MDIN_I2C_ERROR;		// vid_act_on_de
+	return MDIN_NO_ERROR;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
 MDIN_ERROR_t MDIN3xx_EnableOutputPAD(MDIN_PAD_OUT_t id, BOOL OnOff)
 {
 	if (id==MDIN_PAD_ALL_OUT) {
@@ -2365,14 +2469,22 @@ MDIN_ERROR_t MDIN3xx_EnableClockDrive(MDIN_CLK_DRV_t id, BOOL OnOff)
 //--------------------------------------------------------------------------------------------------------------------------
 MDIN_ERROR_t MDIN3xx_EnableMainDisplay(BOOL OnOff)
 {
-	//printf("MDIN3xx_EnableMainDisplay(%d)\n",OnOff);
-	
-	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 5, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (OnOff==ON)	MDINDLY_mSec(80);	// delay 80ms when ON
+//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, RBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 0, 2, (OnOff)? 0:3)) return MDIN_I2C_ERROR;	
 
-	//if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x043, 1, 1, RBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x043, 1, 1, 0)) return MDIN_I2C_ERROR;
-	if (OnOff==OFF)	MDINDLY_mSec(40);	// delay 40ms when OFF
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 5, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+
+//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x043, 1, 1, RBIT(OnOff,1))) return MDIN_I2C_ERROR;
+
+//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x205, 3, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR; 	// ipc_top_en
+	
+	return MDIN_NO_ERROR;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+MDIN_ERROR_t MDIN3xx_OutDarkScreen(BOOL OnOff)
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x043, 1, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
 
@@ -2380,7 +2492,7 @@ MDIN_ERROR_t MDIN3xx_EnableMainDisplay(BOOL OnOff)
 MDIN_ERROR_t MDIN3xx_EnableMainFreeze(BOOL OnOff)
 {
 	frez_M = MBIT(OnOff,1);
-	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 0, 2, (OnOff)? 3:0)) return MDIN_I2C_ERROR;	
 	return MDIN_NO_ERROR;
 }
 
@@ -2389,26 +2501,31 @@ static MDIN_ERROR_t MDIN3xx_EnableAuxSyncPIP(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 {
 	if (OnOff==ON)	MDINDLY_mSec(80);	// delay 80ms when ON
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x144, 6, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (OnOff==OFF)	MDINDLY_mSec(40);	// delay 40ms when OFF
+//	if (OnOff==OFF)	MDINDLY_mSec(40);	// delay 40ms when OFF
+	return MDIN_NO_ERROR;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+MDIN_ERROR_t MDIN3xx_AuxDarkScreen(BOOL OnOff)
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x14c, 9, 1, RBIT(OnOff,1))) return MDIN_I2C_ERROR;
+//	if (OnOff==OFF)	MDINDLY_mSec(40);	// delay 40ms when OFF
 	return MDIN_NO_ERROR;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 MDIN_ERROR_t MDIN3xx_EnableAuxDisplay(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 {
-	//printf("MDIN3xx_EnableAuxDisplay = %d \n",OnOff);
-
-	if (pINFO->dacPATH==DAC_PATH_MAIN_PIP) //return 
-		MDIN3xx_EnableAuxSyncPIP(pINFO, OnOff);
+//	if (pINFO->dacPATH==DAC_PATH_MAIN_PIP) return MDIN3xx_EnableAuxSyncPIP(OnOff);
 
 	if (OnOff)	pINFO->dspFLAG |=  MDIN_AUX_DISPLAY_ON;
 	else		pINFO->dspFLAG &= ~MDIN_AUX_DISPLAY_ON;
 
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x142, 0, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (OnOff==ON)	MDINDLY_mSec(80);	// delay 80ms when ON
+//	if (OnOff==ON)	MDINDLY_mSec(80);	// delay 80ms when ON
 
-	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x14c, 9, 1, RBIT(OnOff,1))) return MDIN_I2C_ERROR;
-	if (OnOff==OFF)	MDINDLY_mSec(40);	// delay 40ms when OFF
+//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x14c, 9, 1, RBIT(OnOff,1))) return MDIN_I2C_ERROR;
+//	if (OnOff==OFF)	MDINDLY_mSec(40);	// delay 40ms when OFF
 	return MDIN_NO_ERROR;
 }
 
@@ -2465,7 +2582,7 @@ MDIN_ERROR_t MDIN3xx_SetHostDataMapMode(MDIN_HOST_DATA_MAP_t mode)
 }
 #endif
 
-#if	defined(SYSTEM_USE_MDIN325A)||defined(SYSTEM_USE_MDIN380)
+#if	0// defined(SYSTEM_USE_MDIN325A)||defined(SYSTEM_USE_MDIN380)
 //--------------------------------------------------------------------------------------------------------------------------
 MDIN_ERROR_t MDIN3xx_SetFormat4CHID(PMDIN_VIDEO_INFO pINFO, MDIN_4CHID_FORMAT_t mode)
 {
@@ -2586,7 +2703,10 @@ MDIN_ERROR_t MDIN3xx_EnableMirrorH(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 {
 	PMDIN_SRCVIDEO_INFO pSRC = (PMDIN_SRCVIDEO_INFO)&pINFO->stSRC_m;
 	PMDIN_MFCSCALE_INFO pMFC = (PMDIN_MFCSCALE_INFO)&pINFO->stMFC_m;
+	PMDIN_FRAMEMAP_INFO pMAP = (PMDIN_FRAMEMAP_INFO)&pINFO->stMAP_m;
+	PMDIN_DEINTCTL_INFO pIPC = (PMDIN_DEINTCTL_INFO)&pINFO->stIPC_m;
 	WORD UnitSize, BuffSize, RemainSize;
+	WORD addr = 0;	WORD AdelayState;
 
 	UnitSize = (pSRC->stATTB.attb&MDIN_PRECISION_8)? 256 : 192;
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x01c, 0, 11, (OnOff)? (pMFC->stFFC.dw/UnitSize)*UnitSize : 0)) return MDIN_I2C_ERROR;
@@ -2601,7 +2721,28 @@ MDIN_ERROR_t MDIN3xx_EnableMirrorH(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 
 	pMFC->stMEM.w = (OnOff)? BuffSize : pMFC->stFFC.dw;	// adjust memory buffer size
 	
-	MDIN3xx_FrameMemoryReAlloc(pINFO);
+	// re-allocation memory buffer
+	if (MDIN3xx_SetMemoryMap(pINFO, 0+0, pMAP->Y_m+pMAP->Ynr, addr)) return MDIN_I2C_ERROR; // fbuf0y, // map of video data frame (Y_m+Ynr)
+	addr += GetROW;							// fbuf0c, // map of video data frame (C_m)
+	if (MDIN3xx_SetMemoryMap(pINFO, 4+0, pMAP->C_m*(1+MBIT(pIPC->fine,MDIN_PROCESS_444)), addr)) return MDIN_I2C_ERROR;
+	addr += GetROW;							// fbuf1y, // map of video data frame (Ymh)
+	if (MDIN3xx_SetMemoryMap(pINFO, 0+1, pMAP->Ymh, addr)) return MDIN_I2C_ERROR;
+	addr += GetROW;							// fubf2y, // map of video data frame (Y_x)
+	if (MDIN3xx_SetMemoryMap(pINFO, 0+2, pMAP->Y_x, addr)) return MDIN_I2C_ERROR;
+	addr += GetROW;							// fbuf2c, // map of video data frame (C_x)
+	if (MDIN3xx_SetMemoryMap(pINFO, 4+2, pMAP->C_x, addr)) return MDIN_I2C_ERROR;
+	
+	// ad_start_row, ad_end_row (for hdmi audio)
+	if (MDINHIF_RegRead(MDIN_LOCAL_ID, 0x1fb, &AdelayState)) return MDIN_I2C_ERROR;	// read current status of audio delay function
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x1fb, 0, 2, 0)) return MDIN_I2C_ERROR;		// disable audio delay & disable audio output
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1f8, fbADDR)) return MDIN_I2C_ERROR;
+#if	defined(SYSTEM_USE_MDIN380)
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1f9, fbADDR+48)) return MDIN_I2C_ERROR; // for audio delay buffer
+#elif defined(SYSTEM_USE_MDIN340)
+	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x1f9, fbADDR+96)) return MDIN_I2C_ERROR; // for audio delay buffer
+#endif
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x1fb, 0, 2, AdelayState&0x03)) return MDIN_I2C_ERROR;	// enable audio delay & enable audio output
+
 	MDIN3xx_EnableFrontNRFilter(ON); // correction for chroma delay
 	
 //	UARTprintf("UnitSize=%d, BuffSize=%d, RemainSize=%d\n", UnitSize, BuffSize, RemainSize);
@@ -2627,6 +2768,31 @@ MDIN_ERROR_t MDIN3xx_EnableMirrorV(PMDIN_VIDEO_INFO pINFO, BOOL OnOff)
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x001, 0+nID, 1, wVal&0x01)) return MDIN_I2C_ERROR;
 	return MDIN_NO_ERROR;
 }
+
+#if	defined(SYSTEM_USE_MDIN325A)||defined(SYSTEM_USE_MDIN380)
+//--------------------------------------------------------------------------------------------------------------------------
+MDIN_ERROR_t MDIN3xx_EnablePIPChromaKey(BOOL OnOff, BYTE blendlevel)	// added on 12Apr2013
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x06c, 2, 3, blendlevel)) return MDIN_I2C_ERROR; // PIP blend mode (0:video video opaque, 1:1/4, 2:1/2, 3:3/4, 4:main video opaque)
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x06c, 6, 1, MBIT(OnOff,1))) return MDIN_I2C_ERROR;	// PIP chroma key enable
+	return MDIN_NO_ERROR;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+MDIN_ERROR_t MDIN3xx_SetPIPChromaKeyLBound(BYTE l_bound)	// added on 12Apr2013
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x06d, 0, 8, l_bound)) return MDIN_I2C_ERROR;	// lower bound of chroma key range (Cb & Cr)
+	return MDIN_NO_ERROR;	
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+MDIN_ERROR_t MDIN3xx_SetPIPChromaKeyUBound(BYTE u_bound)	// added on 12Apr2013
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x06d, 8, 8, u_bound)) return MDIN_I2C_ERROR;	// upper bound of chroma key range (Cb & Cr)
+	return MDIN_NO_ERROR;	
+}
+#endif
+
 /*
 //--------------------------------------------------------------------------------------------------------------------------
 MDIN_ERROR_t MDIN3xx_PowerSaveEnable(BOOL OnOff)
@@ -2834,4 +3000,67 @@ MDIN_ERROR_t MDIN3xx_SetOut4CH_OutVsync_Half(BOOL OnOff)	// 24Aug2011
 	return MDIN_NO_ERROR;
 }
 #endif
+
+/*******************************************************************************************/
+/* Parameter : src - CLK_A or CLK_B */
+/* OnOff ? ON or OFF */
+/*******************************************************************************************/
+MDIN_ERROR_t MDIN3xx_ExtSyncClkSel(MDIN_PLL_SOURCE_t src, BOOL OnOff)
+{
+	if (MDINHIF_RegField(MDIN_HOST_ID, 0x042, 4, 1, OnOff)) return MDIN_I2C_ERROR;
+	return MDIN3xx_SetVCLKPLLSource(src);
+}
+
+/*******************************************************************************************/
+/* Parameter : ExtSyncSrc = '000'(port A), '001'(port B) */
+/*******************************************************************************************/
+MDIN_ERROR_t MDIN3xx_ExtSyncSyncSel(BYTE ExtSyncSrc, BOOL OnOff)
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x098, 3, 3, ExtSyncSrc)) return MDIN_I2C_ERROR;
+	// 1:lock to another sync src
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x098, 8, 1, OnOff)) return MDIN_I2C_ERROR;
+	return MDIN_NO_ERROR;
+}
+
+/*******************************************************************************************/
+/* Parameter : OnOff - 0:frame-lock mode, 1:free run mode */
+/*******************************************************************************************/
+MDIN_ERROR_t MDIN3xx_ExtSyncLockEn(BOOL OnOff)
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x098, 0, 1, RBIT(OnOff,1))) return MDIN_I2C_ERROR;
+	return MDIN_NO_ERROR;
+}
+
+/*******************************************************************************************/
+/* Parameter : delay ? line delay number */
+/*******************************************************************************************/
+MDIN_ERROR_t MDIN3xx_ExtSyncVSDelay (WORD delay)
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x099, 0, 13, delay)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x099, 15, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x099, 15, 1, 1)) return MDIN_I2C_ERROR;
+	return MDIN_NO_ERROR;
+}
+
+/*******************************************************************************************/
+/* Parameter : delay ? pixel delay number */
+/*******************************************************************************************/
+MDIN_ERROR_t MDIN3xx_ExtSyncHSDelay (WORD delay)
+{
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x097, 4, 12, delay)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x099, 15, 1, 0)) return MDIN_I2C_ERROR;
+	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x099, 15, 1, 1)) return MDIN_I2C_ERROR;
+	return MDIN_NO_ERROR;
+}
+
+MDIN_ERROR_t MDIN3xx_External_Sync_Lock(BOOL OnOff, WORD  vdelay, WORD hdelay)
+{
+	MDIN3xx_ExtSyncClkSel(MDIN_PLL_SOURCE_CLKA, ON);	//  CLK_A is external clock
+	MDIN3xx_ExtSyncSyncSel(0, ON);	//  ??001?? : B Port
+//	MDIN3xx_ExtSyncLockEn(ON);
+	MDIN3xx_ExtSyncVSDelay (vdelay);
+	MDIN3xx_ExtSyncHSDelay (hdelay);
+	return MDIN_NO_ERROR;
+}
+
 /*  FILE_END_HERE */

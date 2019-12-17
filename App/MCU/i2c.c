@@ -209,3 +209,106 @@ void I2C_WRITE(unsigned char slaveaddr, unsigned char regaddr, unsigned char wri
 	I2C_Stop();	
 }
 
+//--------------------------------------------------------------------------------------------------------------------------
+void I2C_MultiWrite(unsigned char slaveaddr, unsigned char rAddr, unsigned char* pBuff, unsigned short bytes)		// i2c 8bit multiwrite
+{
+	unsigned short i;	
+
+	I2C_Start();
+	I2C_P2S(slaveaddr&0xFE); AckDetect();
+
+	I2C_P2S(rAddr);   AckDetect();		
+	
+	for (i=0; i<bytes; i++) 
+	{
+		I2C_P2S(pBuff[i]); AckDetect();  		
+	}
+	I2C_P2S(pBuff[i]);   NotAck();  	
+
+	I2C_Stop();		
+
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+void I2C_MultiRead(unsigned char slaveaddr, unsigned char rAddr, unsigned char* pBuff, unsigned short bytes)		// i2c 8bit multiread
+{
+	unsigned short i;	
+
+	I2C_Start();
+	I2C_P2S(slaveaddr&0xFE); AckDetect();
+
+	I2C_P2S(rAddr & 0xFF); AckDetect();
+
+	I2C_Stop();
+
+	I2C_Start(); 
+	I2C_P2S(slaveaddr|0x01); AckDetect();
+
+	for (i=0; i<bytes-1; i++) 
+	{
+		pBuff[i]   = I2C_S2P(); AckSend();	// Receive a buffer data
+	}
+	pBuff[i]   = I2C_S2P();	 NotAck();		// Receive a buffer data
+
+	I2C_Stop();												
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+unsigned char I2C_Write16(unsigned char dAddr, unsigned char page, unsigned short rAddr, unsigned char* pBuff, unsigned short bytes)	// i2c 16bit multiwrite
+{
+	unsigned short i;
+
+	I2C_Start();
+	I2C_P2S(dAddr&0xFE); AckDetect();
+
+	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
+	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
+	
+	I2C_Start(); 
+	I2C_P2S(dAddr&0xFE); AckDetect();
+	
+	for (i=0; i<bytes/2-1; i++) 
+	{
+		I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
+		I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); AckDetect();  	
+		if (page==MDIN_HOST_ID) MDINDLY_10uSec(5);	// for stability of font osd display on 190906
+	}
+
+	I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
+	I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); NotAck();//AckDetect();  	
+
+
+	I2C_Stop();		
+
+	return I2C_OK;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+unsigned char I2C_Read16(unsigned char dAddr, unsigned short rAddr, unsigned char* pBuff, unsigned short bytes)		// i2c 16bit multiread
+{
+	unsigned short i;
+		
+	I2C_Start();
+	I2C_P2S(dAddr&0xFE); AckDetect();
+
+	I2C_P2S((BYTE)(rAddr >> 8));   AckDetect();		
+	I2C_P2S((BYTE)(rAddr & 0xFF)); AckDetect();		
+
+	I2C_Start(); 
+	I2C_P2S(dAddr|0x01); AckDetect();
+
+	for (i=0; i<bytes/2-1; i++) 
+	{
+		((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();	// Receive a buffer data
+		((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   AckSend();	// Receive a buffer data
+	}
+
+	((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();		// Receive a buffer data
+	((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   NotAck();		// Receive a buffer data
+
+	I2C_Stop();												
+
+	return I2C_OK;
+}
+
+

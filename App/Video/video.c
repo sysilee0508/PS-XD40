@@ -200,12 +200,12 @@ static MDIN_OUTVIDEO_FORMAT_t GetOutAuxFormat(MDIN_OUTVIDEO_FORMAT_t videoOut)
 			case VIDOUT_1920x1080p60:
 			case VIDOUT_1920x1080p30:
 				auxOut = VIDOUT_720x480i60;
-				EncVideoFrmt = VID_VENC_NTSC_M;
+				stVideo.encFRMT = VID_VENC_NTSC_M;
 				break;
 			case VIDOUT_1920x1080p50:
 			case VIDOUT_1920x1080p25:
 				auxOut = VIDOUT_720x576i50;
-				EncVideoFrmt = VID_VENC_PAL_B;
+				stVideo.encFRMT = VID_VENC_PAL_B;
 				break;
 		}
 	}
@@ -430,7 +430,7 @@ static void MDIN3xx_SetRegInitial(void)
 	stVideo.st4CH_x.order = MDIN_4CHID_A1A2B1B2; // set CH-ID mapping
 	stVideo.st4CH_x.view  = MDIN_4CHVIEW_ALL;	 // set 4CH view mode
 #endif
-	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT;	// execution of video process
+	stVideo.exeFLAG = MDIN_UPDATE_MAIN;	// execution of video process
 	MDIN3xx_VideoProcess(&stVideo);			// mdin3xx main video process
 
 	// define window for inter-area (PIP window? kukuri)
@@ -594,7 +594,7 @@ static BYTE GetOutAuxMode(BYTE src)
 //--------------------------------------------------------------------------------------------------
 static void InputSourceHandler(BYTE src)
 {
-	if(fInputChanged != TRUE)  return;
+//	if(fInputChanged != TRUE)  return;
 
 	SetInVideoPath(src);
 
@@ -609,6 +609,31 @@ static void InputSourceHandler(BYTE src)
 	OutMainMode = MDIN_OUT_RGB444_8;
 	OutAuxFrmt = GetOutAuxFormat(OutMainFrmt);	// get out-aux format
 	OutAuxMode = GetOutAuxMode(src);
+
+	if((SrcMainFrmt != PrevSrcMainFrmt) || (SrcMainMode != PrevSrcMainMode))
+	{
+		stVideo.exeFLAG |= MDIN_UPDATE_MAIN_IN;
+	}
+
+	if((SrcAuxFrmt != PrevSrcAuxFrmt) || (SrcAuxMode != PrevSrcAuxMode))
+	{
+		stVideo.exeFLAG |= MDIN_UPDATE_AUX_IN;
+	}
+		
+	if((OutMainFrmt != PrevOutMainFrmt) || (OutMainMode != PrevOutMainMode))
+	{
+		stVideo.exeFLAG |= MDIN_UPDATE_MAIN_OUT;
+	}
+
+	if((OutAuxFrmt != PrevOutAuxFrmt) || (OutAuxMode != PrevOutAuxMode))
+	{
+		stVideo.exeFLAG |= MDIN_UPDATE_AUX_OUT;
+	}
+
+//	if (EncVideoFrmt!=PrevEncFrmt)
+//	{
+//		stVideo.exeFLAG |= MDIN_UPDATE_ENC;
+//	}
 
 	Set_DisplayWindow(GetCurrentDisplayMode());
 
@@ -714,7 +739,7 @@ static void SetSrcMainFine(BYTE src)
 }
 #endif
 //--------------------------------------------------------------------------------------------------
-static void SetIPCVideoFine(BYTE src)
+static void SetIPCVideoFine(void)
 {
 	MDINHIF_RegField(MDIN_LOCAL_ID, 0x256, 0, 8, 12);
 	MDINHIF_RegField(MDIN_LOCAL_ID, 0x259, 0, 8,  4);
@@ -758,8 +783,10 @@ static void SetOSDMenuRefresh(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-static void VideoFrameProcess(BYTE src)
+static void VideoFrameProcess(void)
 {
+#if 0
+	//if (fSyncParsed==FALSE) return;		// wait for sync detection
 	if(fInputChanged == FALSE) return;
 
 	if (EncVideoFrmt!=PrevEncFrmt)
@@ -772,13 +799,13 @@ static void VideoFrameProcess(BYTE src)
 	if (SrcMainFrmt!=PrevSrcMainFrmt||SrcMainMode!=PrevSrcMainMode||
 		OutMainFrmt!=PrevOutMainFrmt||OutMainMode!=PrevOutMainMode)
 	{
-		stVideo.exeFLAG |= MDIN_UPDATE_MAINFMT;
+		stVideo.exeFLAG |= MDIN_UPDATE_MAIN;
 	}
 
 	if (SrcAuxFrmt!=PrevSrcAuxFrmt||SrcAuxMode!=PrevSrcAuxMode||
 		OutAuxFrmt!=PrevOutAuxFrmt||OutAuxMode!=PrevOutAuxMode)
 	{
-		stVideo.exeFLAG |= MDIN_UPDATE_AUXFMT;
+		stVideo.exeFLAG |= MDIN_UPDATE_AUX;
 	}
 
 	if (stVideo.exeFLAG!=MDIN_UPDATE_CLEAR) // updated video formats
@@ -847,6 +874,76 @@ static void VideoFrameProcess(BYTE src)
 		PrevSrcAuxFrmt = SrcAuxFrmt;	PrevSrcAuxMode = SrcAuxMode;
 		PrevOutAuxFrmt = OutAuxFrmt;	PrevOutAuxMode = OutAuxMode;
 	}
+#else
+	if(stVideo.exeFLAG == 0)	return;
+	
+//	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	{
+//		M380_ID = ID;
+//		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, FADE_OUT, 20);
+			
+		if (stVideo.exeFLAG&MDIN_UPDATE_MAIN_IN)
+		{
+			MDIN3xx_OutDarkScreen(ON);
+			MDIN3xx_EnableMainDisplay(OFF);
+			MDIN3xx_EnableMainFreeze(ON);
+		}
+		if (stVideo.exeFLAG&MDIN_UPDATE_AUX_IN)
+		{
+			MDIN3xx_AuxDarkScreen(ON);
+			MDIN3xx_EnableAuxDisplay(&stVideo, OFF);
+			MDIN3xx_EnableAuxFreeze(&stVideo, ON);
+		}
+	}
+
+//	SetOSDMenuDisable();
+
+//	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	{
+//		M380_ID = ID;	
+		if (stVideo.exeFLAG&MDIN_UPDATE_IN)	MDIN3xx_VideoInProcess(&stVideo);
+		if (stVideo.exeFLAG&MDIN_UPDATE_MAIN)	MDIN3xx_VideoProcess(&stVideo);
+		if (stVideo.exeFLAG&MDIN_UPDATE_AUX)	MDINAUX_VideoProcess(&stVideo);
+		
+//		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, DARK, 0);
+	}
+
+	
+//	M380_ID = MDIN_ID_C;
+	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
+	
+//	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	{
+	//	M380_ID = ID;
+		MDIN3xx_EnableMainFreeze(OFF);
+		MDIN3xx_EnableMainDisplay(ON);
+		MDIN3xx_EnableAuxFreeze(&stVideo, OFF);
+		MDIN3xx_EnableAuxDisplay(&stVideo, ON);
+	}
+	
+	MDINDLY_mSec(100);	// delay 100ms
+	
+//	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX; ID++)
+	{
+	//	M380_ID = ID;	
+		MDIN3xx_OutDarkScreen(OFF);
+		MDIN3xx_AuxDarkScreen(OFF);
+
+//		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	FadeInOut(stVideo[ID].exeFLAG, FADE_IN, 20);
+	}
+	//M380_ID = MDIN_ID_C;
+		if(src == VIDEO_DIGITAL_NVP6158_A)
+		{
+			MDIN3xx_EnableOutputPAD(MDIN_PAD_ENC_OUT, ON);
+		}
+		else
+		{
+			MDIN3xx_EnableOutputPAD(MDIN_PAD_ENC_OUT, OFF);
+		}
+
+
+#endif
+
 }
 
 // ----------------------------------------------------------------------
@@ -874,27 +971,24 @@ void SetInputSource(BYTE input)
 void SetInputChanged(void)
 {
 	fInputChanged = TRUE;
-	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT |MDIN_UPDATE_AUXFMT ;
+	stVideo.exeFLAG = MDIN_UPDATE_ALL;
 }
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
 {
-	InputSourceHandler(InputSelect);
-//	InputSyncHandler_A(InputSelect);
-//	InputSyncHandler_B(InputSelect);		  //by hungry 2012.02.27
-	VideoFrameProcess(InputSelect);
-	TurnOnDisplay();
-	SetOSDMenuRefresh();
-
-#if DUMP_REG
 	if(fInputChanged == TRUE)
 	{
+		InputSourceHandler(InputSelect);
+		VideoFrameProcess();
+	TurnOnDisplay();
+		SetOSDMenuRefresh();
+
+#if DUMP_REG
 		MDIN_DumpRegister(MDIN_HOST_ID, 0x0000, 0x100); // Host Register 0x000~0x0FF
 		MDINDLY_mSec(1);
 		MDIN_DumpRegister(MDIN_LOCAL_ID, 0x0000, 0x400); // Local Register 0x000~0x3FF
-	}
 #endif
-
+    }
 	fInputChanged = FALSE;
 }
 
@@ -906,7 +1000,7 @@ void VideoHTXCtrlHandler(void)
 
 void Request2VideoProcess(void)
 {
-	stVideo.exeFLAG = MDIN_UPDATE_MAINFMT | MDIN_UPDATE_AUXFMT;
+	stVideo.exeFLAG = MDIN_UPDATE_MAIN | MDIN_UPDATE_AUX;
 }
 
 void Set_DisplayWindow(eDisplayMode_t displayMode)
