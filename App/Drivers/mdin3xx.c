@@ -26,10 +26,10 @@
 // ----------------------------------------------------------------------
 WORD		mdinERR = 0, mdinREV = 0;
 
-static WORD fbADDR, GetDID, GetMEM, GetROW, GetIRQ = 0;
-static WORD GetPRI, GetSTV, GetCLK, GetPAD, GetENC;
-static WORD vpll_P = 0, vpll_M = 0, vpll_S = 0;
-static BOOL frez_M = 0;
+WORD fbADDR, GetDID, GetMEM, GetROW, GetIRQ = 0;
+WORD GetPRI, GetSTV, GetCLK, GetPAD, GetENC;
+WORD vpll_P = 0, vpll_M = 0, vpll_S = 0;
+BOOL frez_M = 0;
 
 // ----------------------------------------------------------------------
 // External Variable 
