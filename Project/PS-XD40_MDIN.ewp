@@ -2407,9 +2407,6 @@
                 <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_i2c.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_Main.c</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_main.h</name>
             </file>
             <file>

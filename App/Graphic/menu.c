@@ -174,6 +174,8 @@ static u8 currentPage = MENU_PAGE_MAIN;
 static u8 lineBuffer[CHARACTERS_IN_MENU_LINE];
 static BOOL requestEnterKeyProc = CLEAR;
 static u8 systemMode = SYSTEM_NORMAL_MODE;
+static eResolution_t outResolution = RESOLUTION_1920_1080_60P;
+static eResolution_t prevOutResolution = RESOLUTION_1920_1080_60P;
 
 const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789!@#$%^&*()+- ";
 #define NUM_OF_VALUABLE_CHARS 	strlen(valuableCharacters)	//77
@@ -1300,7 +1302,7 @@ static void DisplayPage_DisplaySplitMode(eDisplayMode_t split)
 
 static void DisplayPage_UpdatePageOption(u8 itemY)
 {
-	eResolution_t resolution;
+	//eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
 	eDisplayMode_t split;
@@ -1310,8 +1312,8 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 	switch(itemY)
 	{
 		case DISPLAY_ITEM_Y_RESOLUTION:
-			Read_NvItem_Resolution(&resolution);
-			switch(resolution)
+			//Read_NvItem_Resolution(&resolution);
+			switch(outResolution)
 			{
 				case RESOLUTION_1920_1080_60P:
 					Print_StringWithSelectedMark(
@@ -1462,7 +1464,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 	static u8 itemY = DISPLAY_ITEM_Y_RESOLUTION;
 	u8 inc_dec = DECREASE;
 	eOutVideoFormat_t auxVideo;
-	eResolution_t resolution;
+	//eResolution_t resolution;
 	BOOL osdOn;
 	BOOL borderLineOn;
 	eDisplayMode_t split;
@@ -1480,9 +1482,9 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 				switch(itemY)
 				{
 					case DISPLAY_ITEM_Y_RESOLUTION:
-						Read_NvItem_Resolution(&resolution);
-						IncreaseDecreaseCount(RESOLUTION_MAX - 1, 0, inc_dec, &resolution, TRUE);
-						Write_NvItem_Resolution(resolution);
+						//Read_NvItem_Resolution(&resolution);
+						IncreaseDecreaseCount(RESOLUTION_MAX - 1, 0, inc_dec, &outResolution, TRUE);
+						//Write_NvItem_Resolution(resolution);
 						break;
 					case DISPLAY_ITEM_Y_OSD_DISPLAY:
 						Read_NvItem_OsdOn(&osdOn);
@@ -2412,7 +2414,6 @@ static void MainPage_KeyHandler(eKeyData_t key)
 		case KEY_EXIT :
 			// Update NV
 			itemY = MAINMENU_ITEM_Y_TIME_DATE;
-			StoreNvDataToStorage();
 			Erase_AllMenuScreen();
 			ChangeSystemMode(SYSTEM_NORMAL_MODE);
 			SetKeyMode(KEY_MODE_LONG);
@@ -2422,6 +2423,12 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			OSD_DrawBorderLine();
 			OSD_RefreshScreen();
 
+			if(prevOutResolution != outResolution)
+			{
+				Write_NvItem_Resolution(outResolution);
+				SetInputChanged();
+			}
+			StoreNvDataToStorage();
 			// turn on button leds
 			TurnOnSelectedLed(ConvertDisplayMode2Channel(displayMode));
 			break;
@@ -2446,6 +2453,11 @@ void Enter_MainMenu(void)
 	ChangeSystemMode(SYSTEM_SETUP_MODE);
 	requestEnterKeyProc = CLEAR;
 	SetKeyMode(KEY_MODE_REPEAT);
+
+	// update out resolution&freq
+	Read_NvItem_Resolution(&outResolution);
+	prevOutResolution = outResolution;
+	
 	Osd_ClearScreen();//OSD_EraseAll();
 	MainMenu_Entry(MAINMENU_ITEM_Y_TIME_DATE);
 }

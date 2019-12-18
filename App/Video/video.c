@@ -12,7 +12,7 @@
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
 
-#define COMPENSATION_MARGIN					0
+#define COMPENSATION_MARGIN					10
 
 #define DUMP_REG								0
 
@@ -1063,13 +1063,13 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 
 		case VIDSRC_960x480i60:
-			mainTotalWidth = DISPLAY_WIDTH_960*2;
-			mainTotalHeight = DISPLAY_HEIGHT_480/2;
+			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			mainTotalHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			mainTotalWidth = DISPLAY_WIDTH_960*2;
-			mainTotalHeight = DISPLAY_HEIGHT_576/2;
+			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			mainTotalHeight = DISPLAY_HEIGHT_576;
 			break;
 	}
 
@@ -1088,13 +1088,13 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 			
 		case VIDSRC_960x480i60:
-			auxTotalWidth = DISPLAY_WIDTH_960*2;
-			auxTotalHeight = DISPLAY_HEIGHT_480/2;
+			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			auxTotalHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			auxTotalWidth = DISPLAY_WIDTH_960*2;
-			auxTotalHeight = DISPLAY_HEIGHT_576/2;
+			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			auxTotalHeight = DISPLAY_HEIGHT_576;
 			break;
 
 	}
@@ -1429,13 +1429,13 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			break;
 
 		case VIDSRC_960x480i60:
-			mainTotalWidth = DISPLAY_WIDTH_960*2;
-			mainTotalHeight = DISPLAY_HEIGHT_480/2;
+			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			mainTotalHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			mainTotalWidth = DISPLAY_WIDTH_960*2;
-			mainTotalHeight = DISPLAY_HEIGHT_576/2;
+			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			mainTotalHeight = DISPLAY_HEIGHT_576;
 			break;
 	}
 
@@ -1454,13 +1454,13 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			break;
 			
 		case VIDSRC_960x480i60:
-			auxTotalWidth = DISPLAY_WIDTH_960*2;
-			auxTotalHeight = DISPLAY_HEIGHT_480/2;
+			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			auxTotalHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			auxTotalWidth = DISPLAY_WIDTH_960*2;
-			auxTotalHeight = DISPLAY_HEIGHT_576/2;
+			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			auxTotalHeight = DISPLAY_HEIGHT_576;
 			break;
 
 	}
