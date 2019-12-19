@@ -2692,12 +2692,6 @@
                 <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\Device_Tx.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\Devices_Tx.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\Table.c</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912.c</name>
             </file>
             <file>
@@ -2707,7 +2701,7 @@
                 <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_i2c.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_i2c.h</name>
+                <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_I2C.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\App\TVI_Encoder\TP2912\TP2912_main.h</name>

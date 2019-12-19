@@ -67,10 +67,11 @@ typedef struct TVITx_Dn_cmd
 	
 }_TVITx_Dn_cmd;
 
-enum{
-	NoCmd = 0,
-	ACK
-};
+
+//enum{
+//	NoCmd = 0,
+//	ACK
+//};
 
 
 
@@ -86,6 +87,8 @@ void Set_PLL();
 //void Get_Interrupt();
 //void Clear_Interrupt();
 void TVI_Init();
+void Set_InputFreq(BYTE outRes);
+
 //void AHD_Init();
 void Set_OutputMode();
 

@@ -79,6 +79,8 @@ static void PlayBuzzer(void)
  
 void main(void)
 {
+	eResolution_t outRes;
+	
 	I2C_SET_CHANNEL(I2C_MAIN);
 	// initialize STM32F103x
 	MCU_init();
@@ -144,7 +146,8 @@ void main(void)
 	Osd_ClearScreen();
 
 	// Init TP2912
-	InitRegisterSet();
+	Read_NvItem_Resolution(&outRes);
+	InitRegisterSet(outRes);
 //	Init_UpData_Comm();
 	
 	SetInitialKey();

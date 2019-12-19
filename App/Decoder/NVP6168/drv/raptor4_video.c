@@ -145,6 +145,13 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 	NC_U8 pre_vfc = 0;
 	NC_U8 fmt_change = 0; // 0 : Not Change, 1 : Change
 
+
+	static NC_U8 cur_vfc_1 = 0;
+	//static NC_U8 pre_vfc_1 = 0;
+
+	static NC_U8 bank0_A8 = 0;
+	
+
 //	NC_VIVO_CH_FORMATDEF_E fmt_h_v_signal = NC_VIVO_CH_FORMATDEF_UNKNOWN;
 
 	// common - device&channel number check
@@ -164,6 +171,19 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 	NC_DEVICE_DRIVER_BANK_SET(dev, 0x05 + chn);
 	cur_vfc = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xF0);
 	pre_vfc = nc_drv_common_info_vfc_get( info_chn );
+
+
+
+// for test
+	if(chn == 0)
+	{
+		cur_vfc_1 = cur_vfc;
+		//pre_vfc_1 = pre_vfc;
+		
+	}
+
+
+
 
 	/**********************************************************
 	 * No Video Status
@@ -199,8 +219,8 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 			// kukuri added -->
 			// addr 7A and 7B - sholud be 0xFF
 			// addr 78 79 (background color) --> black
-			//gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x78, 0x88);
-			//gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x79, 0x88);
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x78, 0x88);
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x79, 0x88);
 
 			/* On -> No video -----------*/
 			NC_DEVICE_DRIVER_BANK_SET(dev, 0x05 + chn);
@@ -211,6 +231,10 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 			//printk("[NC_DRV_VFC]NoVideo >>> Chn::%d[pre(0x%02X)->cur(0x%02X)]\n", info_chn, pre_vfc, cur_vfc);
 		}
 
+		NC_DEVICE_DRIVER_BANK_SET(dev, 0x00);
+		bank0_A8 = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xA8);
+
+// bank0, a8 read
 		cur_vfc = 0xFF;
 	}
 	else

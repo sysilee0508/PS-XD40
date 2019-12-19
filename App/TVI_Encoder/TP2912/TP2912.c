@@ -4,6 +4,7 @@
 // $Log:  $
 // ******************************************************
 
+//#include "common.h"
 #include "Config.h"
 //#include "reg.h"
 #include "TP2912_Typedefs.h"
@@ -13,11 +14,11 @@
 #include "Device_Tx.h"
 #include "TP2912.h"
 
-DATA	BYTE	TVITxID;
-DATA 	BYTE	TPIAddr;
+BYTE	TVITxID;
+BYTE	TPIAddr;
 
-DATA	BYTE	I2CAddressDeb = TVII2CAddress;
-DATA	BYTE	ManVidRes;
+//DATA	BYTE	I2CAddressDeb = TVII2CAddress;
+BYTE	ManVidRes;
 
 //extern DATA	BYTE	I2CAddressDeb ;
 //extern DATA	BYTE ManVidRes;
@@ -67,7 +68,7 @@ CODE BYTE TP2912B_1080P30_DataSet[] = {
 	0x2a, 0x19,
 	0x3b, 0xd0,
 	0x3c, 0x50,
-	0x45, 0x40,
+	0x45, 0x70,//0x45, 0x40,
 	0xf4, 0x21,
 
 	0xff, 0xff
@@ -122,6 +123,47 @@ CODE BYTE TP2910_1080P30_DataSet[] = {
 	0xff, 0xff
 };
 
+CODE BYTE TP2912B_1080P60_DataSet[] = {
+
+//	35,		
+	0x02, 0x8b,
+	0x03, 0x92,
+	0x05, 0x64,
+	0x07, 0x46,
+	0x08, 0x80,
+	0x09, 0x40,
+	0x0a, 0x40,
+	0x0b, 0x00,
+	0x0c, 0xc0,
+	0x0d, 0xc0,
+	0x0e, 0x38,
+	0x0f, 0x98,
+	0x10, 0x08,
+	0x11, 0x70,
+	0x12, 0x04,
+	0x13, 0x3c,
+	0x15, 0x38,
+	0x1c, 0x55,
+	0x1d, 0x76,
+	0x1e, 0x80,
+	0x20, 0x57,
+	0x21, 0x74,
+	0x22, 0xbc,
+	0x23, 0x6a,
+	0x24, 0x74,
+	0x25, 0x65,
+	0x26, 0x80,
+	0x27, 0x54,
+	0x28, 0x38,
+	0x29, 0x35,
+	0x2a, 0x39,
+	0x3b, 0x90,
+	0x3c, 0x90,
+	0x45, 0x71, //0x45, 0x41,
+	0xf4, 0x21,
+
+	0xff, 0xff
+};
 
 #if 0
 #ifdef BD_TP2912B
@@ -2522,155 +2564,24 @@ void AHD_Init(){
 void TVI_Init(){
 	BYTE *ptr_TVI_Res;
 
-#if 1
 	if(TVITxID==TP2912)
+	{
 		ptr_TVI_Res = TP2912_1080P30_DataSet;
+	}
 	else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-		ptr_TVI_Res = TP2912B_1080P30_DataSet;
+	{
+		if(ManVidRes == R1080P60) 
+			ptr_TVI_Res = TP2912B_1080P60_DataSet;
+		else
+			ptr_TVI_Res = TP2912B_1080P30_DataSet;
+	}
 	else
+	{
 		ptr_TVI_Res = TP2910_1080P30_DataSet;
-#else
-	switch (ManVidRes) {
-			case R8M15:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_8M15_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_8M15_DataSet;
-				//else ;
-				//Printf("\r\nSetting registers for 8M 15F...");
-				break;
-			case R8M125:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_8M125_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_8M125_DataSet;
-				//else ;
-				//Printf("\r\nSetting registers for 8M 12.5F...");
-				break;
-			case R5M20:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_5M20_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_5M20_DataSet;
-				//else ;
-				//Printf("\r\nSetting registers for 5M 20F...");
-				break;
-			case RQHD30:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_QHD30_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_QHD30_DataSet;
-				//else ;
-				//Printf("\r\nSetting registers for QHD 30F...");
-				break;
-			case RQHD25:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_QHD25_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_QHD25_DataSet;
-				//else ;
-				//Printf("\r\nSetting registers for QHD 25F...");
-				break;
-			case R1080P60:
-				//if((TVITxID==TP2912B)||(TVITxID==TP2915)){
-					//ptr_TVI_Res = TP2912B_1080P60_DataSet;
-					//Printf("\r\nSetting registers for 1080P 60F...");
-				//}
-				//else
-					//Printf("\r\n1080P 60F not supported...");
-				break;
-			case R1080P30:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_1080P30_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_1080P30_DataSet;
-				//else
-				//	ptr_TVI_Res = TP2910_1080P30_DataSet;
-				//Printf("\r\nSetting registers for 1080p 30F...");
-				break;
-			
-			case R1080P25:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_1080P25_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_1080P25_DataSet;
-				//else
-				//	ptr_TVI_Res = TP2910_1080P25_DataSet;
-				//Printf("\r\nSetting registers for 1080p 25F...");
-				break;
-			case R720P60:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_720P60_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_720P60_DataSet;
-				//else
-				//	ptr_TVI_Res = TP2910_720P60_DataSet;
-				//Printf("\r\nSetting registers for 720p 60F...");
-				break;
-
-			case R720P50:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_720P50_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_720P50_DataSet;
-				//else
-				//	ptr_TVI_Res = TP2910_720P50_DataSet;
-				//Printf("\r\nSetting registers for 720p 50F...");
-				break;
-
-			case R720P30_TVI20:
-				//if(TVITxID==TP2912)
-		            		ptr_TVI_Res = TP2912_720P30V2_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-		            	//	ptr_TVI_Res = TP2912B_720P30V2_DataSet;
-				//else{
-				//	ptr_TVI_Res = TP2910_720P60_DataSet;
-				//	TP2912_WriteI2C(TPIAddr,0x43,0x17);
-				//}
-				//Printf("\r\nSetting registers for 720p 30F V2.0...");
-		    	break;
+	}
 		
-			case R720P25_TVI20:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_720P25V2_DataSet;
-				//else if((TVITxID==TP2912))
-				//	ptr_TVI_Res = TP2912B_720P25V2_DataSet;
-				//else{
-				//	ptr_TVI_Res = TP2910_720P50_DataSet;
-				//	TP2912_WriteI2C(TPIAddr,0x43,0x17);
-				//}
-				//Printf("\r\nSetting registers for 720p 25F V2.0...");
-				break;
-//			case NR1920x532:
-//				ptr_TVI_Res = TP2912B_1920x532_DataSet;
-//				//Printf("\r\nSetting registers for 1920x532p 60.02F...");
-//				break;
-			case NTSC:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_NTSC_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_NTSC_DataSet;
-				//else
-				//	ptr_TVI_Res = TP2910_NTSC_DataSet;
-				//Printf("\r\nSetting registers for NTSC...");
-				break;
-			case PAL:
-				//if(TVITxID==TP2912)
-					ptr_TVI_Res = TP2912_PAL_DataSet;
-				//else if((TVITxID==TP2912B)||(TVITxID==TP2915))
-				//	ptr_TVI_Res = TP2912B_PAL_DataSet;
-				//else
-				//	ptr_TVI_Res = TP2910_PAL_DataSet;
-				//Printf("\r\nSetting registers for PAL...");
-				break;
-			default:
-				ptr_TVI_Res = TP2912_1080P30_DataSet;
-				//Printf("\r\nNo resolution selection. Set to 1080p 30F...");
-				break;
-			
-		}
-#endif
-		I2CDeviceSet_(TPIAddr, ptr_TVI_Res);
+	I2CDeviceSet_(TPIAddr, ptr_TVI_Res);
+		
 #ifdef TP2915BD
 		if(nRGB==0){
 			TP2912_WriteI2C(TPIAddr,0x02,(TP2912_ReadI2C(TPIAddr,0x02)|0x04));
@@ -2691,7 +2602,7 @@ void Set_OutputMode(){
 				TP2912_WriteI2C(TPIAddr,0x3e,(TP2912_ReadI2C(TPIAddr,0x3e)|0x80));
 				//TP2912_WriteI2C(TPIAddr,0x3e,0x98);
 				TP2912_WriteI2C(TPIAddr,0x3b,0x90);
-				TP2912_WriteI2C(TPIAddr,0x45,0x40);
+				//TP2912_WriteI2C(TPIAddr,0x45,0x40);
 			}
 			else
 				TP2912_WriteI2C(TPIAddr,0x3e,(TP2912_ReadI2C(TPIAddr,0x3e)&0x7f));
@@ -2718,6 +2629,7 @@ void Set_OutputMode(){
 void Init_TVITx_RegSet(){
 	BYTE dat;
 
+/*
 	TPIAddr = Det_TVI_addr();
 
 	if(TPIAddr == 0) 
@@ -2726,7 +2638,7 @@ void Init_TVITx_RegSet(){
 	}
 	
 	TVITxID=CHIPnREV_ID();
-
+*/
 	if((TVITxID==TP2915)||(TVITxID==TP2912B)){
 		TP2912_WriteI2C(TPIAddr,0x3a,0x00);
 	}
@@ -2762,58 +2674,37 @@ void Init_TVITx_RegSet(){
 	TP2912_WriteI2C(TPIAddr,0x45,dat);
 }
 
+
+void Set_InputFreq(BYTE outRes)
+{
+	//eResolution_t outRes;
+
+	//Read_NvItem_Resolution(&outRes);
+	if(outRes == 0) //RESOLUTION_1920_1080_60P
+		ManVidRes=R1080P60;
+	else
+		ManVidRes=R1080P30;
+}
 //----------------------------------------------------------------------------------------------------
 // main
 //----------------------------------------------------------------------------------------------------
-#if 0
-BYTE SW_Sel_Resolution(){
-	
-	BYTE res=0;
-	BYTE form,frme,sys,zone;
-	form = ~AHD_nEN;
-	sys = R1080P_n720P;
-	frme = R6050f_n3025f;
-	zone = R60HZ_n50HZ;
-
-	res = (form<<3);
-	res |= (sys<<2);
-	res |=  (frme<<1);
-	res |=  zone;
-	if(Mode_1920x532==0){
-		//Printf("\r\nres:1920x532P60\r\n");
-		//return NR1920x532;
-		res = NR1920x532;
-	}	
-	//Printf("\r\nres:%02x\r\n",(WORD)res);
-	return res;
-}
-#endif 
-
 void InitRegisterSet()
-{
-	ManVidRes=R1080P30;
+{		
+	TPIAddr = Det_TVI_addr();
+
+	if(TPIAddr == 0) 
+	{
+		return;
+	}
+	
+	TVITxID=CHIPnREV_ID();
+	
+//	Set_InputFreq();
+
 	Init_TVITx_RegSet();
-	I2CAddressDeb=TPIAddr;
+//	I2CAddressDeb=TPIAddr;
 	delay(5);
 }
-
-#if 0
-void Get_TVI_ISR()
-{
-#if 0
-	if(Ex0_INT==1){
-		EX0=0;
-		Get_Interrupt();
-		Ex0_INT = 0;
-		EX0=1;
-	}
-#else
-	// modified by kukuri
-	Get_Interrupt();
-#endif
-}
-
-#endif
 
 
 //main.c

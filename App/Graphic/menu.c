@@ -18,6 +18,7 @@
 #include "common.h"
 #include "menu.h"
 #include "menu_string.h"
+#include "TP2912.h"
 
 // -----------------------------------------------------------------------------
 // Struct/Union Types and define
@@ -2427,6 +2428,9 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			{
 				Write_NvItem_Resolution(outResolution);
 				SetInputChanged();
+				Delay_us(10);
+				Set_InputFreq(outResolution);
+				TVI_Init();
 			}
 			StoreNvDataToStorage();
 			// turn on button leds

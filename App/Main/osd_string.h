@@ -31,6 +31,7 @@ const u8 osdStr_Format_In_CVBS_NTSC[] =   "Input  : CVBS NTSC";
 const u8 osdStr_Format_In_CVBS_PAL[] =    "Input  : CVBS PAL";
 const u8 osdStr_Format_In_AHD_1080p30[] = "Input  : AHD 1080p30";
 const u8 osdStr_Format_In_AHD_1080p25[] = "Input  : AHD 1080p25";
+const u8 osdStr_Format_In_TVI_1080p60[] = "Input  : TVI 1080p60";
 const u8 osdStr_Format_In_TVI_1080p30[] = "Input  : TVI 1080p30";
 const u8 osdStr_Format_In_TVI_1080p25[] = "Input  : TVI 1080p25";
 const u8 osdStr_Format_In_CVI_1080p30[] = "Input  : CVI 1080p30";

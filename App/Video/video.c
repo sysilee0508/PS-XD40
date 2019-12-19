@@ -1001,7 +1001,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			break;
 	}
 
-	for(mdin = MDIN_ID_A; mdin <= MDIN_ID_MAX; mdin++)
+	for(mdin = MDIN_ID_A; mdin <= MDIN_ID_MAX-1; mdin++)
 	{
 		if(OutMainFrmt[mdin] != PrevOutMainFrmt[mdin])
 		{
@@ -1018,12 +1018,13 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			stVideo[mdin].exeFLAG |= MDIN_UPDATE_AUX_IN;
 		}
 
-		if(stVideo[MDIN_ID_D].stOUT_x.frmt != preOutAuxFrmt)
-		{
-			stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_AUX_OUT | MDIN_UPDATE_ENC;
-			preOutAuxFrmt = stVideo[MDIN_ID_D].stOUT_x.frmt;
-			preEncFrmt = stVideo[MDIN_ID_D].encFRMT;
-		}
+	}
+	
+	if(stVideo[MDIN_ID_D].stOUT_x.frmt != preOutAuxFrmt)
+	{
+		stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_AUX_OUT | MDIN_UPDATE_ENC;
+		preOutAuxFrmt = stVideo[MDIN_ID_D].stOUT_x.frmt;
+		preEncFrmt = stVideo[MDIN_ID_D].encFRMT;
 	}
 
 }
@@ -1848,6 +1849,7 @@ static void SetOSDMenuRefresh(void)
 static void VideoFrameProcess(void)
 {
 	BYTE ID;
+	eDisplayMode_t mode = GetCurrentDisplayMode();
 
 	if (stVideo[MDIN_ID_A].exeFLAG == 0 && stVideo[MDIN_ID_B].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0)// && stVideo[MDIN_ID_D].exeFLAG == 0) 
 		return;
@@ -1875,14 +1877,19 @@ static void VideoFrameProcess(void)
 	{
 		M380_ID = ID;
 
-		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN_IN)
+	//	if((IS_FULL_MODE(mode) == FALSE) && (IS_PIP_MODE(mode) == FALSE))	// split mode
+	//	{
+	//		// do not turn off C
+	//	}
+
+		if((stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN_IN) && (M380_ID != MDIN_ID_C))
 		{
 			MDIN3xx_OutDarkScreen(ON);
 			MDIN3xx_EnableMainDisplay(OFF);
 			MDIN3xx_EnableMainFreeze(ID, ON);
 		}
 
-		if (stVideo[ID].exeFLAG&MDIN_UPDATE_AUX_IN)
+		if ((stVideo[ID].exeFLAG&MDIN_UPDATE_AUX_IN) && (M380_ID != MDIN_ID_C))
 		{
 			MDIN3xx_AuxDarkScreen(ON);
 			MDIN3xx_EnableAuxDisplay(&stVideo[ID], OFF);
@@ -2020,7 +2027,7 @@ void SetInputChanged(void)
 {
 	fInputChanged = TRUE;
 	stVideo[MDIN_ID_A].exeFLAG = stVideo[MDIN_ID_B].exeFLAG = MDIN_UPDATE_ALL;
-	stVideo[MDIN_ID_C].exeFLAG |= MDIN_UPDATE_IN;
+	//stVideo[MDIN_ID_C].exeFLAG |= MDIN_UPDATE_IN;
 	//stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_IN;
 }
 //--------------------------------------------------------------------------------------------------
@@ -2032,7 +2039,7 @@ void VideoProcessHandler(void)
 	{
 		InputSourceHandler(InputSelect);
 		VideoFrameProcess();
-		TurnOff_VideoLossChannels(InputSelect);
+		//TurnOff_VideoLossChannels(InputSelect);
 		SetOSDMenuRefresh();
 #if DUMP_REG
 		fRegDump = TRUE;
