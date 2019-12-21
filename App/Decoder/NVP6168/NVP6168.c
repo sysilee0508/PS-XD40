@@ -21,7 +21,7 @@ NC_CH_E VO_Port[VPORT_MAP_MAX][4] =
 {
 	{NC_PORT_D, NC_PORT_C, NC_PORT_B, NC_PORT_A},	 // full ch1, 2 split , 4 split(except quad), PIP with ch2
 	{NC_PORT_D, NC_PORT_B, NC_PORT_C, NC_PORT_A},	 // PIP with ch3, quad
-	{NC_PORT_D, NC_PORT_A, NC_PORT_C, NC_PORT_B}	// PIP with ch4
+	{NC_PORT_B, NC_PORT_C, NC_PORT_D, NC_PORT_A}	// PIP with ch4
 };
 
 void NVP6168_Init(void)

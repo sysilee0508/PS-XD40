@@ -172,7 +172,7 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 	cur_vfc = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xF0);
 	pre_vfc = nc_drv_common_info_vfc_get( info_chn );
 
-
+/*
 
 // for test
 	if(chn == 0)
@@ -183,7 +183,7 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 	}
 
 
-
+*/
 
 	/**********************************************************
 	 * No Video Status
@@ -231,10 +231,9 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 			//printk("[NC_DRV_VFC]NoVideo >>> Chn::%d[pre(0x%02X)->cur(0x%02X)]\n", info_chn, pre_vfc, cur_vfc);
 		}
 
-		NC_DEVICE_DRIVER_BANK_SET(dev, 0x00);
-		bank0_A8 = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xA8);
+//		NC_DEVICE_DRIVER_BANK_SET(dev, 0x00);
+//		bank0_A8 = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xA8);
 
-// bank0, a8 read
 		cur_vfc = 0xFF;
 	}
 	else

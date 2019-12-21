@@ -566,7 +566,7 @@ static sPosition_t OSD_IndicatorStringPosition(eChannel_t channel, eDisplayMode_
 
 static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 videoDir)
 {
-	sPosition_t position;
+	sPosition_t position = {0xFF00,0xFF00};
 
 	switch(displayMode)
 	{
@@ -657,7 +657,7 @@ static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_
 				position.pos_x = videoFormatPosition_Split[QUAD][CHANNEL2].pos_x;
 				position.pos_y = videoFormatPosition_Split[QUAD][CHANNEL2].pos_y;
 			}
-			else
+			else if(channel == CHANNEL3)
 			{
 				position.pos_x = videoFormatPosition_Split[QUAD][CHANNEL4].pos_x;
 				position.pos_y = videoFormatPosition_Split[QUAD][CHANNEL4].pos_y;
@@ -676,7 +676,7 @@ static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_
 				position.pos_x = videoFormatPosition_Split[QUAD][CHANNEL1].pos_x;
 				position.pos_y = videoFormatPosition_Split[QUAD][CHANNEL1].pos_y;
 			}
-			else
+			else if(channel == CHANNEL3)
 			{
 				position.pos_x = videoFormatPosition_Split[QUAD][CHANNEL3].pos_x;
 				position.pos_y = videoFormatPosition_Split[QUAD][CHANNEL3].pos_y;
@@ -695,7 +695,7 @@ static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_
 				position.pos_x = videoFormatPosition_Split[QUAD][CHANNEL3].pos_x;
 				position.pos_y = videoFormatPosition_Split[QUAD][CHANNEL3].pos_y;
 			}
-			else
+			else if(channel == CHANNEL3)
 			{
 				position.pos_x = videoFormatPosition_Split[QUAD][CHANNEL4].pos_x;
 				position.pos_y = videoFormatPosition_Split[QUAD][CHANNEL4].pos_y;
@@ -714,7 +714,7 @@ static sPosition_t OSD_VideoModeStringPosition(eChannel_t channel, eDisplayMode_
 				position.pos_x = videoFormatPosition_Split[QUAD][CHANNEL1].pos_x;
 				position.pos_y = videoFormatPosition_Split[QUAD][CHANNEL1].pos_y;
 			}
-			else
+			else if(channel == CHANNEL3)
 			{
 				position.pos_x = videoFormatPosition_Split[QUAD][CHANNEL2].pos_x;
 				position.pos_y = videoFormatPosition_Split[QUAD][CHANNEL2].pos_y;
@@ -1310,7 +1310,7 @@ static void OSD_DisplayNoVideo(void)
 	}
 }
 
-
+u8* pTestString;
 void OSD_DisplayVideoMode(void)
 {
 	eChannel_t channel;
@@ -1323,6 +1323,7 @@ void OSD_DisplayVideoMode(void)
 	static eDisplayMode_t preDisplayMode = DISPLAY_MODE_MAX; 
 	static u8* preInVideo = NULL;
 	static u8* preOutVideo = NULL;
+//	u8 num_of_channels = 1;
 
 	if((preDisplayMode != displayMode) && (preDisplayMode != DISPLAY_MODE_MAX))
 	{
@@ -1333,6 +1334,11 @@ void OSD_DisplayVideoMode(void)
 		preInVideo = NULL;
 	}
 	preDisplayMode = displayMode;
+
+//	if(IS_FULL_MODE(displayMode) == TRUE)	num_of_channels = 1;
+//	else if((IS_PIP_MODE(displayMode) == TRUE) || (IS_2SPLIT_MODE(displayMode) == TRUE)	num_of_channels = 2;
+//	else if(IS_4SPLIT_MODE(displayMode) == TRUE)	num_of_channels = 4;
+//	else		num_of_channels = 3;
 
 	if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
 	{
@@ -1384,12 +1390,14 @@ void OSD_DisplayVideoMode(void)
 		preOutVideo = pOutVideoStr;
 
 	}
-	else
+	else	 // split mode
 	{
+		
 		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 		{
 			inPosition =  OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
 			outPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
+			
 			if(GetInputVideoFormat(channel)  != NC_VIVO_CH_FORMATDEF_UNKNOWN)
 			{
 				if(videoModeDisplayCount[channel] > 0)
@@ -1421,10 +1429,18 @@ void OSD_DisplayVideoMode(void)
 						OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
 					}
 				}
-				else
+				else if(IS_4SPLIT_MODE(displayMode) == TRUE)
 				{
 					OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
 					OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+				}
+				else		// 3split
+				{
+					if(channel != CHANNEL4)
+					{
+						OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
+						OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+					}
 				}
 				if((TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1)) && (videoModeDisplayCount[channel] > 0))
 				{

@@ -151,7 +151,16 @@ void main(void)
 //	Init_UpData_Comm();
 	
 	SetInitialKey();
-	
+/*
+#if BD_NVP == NVP6158
+	NVP6158_VideoDetectionProc();
+#elif BD_NVP == NVP6168
+	NVP6168_AutoDetection_Proc();
+#endif
+	Key_Proc();
+	VideoProcessHandler();
+	TurnOff_VideoLossChannels();
+*/	
 #ifdef MDIN_TEST_PATTERN
 //	I2C_SET_CHANNEL(I2C_MAIN);
 //	I2C_SET_CHANNEL(I2C_SUB);
@@ -164,13 +173,13 @@ void main(void)
 	while(TRUE)
 	{
 		RTC_CheckTime();
-		Key_Proc();
 #if BD_NVP == NVP6158
 		NVP6158_VideoDetectionProc();
 #elif BD_NVP == NVP6168
 		NVP6168_AutoDetection_Proc();
 #endif
-		Delay_ms(1);
+		Key_Proc();
+		//Delay_ms(1);
 		
 		ScanVideoLossChannels();
 		CheckAlarmClearCondition();

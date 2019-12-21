@@ -17,6 +17,7 @@
 //  Static Variable Declaration
 //=============================================================================
 eDisplayMode_t prevDisplayMode = DISPLAY_MODE_MAX;
+static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0xFF, 0xFF, 0xFF, 0xFF};
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -25,6 +26,11 @@ eDisplayMode_t prevDisplayMode = DISPLAY_MODE_MAX;
 //=============================================================================
 //  Function Definition
 //=============================================================================
+BYTE Get_PrevVideoFormat(eChannel_t channel)
+{
+	return oPreVideofmt[channel];
+}
+
 static BYTE Get_CurrentVideoFormat(eChannel_t channel)
 {
 #if BD_NVP == NVP6158
@@ -37,17 +43,18 @@ static BYTE Get_CurrentVideoFormat(eChannel_t channel)
 static BOOL Check_VideoFormat_Change(void)
 {
 	eChannel_t channel;
-	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0xFF, 0xFF, 0xFF, 0xFF};
+	BYTE currentVideoFmt[NUM_OF_CHANNEL];
 	BYTE changedChannel = 0x00;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	BOOL changed = FALSE;
 
 	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
 	{
-		if(Get_CurrentVideoFormat(channel) != oPreVideofmt[channel])
+		currentVideoFmt[channel] = Get_CurrentVideoFormat(channel) ;
+		if((currentVideoFmt[channel] != oPreVideofmt[channel]) && (currentVideoFmt[channel] != 0))
 		{
 			changedChannel |= (0x01 << channel);
-			oPreVideofmt[channel] = Get_CurrentVideoFormat(channel);
+			oPreVideofmt[channel] = currentVideoFmt[channel];
 		}
 	}
 

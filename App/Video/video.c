@@ -119,7 +119,8 @@ MDIN_OUTVIDEO_FORMAT_t GetOutVideoFormat(MDIN_CHIP_ID_t mdin)
 
 static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 {
-	static MDIN_SRCVIDEO_FORMAT_t format[NUM_OF_CHANNEL] = {VIDSRC_1280x720p60, VIDSRC_1280x720p60};
+	static MDIN_SRCVIDEO_FORMAT_t format[NUM_OF_CHANNEL] = {VIDSRC_1920x1080p60, VIDSRC_1920x1080p60, VIDSRC_1920x1080p60, VIDSRC_1920x1080p60};
+	//static MDIN_SRCVIDEO_FORMAT_t format[NUM_OF_CHANNEL] = {VIDSRC_1280x720p60, VIDSRC_1280x720p60};//, VIDSRC_1280x720p60, VIDSRC_1280x720p60};
 
 	switch(GetInputVideoFormat(channel))
 	{
@@ -327,9 +328,31 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	stVideo[M380_ID].encFRMT = VID_VENC_AUTO;
 
 	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
+
+/*
+	MDIN3xx_OutDarkScreen(ON);
+	MDIN3xx_EnableMainDisplay(OFF);
+	MDIN3xx_EnableMainFreeze(M380_ID, ON);
+
+	MDIN3xx_AuxDarkScreen(ON);
+	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], OFF);
+	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
+*/
 	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
 	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
 	MDINAUX_VideoProcess(&stVideo[M380_ID]);             // mdin3xx aux video process
+
+/*
+	MDIN3xx_EnableMainFreeze(M380_ID, OFF);
+	MDIN3xx_EnableMainDisplay(ON);
+	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
+	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
+	
+	MDINDLY_mSec(100);	// delay 100ms
+
+	MDIN3xx_OutDarkScreen(OFF);
+	MDIN3xx_AuxDarkScreen(OFF);
+*/	
 
 	// define window for inter-area (PIP window? kukuri)
 	stInterWND.lx = 315;
@@ -1198,7 +1221,7 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 		case DISPLAY_MODE_3SPLIT_L2SCALE:
 			pMainView->w = winWidth/2;
 			pMainView->h = winHeight;
-			pMainView->x = winWidth;
+			pMainView->x = winWidth/2;
 			pMainView->y = 0;
 
 			pAuxView->w = winWidth/2;
@@ -1922,6 +1945,8 @@ static void VideoFrameProcess(void)
 		MDIN3xx_AuxDarkScreen(OFF);
 	}
 
+	TurnOff_VideoLossChannels();
+	
 	// MDIN_ID_D
 	if(stVideo[MDIN_ID_D].exeFLAG != MDIN_UPDATE_CLEAR)
 	{
@@ -1933,18 +1958,18 @@ static void VideoFrameProcess(void)
 
 		MDIN3xx_EnableAuxDisplay(&stVideo[ID], ON);
 	}
-	
+
 	M380_ID = MDIN_ID_C;
 }
 
-static void TurnOff_VideoLossChannels(MDIN_VIDEO_INPUT_t src)
+void TurnOff_VideoLossChannels(void)
 {
 	eChannel_t channel;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
-		if(GetInputVideoFormat(channel)  == NC_VIVO_CH_FORMATDEF_UNKNOWN)
+		if(Get_PrevVideoFormat(channel)  == 0xFF)
 		{
 			if(channel == FindMainChannel(displayMode, MDIN_ID_A))
 			{
@@ -2027,8 +2052,8 @@ void SetInputChanged(void)
 {
 	fInputChanged = TRUE;
 	stVideo[MDIN_ID_A].exeFLAG = stVideo[MDIN_ID_B].exeFLAG = MDIN_UPDATE_ALL;
-	//stVideo[MDIN_ID_C].exeFLAG |= MDIN_UPDATE_IN;
-	//stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_IN;
+	stVideo[MDIN_ID_C].exeFLAG |= MDIN_UPDATE_IN;
+//	stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_IN;
 }
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)
