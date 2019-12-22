@@ -38,39 +38,84 @@ static BYTE Get_CurrentVideoFormat(eChannel_t channel)
 static BOOL Check_VideoFormat_Change(void)
 {
 	eChannel_t channel;
-	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0,};
+	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0xFF, 0xFF};
+	BYTE currentVideoFmt[NUM_OF_CHANNEL];
+	BYTE changedChannel = 0x00;
 	BYTE videoFormatChanged = FALSE;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
+	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
+	{
+		currentVideoFmt[channel] = Get_CurrentVideoFormat(channel) ;
+		if((currentVideoFmt[channel] != oPreVideofmt[channel]) && (currentVideoFmt[channel] != 0))
+		{
+			changedChannel |= (0x01 << channel);
+			oPreVideofmt[channel] = currentVideoFmt[channel];
+		}
+	}
+
+	switch(displayMode)
+	{
+		case DISPLAY_MODE_FULL_CH1:
+			if((changedChannel & 0x01) == 0x01)
+				videoFormatChanged = TRUE;
+			else
+				videoFormatChanged = FALSE;
+			break;
+
+		case DISPLAY_MODE_FULL_CH2:
+			if((changedChannel & 0x10) == 0x10)
+				videoFormatChanged = TRUE;
+			else
+				videoFormatChanged = FALSE;
+			break;
+
+		default:
+			if(changedChannel > 0x00)
+				videoFormatChanged = TRUE;
+			else
+				videoFormatChanged = FALSE;
+			break;
+	}
+
+/*
+	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+	{
+		currentVideoFmt[channel] = Get_CurrentVideoFormat(channel);
+
+		if((displayMode == DISPLAY_MODE_FULL_CH1) || (displayMode == DISPLAY_MODE_FULL_CH2))
+		{
+		}
+	}
+
 	if(displayMode == DISPLAY_MODE_FULL_CH1)
 	{
-		if(Get_CurrentVideoFormat(CHANNEL1) != oPreVideofmt[CHANNEL1])
+		if((currentVideoFmt[CHANNEL1] != oPreVideofmt[CHANNEL1]) && (currentVideoFmt[CHANNEL1] != 0x00))
 		{
-			oPreVideofmt[CHANNEL1] = Get_CurrentVideoFormat(CHANNEL1);
 			videoFormatChanged = TRUE;
+			oPreVideofmt[CHANNEL1] = currentVideoFmt[channel];
 		}
 	}
 	else if(displayMode == DISPLAY_MODE_FULL_CH2)
 	{
-		if(Get_CurrentVideoFormat(CHANNEL2) != oPreVideofmt[CHANNEL2])
+		if((currentVideoFmt[CHANNEL2] != oPreVideofmt[CHANNEL2]) && (currentVideoFmt[CHANNEL2] != 0x00))
 		{
-			oPreVideofmt[CHANNEL2] = Get_CurrentVideoFormat(CHANNEL2);
 			videoFormatChanged = TRUE;
+			oPreVideofmt[CHANNEL2] = currentVideoFmt[channel];
 		}
 	}
 	else
 	{
 		for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
 		{
-			if(Get_CurrentVideoFormat(channel) != oPreVideofmt[channel])
+			if((currentVideoFmt[channel] != oPreVideofmt[channel]) && (currentVideoFmt[channel] != 0x00))
 			{
-				oPreVideofmt[channel] = Get_CurrentVideoFormat(channel);
-				videoFormatChanged = TRUE;
-				break;
+				videoFormatChanged |= TRUE;
+				oPreVideofmt[channel] = currentVideoFmt[channel];
 			}
 		}
 	}
-
+*/
 	return videoFormatChanged;	
 }
 

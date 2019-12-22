@@ -12,10 +12,10 @@
 // ----------------------------------------------------------------------
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
-#define DUMP_REG								0
+#define DUMP_REG								1
 
 #define GPIO_JUMP				GPIO_Pin_1	//PC1
-#define COMPENSATION_MARGIN	0//40
+#define COMPENSATION_MARGIN	10//40
 
 // ----------------------------------------------------------------------
 // Static Global Data section variables
@@ -935,12 +935,12 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 
 		case VIDSRC_960x480i60:
-			mainWidth = DISPLAY_WIDTH_960*2;
+			mainWidth = DISPLAY_WIDTH_960*2- COMPENSATION_MARGIN;
 			mainHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			mainWidth = DISPLAY_WIDTH_960*2;
+			mainWidth = DISPLAY_WIDTH_960*2- COMPENSATION_MARGIN;
 			mainHeight = DISPLAY_HEIGHT_576;
 			break;
 	}
@@ -960,41 +960,17 @@ void Set_DisplayWindow(eDisplayMode_t displayMode)
 			break;
 			
 		case VIDSRC_960x480i60:
-			auxWidth = DISPLAY_WIDTH_960*2;
+			auxWidth = DISPLAY_WIDTH_960*2- COMPENSATION_MARGIN;
 			auxHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			auxWidth = DISPLAY_WIDTH_960*2;
+			auxWidth = DISPLAY_WIDTH_960*2- COMPENSATION_MARGIN;
 			auxHeight = DISPLAY_HEIGHT_576;
 			break;
 
 	}
-/*
-	//Check video loss channel
-	if((GetInputVideoFormat(CHANNEL1) == NC_VIVO_CH_FORMATDEF_UNKNOWN) && (displayMode != DISPLAY_MODE_FULL_CH2))
-	{
-		// channel 1 is always main
-		mainWidth = DISPLAY_WIDTH_1280x720/2;
-		mainHeight = DISPLAY_HEIGHT_1280x720;
-		//enableMain = TRUE;
-	}
 
-	if((GetInputVideoFormat(CHANNEL2) == NC_VIVO_CH_FORMATDEF_UNKNOWN) && (displayMode != DISPLAY_MODE_FULL_CH1))
-	{
-		// channel2 is main or aux?
-		if(displayMode == DISPLAY_MODE_FULL_CH2)
-		{
-			mainWidth = DISPLAY_WIDTH_1280x720/2;
-			mainHeight = DISPLAY_HEIGHT_1280x720;
-		}
-		else
-		{
-			auxWidth = DISPLAY_WIDTH_1280x720/2;
-			auxHeight = DISPLAY_HEIGHT_480/2;
-		}
-	}
-*/
 	stMainCROP.w = mainWidth;
 	stMainCROP.h = mainHeight;
 	stMainCROP.x = 0;
