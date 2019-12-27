@@ -21,6 +21,8 @@ static void InitializeAutoSeq_Normal(void)
 	eChannel_t iChannel;
 	eDisplayMode_t displayMode;
 
+//	MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);
+	
 	autoSeqStatus = AUTO_SEQ_NORMAL;
 
 	Read_NvItem_AutoSeqLossSkip(&skipOn);
@@ -66,13 +68,16 @@ static void InitializeAutoSeq_Normal(void)
 	}
 
 	OSD_EraseAllText();
+	// set autoSeqOn
+	ChangeAutoSeqOn(SET);
 	// update display mode as full screen
 	DisplayScreen((eDisplayMode_t)displayChannel);
 	SetInputChanged();
-	// set autoSeqOn
-	ChangeAutoSeqOn(SET);
 	OSD_DrawBorderLine();
 	OSD_Display();
+
+//	Delay_ms(100);
+//	MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
 }
 
 static void InitializeAutoSeq_Alarm(void)

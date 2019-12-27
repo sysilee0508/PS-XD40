@@ -58,8 +58,8 @@ enum
 	MENU_PAGE_CAMERA_TITLE,
 	MENU_PAGE_AUTO_SEQ,
 	MENU_PAGE_DISPLAY,
-	MENU_PAGE_ALARM_REMOCON,
 	MENU_PAGE_MOTION,
+	MENU_PAGE_ALARM_REMOCON,
 	MENU_PAGE_MAX
 };
 
@@ -177,6 +177,7 @@ static BOOL requestEnterKeyProc = CLEAR;
 static u8 systemMode = SYSTEM_NORMAL_MODE;
 static eResolution_t outResolution = RESOLUTION_1920_1080_60P;
 static eResolution_t prevOutResolution = RESOLUTION_1920_1080_60P;
+static BOOL showAlarmMenu = FALSE;
 
 const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789!@#$%^&*()+- ";
 #define NUM_OF_VALUABLE_CHARS 	strlen(valuableCharacters)	//77
@@ -379,6 +380,7 @@ static void MainMenu_Entry(u8 itemY)
 			{22, LINE5_OFFSET_Y, menuStr_MainMenu_MotionDetection},
 			{22, LINE6_OFFSET_Y, menuStr_MainMenu_Alarm},
 	};
+	u8 num_of_menu = MAINMENU_ITEM_Y_MAX;
 	u8 index;
 	sVersion_t version;
 	u8 strVersion[6] = "00.00";
@@ -386,6 +388,8 @@ static void MainMenu_Entry(u8 itemY)
 	currentPage = MENU_PAGE_MAIN;
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
+
+	if(showAlarmMenu == FALSE)		num_of_menu = MAINMENU_ITEM_Y_MAX - 1;
 
 	MDINOSD_SetBGBoxColor(BLACK(GetCurrentColorFormat()));		// set BG-BOX color
 
@@ -400,7 +404,8 @@ static void MainMenu_Entry(u8 itemY)
 	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
 
 	DrawSelectMark(itemY);
-	for(index = 0; index < MAINMENU_ITEM_Y_MAX; index++)
+	//for(index = 0; index < MAINMENU_ITEM_Y_MAX; index++)
+	for(index = 0; index < num_of_menu; index++)
 	{
 		Print_StringWithSelectedMarkSize(
 				mainMenu[index].offset_x,
@@ -2382,12 +2387,12 @@ static void SelectMainMenu(u8 itemY)
  		case MAINMENU_ITEM_Y_DISPLAY :
  			DisplayPage_Entry();
  			break;
- 		case MAINMENU_ITEM_Y_ALARM_REMOCON :
- 			AlarmRemoconPage_Entry();
- 			break;
  		case MAINMENU_ITEM_Y_MOTION :
  			itemY = 0;
  			MotionDetectionPage_Entry();
+ 			break;
+ 		case MAINMENU_ITEM_Y_ALARM_REMOCON :
+ 			AlarmRemoconPage_Entry();
  			break;
 	}
 }
@@ -2403,7 +2408,14 @@ static void MainPage_KeyHandler(eKeyData_t key)
 		case KEY_UP :
 			inc_dec = INCREASE;
 		case KEY_DOWN :
-			IncreaseDecreaseCount(MAINMENU_ITEM_Y_MAX - 1, 1, inc_dec, &itemY, TRUE);
+			if(showAlarmMenu == FALSE)
+			{
+				IncreaseDecreaseCount(MAINMENU_ITEM_Y_MAX - 2, 1, inc_dec, &itemY, TRUE);
+			}
+			else
+			{
+				IncreaseDecreaseCount(MAINMENU_ITEM_Y_MAX - 1, 1, inc_dec, &itemY, TRUE);
+			}
 			DrawSelectMark(itemY);
 			break;
 
@@ -2500,11 +2512,11 @@ void Menu_KeyProc(eKeyData_t key)
 		 case MENU_PAGE_DISPLAY:
 			 DisplayPage_KeyHandler(key);
 			 break;
-		 case MENU_PAGE_ALARM_REMOCON:
-			 AlaramRemoconPage_KeyHandler(key);
-			 break;
 		 case MENU_PAGE_MOTION :
 			 MotionDetectionPage_KeyHandler(key);
+			 break;
+		 case MENU_PAGE_ALARM_REMOCON:
+			 AlaramRemoconPage_KeyHandler(key);
 			 break;
 		 default :
 			 break;

@@ -132,6 +132,9 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_video_h_v_cnt_check_get(NC_U8 dev, NC_U8 chn)
 
 }
 
+
+NC_U8 pre_vfc_test;
+NC_U8 cur_vfc_test;
 void nc_drv_video_input_vfc_status_get( void *pParam )
 {
 	NC_S32 ret = 0;
@@ -144,13 +147,6 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 	NC_U8 cur_vfc = 0;
 	NC_U8 pre_vfc = 0;
 	NC_U8 fmt_change = 0; // 0 : Not Change, 1 : Change
-
-
-	static NC_U8 cur_vfc_1 = 0;
-	//static NC_U8 pre_vfc_1 = 0;
-
-	static NC_U8 bank0_A8 = 0;
-	
 
 //	NC_VIVO_CH_FORMATDEF_E fmt_h_v_signal = NC_VIVO_CH_FORMATDEF_UNKNOWN;
 
@@ -172,29 +168,17 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 	cur_vfc = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xF0);
 	pre_vfc = nc_drv_common_info_vfc_get( info_chn );
 
-/*
-
-// for test
-	if(chn == 0)
-	{
-		cur_vfc_1 = cur_vfc;
-		//pre_vfc_1 = pre_vfc;
-		
-	}
-
-
-*/
-
 	/**********************************************************
 	 * No Video Status
 	 * 0xFF, 0xF0, 0x0F
 	 **********************************************************/
-	if( cur_vfc == 0xFF || (cur_vfc&0xF0) == 0xF0 || (cur_vfc&0x0F) == 0x0F )
+	if( cur_vfc == 0xFF || (cur_vfc&0xF0) == 0xF0 || (cur_vfc&0x0F) == 0x0F  || 
+		cur_vfc == 0x3A || cur_vfc == 0x3B || (cur_vfc >= 0xA4 && cur_vfc <= 0xA7) )	
 	{
 		/****************************************************************
 		 * 1. No Video Sequence
 		 ****************************************************************/
-		if( pre_vfc != 0xFF )
+		if ( pre_vfc != 0xFF ) 
 		{
 			/**************************************************************************************
 			 * DATA_OUT_MODE :: 0001  :  Background color output, Black Pattern
@@ -231,10 +215,14 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 			//printk("[NC_DRV_VFC]NoVideo >>> Chn::%d[pre(0x%02X)->cur(0x%02X)]\n", info_chn, pre_vfc, cur_vfc);
 		}
 
-//		NC_DEVICE_DRIVER_BANK_SET(dev, 0x00);
-//		bank0_A8 = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0xA8);
-
-		cur_vfc = 0xFF;
+		if(cur_vfc == 0x3A || cur_vfc == 0x3B || (cur_vfc >= 0xA4 && cur_vfc <= 0xA7))
+		{
+			cur_vfc = 0xE0;
+		}
+		else
+		{
+			cur_vfc = 0xFF;
+		}
 	}
 	else
 	{
@@ -673,7 +661,8 @@ void nc_drv_video_input_set(void *pParam)
 	}
 	else if( fmt == AHD_8M_CIF_25P || fmt == AHD_8M_CIF_30P ||\
 			 fmt == CVI_HD_25P     || fmt == CVI_HD_30P     ||\
-			 fmt == TVI_HD_B_25P   || fmt == TVI_HD_B_30P   || fmt == TVI_960P_25P   || fmt == TVI_960P_30P )
+			 fmt == TVI_HD_B_25P   || fmt == TVI_HD_B_30P   || fmt == TVI_960P_25P   || fmt == TVI_960P_30P || \
+			 fmt == TVI_960P_50P   || fmt == TVI_960P_60P ||  fmt == TVI_FHD_50P|| fmt == TVI_FHD_60P || fmt == NC_VI_SIGNAL_ON )
 	{
 		//printk("[%s::%d]It is not yet ready Video Format!! Chn(%d), fmt(%s)\n", __func__, __LINE__, chn, stTableVideo->name);
 		return;
@@ -1573,30 +1562,3 @@ void internal_nc_drv_video_output_hide_set( NC_U8 Dev, NC_U8 Chn, NC_U8 Val )
 	}
 }
 
-#if 0
-// kukuri added
-void nc_drv_video_output_port_seq_set( void *pParam )
-{
-	nc_decoder_s *pVdInfo = (nc_decoder_s*)pParam;
-	NC_U8 ii;
-	NC_VIVO_CH_FORMATDEF_E fmt;//   = nc_drv_common_info_video_fmt_def_get(info_chn);
-	NC_U8 seq;
-
-	NC_DEVICE_DRIVER_BANK_SET(0, BANK_1);
-	for(ii = 0; ii < 4; ii++)
-	{
-		fmt = nc_drv_common_info_video_fmt_def_get(pVdInfo->Chn);
-
-		if(fmt == AHD_720P_30P_EX_Btype|| fmt == AHD_720P_25P_EX_Btype)
-		{
-			seq = ((pVdInfo->VO_ChnSeq[ii]+8)<<4) | (pVdInfo->VO_ChnSeq[ii]+8);
-		}
-		else
-		{
-			seq = pVdInfo->VO_ChnSeq[ii]<<4 | pVdInfo->VO_ChnSeq[ii];
-		}
-		gpio_i2c_write(g_nc_drv_i2c_addr[0], 0xC0 + (ii*2), seq);
-		gpio_i2c_write(g_nc_drv_i2c_addr[0], 0xC1 + (ii*2), seq);
-	}
-}
-#endif

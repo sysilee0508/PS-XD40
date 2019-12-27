@@ -11832,10 +11832,6 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_table_vfc_to_formatdef_get( NC_U8 vfc,  char *pstr
 		case    0x10  : strcpy(pstr, "SD_H960_2EX_Btype_PAL"); 			Video_Fmt = SD_H960_2EX_Btype_PAL; 			break;
 		case    0x20  : strcpy(pstr, "AHD_720P_30P_EX_Btype");     		Video_Fmt = AHD_720P_30P_EX_Btype;  		break;
 		case    0x21  : strcpy(pstr, "AHD_720P_25P_EX_Btype");     		Video_Fmt = AHD_720P_25P_EX_Btype;  		break;
-		//case    0x00  : strcpy(pstr, "SD_H960_EX_NT") ; 			Video_Fmt = SD_H960_EX_NT ; 			break;
-		//case    0x10  : strcpy(pstr, "SD_H960_EX_PAL"); 			Video_Fmt = SD_H960_EX_PAL; 			break;
-		//case    0x20  : strcpy(pstr, "AHD_720P_30P");     		Video_Fmt = AHD_720P_30P;  		break;
-		//case    0x21  : strcpy(pstr, "AHD_720P_25P");     		Video_Fmt = AHD_720P_25P;  		break;
 		case    0x22  : strcpy(pstr, "AHD_720P_60P"); 			 		Video_Fmt = AHD_720P_60P; 			 		break;
 		case    0x23  : strcpy(pstr, "AHD_720P_50P"); 			 		Video_Fmt = AHD_720P_50P; 			 		break;
 		case    0x25  : strcpy(pstr, "TVI_HD_30P_EX"); 				 	Video_Fmt = TVI_HD_30P_EX; 		 			break;
@@ -11855,7 +11851,6 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_table_vfc_to_formatdef_get( NC_U8 vfc,  char *pstr
 		case    0x35  : strcpy(pstr, "CVI_FHD_30P");  				 	Video_Fmt = CVI_FHD_30P;					break;
 		case    0x36  : strcpy(pstr, "CVI_FHD_25P");  				 	Video_Fmt = CVI_FHD_25P;					break;
 		case    0x3A  : strcpy(pstr, "TVI_FHD_60P");  			     	Video_Fmt = TVI_FHD_60P;					break;
-		//case    0x3A  : strcpy(pstr, "TVI_FHD_30P");  			     	Video_Fmt = TVI_FHD_30P;					break;	//kukuri
 		case    0x3B  : strcpy(pstr, "TVI_FHD_50P");  			     	Video_Fmt = TVI_FHD_50P;					break;
 		case    0x40  : strcpy(pstr, "AHD_3M_30P");  				 	Video_Fmt = AHD_3M_30P;						break;
 		case    0x41  : strcpy(pstr, "AHD_3M_25P"); 				 	Video_Fmt = AHD_3M_25P;						break;
@@ -11892,6 +11887,7 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_table_vfc_to_formatdef_get( NC_U8 vfc,  char *pstr
 		case    0xA5  : strcpy(pstr, "TVI_960P_25P");  		 		 	Video_Fmt = TVI_960P_25P;		  			break;
 		case    0xA6  : strcpy(pstr, "TVI_960P_60P");  		 		 	Video_Fmt = TVI_960P_60P;		  			break;
 		case    0xA7  : strcpy(pstr, "TVI_960P_50P");  		 		 	Video_Fmt = TVI_960P_50P;		  	 		break;
+		case    0xE0 : strcpy(pstr, "NC_VIVO_CH_NOT_SURPORTED");  		 		 	Video_Fmt = NC_VI_SIGNAL_ON;		  	 		break;
 		case    0xFF  : strcpy(pstr, "NC_VIVO_CH_FORMATDEF_UNKNOWN");	Video_Fmt = NC_VIVO_CH_FORMATDEF_UNKNOWN; 	break;
 		default : 		strcpy(pstr, "NC_VIVO_CH_FORMATDEF_UNKNOWN");  	Video_Fmt = NC_VIVO_CH_FORMATDEF_UNKNOWN;	break;
 	}
@@ -11909,11 +11905,7 @@ NC_U8 nc_drv_table_formatdef_to_vfc_get( NC_VIVO_CH_FORMATDEF_E fmt_def,  char *
 		case    SD_H960_2EX_Btype_NT    : strcpy(pstr, "SD_H960_2EX_Btype_NT"); 		vfc = 0x00; 				break;
 		case    SD_H960_2EX_Btype_PAL   : strcpy(pstr, "SD_H960_2EX_Btype_PAL"); 		vfc = 0x10; 				break;
 		case    AHD_720P_30P			: strcpy(pstr, "AHD_720P_30P_EX_Btype");     	vfc = 0x20;  				break;
-		case	AHD_720P_25P			: strcpy(pstr, "AHD_720P_25P_EX_Btype");     	vfc = 0x21;  				break;
-//		case    SD_H960_EX_NT    : strcpy(pstr, "SD_H960_EX_NT"); 		vfc = 0x00; 				break;
-//		case    SD_H960_EX_PAL   : strcpy(pstr, "SD_H960_EX_PAL"); 		vfc = 0x10; 				break;
-//		case    AHD_720P_30P			: strcpy(pstr, "AHD_720P_30P");     	vfc = 0x20;  				break;
-//		case    AHD_720P_25P			: strcpy(pstr, "AHD_720P_25P");     	vfc = 0x21;  				break;
+		case 	AHD_720P_25P			: strcpy(pstr, "AHD_720P_25P_EX_Btype");     	vfc = 0x21;  				break;
 		case    AHD_720P_60P   			: strcpy(pstr, "AHD_720P_60P"); 			 	vfc = 0x22; 			 	break;
 		case    AHD_720P_50P   			: strcpy(pstr, "AHD_720P_50P"); 			 	vfc = 0x23; 			 	break;
 		case    TVI_HD_30P_EX   		: strcpy(pstr, "TVI_HD_30P_EX"); 				vfc = 0x25; 		 		break;
@@ -11969,6 +11961,7 @@ NC_U8 nc_drv_table_formatdef_to_vfc_get( NC_VIVO_CH_FORMATDEF_E fmt_def,  char *
 		case    TVI_960P_25P   			: strcpy(pstr, "TVI_960P_25P");  		 		vfc = 0xA5;		  			break;
 		case    TVI_960P_60P   			: strcpy(pstr, "TVI_960P_60P");  		 		vfc = 0xA6;		  			break;
 		case    TVI_960P_50P   			: strcpy(pstr, "TVI_960P_50P");  		 		vfc = 0xA7;		  	 		break;
+		case    NC_VI_SIGNAL_ON			: strcpy(pstr, "NC_VIVO_CH_NOT_SURPORTED");  		 		vfc = 0xE0;		  	 		break;
 		case    NC_VIVO_CH_FORMATDEF_UNKNOWN : strcpy(pstr, "NC_VIVO_CH_FORMATDEF_UNKNOWN");	 vfc = 0xFF; 		break;
 		default : 							   strcpy(pstr, "NC_VIVO_CH_FORMATDEF_UNKNOWN");     vfc = 0xFF;		break;
 	}

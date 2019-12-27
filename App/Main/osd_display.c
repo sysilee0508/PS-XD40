@@ -938,9 +938,9 @@ static u8* GetInVideoFormatString(eChannel_t channel)
 		case TVI_FHD_30P:
 			inStr = (u8 *)osdStr_Format_In_TVI_1080p30;
 			break;
-		case TVI_FHD_60P:
-			inStr = (u8 *)osdStr_Format_In_TVI_1080p60;
-			break;
+//		case TVI_FHD_60P:
+//			inStr = (u8 *)osdStr_Format_In_TVI_1080p60;
+//			break;
 		case TVI_FHD_25P:
 			inStr = (u8 *)osdStr_Format_In_TVI_1080p25;
 			break;
@@ -1346,7 +1346,7 @@ void OSD_DisplayVideoMode(void)
 		inPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
 		outPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
 		
-		if((GetInputVideoFormat(channel)  != NC_VIVO_CH_FORMATDEF_UNKNOWN) && (GetAutoSeqOn() == FALSE))
+		if((IsVideoLossChannel(channel)  == FALSE) && (GetAutoSeqOn() == FALSE))
 		{
 			if(videoModeDisplayCount[channel] > 0)
 			{
@@ -1398,7 +1398,7 @@ void OSD_DisplayVideoMode(void)
 			inPosition =  OSD_VideoModeStringPosition(channel, displayMode, VIDEO_IN);
 			outPosition = OSD_VideoModeStringPosition(channel, displayMode, VIDEO_OUT);
 			
-			if(GetInputVideoFormat(channel)  != NC_VIVO_CH_FORMATDEF_UNKNOWN)
+			if(IsVideoLossChannel(channel)  == FALSE)
 			{
 				if(videoModeDisplayCount[channel] > 0)
 				{
@@ -1453,8 +1453,38 @@ void OSD_DisplayVideoMode(void)
 				
 				pInVideoStr = (u8*)osdStr_Space20;
 				pOutVideoStr = (u8*)osdStr_Space20;
-				OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
-				OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+				if((displayMode == DISPLAY_MODE_2SPLIT_HSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_A) ||
+					(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_A) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_A))
+				{
+					if((channel == CHANNEL1) || (channel == CHANNEL2))
+					{
+						OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
+						OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+					}
+				}
+				else if((displayMode == DISPLAY_MODE_2SPLIT_HSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_HCROP_B) ||
+					(displayMode == DISPLAY_MODE_2SPLIT_VSCALE_B) || (displayMode == DISPLAY_MODE_2SPLIT_VCROP_B))
+				{
+					if((channel == CHANNEL3) || (channel == CHANNEL4))
+					{
+						OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
+						OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+					}
+				}
+				else if(IS_4SPLIT_MODE(displayMode) == TRUE)
+				{
+					OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
+					OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+				}
+				else		// 3split
+				{
+					if(channel != CHANNEL4)
+					{
+						OSD_PrintString(inPosition, pInVideoStr, strlen((const u8*)pInVideoStr));
+						OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr)); 
+					}
+				}
+
 			}
 		}
 	}

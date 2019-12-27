@@ -132,7 +132,7 @@ const u8* pDisplayMode_Name[DISPLAY_MODE_MAX] =
 };
 
 const u8 menuStr_AuxVGA[] = "VGA";
-const u8 menuStr_AuxCVBS[] = "CVBS";
+const u8 menuStr_AuxCVBS[] = "CVBS/TVI";
 
 const u8 menuStr_Alarm[] =   "ALARM";
 const u8 menuStr_Remocon[] = "REMOTE";
@@ -154,8 +154,8 @@ const u8 menuStr_MainMenu_TimeDate[] =        "1. TIME / DATE";
 const u8 menuStr_MainMenu_CameraTitle[] =     "2. CAMERA TITLE";
 const u8 menuStr_MainMenu_AutoSeq[] =         "3. AUTO SEQUENCE OPTION";
 const u8 menuStr_MainMenu_Display[] =         "4. DISPALY OPTION";
-const u8 menuStr_MainMenu_Alarm[] =           "5. ALARM / REMOTE OPTION";
-const u8 menuStr_MainMenu_MotionDetection[] = "6. MOTION DETECTION OPTION";
+const u8 menuStr_MainMenu_MotionDetection[] = "5. MOTION DETECTION OPTION";
+const u8 menuStr_MainMenu_Alarm[] =           "6. ALARM / REMOTE OPTION";
 const u8 menuStr_MainMenu_FW_Version[] =      "** F/W VERSION : v";
 
 // Time/Date

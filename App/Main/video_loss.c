@@ -86,7 +86,17 @@ BOOL IsVideoLossChannel(eChannel_t channel)
 #if BD_NVP == NVP6158
 	return ((videoLossChannels & VIDEO_LOSS_CHANNEL(channel)) == 0)?FALSE:TRUE;
 #elif BD_NVP == NVP6168
-	return (videoLossChannels & (0x01 << channel)) >> channel;
+	//return (videoLossChannels & (0x01 << channel)) >> channel;
+	BOOL ret = FALSE;
+	BYTE format = GetInputVideoFormat(channel);
+
+	if((format == NC_VIVO_CH_FORMATDEF_UNKNOWN) || (format == NC_VI_SIGNAL_ON))
+	{
+		ret = TRUE;
+	}
+
+	return ret;
+	
 #endif
 }
 //-----------------------------------------------------------------------------

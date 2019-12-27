@@ -139,7 +139,7 @@ static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 			break;
 		case AHD_1080P_30P:
 		case TVI_FHD_30P:
-		case TVI_FHD_60P:
+//		case TVI_FHD_60P:
 		case CVI_FHD_30P:
 			format[channel] = VIDSRC_1920x1080p60;	//1080p60
 			break;
@@ -298,10 +298,10 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo[M380_ID].stIPC_m.gain = 34;
-	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_OFF
+	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
 	
 	// define video format of AUX-INPUT
 	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -466,10 +466,10 @@ static void MDIN3xx_SetRegInitial_C(void)
 	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo[M380_ID].stIPC_m.gain = 34;
-	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
+	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
 	
 	// define video format of AUX-INPUT
 	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -1900,25 +1900,22 @@ static void VideoFrameProcess(void)
 	{
 		M380_ID = ID;
 
-	//	if((IS_FULL_MODE(mode) == FALSE) && (IS_PIP_MODE(mode) == FALSE))	// split mode
-	//	{
-	//		// do not turn off C
-	//	}
-
-		if((stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN_IN) && (M380_ID != MDIN_ID_C))
+		if(GetAutoSeqOn() == FALSE)
 		{
-			MDIN3xx_OutDarkScreen(ON);
-			MDIN3xx_EnableMainDisplay(OFF);
-			MDIN3xx_EnableMainFreeze(ID, ON);
-		}
+			if((stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN_IN) && (M380_ID != MDIN_ID_C))
+			{
+				MDIN3xx_OutDarkScreen(ON);
+				MDIN3xx_EnableMainDisplay(OFF);
+				MDIN3xx_EnableMainFreeze(ID, ON);
+			}
 
-		if ((stVideo[ID].exeFLAG&MDIN_UPDATE_AUX_IN) && (M380_ID != MDIN_ID_C))
-		{
-			MDIN3xx_AuxDarkScreen(ON);
-			MDIN3xx_EnableAuxDisplay(&stVideo[ID], OFF);
-			MDIN3xx_EnableAuxFreeze(&stVideo[ID], ON);
+			if ((stVideo[ID].exeFLAG&MDIN_UPDATE_AUX_IN) && (M380_ID != MDIN_ID_C))
+			{
+				MDIN3xx_AuxDarkScreen(ON);
+				MDIN3xx_EnableAuxDisplay(&stVideo[ID], OFF);
+				MDIN3xx_EnableAuxFreeze(&stVideo[ID], ON);
+			}
 		}
-
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	MDIN3xx_VideoInProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN)	MDIN3xx_VideoProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_AUX)	MDINAUX_VideoProcess(&stVideo[ID]);
@@ -1928,23 +1925,30 @@ static void VideoFrameProcess(void)
 	M380_ID = MDIN_ID_C;
 	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
 
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
-	{
-		M380_ID = ID;
-		MDIN3xx_EnableMainFreeze(ID, OFF);
-		MDIN3xx_EnableMainDisplay(ON);
-		MDIN3xx_EnableAuxFreeze(&stVideo[ID], OFF);
-		MDIN3xx_EnableAuxDisplay(&stVideo[ID], ON);
-	}
-	MDINDLY_mSec(100);	// delay 100ms
-	
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
-	{
-		M380_ID = ID;	
-		MDIN3xx_OutDarkScreen(OFF);
-		MDIN3xx_AuxDarkScreen(OFF);
-	}
 
+	if(GetAutoSeqOn() == FALSE)
+	{
+		for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
+		{
+			M380_ID = ID;
+
+			{
+				MDIN3xx_EnableMainFreeze(ID, OFF);
+			}
+			MDIN3xx_EnableMainDisplay(ON);
+			MDIN3xx_EnableAuxFreeze(&stVideo[ID], OFF);
+			MDIN3xx_EnableAuxDisplay(&stVideo[ID], ON);
+		}
+		MDINDLY_mSec(100);	// delay 100ms
+		
+		for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
+		{
+			M380_ID = ID;	
+			MDIN3xx_OutDarkScreen(OFF);
+			MDIN3xx_AuxDarkScreen(OFF);
+		}
+	}
+	//MDINDLY_mSec(5);// delay 100ms
 	TurnOff_VideoLossChannels();
 	
 	// MDIN_ID_D
@@ -1966,10 +1970,13 @@ void TurnOff_VideoLossChannels(void)
 {
 	eChannel_t channel;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	BYTE videoFmt; 
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
-		if(Get_PrevVideoFormat(channel)  == 0xFF)
+		videoFmt = GetInputVideoFormat(channel);
+
+		if((Get_PrevVideoFormat(channel)  == 0xFF) || (videoFmt == NC_VI_SIGNAL_ON))// || (videoFmt == TVI_FHD_50P)) 
 		{
 			if(channel == FindMainChannel(displayMode, MDIN_ID_A))
 			{

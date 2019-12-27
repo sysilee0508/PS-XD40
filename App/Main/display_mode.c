@@ -51,7 +51,8 @@ static BOOL Check_VideoFormat_Change(void)
 	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
 	{
 		currentVideoFmt[channel] = Get_CurrentVideoFormat(channel) ;
-		if((currentVideoFmt[channel] != oPreVideofmt[channel]) && (currentVideoFmt[channel] != 0))
+		if((currentVideoFmt[channel] != oPreVideofmt[channel]) && 
+			(currentVideoFmt[channel] != NC_VIVO_CH_FORMATDEF_UNKNOWN) && (currentVideoFmt[channel] != NC_VI_SIGNAL_ON))
 		{
 			changedChannel |= (0x01 << channel);
 			oPreVideofmt[channel] = currentVideoFmt[channel];

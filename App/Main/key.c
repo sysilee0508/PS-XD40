@@ -492,22 +492,39 @@ void Key_Proc(void)
 			case KEY_SPLIT : 
 				if(previous_keydata != key)
 				{
-					if(screenFreezeOn == SET)
+					if((screenFreezeOn == SET) || (previous_keydata == KEY_FREEZE))
 					{
 						screenFreezeOn = CLEAR;
 						//ConfigI2C(MDIN_ID_C);
 						M380_ID = MDIN_ID_C;
-						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
+
+						if(IS_FULL_MODE(GetCurrentDisplayMode()) == TRUE)
+						{
+							OSD_EraseAllText();
+							InitializeAutoSeq(AUTO_SEQ_NONE);
+							OSD_RefreshScreen();
+							DisplayScreen(GetSystemSplitMode());
+							SetInputChanged();
+							OSD_DrawBorderLine();
+							for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+							{
+								ResetVideoModeDisplayTime(channel);
+							}
+						}
 					}
-					OSD_EraseAllText();
-					InitializeAutoSeq(AUTO_SEQ_NONE);
-					OSD_RefreshScreen();
-					DisplayScreen(GetSystemSplitMode());
-					SetInputChanged();
-					OSD_DrawBorderLine();
-					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+					else
 					{
-						ResetVideoModeDisplayTime(channel);
+						OSD_EraseAllText();
+						InitializeAutoSeq(AUTO_SEQ_NONE);
+						OSD_RefreshScreen();
+						DisplayScreen(GetSystemSplitMode());
+						SetInputChanged();
+						OSD_DrawBorderLine();
+						for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+						{
+							ResetVideoModeDisplayTime(channel);
+						}
 					}
 				}
 				break;
@@ -540,7 +557,14 @@ void Key_Proc(void)
 						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
 					OSD_RefreshScreen();
+					MDIN3xx_EnableMainFreeze(MDIN_ID_A, ON);
+					MDIN3xx_EnableMainFreeze(MDIN_ID_B, ON);
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);
 					InitializeAutoSeq(AUTO_SEQ_NORMAL);
+					Delay_ms(700);
+					MDIN3xx_EnableMainFreeze(MDIN_ID_A, OFF);
+					MDIN3xx_EnableMainFreeze(MDIN_ID_B, OFF);
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
 				}
 				break;
 
