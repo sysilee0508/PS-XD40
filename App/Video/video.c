@@ -303,8 +303,8 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	// define map of frame buffer
 	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
 	
-	// define video format of AUX-INPUT
-	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
+	// define video format of AUX-INPUT  //kukuri
+	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
 	// define video format of AUX-OUTPUT (CVBS output)
 	stVideo[M380_ID].stOUT_x.frmt = VIDOUT_1920x1080pRB;
 	stVideo[M380_ID].stOUT_x.mode = MDIN_OUT_MUX656_8;
@@ -329,30 +329,9 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 
 	stVideo[M380_ID].exeFLAG = MDIN_UPDATE_ALL;	// execution of video process
 
-/*
-	MDIN3xx_OutDarkScreen(ON);
-	MDIN3xx_EnableMainDisplay(OFF);
-	MDIN3xx_EnableMainFreeze(M380_ID, ON);
-
-	MDIN3xx_AuxDarkScreen(ON);
-	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], OFF);
-	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
-*/
 	MDIN3xx_VideoInProcess(&stVideo[M380_ID]);
 	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
 	MDINAUX_VideoProcess(&stVideo[M380_ID]);             // mdin3xx aux video process
-
-/*
-	MDIN3xx_EnableMainFreeze(M380_ID, OFF);
-	MDIN3xx_EnableMainDisplay(ON);
-	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
-	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
-	
-	MDINDLY_mSec(100);	// delay 100ms
-
-	MDIN3xx_OutDarkScreen(OFF);
-	MDIN3xx_AuxDarkScreen(OFF);
-*/	
 
 	// define window for inter-area (PIP window? kukuri)
 	stInterWND.lx = 315;
