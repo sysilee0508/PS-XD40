@@ -1546,5 +1546,6 @@ MDIN_ERROR_t MDINHTX_SetHDMIBlock(PMDIN_VIDEO_INFO pINFO);
 MDIN_ERROR_t MDINHTX_SetAudioDelay(BOOL AudioDelayOn, WORD AudioDelayMS, BYTE AudioDelayMode);	// 18Sep2012
 
 MDIN_ERROR_t MDIN3xx_SetMemoryMap(PMDIN_VIDEO_INFO pINFO, BYTE nID, BYTE num, WORD addr);	// 24Apr2013
+MDIN_ERROR_t MDIN3xx_VsyncPulseWAIT(void);
 
 #endif	/* __MDIN3xx_H__ */

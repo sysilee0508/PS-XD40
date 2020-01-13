@@ -1492,6 +1492,7 @@ void internal_nc_drv_video_sd_format_set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMAT
 		chn_mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x54);
 		// chn_bit 0 -> 1
 		chn_mask = chn_mask|(0x01<<(4+chn));
+		//chn_mask &= ~(0x01<<(4+chn));	//kukuri
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x54, chn_mask);
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x08 + chn, 0xa0);
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x5c + chn, 0xd0);

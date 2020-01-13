@@ -120,7 +120,6 @@ MDIN_OUTVIDEO_FORMAT_t GetOutVideoFormat(MDIN_CHIP_ID_t mdin)
 static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 {
 	static MDIN_SRCVIDEO_FORMAT_t format[NUM_OF_CHANNEL] = {VIDSRC_1920x1080p60, VIDSRC_1920x1080p60, VIDSRC_1920x1080p60, VIDSRC_1920x1080p60};
-	//static MDIN_SRCVIDEO_FORMAT_t format[NUM_OF_CHANNEL] = {VIDSRC_1280x720p60, VIDSRC_1280x720p60};//, VIDSRC_1280x720p60, VIDSRC_1280x720p60};
 
 	switch(GetInputVideoFormat(channel))
 	{
@@ -295,7 +294,8 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 #endif
 
 	// define video format of IPC-block
-	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
+	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_INTER_ONLY; 			//kukuri
+	//stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo[M380_ID].stIPC_m.gain = 34;
 	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
@@ -304,7 +304,8 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
 	
 	// define video format of AUX-INPUT  //kukuri
-	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; //MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
+	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; 		//by hungry 2012.02.24
+	//stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF; 		//by hungry 2012.02.24
 	// define video format of AUX-OUTPUT (CVBS output)
 	stVideo[M380_ID].stOUT_x.frmt = VIDOUT_1920x1080pRB;
 	stVideo[M380_ID].stOUT_x.mode = MDIN_OUT_MUX656_8;
@@ -340,6 +341,11 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	stInterWND.ry = 150;
 	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
 	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
+
+	MDIN3xx_EnableMainFreeze(M380_ID, OFF);
+	MDIN3xx_EnableMainDisplay(ON);
+	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
+	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
 
 	// define variable for EDK application
 	PrevSrcMainFrmt[mdin] = 0xff;
@@ -398,6 +404,8 @@ static void MDIN3xx_SetRegInitial_C(void)
 	MDIN3xx_SetMFCVYFilterCoef(&stVideo[M380_ID], NULL);
 	MDIN3xx_SetMFCVCFilterCoef(&stVideo[M380_ID], NULL);
 
+	MDIN3xx_EnableIRQ(MDIN_IRQ_VSYNC_PULSE, ON); 	//kukuri
+
 	stVideo[M380_ID].chipID = MDIN_ID_C;
 	
 	// set aux display ON
@@ -445,10 +453,10 @@ static void MDIN3xx_SetRegInitial_C(void)
 	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo[M380_ID].stIPC_m.gain = 34;
-	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
 	
 	// define video format of AUX-INPUT
 	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -491,6 +499,11 @@ static void MDIN3xx_SetRegInitial_C(void)
 	stInterWND.ry = 150;
 	MDIN3xx_SetDeintInterWND(&stInterWND, MDIN_INTER_BLOCK0);
 	MDIN3xx_EnableDeintInterWND(MDIN_INTER_BLOCK0, OFF);
+
+	MDIN3xx_EnableMainFreeze(M380_ID, OFF);
+	MDIN3xx_EnableMainDisplay(ON);
+	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
+	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
 
 	// define variable for EDK application
 	PrevSrcMainFrmt[MDIN_ID_C]= 0xff;
@@ -601,10 +614,10 @@ static void MDIN3xx_SetRegInitial_D(void)
 	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo[M380_ID].stIPC_m.gain = 34;
-	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_ON | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
+	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
 
 	// define video format of AUX-INPUT
 	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -1031,6 +1044,45 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 
 }
 
+#if 0
+static void TurnOn3DNR(void)
+{
+	PMDIN_VIDEO_INFO pInfo; 
+	BOOL on_off;
+	
+	if(PrevSrcMainFrmt[MDIN_ID_A] != SrcMainFrmt[MDIN_ID_A] )
+	{
+		pInfo = &stVideo[MDIN_ID_A];
+		if((SrcMainFrmt[MDIN_ID_A] == VIDSRC_960x480i60) || (SrcMainFrmt[MDIN_ID_A] == VIDSRC_960x576i50))
+		{
+			pInfo->stIPC_m.fine |= MDIN_DEINT_3DNR_ON;	// 3DNR On
+		}
+		else
+		{
+			pInfo->stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON; 	// 3DNR off
+		}
+		//stVideo[MDIN_ID_A].exeFLAG |= MDIN_UPDATE_MAIN;
+		//MDIN3xx_SetDeinterCtrl(pInfo);
+	}
+
+	if(PrevSrcMainFrmt[MDIN_ID_B] != SrcMainFrmt[MDIN_ID_B] )
+	{
+		pInfo = &stVideo[MDIN_ID_B];
+		if((SrcMainFrmt[MDIN_ID_B] == VIDSRC_960x480i60) || (SrcMainFrmt[MDIN_ID_B] == VIDSRC_960x576i50))
+		{
+			pInfo->stIPC_m.fine |= MDIN_DEINT_3DNR_ON;	// 3DNR On
+		}
+		else
+		{
+			pInfo->stIPC_m.fine &= ~MDIN_DEINT_3DNR_ON; 	// 3DNR off
+		}
+		//stVideo[MDIN_ID_B].exeFLAG |= MDIN_UPDATE_MAIN;
+//		MDIN3xx_SetDeinterCtrl(pInfo);
+	}
+
+	//stVideo[MDIN_ID_C].stIPC_m.fine 
+}
+#endif
 
 //--------------------------------------------------------------------------------------------------
 void CreateDisplayWindow_A(eDisplayMode_t displayMode)
@@ -1823,6 +1875,7 @@ static void InputSourceHandler(MDIN_VIDEO_INPUT_t src)
 	
 	SetInputVideoPath(src, dispalyMode);
 	ConfigVideoFrmt(src);
+	//TurnOn3DNR();
 
 	if(src != VIDEO_DIGITAL_NVP6158_B)
 	{
@@ -1840,7 +1893,6 @@ static void InputSourceHandler(MDIN_VIDEO_INPUT_t src)
 //--------------------------------------------------------------------------------------------------
 static void SetOSDMenuRefresh(void)
 {
-//	ConfigI2C(MDIN_ID_C);
 	M380_ID = MDIN_ID_C;
 	OSD_ModifyPalette_M((stVideo[MDIN_ID_C].stOUT_m.mode == MDIN_OUT_RGB444_8)? OSD_RGB_PALETTE : OSD_YUV_PALETTE);
 	MDINOSD_EnableLayerRepeat(&stLayer[LAYER_INDEX0], OFF, OFF);
@@ -1851,12 +1903,25 @@ static void SetOSDMenuRefresh(void)
 static void VideoFrameProcess(void)
 {
 	BYTE ID;
-	eDisplayMode_t mode = GetCurrentDisplayMode();
+	//eDisplayMode_t mode = GetCurrentDisplayMode();
 
 	if (stVideo[MDIN_ID_A].exeFLAG == 0 && stVideo[MDIN_ID_B].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0)// && stVideo[MDIN_ID_D].exeFLAG == 0) 
 		return;
 
-	for(ID = MDIN_ID_A; ID < MDIN_ID_MAX-1; ID++)
+	if(forceFreezeOn == CLEAR)
+	{
+		M380_ID = MDIN_ID_C;
+		MDIN3xx_OutDarkScreen(ON);
+		MDIN3xx_EnableMainDisplay(OFF);
+		MDIN3xx_EnableMainFreeze(M380_ID, ON);
+
+		MDIN3xx_AuxDarkScreen(ON);
+		MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], OFF);
+		MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
+	}
+
+	
+	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
 	{
 		if (stVideo[ID].srcPATH == PATH_MAIN_B_AUX_B || stVideo[ID].srcPATH == PATH_MAIN_B_AUX_A || stVideo[ID].srcPATH == PATH_MAIN_B_AUX_M)
 		{
@@ -1873,62 +1938,30 @@ static void VideoFrameProcess(void)
 		PrevOutMainFrmt[ID] = OutMainFrmt[ID];
 		PrevSrcMainFrmt[ID] = SrcMainFrmt[ID];
 		PrevSrcAuxFrmt[ID] = SrcAuxFrmt[ID];
-	}
-
-	for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
-	{
+		
 		M380_ID = ID;
-
-		if(GetAutoSeqOn() == FALSE)
-		{
-			if((stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN_IN) && (M380_ID != MDIN_ID_C))
-			{
-				MDIN3xx_OutDarkScreen(ON);
-				MDIN3xx_EnableMainDisplay(OFF);
-				MDIN3xx_EnableMainFreeze(ID, ON);
-			}
-
-			if ((stVideo[ID].exeFLAG&MDIN_UPDATE_AUX_IN) && (M380_ID != MDIN_ID_C))
-			{
-				MDIN3xx_AuxDarkScreen(ON);
-				MDIN3xx_EnableAuxDisplay(&stVideo[ID], OFF);
-				MDIN3xx_EnableAuxFreeze(&stVideo[ID], ON);
-			}
-		}
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_IN)	MDIN3xx_VideoInProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_MAIN)	MDIN3xx_VideoProcess(&stVideo[ID]);
 		if (stVideo[ID].exeFLAG&MDIN_UPDATE_AUX)	MDINAUX_VideoProcess(&stVideo[ID]);
-
 	}
 
 	M380_ID = MDIN_ID_C;
 	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
-
-
-	if(GetAutoSeqOn() == FALSE)
-	{
-		for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
-		{
-			M380_ID = ID;
-
-			{
-				MDIN3xx_EnableMainFreeze(ID, OFF);
-			}
-			MDIN3xx_EnableMainDisplay(ON);
-			MDIN3xx_EnableAuxFreeze(&stVideo[ID], OFF);
-			MDIN3xx_EnableAuxDisplay(&stVideo[ID], ON);
-		}
-		MDINDLY_mSec(100);	// delay 100ms
-		
-		for (ID = MDIN_ID_A ; ID < MDIN_ID_MAX-1; ID++)
-		{
-			M380_ID = ID;	
-			MDIN3xx_OutDarkScreen(OFF);
-			MDIN3xx_AuxDarkScreen(OFF);
-		}
-	}
-	//MDINDLY_mSec(5);// delay 100ms
+	
 	TurnOff_VideoLossChannels();
+	
+	if(forceFreezeOn == CLEAR)
+	{
+		MDIN3xx_EnableMainFreeze(M380_ID, OFF);
+		MDIN3xx_EnableMainDisplay(ON);
+		MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
+		MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
+		
+		MDINDLY_mSec(100);	// delay 100ms
+		MDIN3xx_OutDarkScreen(OFF);
+		MDIN3xx_AuxDarkScreen(OFF);
+	}
+
 	
 	// MDIN_ID_D
 	if(stVideo[MDIN_ID_D].exeFLAG != MDIN_UPDATE_CLEAR)
@@ -1945,56 +1978,119 @@ static void VideoFrameProcess(void)
 	M380_ID = MDIN_ID_C;
 }
 
+
+enum
+{
+	MDIN_A_MAIN = 0x01,
+	MDIN_A_AUX = 0x02,
+	MDIN_B_MAIN = 0x04,
+	MDIN_B_AUX= 0x08
+};
 void TurnOff_VideoLossChannels(void)
 {
 	eChannel_t channel;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
-	BYTE videoFmt; 
+	BYTE videoFmt;
+	static BYTE prevOff = 0x00;
+	BYTE currOff = 0x00;
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
 		videoFmt = GetInputVideoFormat(channel);
 
-		if((Get_PrevVideoFormat(channel)  == 0xFF) || (videoFmt == NC_VI_SIGNAL_ON))// || (videoFmt == TVI_FHD_50P)) 
+		if((videoFmt  == NC_VIVO_CH_FORMATDEF_UNKNOWN) || (videoFmt == NC_VI_SIGNAL_ON))
 		{
 			if(channel == FindMainChannel(displayMode, MDIN_ID_A))
 			{
-				M380_ID =  MDIN_ID_A;
-				//MDIN3xx_OutDarkScreen(ON);
-				MDIN3xx_EnableMainDisplay(OFF);
+				currOff |= MDIN_A_MAIN;
 			}
 			else if(channel == FindAuxChannel(displayMode, MDIN_ID_A))
 			{
-				M380_ID =  MDIN_ID_A;
-#if 0
-				if(IS_PIP_MODE(displayMode) == TRUE)
-				{
-					MDINHIF_RegField(MDIN_LOCAL_ID, 0x145, 4, 2, 3);
-				}
-				else
-				{
-					MDIN3xx_AuxDarkScreen(ON);
-					MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_A], OFF);
-				}
-#else
-				MDIN3xx_AuxDarkScreen(ON);
-				MDINHIF_RegField(MDIN_LOCAL_ID, 0x145, 4, 2, 3);
-#endif
+				currOff |= MDIN_A_AUX;
 			}
 			else if(channel == FindMainChannel(displayMode, MDIN_ID_B))
 			{
-				M380_ID =  MDIN_ID_B;
-				MDIN3xx_EnableMainDisplay(OFF);
+				currOff |= MDIN_B_MAIN;
 			}
 			else if(channel == FindAuxChannel(displayMode, MDIN_ID_B))
 			{
-				M380_ID =  MDIN_ID_B;
-				MDIN3xx_AuxDarkScreen(ON);
-				MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_B], OFF);
+				currOff |= MDIN_B_AUX;
 			}
 		}
 	}
 
+	if( prevOff ^ currOff )
+	{
+		// MDIN_A
+		M380_ID =  MDIN_ID_A;
+		if(currOff & MDIN_A_MAIN) 
+		{
+			if((prevOff & MDIN_A_MAIN) == 0x00)
+			{
+				MDIN3xx_EnableMainDisplay(OFF);
+			}
+		}
+		else
+		{
+			if((prevOff & MDIN_A_MAIN) == MDIN_A_MAIN)
+			{
+				MDIN3xx_EnableMainDisplay(ON);
+			}
+		}
+
+		if(currOff & MDIN_A_AUX)
+		{
+			if((prevOff & MDIN_A_AUX) == 0x00)
+			{
+				MDIN3xx_AuxDarkScreen(ON);
+				MDINHIF_RegField(MDIN_LOCAL_ID, 0x145, 4, 2, 3);
+			}
+		}
+		else
+		{
+			if((prevOff & MDIN_A_AUX) == MDIN_A_AUX)
+			{
+				MDIN3xx_AuxDarkScreen(OFF);
+				MDINHIF_RegField(MDIN_LOCAL_ID, 0x145, 4, 2, 0);
+			}
+		}
+
+		// MDIN_B
+		M380_ID =  MDIN_ID_B;
+		if(currOff & MDIN_B_MAIN) 
+		{
+			if((prevOff & MDIN_B_MAIN) == 0x00)
+			{
+				MDIN3xx_EnableMainDisplay(OFF);
+			}
+		}
+		else
+		{
+			if((prevOff & MDIN_B_MAIN) == MDIN_B_MAIN)
+			{
+				MDIN3xx_EnableMainDisplay(ON);
+			}
+		}
+
+		if(currOff & MDIN_B_AUX)
+		{
+			if((prevOff & MDIN_B_AUX) == 0x00)
+			{
+				MDIN3xx_AuxDarkScreen(ON);
+				MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_B], OFF);
+			}
+		}
+		else
+		{
+			if((prevOff & MDIN_B_AUX) == MDIN_B_AUX)
+			{
+				MDIN3xx_AuxDarkScreen(OFF);
+				MDIN3xx_EnableAuxDisplay(&stVideo[MDIN_ID_B], ON);
+			}
+		}
+
+	}
+	prevOff = currOff;
 	M380_ID =  MDIN_ID_C;
 }
 // ----------------------------------------------------------------------
@@ -2050,7 +2146,6 @@ void VideoProcessHandler(void)
 	{
 		InputSourceHandler(InputSelect);
 		VideoFrameProcess();
-		//TurnOff_VideoLossChannels(InputSelect);
 		SetOSDMenuRefresh();
 #if DUMP_REG
 		fRegDump = TRUE;
@@ -2061,12 +2156,17 @@ void VideoProcessHandler(void)
 #if DUMP_REG
 	if(fRegDump == TRUE)
 	{
-		M380_ID = MDIN_ID_C;
+		M380_ID = MDIN_ID_A;
 		MDIN_DumpRegister(MDIN_HOST_ID, 0x0000, 0x100); // Host Register 0x000~0x0FF
 		MDINDLY_mSec(1);
 		MDIN_DumpRegister(MDIN_LOCAL_ID, 0x0000, 0x400); // Local Register 0x000~0x3FF
 
-		M380_ID = MDIN_ID_D;
+		M380_ID = MDIN_ID_B;
+		MDIN_DumpRegister(MDIN_HOST_ID, 0x0000, 0x100); // Host Register 0x000~0x0FF
+		MDINDLY_mSec(1);
+		MDIN_DumpRegister(MDIN_LOCAL_ID, 0x0000, 0x400); // Local Register 0x000~0x3FF
+
+		M380_ID = MDIN_ID_C;
 		MDIN_DumpRegister(MDIN_HOST_ID, 0x0000, 0x100); // Host Register 0x000~0x0FF
 		MDINDLY_mSec(1);
 		MDIN_DumpRegister(MDIN_LOCAL_ID, 0x0000, 0x400); // Local Register 0x000~0x3FF

@@ -934,9 +934,14 @@ static MDIN_ERROR_t MDIN3xx_SetIPCCtrlFlags(PMDIN_VIDEO_INFO pINFO)
 	PMDIN_OUTVIDEO_INFO pOUT = (PMDIN_OUTVIDEO_INFO)&pINFO->stOUT_m;	// 20Mar2012
 
 	// set ipc-proc flag, if input is interlace
-	if (pSRC->stATTB.attb&MDIN_SCANTYPE_PROG)
+	if (pSRC->stATTB.attb&MDIN_SCANTYPE_PROG){
+		pIPC->fine &= ~MDIN_DEINT_3DNR_ON;	// 3DNR Off
 		 pIPC->attb &= ~MDIN_DEINT_IPC_PROC;
-	else pIPC->attb |=  MDIN_DEINT_IPC_PROC;
+	}
+	else {
+		pIPC->fine |= MDIN_DEINT_3DNR_ON;	// 3DNR On
+		pIPC->attb |=  MDIN_DEINT_IPC_PROC;
+	}
 
 	// set pal-ccs flag, if input is interlace and 50Hz
 #if defined (IN_960H_MODE)
@@ -2865,4 +2870,23 @@ MDIN_ERROR_t MDIN3xx_External_Sync_Lock(BOOL OnOff, WORD  vdelay, WORD hdelay)
 	return MDIN_NO_ERROR;
 }
 
+MDIN_ERROR_t MDIN3xx_VsyncPulseWAIT(void)
+{
+         BOOL nIRQ = 0;
+         WORD count = 10000;
+
+         if (MDIN3xx_GetParseIRQ(M380_ID)) return MDIN_I2C_ERROR;                // clear IRQ
+
+         nIRQ &= MDIN3xx_IsOccurIRQ(M380_ID, MDIN_IRQ_VSYNC_PULSE);
+
+         while (count&&(nIRQ==0)) 
+         {                                       // wait IRQ
+               if (MDIN3xx_GetParseIRQ(M380_ID)) return MDIN_I2C_ERROR;
+               nIRQ = MDIN3xx_IsOccurIRQ(M380_ID, MDIN_IRQ_VSYNC_PULSE);
+               count--; 
+               MDINDLY_10uSec(5);          // delay 50us
+         }
+
+         return (count)? MDIN_NO_ERROR : MDIN_TIMEOUT_ERROR;
+}
 /*  FILE_END_HERE */

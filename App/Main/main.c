@@ -10,7 +10,7 @@
 #undef MDIN_TEST_PATTERN
 //#define MDIN_TEST_PATTERN
 extern BYTE	TPIAddr;
-
+extern BOOL forceFreezeOn;
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -50,7 +50,7 @@ static void PlayBuzzer(void)
 			if(buzzerCount%2)
 				BUZZER_LOW;
 			else
-				//BUZZER_HIGH;
+				BUZZER_HIGH;
 
 			if(lossCount > 0)
 			{
@@ -148,19 +148,9 @@ void main(void)
 	// Init TP2912
 	Read_NvItem_Resolution(&outRes);
 	InitRegisterSet(outRes);
-//	Init_UpData_Comm();
 	
 	SetInitialKey();
-/*
-#if BD_NVP == NVP6158
-	NVP6158_VideoDetectionProc();
-#elif BD_NVP == NVP6168
-	NVP6168_AutoDetection_Proc();
-#endif
-	Key_Proc();
-	VideoProcessHandler();
-	TurnOff_VideoLossChannels();
-*/	
+
 #ifdef MDIN_TEST_PATTERN
 //	I2C_SET_CHANNEL(I2C_MAIN);
 //	I2C_SET_CHANNEL(I2C_SUB);
@@ -173,34 +163,49 @@ void main(void)
 	while(TRUE)
 	{
 		RTC_CheckTime();
+		Key_Proc();
+
+		Delay_ms(1);
+		
 #if BD_NVP == NVP6158
 		NVP6158_VideoDetectionProc();
 #elif BD_NVP == NVP6168
 		NVP6168_AutoDetection_Proc();
 #endif
-		Key_Proc();
-		//Delay_ms(1);
+		Delay_ms(10);
 		
 		ScanVideoLossChannels();
 		CheckAlarmClearCondition();
 		MotionDetectCheck();
 		PlayBuzzer();
 
+		UpdateDisplayMode();
+		
 		UpdateAutoSeqCount();
 		DisplayAutoSeqChannel();
 
-		UpdateDisplayMode();
+		if(forceFreezeOn == SET)
+		{
+			MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);
+			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], ON);
+		}
+		//OSD_Display();
 		// video process handler
 		VideoProcessHandler();
 		// delay for HDMI-Tx register !!
 		MDINDLY_mSec(1);
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.
 		VideoHTXCtrlHandler();
-		OSD_Display();
 
+		if(forceFreezeOn == SET)
+		{
+			forceFreezeOn = CLEAR;
+			//Delay_ms(50);
+			MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
+			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
+		}
+		OSD_Display();
 		StoreNvDataToStorage();
-		//temp
-		//ReadMemoryMapReg();
     }
 }
 

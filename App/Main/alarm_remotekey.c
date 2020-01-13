@@ -82,7 +82,7 @@ BYTE ReadSpiDataByte(void)
 		SPI_DELAY;
 		SPI_CLK_HIGH;
 	}
-	alarmRemoteEnable = (SPI_MISO_DATA == SPI_MISO_HIGH)?TRUE:FALSE;
+	alarmRemoteEnable = (SPI_MISO_DATA == SPI_MISO_LOW)?TRUE:FALSE;
 	SPI_CS_LOW;
 
 	return spiDataByte;
@@ -120,6 +120,7 @@ void CheckAlarm(void)
 					else
 					{
 						alarmInfo[channel].check_count++;
+						alarmInfo[channel].alarm_status = ALARM_DEBOUNCE;
 					}
 					break;
 
@@ -132,6 +133,7 @@ void CheckAlarm(void)
 					else
 					{
 						alarmInfo[channel].check_count++;
+						alarmInfo[channel].alarm_status = ALARM_DEBOUNCE;
 					}
 					break;
 
@@ -142,7 +144,7 @@ void CheckAlarm(void)
 
 			if(alarmInfo[channel].check_count > ALARM_DEBOUNCE_COUNT_MAX)
 			{
-				if(alarmInfo[channel].alarm_status == ALARM_CLEAR)
+				if(alarmInfo[channel].alarm_status == ALARM_DEBOUNCE)
 				{
 					alarmInfo[channel].alarm_status = ALARM_SET;
 					//alarmInfo[channel].check_count = 0;
@@ -214,15 +216,29 @@ void CheckAlarmClearCondition(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn1s = 0;
+	eChannel_t channel;
+	BOOL alarmStatus = ALARM_CLEAR;
+
+	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+	{
+		if( alarmInfo[channel].alarm_status == ALARM_DEBOUNCE)
+		{
+			alarmStatus = ALARM_DEBOUNCE;
+			break;
+		}
+	}
 
 	if((TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1)) && (alarmOutTimeCountInSec !=0))
 	{
 		alarmOutTimeCountInSec--;
 	}
 
-	if(alarmOutTimeCountInSec == 0)
-	{
-		StartStopAlarm(ALARM_STOP);
+ 	if(alarmOutTimeCountInSec == 0) 
+ 	{
+ 		if(alarmStatus != ALARM_DEBOUNCE)
+ 		{
+			StartStopAlarm(ALARM_STOP);
+		}	
 	}
 	previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
 }

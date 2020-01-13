@@ -52,8 +52,8 @@ typedef enum
 	KEY_ALARM			= 0x21,
 //----Menu Keys-------------------------------------
 	KEY_LEFT			= KEY_FULL_CH1 | KEY_SPECIAL,
-	KEY_UP				= KEY_FULL_CH2 | KEY_SPECIAL,
-	KEY_DOWN			= KEY_FULL_CH3 | KEY_SPECIAL,
+	KEY_DOWN			= KEY_FULL_CH2 | KEY_SPECIAL,
+	KEY_UP				= KEY_FULL_CH3 | KEY_SPECIAL,
 	KEY_RIGHT			= KEY_FULL_CH4 | KEY_SPECIAL,
 	KEY_ENTER			= KEY_SPLIT | KEY_SPECIAL,
 	KEY_EXIT			= KEY_FREEZE | KEY_SPECIAL,
@@ -87,6 +87,7 @@ enum
 //extern BOOL bScreenFreeze;
 
 extern u8 pre_special_mode;
+extern BOOL forceFreezeOn;
 
 //=============================================================================
 //  Function Prototype

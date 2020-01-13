@@ -205,8 +205,10 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 { 
 	u32 rtcCount = RTC_GetCounter();
 	sTimeCorrect_t timeCorrection;
-	sTimeDate_t timeDate;
+	static sTimeDate_t timeDate;
 	static sTimeDate_t oldTimeDate;
+	static BOOL sub_flag;
+	static BYTE sub_cnt;
 
 	if(RTC_GetRtcTimeStatus() == SET)
 	{
@@ -214,6 +216,8 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 		RTC_ChangeDisplayTimeStatus(SET);
 
 		RTC_CalculateTimeDate(rtcCount, &timeDate);
+		RTC_CheckBoundaryCondition(&timeDate);
+
 		//Time correction
 		Read_NvItem_TimeCorrect(&timeCorrection);
 		if(timeCorrection.timeCorrectOffset > 0)
@@ -224,23 +228,36 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 				if(timeCorrection.timeCorrectDirection == DIRECTION_UP) // + --> up / - --> down
 				{
 					rtcCount += timeCorrection.timeCorrectOffset;
+					sub_flag = 0;
+					RTC_WaitForLastTask();
+					RTC_SetCounter(rtcCount);
+					RTC_WaitForLastTask();
+
+					RTC_CalculateTimeDate(rtcCount, &timeDate);
 				}
 				else if(timeCorrection.timeCorrectDirection == DIRECTION_DOWN)// -
 				{
-					if(rtcCount > timeCorrection.timeCorrectOffset)
-					{
-						rtcCount -= timeCorrection.timeCorrectOffset;
-					}
-					else
-					{
-						rtcCount = 0;
-					}
+					sub_cnt = timeCorrection.timeCorrectOffset;				
+	 				sub_flag = 1;
 				}
-			    RTC_WaitForLastTask();
-			    RTC_SetCounter(rtcCount);
-			    RTC_WaitForLastTask();
+			}
+			
+			if(sub_flag == 1)
+			{
+				if(sub_cnt > 0)
+				{
+					sub_cnt--;
+				}	
+				else
+				{
+					sub_flag = 0;
+					rtcCount -= timeCorrection.timeCorrectOffset;
+					RTC_WaitForLastTask();
+					RTC_SetCounter(rtcCount);
+					RTC_WaitForLastTask();
 
-			    RTC_CalculateTimeDate(rtcCount, &timeDate);
+					RTC_CalculateTimeDate(rtcCount, &timeDate);
+				}
 			}
 		}
 		// boundary condition

@@ -46,7 +46,7 @@ void NVP6168_AutoDetection_Proc(void)
 	{
 		if((DECODER_Video_Input_Format_Detection_Get(ch, &VFC, &VideoFormat)) ||(VO_PortMapChanged == 1))
 		{
-			if( VideoFormat != NC_VIVO_CH_FORMATDEF_UNKNOWN ) //( ||(VO_PortMapChanged == 1))
+			if( VideoFormat != NC_VIVO_CH_FORMATDEF_UNKNOWN )
 			{
 				/***********************************************************************
 				 * Decoder Setting : Format Set -> Distance Check -> EQ Set
@@ -55,10 +55,6 @@ void NVP6168_AutoDetection_Proc(void)
 				EqStage = DECODER_Video_Input_EQ_Stage_Get(ch, &SamVal);
 				DECODER_Video_Input_EQ_Stage_Set(ch, EqStage);
 			}
-//			else if( VideoFormat == NC_VIVO_CH_FORMATDEF_UNKNOWN )
-//			{
-//				DECODER_Video_Output_NoVideo_Pattern_Set(ch, 0);
-//			}
 		}
 		//Delay_ms(500);
 	}
@@ -67,16 +63,8 @@ void NVP6168_AutoDetection_Proc(void)
 
 void NVP6168_VO_Port_Set(eVPORT_MAP_t vo_map)
 {
-//	nc_decoder_s video_info;
-//	NC_PORT_E port;
-
 	if(VO_PortMap != vo_map)
 	{
-//		for(port = NC_PORT_A; port < 4; port++)
-//		{
-//			video_info.VO_ChnSeq[port] = VO_Ch[vo_map][port];
-//		}
-
 		VO_PortMap = vo_map;
 		VO_PortMapChanged = 1;
 	}

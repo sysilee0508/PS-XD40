@@ -91,8 +91,11 @@ static void InitializeAutoSeq_Alarm(void)
 		// the last alarm channel should be start channel
 		displayChannel = GetLastAlarmChannel();
 		displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
-
+		OSD_EraseAllText();
 		DisplayScreen((eDisplayMode_t)displayChannel);
+		SetInputChanged();
+		OSD_DrawBorderLine();
+		OSD_Display();
 	}
 }
 
@@ -220,8 +223,9 @@ void DisplayAutoSeqChannel(void)
 		SetInputChanged();
 		// Update OSD
 		OSD_RefreshScreen();
-		Delay_ms(10);
-		OSD_Display();
+		forceFreezeOn = SET;
+//		Delay_ms(10);
+//		OSD_Display();
 	}
 }
 

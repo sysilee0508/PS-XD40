@@ -389,6 +389,8 @@ static void MainMenu_Entry(u8 itemY)
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
 
+	showAlarmMenu = CheckAlarmRemoteEnable(); 
+
 	if(showAlarmMenu == FALSE)		num_of_menu = MAINMENU_ITEM_Y_MAX - 1;
 
 	MDINOSD_SetBGBoxColor(BLACK(GetCurrentColorFormat()));		// set BG-BOX color
@@ -1272,7 +1274,6 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 //------------------------------------------------------------------
 // Display Page Function
 //------------------------------------------------------------------
-//#define CROPPING_CHANNEL(x)		(x == TRUE) ? CHANNEL2 : CHANNEL1
 
 const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 {

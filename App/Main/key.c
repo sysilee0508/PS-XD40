@@ -9,6 +9,7 @@
 //=============================================================================
 BOOL screenFreezeOn = CLEAR;
 u8 pre_special_mode = LEFT_TOP;
+BOOL forceFreezeOn = CLEAR;
 
 //=============================================================================
 //  Static Variable Declaration
@@ -180,18 +181,21 @@ void SetInitialKey(void)
 {
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	eKeyData_t key = KEY_NONE;
+	eChannel_t channel;
 
 	if(IS_FULL_MODE(displayMode))
 	{
 		key = (eKeyData_t)displayMode+1;
+		channel = ConvertDisplayMode2Channel(displayMode);
 	}
 	else
 	{
 		key = KEY_SPLIT;
+		channel = 0xFF;
 	}
 
 	UpdateKeyData(key);
-	TurnOnSelectedLed(ConvertDisplayMode2Channel(displayMode));
+	TurnOnSelectedLed(channel);
 	SetKeyReady();
 }
 
@@ -203,7 +207,7 @@ void Key_Scan_ParallelKey(void)
 	BOOL paralleKeyOn;
 
 	Read_NvItem_AlarmRemoconSelect(&paralleKeyOn);
-	if((paralleKeyOn) && (frontKeyCode == KEYCODE_NONE) && (CheckAlarmRemoteEnable()==TRUE))
+	if((paralleKeyOn == REMOTEKEY_MODE) && (frontKeyCode == KEYCODE_NONE) && (CheckAlarmRemoteEnable()==TRUE))
 	{
 		backKeyCode = (keycode_t)ReadSpiDataByte();
 		current_keycode = backKeyCode;
@@ -471,14 +475,11 @@ void Key_Proc(void)
 				// If key is changed...
 				if(previous_keydata != key)
 				{
+					forceFreezeOn = SET;
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						//ConfigI2C(MDIN_ID_C);
-						M380_ID = MDIN_ID_C;
-						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
-					
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
@@ -492,12 +493,13 @@ void Key_Proc(void)
 			case KEY_SPLIT : 
 				if(previous_keydata != key)
 				{
+					forceFreezeOn = SET;
 					if((screenFreezeOn == SET) || (previous_keydata == KEY_FREEZE))
 					{
 						screenFreezeOn = CLEAR;
-						//ConfigI2C(MDIN_ID_C);
 						M380_ID = MDIN_ID_C;
 						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
+						MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 
 						if(IS_FULL_MODE(GetCurrentDisplayMode()) == TRUE)
 						{
@@ -531,17 +533,18 @@ void Key_Proc(void)
 
 			case KEY_FREEZE :
 				InitializeAutoSeq(AUTO_SEQ_NONE);
-				//ConfigI2C(MDIN_ID_C);
 				M380_ID = MDIN_ID_C;
 				if(screenFreezeOn == CLEAR)
 				{
 					screenFreezeOn = SET;
-					MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 1);	//main freeze On
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);	//main freeze On
+					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
 				}
 				else
 				{
 					screenFreezeOn = CLEAR;
-					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
+					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 				}
 				break;
 
@@ -549,22 +552,13 @@ void Key_Proc(void)
 				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
 				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
 				{
+					forceFreezeOn = SET;
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
-						//ConfigI2C(MDIN_ID_C);
-						M380_ID = MDIN_ID_C;
-						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
 					}
-					OSD_RefreshScreen();
-					MDIN3xx_EnableMainFreeze(MDIN_ID_A, ON);
-					MDIN3xx_EnableMainFreeze(MDIN_ID_B, ON);
-					MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);
 					InitializeAutoSeq(AUTO_SEQ_NORMAL);
-					Delay_ms(700);
-					MDIN3xx_EnableMainFreeze(MDIN_ID_A, OFF);
-					MDIN3xx_EnableMainFreeze(MDIN_ID_B, OFF);
-					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
+					OSD_RefreshScreen();
 				}
 				break;
 
@@ -574,9 +568,9 @@ void Key_Proc(void)
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
-					//ConfigI2C(MDIN_ID_C);
 					M380_ID = MDIN_ID_C;
-					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
+					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 				}
 				Enter_MainMenu();
 				break;
@@ -586,13 +580,13 @@ void Key_Proc(void)
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
-					//ConfigI2C(MDIN_ID_C);
 					M380_ID = MDIN_ID_C;
-					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);//MDINHIF_RegField(MDIN_LOCAL_ID, 0x040, 1, 1, 0);	//main freeze Off
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
+					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 				}
 				OSD_EraseAllText();
-				OSD_RefreshScreen();
 				InitializeAutoSeq(AUTO_SEQ_ALARM);
+				OSD_RefreshScreen();
 				OSD_DrawBorderLine();
 				break;
 
@@ -605,6 +599,7 @@ void Key_Proc(void)
 				Menu_KeyProc(key);
 				break;
 		}
+
 		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark
 	}
 }

@@ -12,8 +12,9 @@
 #define ALARM_MODE					0
 #define REMOTEKEY_MODE				1
 
-#define ALARM_SET					1
 #define ALARM_CLEAR					0
+#define ALARM_DEBOUNCE				1
+#define ALARM_SET					2
 
 #define SPI_MISO_HIGH				0x00000001
 #define SPI_MISO_LOW				0x00000000
