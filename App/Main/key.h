@@ -52,8 +52,8 @@ typedef enum
 	KEY_ALARM			= 0x21,
 //----Menu Keys-------------------------------------
 	KEY_LEFT			= KEY_FULL_CH1 | KEY_SPECIAL,
-	KEY_DOWN			= KEY_FULL_CH2 | KEY_SPECIAL,
-	KEY_UP				= KEY_FULL_CH3 | KEY_SPECIAL,
+	KEY_UP				= KEY_FULL_CH2 | KEY_SPECIAL,
+	KEY_DOWN			= KEY_FULL_CH3 | KEY_SPECIAL,
 	KEY_RIGHT			= KEY_FULL_CH4 | KEY_SPECIAL,
 	KEY_ENTER			= KEY_SPLIT | KEY_SPECIAL,
 	KEY_EXIT			= KEY_FREEZE | KEY_SPECIAL,
@@ -78,14 +78,21 @@ enum
 	KEYLED_STAGE_MAX
 };
 
+enum
+{
+	LED_CH1 = 0,
+	LED_CH2,
+	LED_CH3,
+	LED_CH4,
+	LED_SPLIT,
+	LED_FREEZE,
+	LED_SEQUENCE,
+	LED_NONE = 0xFF
+};
+
 //=============================================================================
 //  Extern Grobal Variable
 //=============================================================================
-//extern key_mode_e key_mode;
-//extern keydata_e current_keydata;
-
-//extern BOOL bScreenFreeze;
-
 extern u8 pre_special_mode;
 extern BOOL forceFreezeOn;
 
@@ -99,7 +106,7 @@ extern void Key_Proc(void);
 extern void Key_Led_Ctrl(void);
 
 // Interface
-extern void TurnOnSelectedLed(eChannel_t channel);
+extern void TurnOnSelectedLed(BYTE selectedLed);
 extern void SetKeyMode(eKeyMode_t mode);
 extern eKeyMode_t GetKeyMode(void);
 extern keycode_t GetKeyCode(eKeyData_t key);

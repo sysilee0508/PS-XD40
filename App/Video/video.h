@@ -124,6 +124,6 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode);
 void CreateDisplayWindow_B(eDisplayMode_t displayMode);
 void CreateDisplayWindow_C(eDisplayMode_t displayMode);
 void UpdateCroppingScreen(eChannel_t channel);
-void TurnOff_VideoLossChannels(void);
+void TurnOnOff_VideoChannels(void);
 
 #endif	/* __VIDEO_H__ */

@@ -36,7 +36,7 @@ const u8 menuStr_Usa[] =   "USA  (mm-dd-yyyy)";
 const u8 menuStr_Euro[] = "EURO (dd-mm-yyyy)";
 
 const u8 menuStr_Skip[] = "SKIP(ON)";
-const u8 menuStr_Show[] = "SHOW(OFF)";
+const u8 menuStr_Show[] = "INCLUDE(OFF)";
 
 const u8 menuStr_Resolution1920X1080_60P[] = "1920 X 1080 60(50)P";
 const u8 menuStr_Resolution1920X1080_30P[] = "1920 X 1080 30(25)P";
@@ -50,24 +50,24 @@ const u8 menuStr_DisplayMode_2SplitHCrop_B[] = "2Split H-Crop Ch3&Ch4";
 const u8 menuStr_DisplayMode_2SplitVScale_B[] = "2Split V-Scale Ch3&Ch4";
 const u8 menuStr_DisplayMode_2SplitVCrop_B[] = "2Split V-Crop Ch3&Ch4";
 
-const u8 menuStr_DisplayMode_3Split_RScale[] = "3Split-Rigth Scale";
-const u8 menuStr_DisplayMode_3Split_RCrop[] = "3Split-Right Crop";
-const u8 menuStr_DisplayMode_3Split_LScale[] = "3Split-Left Scale";
-const u8 menuStr_DisplayMode_3Split_LCrop[] = "3Split-Left Crop";
-const u8 menuStr_DisplayMode_3Split_DScale[] = "3Split-Bottom Scale";
-const u8 menuStr_DisplayMode_3Split_DCrop[] = "3Split-Bottom Crop";
-const u8 menuStr_DisplayMode_3Split_UScale[] = "3Split-Top Scale";
-const u8 menuStr_DisplayMode_3Split_UCrop[] = "3Split-Top Crop";
+const u8 menuStr_DisplayMode_3Split_RScale[] = "3Split Left Scale";
+const u8 menuStr_DisplayMode_3Split_RCrop[] = "3Split Left Crop";
+const u8 menuStr_DisplayMode_3Split_LScale[] = "3Split Right Scale";
+const u8 menuStr_DisplayMode_3Split_LCrop[] = "3Split Right Crop";
+const u8 menuStr_DisplayMode_3Split_DScale[] = "3Split Top Scale";
+const u8 menuStr_DisplayMode_3Split_DCrop[] = "3Split Top Crop";
+const u8 menuStr_DisplayMode_3Split_UScale[] = "3Split Bottom Scale";
+const u8 menuStr_DisplayMode_3Split_UCrop[] = "3Split Bottom Crop";
 
-const u8 menuStr_DisplayMode_4Split_Quad[] = "4Split QUAD";
-const u8 menuStr_DisplayMode_4Split_RScale[] = "4Split-Rigth Scale";
-const u8 menuStr_DisplayMode_4Split_RCrop[] = "4Split-Right Crop";
-const u8 menuStr_DisplayMode_4Split_LScale[] = "4Split-Left Scale";
-const u8 menuStr_DisplayMode_4Split_LCrop[] = "4Split-Left Crop";
-const u8 menuStr_DisplayMode_4Split_DScale[] = "4Split-Bottom Scale";
-const u8 menuStr_DisplayMode_4Split_DCrop[] = "4Split-Bottom Crop";
-const u8 menuStr_DisplayMode_4Split_UScale[] = "4Split-Top Scale";
-const u8 menuStr_DisplayMode_4Split_UCrop[] = "4Split-Top Crop";
+const u8 menuStr_DisplayMode_4Split_Quad[] = "QUAD";
+const u8 menuStr_DisplayMode_4Split_RScale[] = "4Split Left Scale";
+const u8 menuStr_DisplayMode_4Split_RCrop[] = "4Split Left Crop";
+const u8 menuStr_DisplayMode_4Split_LScale[] = "4Split Right Scale";
+const u8 menuStr_DisplayMode_4Split_LCrop[] = "4Split Right Crop";
+const u8 menuStr_DisplayMode_4Split_DScale[] = "4Split Top Scale";
+const u8 menuStr_DisplayMode_4Split_DCrop[] = "4Split Top Crop";
+const u8 menuStr_DisplayMode_4Split_UScale[] = "4Split Bottom Scale";
+const u8 menuStr_DisplayMode_4Split_UCrop[] = "4Split Bottom Crop";
 const u8 menuStr_DisplayMode_4Split_H[] = "4Split-H";
 const u8 menuStr_DisplayMode_4Split_X[] = "4Split-X";
 

@@ -8,7 +8,7 @@
 //  Global Variable Declaration
 //=============================================================================
 BOOL screenFreezeOn = CLEAR;
-u8 pre_special_mode = LEFT_TOP;
+//u8 pre_special_mode = LEFT_TOP;
 BOOL forceFreezeOn = CLEAR;
 
 //=============================================================================
@@ -77,24 +77,27 @@ static void AllButtonLedOff(void)
 	led_keycode = KEYCODE_NONE;
 }
 
-void TurnOnSelectedLed(eChannel_t channel)
+void TurnOnSelectedLed(BYTE selectedLed)
 {
-	switch(channel)
+	switch(selectedLed)
 	{
-		case CHANNEL1:
+		case LED_CH1:
 			led_keycode = KEYCODE_CH1;
 			break;
-		case CHANNEL2:
+		case LED_CH2:
 			led_keycode = KEYCODE_CH2;
 			break;
-		case CHANNEL3:
+		case LED_CH3:
 			led_keycode = KEYCODE_CH3;
 			break;
-		case CHANNEL4:
+		case LED_CH4:
 			led_keycode = KEYCODE_CH4;
 			break;
-		default:
+		case LED_SPLIT:
 			led_keycode = KEYCODE_SPLIT;
+			break;
+		case LED_SEQUENCE:
+			led_keycode = KEYCODE_SEQUENCE;
 			break;
 	}
 }
@@ -181,21 +184,31 @@ void SetInitialKey(void)
 {
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	eKeyData_t key = KEY_NONE;
-	eChannel_t channel;
+	BYTE selectedLed;
+	BOOL seqOn;
 
-	if(IS_FULL_MODE(displayMode))
+	Read_NvItem_AutoOn(&seqOn);
+	if(seqOn == ON)
 	{
-		key = (eKeyData_t)displayMode+1;
-		channel = ConvertDisplayMode2Channel(displayMode);
+		key = KEY_AUTO_SEQ;
+		selectedLed = LED_SEQUENCE;
 	}
 	else
 	{
-		key = KEY_SPLIT;
-		channel = 0xFF;
+		if(IS_FULL_MODE(displayMode))
+		{
+			key = (eKeyData_t)displayMode+1;
+			selectedLed = ConvertDisplayMode2Channel(displayMode);
+		}
+		else
+		{
+			key = KEY_SPLIT;
+			selectedLed = LED_SPLIT;
+		}
 	}
 
 	UpdateKeyData(key);
-	TurnOnSelectedLed(channel);
+	TurnOnSelectedLed(selectedLed);
 	SetKeyReady();
 }
 

@@ -12,16 +12,16 @@
 #define FLASH_END_ADDR					0x080FFFFF
 
 #define FLASH_ADDRESS_PAGE(x)			x * FLASH_PAGE_SIZE + FLASH_START_ADDR
-#define	NV_STORAGE_START_ADDR			FLASH_ADDRESS_PAGE(200)//0x08080000
+#define NV_STORAGE_START_ADDR			FLASH_ADDRESS_PAGE(200)//0x08080000
 
 #define NVSTORAGE_START_CHECK			0xA5A5A5A5
 #define NVSTORAGE_END_CHECK				0x5A5A5A5A
 
-#define NV_VERSION_MAJOR				(uint8_t)1
-#define NV_VERSION_MINOR				(uint8_t)3
+#define NV_VERSION_MAJOR				(uint8_t)2
+#define NV_VERSION_MINOR				(uint8_t)0
 
-#define FW_VERSION_MAJOR				(uint8_t)90	//engineer version starts 90 
-#define FW_VERSION_MINOR				(uint8_t)3
+#define FW_VERSION_MAJOR				(uint8_t)0	//engineer version starts 90 
+#define FW_VERSION_MINOR				(uint8_t)1
 
 #define NV_SUCCESS						TRUE
 #define NV_FAIL							FALSE
@@ -75,6 +75,7 @@ typedef enum
 	NV_ITEM_DISPLAY_MODE,
 	NV_ITEM_SPLIT_MODE,
 	NV_ITEM_VPORT_MAP,
+	NV_ITEM_AUTO_ON,
 //------------------------------------------------------------------------------
 	NV_ITEM_END_CHECK,
 	NV_ITEM_MAX
@@ -189,6 +190,7 @@ typedef struct
 	eDisplayMode_t			displayMode;
 	eDisplayMode_t			splitMode;
 	eVPORT_MAP_t			vportMap;
+	BOOL				autoOn;
 	
 	uint32_t				storageEndCheck;
 } sNvData_t;
@@ -222,6 +224,8 @@ extern void Read_NvItem_SplitMode(eDisplayMode_t* pData);
 extern void Write_NvItem_SplitMode(eDisplayMode_t data);
 extern void Read_NvItem_VportMap(eVPORT_MAP_t* pData);
 extern void Write_NvItem_VportMap(eVPORT_MAP_t data);
+extern void Read_NvItem_AutoOn(BOOL* pData);
+extern void Write_NvItem_AutoOn(BOOL data);
 
 extern void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData);
 extern void Write_NvItem_TimeCorrect(sTimeCorrect_t data);

@@ -5,7 +5,7 @@
 #define DEFAULT_DISPLAY_TIME		3
 
 static eAutoSeqType_t autoSeqStatus = AUTO_SEQ_NONE;
-static u8 autoSeqOn = CLEAR;
+static u8 autoSeqOn = OFF;
 static u8 displayTime[NUM_OF_CHANNEL] = 0;
 static eChannel_t displayChannel = 0xFF;
 static u8 oldSkipChannels = NO_SKIP_CHANNEL;
@@ -69,7 +69,7 @@ static void InitializeAutoSeq_Normal(void)
 
 	OSD_EraseAllText();
 	// set autoSeqOn
-	ChangeAutoSeqOn(SET);
+	ChangeAutoSeqOn(ON);
 	// update display mode as full screen
 	DisplayScreen((eDisplayMode_t)displayChannel);
 	SetInputChanged();
@@ -114,12 +114,12 @@ void InitializeAutoSeq(eAutoSeqType_t type)
 			break;
 
 		case AUTO_SEQ_ALARM:
-			ChangeAutoSeqOn(CLEAR);
+			ChangeAutoSeqOn(OFF);
 			InitializeAutoSeq_Alarm();
 			break;
 
 		case AUTO_SEQ_NONE:
-			ChangeAutoSeqOn(CLEAR);
+			ChangeAutoSeqOn(OFF);
 			autoSeqStatus = AUTO_SEQ_NONE;
 			memset(displayTime, 0x00, sizeof(displayTime));
 			break;
@@ -234,14 +234,15 @@ BOOL GetAutoSeqOn(void)
 	return autoSeqOn;
 }
 
-void ChangeAutoSeqOn(BOOL set)
+void ChangeAutoSeqOn(BOOL on_off)
 {
-	autoSeqOn = set;
-	if(set == CLEAR)
+	autoSeqOn = on_off;
+	if(on_off == OFF)
 	{
 		oldSkipChannels = NO_SKIP_CHANNEL;
 		autoSeqStatus = AUTO_SEQ_NONE;
 	}
+	Write_NvItem_AutoOn(autoSeqOn);
 }
 
 eAutoSeqType_t GetCurrentAutoSeq(void)

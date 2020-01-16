@@ -24,13 +24,15 @@ NC_CH_E VO_Port[VPORT_MAP_MAX][4] =
 	{NC_PORT_B, NC_PORT_C, NC_PORT_D, NC_PORT_A}	// PIP with ch4
 };
 
+
+void NVP6168_ManualDetectionSet(void);
+void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt);
+
 void NVP6168_Init(void)
 {
-	NC_U8 ch;
-	
 	nc_drv_decoder_initialize();
-
 	DECODER_Video_Output_Set(0, NC_VO_WORK_MODE_1MUX);
+	NVP6168_ManualDetectionSet();
 }
 
 void NVP6168_AutoDetection_Proc(void)
@@ -54,6 +56,10 @@ void NVP6168_AutoDetection_Proc(void)
 				DECODER_Video_Input_Auto_Sequence_Set(ch);
 				EqStage = DECODER_Video_Input_EQ_Stage_Get(ch, &SamVal);
 				DECODER_Video_Input_EQ_Stage_Set(ch, EqStage);
+			}
+			else if(VO_PortMapChanged == 1)
+			{
+				NVP6168_OutPort_Set(0, ch, VideoFormat);
 			}
 		}
 		//Delay_ms(500);
@@ -112,5 +118,17 @@ void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt)
 NC_VIVO_CH_FORMATDEF_E NVP6168_Current_VideoFormat_Get(NC_U8 ch)
 {
 	return nc_drv_common_info_video_fmt_def_get(NVP_Ch[ch]);
+}
+
+
+void NVP6168_ManualDetectionSet(void)
+{
+	NC_U8 ch;
+
+	for(ch = 0; ch < TOTAL_CHANNEL_CNT; ch++)
+	{
+		DECODER_Video_Input_Manual_Set(ch, CABLE_3C2V, FMT_AHD, FMT_1080P, FMT_30P);
+		DECODER_SDK_Video_Auto_Manual_Mode_Set(ch, NC_VIDEO_SET_MODE_AUTO);
+	}
 }
 

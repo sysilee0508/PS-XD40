@@ -45,6 +45,7 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_DISPLAY_MODE, 				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_SPLIT_MODE,				sizeof(eDisplayMode_t),						CLEAR},
 		{NV_ITEM_VPORT_MAP,					sizeof(eVPORT_MAP_t),						CLEAR},
+		{NV_ITEM_AUTO_ON,					sizeof(BOOL),						CLEAR},
 		{NV_ITEM_END_CHECK,					sizeof(uint32_t),							CLEAR}
 };
 
@@ -128,7 +129,7 @@ static void LoadDefaultNvData(void)
 	nv_data.data.titleDisplayOn = ON;
 	for(index = CHANNEL1; index < NUM_OF_CHANNEL; index++)
 	{
-		nv_data.data.autoSeqTime[index] = 7;
+		nv_data.data.autoSeqTime[index] = 3;
 	}
 	nv_data.data.autoSeqLossSkip = ON;
 	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
@@ -165,7 +166,7 @@ static void LoadDefaultNvData(void)
 
 	nv_data.data.displayMode = DISPLAY_MODE_4SPLIT_QUAD;
 	nv_data.data.splitMode = DISPLAY_MODE_4SPLIT_QUAD;
-
+	nv_data.data.autoOn = OFF;
 
 	// set anyone of nv items dirty in order to write nv data to flash
 	nvInfo[NV_ITEM_END_CHECK].dirty = SET;
@@ -328,6 +329,16 @@ void Write_NvItem_VportMap(eVPORT_MAP_t data)
 	}
 	nv_data.data.vportMap = data;
 	nvInfo[NV_ITEM_VPORT_MAP].dirty = SET;
+}
+
+void Read_NvItem_AutoOn(BOOL *pData)
+{
+	*pData = nv_data.data.autoOn;
+}
+void Write_NvItem_AutoOn(BOOL data)
+{
+	nv_data.data.autoOn = data;
+	nvInfo[NV_ITEM_AUTO_ON].dirty = SET;
 }
 
 void Read_NvItem_TimeCorrect(sTimeCorrect_t *pData)

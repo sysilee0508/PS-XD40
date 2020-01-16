@@ -205,10 +205,9 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 { 
 	u32 rtcCount = RTC_GetCounter();
 	sTimeCorrect_t timeCorrection;
-	static sTimeDate_t timeDate;
+	sTimeDate_t timeDate;
 	static sTimeDate_t oldTimeDate;
-	static BOOL sub_flag;
-	static BYTE sub_cnt;
+	static BOOL subCorrection_done = FALSE;
 
 	if(RTC_GetRtcTimeStatus() == SET)
 	{
@@ -228,40 +227,36 @@ void RTC_GetTime(sTimeDate_t* rtcTimeDate)
 				if(timeCorrection.timeCorrectDirection == DIRECTION_UP) // + --> up / - --> down
 				{
 					rtcCount += timeCorrection.timeCorrectOffset;
-					sub_flag = 0;
-					RTC_WaitForLastTask();
-					RTC_SetCounter(rtcCount);
-					RTC_WaitForLastTask();
-
-					RTC_CalculateTimeDate(rtcCount, &timeDate);
 				}
 				else if(timeCorrection.timeCorrectDirection == DIRECTION_DOWN)// -
 				{
-					sub_cnt = timeCorrection.timeCorrectOffset;				
-	 				sub_flag = 1;
+					if(subCorrection_done == FALSE)
+					{
+						if(rtcCount > timeCorrection.timeCorrectOffset)
+						{
+							rtcCount -= timeCorrection.timeCorrectOffset;
+						}
+						else
+						{
+							rtcCount = 0;
+						}
+						
+						subCorrection_done = TRUE;
+					}
+					else		// true
+					{
+						subCorrection_done = FALSE;
+					}
 				}
-			}
-			
-			if(sub_flag == 1)
-			{
-				if(sub_cnt > 0)
-				{
-					sub_cnt--;
-				}	
-				else
-				{
-					sub_flag = 0;
-					rtcCount -= timeCorrection.timeCorrectOffset;
-					RTC_WaitForLastTask();
-					RTC_SetCounter(rtcCount);
-					RTC_WaitForLastTask();
+				RTC_WaitForLastTask();
+				RTC_SetCounter(rtcCount);
+				RTC_WaitForLastTask();
 
-					RTC_CalculateTimeDate(rtcCount, &timeDate);
-				}
+				RTC_CalculateTimeDate(rtcCount, &timeDate);
+				// boundary condition
+				RTC_CheckBoundaryCondition(&timeDate);
 			}
 		}
-		// boundary condition
-		RTC_CheckBoundaryCondition(&timeDate);
 
 		memcpy(rtcTimeDate, &timeDate, sizeof(timeDate));
 		oldTimeDate = timeDate;

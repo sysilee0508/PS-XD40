@@ -1033,6 +1033,8 @@ MDIN_ERROR_t MDIN3xx_SetDeinterCtrl(PMDIN_VIDEO_INFO pINFO)
 
 	// 8bit_motion_thres - deint_thres
 	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x211, 8, 8, 18)) return MDIN_I2C_ERROR; // fix deint_thres
+//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x211, 0, 8, 20)) return MDIN_I2C_ERROR; // deint_thers 1
+//	if (MDINHIF_RegField(MDIN_LOCAL_ID, 0x211, 8, 8, 20)) return MDIN_I2C_ERROR; // deint_thers 2
 
 	// caption_v_posi
 	if (MDINHIF_RegWrite(MDIN_LOCAL_ID, 0x251, pMFC->stMEM.h*3/4)) return MDIN_I2C_ERROR;

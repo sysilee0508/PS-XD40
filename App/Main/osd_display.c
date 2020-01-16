@@ -1382,9 +1382,8 @@ void OSD_DisplayVideoMode(void)
 			{
 				OSD_PrintString(inPosition, pInVideoStr, strlen(pInVideoStr));
 				OSD_PrintString(outPosition, pOutVideoStr, strlen((const u8*)pOutVideoStr));
-				
-				OSD_DisplayNoVideo();
 			}
+			OSD_DisplayNoVideo();
 		}
 		preInVideo = pInVideoStr;
 		preOutVideo = pOutVideoStr;

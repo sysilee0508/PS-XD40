@@ -132,9 +132,6 @@ NC_VIVO_CH_FORMATDEF_E nc_drv_video_h_v_cnt_check_get(NC_U8 dev, NC_U8 chn)
 
 }
 
-
-NC_U8 pre_vfc_test;
-NC_U8 cur_vfc_test;
 void nc_drv_video_input_vfc_status_get( void *pParam )
 {
 	NC_S32 ret = 0;
@@ -200,12 +197,13 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 				output = DATA_OUT_MODE_NO_VIDEO & 0x0F;
 			}
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x7a + (chn/2), output); // black screen
+#if 1
 			// kukuri added -->
 			// addr 7A and 7B - sholud be 0xFF
 			// addr 78 79 (background color) --> black
-			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x78, 0x88);
+			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x78, 0x88);		// 0x88 : Black  / 0x00 : Blue
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x79, 0x88);
-
+#endif
 			/* On -> No video -----------*/
 			NC_DEVICE_DRIVER_BANK_SET(dev, 0x05 + chn);
 			gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xB8, 0xB8);
@@ -214,7 +212,6 @@ void nc_drv_video_input_vfc_status_get( void *pParam )
 			fmt_change = 1;
 			//printk("[NC_DRV_VFC]NoVideo >>> Chn::%d[pre(0x%02X)->cur(0x%02X)]\n", info_chn, pre_vfc, cur_vfc);
 		}
-
 		if(cur_vfc == 0x3A || cur_vfc == 0x3B || (cur_vfc >= 0xA4 && cur_vfc <= 0xA7))
 		{
 			cur_vfc = 0xE0;
@@ -1199,7 +1196,7 @@ void nc_drv_video_output_color_pattern_set( void *pParam )
 	{
 		// Color Pattern ON
 		NC_DEVICE_DRIVER_BANK_SET(dev, BANK_0);
-#if 0 
+#if 1 
 		bgdcol = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x78 + (chn/2));
 		bgdcol = bgdcol & chn_mask;
 		if( chn%2 )
@@ -1492,7 +1489,6 @@ void internal_nc_drv_video_sd_format_set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMAT
 		chn_mask = gpio_i2c_read(g_nc_drv_i2c_addr[dev], 0x54);
 		// chn_bit 0 -> 1
 		chn_mask = chn_mask|(0x01<<(4+chn));
-		//chn_mask &= ~(0x01<<(4+chn));	//kukuri
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x54, chn_mask);
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x08 + chn, 0xa0);
 		gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0x5c + chn, 0xd0);

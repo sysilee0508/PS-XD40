@@ -11,6 +11,8 @@
 //#define MDIN_TEST_PATTERN
 extern BYTE	TPIAddr;
 extern BOOL forceFreezeOn;
+
+extern void InitRegisterSet();
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
@@ -79,7 +81,7 @@ static void PlayBuzzer(void)
  
 void main(void)
 {
-	eResolution_t outRes;
+	//eResolution_t outRes;
 	
 	I2C_SET_CHANNEL(I2C_MAIN);
 	// initialize STM32F103x
@@ -137,6 +139,13 @@ void main(void)
 	InitVideoLossCheck();
 	InitializeMotionDetect();
 
+#if BD_NVP == NVP6158
+	NVP6158_VideoDetectionProc();
+#elif BD_NVP == NVP6168
+	NVP6168_AutoDetection_Proc();
+#endif
+	Delay_ms(10);
+
 	// initialize Debug Serial
 	USART3_Init();
 
@@ -146,8 +155,8 @@ void main(void)
 	Osd_ClearScreen();
 
 	// Init TP2912
-	Read_NvItem_Resolution(&outRes);
-	InitRegisterSet(outRes);
+	//Read_NvItem_Resolution(&outRes);
+	InitRegisterSet();
 	
 	SetInitialKey();
 
@@ -200,7 +209,7 @@ void main(void)
 		if(forceFreezeOn == SET)
 		{
 			forceFreezeOn = CLEAR;
-			//Delay_ms(50);
+			//Delay_ms(1000);
 			MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
 			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
 		}

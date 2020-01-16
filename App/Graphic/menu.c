@@ -207,7 +207,9 @@ static u8 ConvertIndex2Char(u8 index)
 		character = valuableCharacters[index];
 	}
 	else
+	{
 		character = NULL;
+	}	
 
 	return character;
 }
@@ -752,6 +754,10 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 								IncreaseDecreaseCount(GetDaysInMonth(currentTime.month, currentTime.year), 1, inc_dec, &currentTime.day, TRUE);
 								break;
 						}
+						if(currentTime.day > GetDaysInMonth(currentTime.month, currentTime.year))
+						{
+							currentTime.day = GetDaysInMonth(currentTime.month, currentTime.year);
+						}
 						RTC_SetTime(&currentTime);
 						break;
 
@@ -814,6 +820,7 @@ static void TimeDatePage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
+				Toggle(&inc_dec);
 				IncreaseDecreaseCount(7, 1, inc_dec, &timeSetup_itemY, TRUE);
 				DrawSelectMark(timeSetup_itemY);
 				timeSetup_posX = 0;
@@ -893,6 +900,30 @@ const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 		{20, LINE6_OFFSET_Y, menuStr_CameraTitle_VideoLossBuzzerTime}
 };
 static u8 channel_name[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX+1] = {0,};
+
+static void ConvertSpaceToNull(u8* pTitle)
+{
+	u8 titleLength;
+	u8 ii;
+	u8 title[CHANNEL_NEME_LENGTH_MAX+1] = {0,};
+
+	titleLength = strlen(pTitle);
+	memcpy(title, pTitle, titleLength);
+
+	for(ii = titleLength-1; ii > 0; ii--)
+	{
+		if(title[ii] == ASCII_SPACE)
+		{
+			title[ii] = NULL;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	memcpy(pTitle, title, CHANNEL_NEME_LENGTH_MAX);
+}
 
 static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 {
@@ -1001,7 +1032,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 	  	case KEY_UP  :
 	  		inc_dec = INCREASE;
 		case KEY_DOWN  :
-	    	if(requestEnterKeyProc)
+	    		if(requestEnterKeyProc)
 			{  
 				switch(itemY)
 				{
@@ -1029,6 +1060,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
+				Toggle(&inc_dec);
 				IncreaseDecreaseCount(CAMERATITLE_ITEM_Y_MAX - 1, 1,inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);
 			}
@@ -1091,6 +1123,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					{
 						channel_name[channel][pos_x] = NULL;
 					}
+					ConvertSpaceToNull(channel_name[channel]);
 					Write_NvItem_ChannelName(channel_name[channel], channel);
 				}
 				itemY = CAMERATITLE_ITEM_Y_CH1;
@@ -1124,19 +1157,19 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 
 	switch(itemY)
 	{
-    	case AUTOSEQ_ITEM_Y_CH1_DISPLAY_TIME :
-    	case AUTOSEQ_ITEM_Y_CH2_DISPLAY_TIME:
-    	case AUTOSEQ_ITEM_Y_CH3_DISPLAY_TIME:
-    	case AUTOSEQ_ITEM_Y_CH4_DISPLAY_TIME:
-    		Read_NvItem_AutoSeqTime(displayTime);
+	    	case AUTOSEQ_ITEM_Y_CH1_DISPLAY_TIME :
+	    	case AUTOSEQ_ITEM_Y_CH2_DISPLAY_TIME:
+	    	case AUTOSEQ_ITEM_Y_CH3_DISPLAY_TIME:
+	    	case AUTOSEQ_ITEM_Y_CH4_DISPLAY_TIME:
+	    		Read_NvItem_AutoSeqTime(displayTime);
 			if(displayTime[itemY-1] == 0)
 			{
 				// print OFF
 				Print_StringWithSelectedMarkSize(
 						autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
 						autoSeqMenu[itemY].offset_y,
-				        menuStr_Space6, 
-				        NULL, strlen(menuStr_Space6));
+					        menuStr_Space6, 
+					        NULL, strlen(menuStr_Space6));
 				Print_StringWithSelectedMark(
 						autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
 						autoSeqMenu[itemY].offset_y,
@@ -1171,8 +1204,8 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
     			Print_StringWithSelectedMarkSize(
     					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
 						autoSeqMenu[itemY].offset_y,
-    					menuStr_Space9,
-    					NULL, strlen(menuStr_Space9));
+    					menuStr_Space13,
+    					NULL, strlen(menuStr_Space13));
     			Print_StringWithSelectedMarkSize(
     					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
 						autoSeqMenu[itemY].offset_y,
@@ -1232,7 +1265,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 					case AUTOSEQ_ITEM_Y_CH3_DISPLAY_TIME:
 					case AUTOSEQ_ITEM_Y_CH4_DISPLAY_TIME:
 						Read_NvItem_AutoSeqTime(autoSeqTime);
-						IncreaseDecreaseCount(60,5,inc_dec, &autoSeqTime[itemY-1], TRUE);
+						IncreaseDecreaseCount(60,0,inc_dec, &autoSeqTime[itemY-1], TRUE);
 						Write_NvItem_AutoSeqTime(autoSeqTime);
 						break;
 					case AUTOSEQ_ITEM_Y_LOSS_SKIP:
@@ -1245,6 +1278,7 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
+				Toggle(&inc_dec);
 				IncreaseDecreaseCount(5, 1, inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);
 			}
@@ -1521,6 +1555,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
+				Toggle(&inc_dec);
 				IncreaseDecreaseCount(DISPLAY_ITEM_Y_MAX - 1, 1, inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);
 			}
@@ -1753,8 +1788,8 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 			if(nv_data != 0)
 			{
 				Int2Str(nv_data, str2digit);
-                Print_StringWithSelectedMarkSize(
-                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
+				Print_StringWithSelectedMarkSize(
+						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Space3,
 						NULL, strlen(menuStr_Space3));
@@ -1769,19 +1804,19 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
 						menuStr_Sec,
 						NULL, 0);
 			}
-            else // print OFF
-            {
-                Print_StringWithSelectedMarkSize(
-                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
+			else // print OFF
+			{
+			    Print_StringWithSelectedMarkSize(
+			    		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Space6,
 						NULL, strlen(menuStr_Space6));
-                Print_StringWithSelectedMark(
-                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
+			    Print_StringWithSelectedMark(
+			    		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Off,
 						attribute, strlen(menuStr_Off));
-            }
+			}
 
 			break;
 
@@ -1956,6 +1991,7 @@ static void AlaramRemoconPage_KeyHandler(eKeyData_t key)
 			}
 			else 
 			{
+				Toggle(&inc_dec);
 				IncreaseDecreaseCount(ALARM_ITEM_Y_MAX-1, 1, inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);//,0);
 			}
@@ -2214,6 +2250,7 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 				}
 				else
 				{
+					Toggle(&inc_dec);
 					IncreaseDecreaseCount(6, 1, inc_dec, &itemY, TRUE);
 					DrawSelectMark(itemY);
 				}
@@ -2406,9 +2443,9 @@ static void MainPage_KeyHandler(eKeyData_t key)
 
  	switch(key)
 	{
-		case KEY_UP :
-			inc_dec = INCREASE;
 		case KEY_DOWN :
+			inc_dec = INCREASE;
+		case KEY_UP :
 			if(showAlarmMenu == FALSE)
 			{
 				IncreaseDecreaseCount(MAINMENU_ITEM_Y_MAX - 2, 1, inc_dec, &itemY, TRUE);
@@ -2447,7 +2484,15 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			}
 			StoreNvDataToStorage();
 			// turn on button leds
-			TurnOnSelectedLed(ConvertDisplayMode2Channel(displayMode));
+			if(IS_FULL_MODE(displayMode) == TRUE)
+			{
+				TurnOnSelectedLed(ConvertDisplayMode2Channel(displayMode));
+			}
+			else
+			{
+				TurnOnSelectedLed(LED_SPLIT);
+			}
+	
 			break;
 	}
 }

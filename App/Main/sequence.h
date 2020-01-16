@@ -17,7 +17,7 @@ extern void InitializeAutoSeq(eAutoSeqType_t type);
 extern void UpdateAutoSeqCount(void);
 extern void DisplayAutoSeqChannel(void);
 extern BOOL GetAutoSeqOn(void);
-extern void ChangeAutoSeqOn(BOOL set);
+extern void ChangeAutoSeqOn(BOOL on_off);
 extern eAutoSeqType_t GetCurrentAutoSeq(void);
 
 #endif
