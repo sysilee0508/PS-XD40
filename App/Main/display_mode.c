@@ -38,37 +38,44 @@ static BYTE Get_CurrentVideoFormat(eChannel_t channel)
 static BOOL Check_VideoFormat_Change(void)
 {
 	eChannel_t channel;
-	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0,};
+	static BYTE oPreVideofmt[NUM_OF_CHANNEL] = {0xFF, 0xFF};
+	BYTE currentVideoFmt[NUM_OF_CHANNEL];
+	BYTE changedChannel = 0x00;
 	BYTE videoFormatChanged = FALSE;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 
-	if(displayMode == DISPLAY_MODE_FULL_CH1)
+	for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
 	{
-		if(Get_CurrentVideoFormat(CHANNEL1) != oPreVideofmt[CHANNEL1])
+		currentVideoFmt[channel] = Get_CurrentVideoFormat(channel) ;
+		if((currentVideoFmt[channel] != oPreVideofmt[channel]) && (currentVideoFmt[channel] != 0))
 		{
-			oPreVideofmt[CHANNEL1] = Get_CurrentVideoFormat(CHANNEL1);
-			videoFormatChanged = TRUE;
+			changedChannel |= (0x01 << channel);
+			oPreVideofmt[channel] = currentVideoFmt[channel];
 		}
 	}
-	else if(displayMode == DISPLAY_MODE_FULL_CH2)
+
+	switch(displayMode)
 	{
-		if(Get_CurrentVideoFormat(CHANNEL2) != oPreVideofmt[CHANNEL2])
-		{
-			oPreVideofmt[CHANNEL2] = Get_CurrentVideoFormat(CHANNEL2);
-			videoFormatChanged = TRUE;
-		}
-	}
-	else
-	{
-		for(channel = CHANNEL1; channel <NUM_OF_CHANNEL; channel++)
-		{
-			if(Get_CurrentVideoFormat(channel) != oPreVideofmt[channel])
-			{
-				oPreVideofmt[channel] = Get_CurrentVideoFormat(channel);
+		case DISPLAY_MODE_FULL_CH1:
+			if((changedChannel & 0x01) == 0x01)
 				videoFormatChanged = TRUE;
-				break;
-			}
-		}
+			else
+				videoFormatChanged = FALSE;
+			break;
+
+		case DISPLAY_MODE_FULL_CH2:
+			if((changedChannel & 0x10) == 0x10)
+				videoFormatChanged = TRUE;
+			else
+				videoFormatChanged = FALSE;
+			break;
+
+		default:
+			if(changedChannel > 0x00)
+				videoFormatChanged = TRUE;
+			else
+				videoFormatChanged = FALSE;
+			break;
 	}
 
 	return videoFormatChanged;	

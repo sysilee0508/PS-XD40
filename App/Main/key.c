@@ -12,6 +12,7 @@
 //=============================================================================
 //  Global Variable Declaration
 //=============================================================================
+BOOL forceFreezeOn = CLEAR;
 
 //=============================================================================
 //  Static Variable Declaration
@@ -272,6 +273,7 @@ void Key_Proc(void)
 				// If key is changed...
 				if(previous_keydata != key)
 				{
+					forceFreezeOn = SET;
 					DisplayScreen((eDisplayMode_t)(key - 1));
 					requestOsd = TRUE;
 				}
@@ -280,6 +282,7 @@ void Key_Proc(void)
 				// If key is changed...
 				if(previous_keydata != key)
 				{
+					forceFreezeOn = SET;
 					if((previous_keydata == KEY_FULL_CH1 ) ||(previous_keydata == KEY_FULL_CH2))
 					{
 						DisplayScreen((eDisplayMode_t)split+DISPLAY_MODE_SPLIT_A);
@@ -314,25 +317,10 @@ void Key_Proc(void)
 						}
 					}
 				}
+				forceFreezeOn = SET;
 				DisplayScreen((eDisplayMode_t)split+DISPLAY_MODE_SPLIT_A);
 				requestOsd = TRUE;
 				break;
-/*
-			case KEY_SPLIT_LONG:
-				if(previous_keydata == KEY_SPLIT)
-				{
-					split = ++split % NUM_OF_SPLIT;
-				}
-				else
-				{
-					Key_Led_Ctrl(KEY_SPLIT);
-				}
-				OSD_EraseAllText();
-				OSD_RefreshScreen();
-				DisplayScreen(split+DISPLAY_MODE_SPLIT_A);
-				OSD_DrawBorderLine();
-				break;
-*/
 		}
 
 		if(requestOsd == TRUE)
