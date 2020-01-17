@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
+extern BOOL forceFreezeOn;
 
 //=============================================================================
 //  main function
@@ -87,12 +88,25 @@ void main(void)
 		Delay_ms(1);
 		
 		UpdateDisplayMode();
+
+		if(forceFreezeOn == SET)
+		{
+			MDIN3xx_EnableMainFreeze(ON);
+			MDIN3xx_EnableAuxFreeze(&stVideo, ON);
+		}
 		// video process handler
 		VideoProcessHandler();
 		// delay for HDMI-Tx register !!
 		Delay_ms(1);
 		// video HDMI-TX handler	//maybe error is occured when register read speed is very fast.
 		VideoHTXCtrlHandler();
+		if(forceFreezeOn == SET)
+		{
+			forceFreezeOn = CLEAR;
+			Delay_ms(100);
+			MDIN3xx_EnableMainFreeze(OFF);
+			MDIN3xx_EnableAuxFreeze(&stVideo, OFF);
+		}
 		OSD_Display();
 		StoreNvDataToStorage();
     }
