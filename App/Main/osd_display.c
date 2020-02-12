@@ -1716,7 +1716,8 @@ void OSD_DisplayChannelName(void)
 
 	Read_NvItem_TitleDispalyOn(&titleDisplayOn);
 
-	if(titleDisplayOn == ON)
+	if((titleDisplayOn == ON) && (requestRefreshScreen == SET))
+	//if(titleDisplayOn == ON)
 	{
 		switch(displayMode)
 		{

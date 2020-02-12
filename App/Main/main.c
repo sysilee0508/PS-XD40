@@ -213,6 +213,7 @@ void main(void)
 			MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
 			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
 		}
+		MDINDLY_mSec(1);
 		OSD_Display();
 		StoreNvDataToStorage();
     }

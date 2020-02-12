@@ -120,7 +120,6 @@ NC_VIVO_CH_FORMATDEF_E NVP6168_Current_VideoFormat_Get(NC_U8 ch)
 	return nc_drv_common_info_video_fmt_def_get(NVP_Ch[ch]);
 }
 
-
 void NVP6168_ManualDetectionSet(void)
 {
 	NC_U8 ch;
