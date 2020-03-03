@@ -146,6 +146,7 @@ static const sPosition_t videoLossPosition_Full =
 };
 
 static BOOL requestRefreshScreen = CLEAR;
+static BOOL boarderLineUpdate = CLEAR;
 
 static u8 videoModeDisplayCount[NUM_OF_CHANNEL] = 
 {
@@ -1325,6 +1326,7 @@ void OSD_DisplayVideoMode(void)
 	static u8* preOutVideo = NULL;
 //	u8 num_of_channels = 1;
 
+/*
 	if((preDisplayMode != displayMode) && (preDisplayMode != DISPLAY_MODE_MAX))
 	{
 		for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
@@ -1334,7 +1336,7 @@ void OSD_DisplayVideoMode(void)
 		preInVideo = NULL;
 	}
 	preDisplayMode = displayMode;
-
+*/
 //	if(IS_FULL_MODE(displayMode) == TRUE)	num_of_channels = 1;
 //	else if((IS_PIP_MODE(displayMode) == TRUE) || (IS_2SPLIT_MODE(displayMode) == TRUE)	num_of_channels = 2;
 //	else if(IS_4SPLIT_MODE(displayMode) == TRUE)	num_of_channels = 4;
@@ -1536,6 +1538,8 @@ static void OSD_DisplayIndicator(void)
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	BOOL videoLossDiplayOn;
 	u8* pIndicator;
+	static u8* preIndicator[4]= NULL;
+	static eDisplayMode_t preMode;
 
 	switch(displayMode)
 	{
@@ -1545,8 +1549,12 @@ static void OSD_DisplayIndicator(void)
 		case DISPLAY_MODE_FULL_CH4:
 			channel = ConvertDisplayMode2Channel(displayMode);
 			pIndicator = FindIndicator(displayMode, channel);
-			position = OSD_IndicatorStringPosition(channel, displayMode, strlen((const u8*)pIndicator));
-			OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			//if((displayMode != preMode) || (pIndicator != preIndicator[0]))
+			{
+				position = OSD_IndicatorStringPosition(channel, displayMode, strlen((const u8*)pIndicator));
+				OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			}
+			//preIndicator[0] = pIndicator;
 			break;
 
 		case DISPLAY_MODE_PIP_A2:
@@ -1563,14 +1571,22 @@ static void OSD_DisplayIndicator(void)
 		case DISPLAY_MODE_PIP_D4:
 			// channel 1
 			pIndicator = FindIndicator(DISPLAY_MODE_FULL_CH1, CHANNEL1);
-			position = OSD_IndicatorStringPosition(CHANNEL1, displayMode, strlen((const u8*)pIndicator));
-			OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			//if((displayMode != preMode) || (pIndicator != preIndicator[0]))
+			{
+				position = OSD_IndicatorStringPosition(CHANNEL1, displayMode, strlen((const u8*)pIndicator));
+				OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			}
+			//preIndicator[0] = pIndicator;
 
 			// sub channel
 			channel = FindAuxChannel(displayMode, MDIN_ID_A);
 			pIndicator = FindIndicator(displayMode, channel);		
-			position = OSD_IndicatorStringPosition(channel, displayMode, strlen((const u8*)pIndicator));
-			OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			//if((displayMode != preMode) || (pIndicator != preIndicator[1]))
+			{
+				position = OSD_IndicatorStringPosition(channel, displayMode, strlen((const u8*)pIndicator));
+				OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			}
+			//preIndicator[1] = pIndicator;
 			break;
 			
 		case DISPLAY_MODE_4SPLIT_QUAD:
@@ -1587,8 +1603,12 @@ static void OSD_DisplayIndicator(void)
 			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 			{
 				pIndicator = FindIndicator(displayMode, channel);
-				position = OSD_IndicatorStringPosition(channel, displayMode, strlen((const u8*)pIndicator));
-				OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+				//if((displayMode != preMode) || (pIndicator != preIndicator[channel]))
+				{
+					position = OSD_IndicatorStringPosition(channel, displayMode, strlen((const u8*)pIndicator));
+					OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+				}
+				//preIndicator[channel] = pIndicator;
 			}
 			break;
 
@@ -1598,13 +1618,21 @@ static void OSD_DisplayIndicator(void)
 		case DISPLAY_MODE_2SPLIT_VCROP_A:
 			// channel 1
 			pIndicator = FindIndicator(displayMode, CHANNEL1);
-			position = OSD_IndicatorStringPosition(CHANNEL1, displayMode, strlen((const u8*)pIndicator));
-			OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
-
+			//if((displayMode != preMode) || (pIndicator != preIndicator[0]))
+			{
+				position = OSD_IndicatorStringPosition(CHANNEL1, displayMode, strlen((const u8*)pIndicator));
+				OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			}
+			//preIndicator[0] = pIndicator;
+			
 			// channel 2
 			pIndicator = FindIndicator(displayMode, CHANNEL2);
-			position = OSD_IndicatorStringPosition(CHANNEL2, displayMode, strlen((const u8*)pIndicator));
-			OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			//if((displayMode != preMode) || (pIndicator != preIndicator[1]))
+			{
+				position = OSD_IndicatorStringPosition(CHANNEL2, displayMode, strlen((const u8*)pIndicator));
+				OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			}
+			//preIndicator[1] = pIndicator;
 			break;
 
 		case DISPLAY_MODE_2SPLIT_HSCALE_B:
@@ -1613,13 +1641,21 @@ static void OSD_DisplayIndicator(void)
 		case DISPLAY_MODE_2SPLIT_VCROP_B:
 			// channel 3
 			pIndicator = FindIndicator(displayMode, CHANNEL3);
-			position = OSD_IndicatorStringPosition(CHANNEL3, displayMode, strlen((const u8*)pIndicator));
-			OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			//if((displayMode != preMode) || (pIndicator != preIndicator[0]))
+			{
+				position = OSD_IndicatorStringPosition(CHANNEL3, displayMode, strlen((const u8*)pIndicator));
+				OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			}
+			//preIndicator[0] = pIndicator;
 
 			// channel 4
 			pIndicator = FindIndicator(displayMode, CHANNEL4);
-			position = OSD_IndicatorStringPosition(CHANNEL4, displayMode, strlen((const u8*)pIndicator));
-			OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			//if((displayMode != preMode) || (pIndicator != preIndicator[1]))
+			{
+				position = OSD_IndicatorStringPosition(CHANNEL4, displayMode, strlen((const u8*)pIndicator));
+				OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+			}
+			//preIndicator[0] = pIndicator;
 			break;
 			
 		case DISPLAY_MODE_3SPLIT_R2SCALE:
@@ -1633,11 +1669,17 @@ static void OSD_DisplayIndicator(void)
 			for(channel = CHANNEL1; channel < NUM_OF_CHANNEL-1; channel++)
 			{
 				pIndicator = FindIndicator(displayMode, channel);
-				position = OSD_IndicatorStringPosition(channel, displayMode, strlen((const u8*)pIndicator));
-				OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+				//if((displayMode != preMode) || (pIndicator != preIndicator[channel]))
+				{
+					position = OSD_IndicatorStringPosition(channel, displayMode, strlen((const u8*)pIndicator));
+					OSD_PrintString(position, (const u8*)pIndicator, strlen((const u8*)pIndicator));
+				}
+				//preIndicator[channel] = pIndicator;
 			}
 			break;
 	}
+
+	preMode = displayMode;
 }
 
 //-----------------------------------------------------------------------------
@@ -1701,9 +1743,9 @@ void OSD_PrintString(sPosition_t position, const u8 *pData, u16 size)
 //	ConfigI2C(MDIN_ID_C);
 	M380_ID = MDIN_ID_C;
 	
-	OSD_SetFontGAC(SPRITE_INDEX0);
+	//OSD_SetFontGAC(SPRITE_INDEX0);
 	MDINGAC_SetDrawXYMode(position.pos_y, position.pos_x, (PBYTE)pData, size, 0);
-	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
+	//MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
 
 void OSD_DisplayChannelName(void)
@@ -1901,7 +1943,7 @@ void OSD_Display(void)
 		OSD_DisplayDateTime();
 		OSD_DisplayChannelName();
 		OSD_DisplayVideoMode();
-		Delay_us(10);
+		//Delay_us(10);
 		//OSD_DisplayNoVideo();
 		OSD_DisplayAuto();
 		OSD_DisplayIndicator();
@@ -1915,260 +1957,278 @@ void OSD_Display(void)
 }
 
 
+void OSD_SetBoaderLine(void)
+{
+	boarderLineUpdate = SET;
+}
+
+
 //-----------------------------------------------------------------------------
 void OSD_DrawBorderLine(void)	//DONE
 {
 	BOOL border_line;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	//static eDisplayMode_t prevMode = 0xFF;
+	//static BOOL prevBorder = ON;
 
-	Read_NvItem_BorderLineDisplay(&border_line);
 
-	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+	if(boarderLineUpdate == SET)
+	{
+		boarderLineUpdate = CLEAR;
+		Read_NvItem_BorderLineDisplay(&border_line);
+
+	//if((border_line == OFF) ||( (IS_FULL_MODE(displayMode) == TRUE) && (GetSystemMode() == SYSTEM_NORMAL_MODE))|| (prevMode != displayMode))
+	{
+		MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+		MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+	}
 
 	if(border_line == ON)
 	{
-//		ConfigI2C(MDIN_ID_C);
-
-		MDINOSD_SetBGBoxColor(WHITE(GetCurrentColorFormat()));
-		switch(displayMode)
+		//if(( (IS_FULL_MODE(displayMode) == FALSE) && (prevMode != displayMode)) || (forceUpdate == TRUE))
 		{
-			case DISPLAY_MODE_3SPLIT_R2SCALE:
-			case DISPLAY_MODE_3SPLIT_R2CROP:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_HALF_WIDTH-1, DISPLAY_HALF_HEIGHT-1, DISPLAY_HALF_WIDTH, 2);	//h
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);	//v
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				break;
-				
-			case DISPLAY_MODE_3SPLIT_L2SCALE:
-			case DISPLAY_MODE_3SPLIT_L2CROP:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_HALF_WIDTH, 2);	//h
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				break;
-				
-			case DISPLAY_MODE_3SPLIT_D2SCALE:
-			case DISPLAY_MODE_3SPLIT_D2CROP:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, DISPLAY_HALF_HEIGHT-1, 2, DISPLAY_HALF_HEIGHT);
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				break;
-				
-			case DISPLAY_MODE_3SPLIT_U2SCALE:
-			case DISPLAY_MODE_3SPLIT_U2CROP:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HALF_HEIGHT);
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				break;
-				
-				
-			case DISPLAY_MODE_4SPLIT_QUAD:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				break;
+			MDINOSD_SetBGBoxColor(WHITE(GetCurrentColorFormat()));
+			switch(displayMode)
+			{
+				case DISPLAY_MODE_3SPLIT_R2SCALE:
+				case DISPLAY_MODE_3SPLIT_R2CROP:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_HALF_WIDTH-1, DISPLAY_HALF_HEIGHT-1, DISPLAY_HALF_WIDTH, 2);	//h
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);	//v
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					break;
+					
+				case DISPLAY_MODE_3SPLIT_L2SCALE:
+				case DISPLAY_MODE_3SPLIT_L2CROP:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_HALF_WIDTH, 2);	//h
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					break;
+					
+				case DISPLAY_MODE_3SPLIT_D2SCALE:
+				case DISPLAY_MODE_3SPLIT_D2CROP:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, DISPLAY_HALF_HEIGHT-1, 2, DISPLAY_HALF_HEIGHT);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					break;
+					
+				case DISPLAY_MODE_3SPLIT_U2SCALE:
+				case DISPLAY_MODE_3SPLIT_U2CROP:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HALF_HEIGHT);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					break;
+					
+					
+				case DISPLAY_MODE_4SPLIT_QUAD:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					break;
 
-			case DISPLAY_MODE_4SPLIT_R3SCALE:
-			case DISPLAY_MODE_4SPLIT_R3CROP:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_WIDTH - (DISPLAY_WIDTH/3)-1, 0, 2, DISPLAY_HEIGHT);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_WIDTH - (DISPLAY_WIDTH/3), DISPLAY_HEIGHT / 3 - 1, DISPLAY_WIDTH/3, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, DISPLAY_WIDTH - (DISPLAY_WIDTH/3), DISPLAY_HEIGHT / 3 * 2, DISPLAY_WIDTH/3, 2);
+				case DISPLAY_MODE_4SPLIT_R3SCALE:
+				case DISPLAY_MODE_4SPLIT_R3CROP:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_WIDTH - (DISPLAY_WIDTH/3)-1, 0, 2, DISPLAY_HEIGHT);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_WIDTH - (DISPLAY_WIDTH/3), DISPLAY_HEIGHT / 3 - 1, DISPLAY_WIDTH/3, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX2, DISPLAY_WIDTH - (DISPLAY_WIDTH/3), DISPLAY_HEIGHT / 3 * 2, DISPLAY_WIDTH/3, 2);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+					break;
+
+				case DISPLAY_MODE_4SPLIT_L3SCALE:
+				case DISPLAY_MODE_4SPLIT_L3CROP:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, (DISPLAY_WIDTH/3)-1, 0, 2, DISPLAY_HEIGHT);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 0, DISPLAY_HEIGHT/3-1, DISPLAY_WIDTH/3, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 0, (DISPLAY_HEIGHT/3) * 2, DISPLAY_WIDTH/3, 2);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+					break;
+
+				case DISPLAY_MODE_4SPLIT_D3SCALE:
+				case DISPLAY_MODE_4SPLIT_D3CROP:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, (DISPLAY_HEIGHT/3)*2, DISPLAY_WIDTH, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)*2, 2, DISPLAY_HEIGHT/3);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX2, (DISPLAY_WIDTH/3) * 2, (DISPLAY_HEIGHT/3)*2, 2, DISPLAY_HEIGHT/3);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+					break;
+
+				case DISPLAY_MODE_4SPLIT_U3SCALE:
+				case DISPLAY_MODE_4SPLIT_U3CROP:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, (DISPLAY_HEIGHT/3)-1, DISPLAY_WIDTH, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_WIDTH/3, 0, 2, DISPLAY_HEIGHT/3);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX2, (DISPLAY_WIDTH/3) * 2, 0, 2, DISPLAY_HEIGHT/3);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+					break;
+
+				case DISPLAY_MODE_4SPLIT_H:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_QUAD_WIDTH-1, DISPLAY_HALF_HEIGHT-1, DISPLAY_HALF_WIDTH, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_QUAD_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX2, DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+					break;
+
+				case DISPLAY_MODE_4SPLIT_X:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_QUAD_HEIGHT-1, DISPLAY_WIDTH, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 0, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT-1, DISPLAY_WIDTH, 2);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX2, DISPLAY_HALF_WIDTH-1, DISPLAY_QUAD_HEIGHT-1, 2, DISPLAY_HALF_HEIGHT);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+					break;
+					
+				case DISPLAY_MODE_2SPLIT_HSCALE_A:
+				case DISPLAY_MODE_2SPLIT_HCROP_A:
+				case DISPLAY_MODE_2SPLIT_HSCALE_B:
+				case DISPLAY_MODE_2SPLIT_HCROP_B:
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
+					break;
+
+				case DISPLAY_MODE_2SPLIT_VSCALE_A:
+				case DISPLAY_MODE_2SPLIT_VCROP_A:
+				case DISPLAY_MODE_2SPLIT_VSCALE_B:
+				case DISPLAY_MODE_2SPLIT_VCROP_B:
+					MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+					break;
+
+			case DISPLAY_MODE_PIP_A2:
+			case DISPLAY_MODE_PIP_A3:
+			case DISPLAY_MODE_PIP_A4:
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 
+					DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080, 
+					PIP_POSITION_MARGIN_1080, 
+					PIP_WINDOW_WIDTH_1080, 1);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 
+					DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080, 
+					PIP_POSITION_MARGIN_1080 + PIP_WINDOW_HEIGHT_1080, 
+					PIP_WINDOW_WIDTH_1080, 1);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 
+					DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080-1,		// 190905
+					PIP_POSITION_MARGIN_1080, 
+					1, PIP_WINDOW_HEIGHT_1080);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 
+					DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080, 
+					PIP_POSITION_MARGIN_1080, 
+					1, PIP_WINDOW_HEIGHT_1080);
+
 				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
 				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
 				break;
 
-			case DISPLAY_MODE_4SPLIT_L3SCALE:
-			case DISPLAY_MODE_4SPLIT_L3CROP:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, (DISPLAY_WIDTH/3)-1, 0, 2, DISPLAY_HEIGHT);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 0, DISPLAY_HEIGHT/3-1, DISPLAY_WIDTH/3, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 0, (DISPLAY_HEIGHT/3) * 2, DISPLAY_WIDTH/3, 2);
+			case DISPLAY_MODE_PIP_B2:
+			case DISPLAY_MODE_PIP_B3:
+			case DISPLAY_MODE_PIP_B4:
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 
+					PIP_POSITION_MARGIN_1080, 
+					DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080 -PIP_WINDOW_HEIGHT_1080, 
+					PIP_WINDOW_WIDTH_1080, 1);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 
+					PIP_POSITION_MARGIN_1080, 
+					DISPLAY_HEIGHT - PIP_POSITION_MARGIN_1080, 
+					PIP_WINDOW_WIDTH_1080, 1);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 
+					PIP_POSITION_MARGIN_1080-1, 		// 190905
+					DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080 -PIP_WINDOW_HEIGHT_1080, 
+					1, PIP_WINDOW_HEIGHT_1080);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 
+					PIP_POSITION_MARGIN_1080 + PIP_WINDOW_WIDTH_1080, 
+					DISPLAY_HEIGHT- PIP_POSITION_MARGIN_1080 - PIP_WINDOW_HEIGHT_1080, 
+					1, PIP_WINDOW_HEIGHT_1080);
+
 				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
 				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
 				break;
 
-			case DISPLAY_MODE_4SPLIT_D3SCALE:
-			case DISPLAY_MODE_4SPLIT_D3CROP:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, (DISPLAY_HEIGHT/3)*2, DISPLAY_WIDTH, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_WIDTH/3, (DISPLAY_HEIGHT/3)*2, 2, DISPLAY_HEIGHT/3);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, (DISPLAY_WIDTH/3) * 2, (DISPLAY_HEIGHT/3)*2, 2, DISPLAY_HEIGHT/3);
+			case DISPLAY_MODE_PIP_C2:
+			case DISPLAY_MODE_PIP_C3:
+			case DISPLAY_MODE_PIP_C4:
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 
+					DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080, 
+					DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080 -PIP_WINDOW_HEIGHT_1080, 
+					PIP_WINDOW_WIDTH_1080, 1);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 
+					DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080, 
+					DISPLAY_HEIGHT - PIP_POSITION_MARGIN_1080, 
+					PIP_WINDOW_WIDTH_1080, 1);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 
+					DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080-1,	// 190905
+					DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080 - PIP_WINDOW_HEIGHT_1080, 
+					1, PIP_WINDOW_HEIGHT_1080);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 
+					DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080, 
+					DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080-PIP_WINDOW_HEIGHT_1080, 
+					1, PIP_WINDOW_HEIGHT_1080);
+
 				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
 				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
 				break;
 
-			case DISPLAY_MODE_4SPLIT_U3SCALE:
-			case DISPLAY_MODE_4SPLIT_U3CROP:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, (DISPLAY_HEIGHT/3)-1, DISPLAY_WIDTH, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_WIDTH/3, 0, 2, DISPLAY_HEIGHT/3);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, (DISPLAY_WIDTH/3) * 2, 0, 2, DISPLAY_HEIGHT/3);
+			case DISPLAY_MODE_PIP_D2:
+			case DISPLAY_MODE_PIP_D3:
+			case DISPLAY_MODE_PIP_D4:
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 	// top
+					PIP_POSITION_MARGIN_1080, 
+					PIP_POSITION_MARGIN_1080, 
+					PIP_WINDOW_WIDTH_1080, 1);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 	// bottom
+					PIP_POSITION_MARGIN_1080, 
+					PIP_POSITION_MARGIN_1080+ PIP_WINDOW_HEIGHT_1080, 
+					PIP_WINDOW_WIDTH_1080, 1);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 	// left
+					PIP_POSITION_MARGIN_1080-1, 			// 190905
+					PIP_POSITION_MARGIN_1080, 
+					1, PIP_WINDOW_HEIGHT_1080);
+				MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 	// right
+					PIP_POSITION_MARGIN_1080 + PIP_WINDOW_WIDTH_1080, 
+					PIP_POSITION_MARGIN_1080, 
+					1, PIP_WINDOW_HEIGHT_1080);
+
 				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
 				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
+				MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
 				break;
-
-			case DISPLAY_MODE_4SPLIT_H:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, DISPLAY_QUAD_WIDTH-1, DISPLAY_HALF_HEIGHT-1, DISPLAY_HALF_WIDTH, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_QUAD_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, DISPLAY_WIDTH-DISPLAY_QUAD_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				break;
-
-			case DISPLAY_MODE_4SPLIT_X:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_QUAD_HEIGHT-1, DISPLAY_WIDTH, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 0, DISPLAY_HEIGHT-DISPLAY_QUAD_HEIGHT-1, DISPLAY_WIDTH, 2);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX2, DISPLAY_HALF_WIDTH-1, DISPLAY_QUAD_HEIGHT-1, 2, DISPLAY_HALF_HEIGHT);
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-				break;
-				
-			case DISPLAY_MODE_2SPLIT_HSCALE_A:
-			case DISPLAY_MODE_2SPLIT_HCROP_A:
-			case DISPLAY_MODE_2SPLIT_HSCALE_B:
-			case DISPLAY_MODE_2SPLIT_HCROP_B:
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX1, DISPLAY_HALF_WIDTH-1, 0, 2, DISPLAY_HEIGHT);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-				break;
-
-			case DISPLAY_MODE_2SPLIT_VSCALE_A:
-			case DISPLAY_MODE_2SPLIT_VCROP_A:
-			case DISPLAY_MODE_2SPLIT_VSCALE_B:
-			case DISPLAY_MODE_2SPLIT_VCROP_B:
-				MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 0, DISPLAY_HALF_HEIGHT-1, DISPLAY_WIDTH, 2);
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-				break;
-
-		case DISPLAY_MODE_PIP_A2:
-		case DISPLAY_MODE_PIP_A3:
-		case DISPLAY_MODE_PIP_A4:
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 
-				DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080, 
-				PIP_POSITION_MARGIN_1080, 
-				PIP_WINDOW_WIDTH_1080, 1);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 
-				DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080, 
-				PIP_POSITION_MARGIN_1080 + PIP_WINDOW_HEIGHT_1080, 
-				PIP_WINDOW_WIDTH_1080, 1);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 
-				DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080-1,		// 190905
-				PIP_POSITION_MARGIN_1080, 
-				1, PIP_WINDOW_HEIGHT_1080);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 
-				DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080, 
-				PIP_POSITION_MARGIN_1080, 
-				1, PIP_WINDOW_HEIGHT_1080);
-
-			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-			break;
-
-		case DISPLAY_MODE_PIP_B2:
-		case DISPLAY_MODE_PIP_B3:
-		case DISPLAY_MODE_PIP_B4:
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 
-				PIP_POSITION_MARGIN_1080, 
-				DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080 -PIP_WINDOW_HEIGHT_1080, 
-				PIP_WINDOW_WIDTH_1080, 1);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 
-				PIP_POSITION_MARGIN_1080, 
-				DISPLAY_HEIGHT - PIP_POSITION_MARGIN_1080, 
-				PIP_WINDOW_WIDTH_1080, 1);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 
-				PIP_POSITION_MARGIN_1080-1, 		// 190905
-				DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080 -PIP_WINDOW_HEIGHT_1080, 
-				1, PIP_WINDOW_HEIGHT_1080);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 
-				PIP_POSITION_MARGIN_1080 + PIP_WINDOW_WIDTH_1080, 
-				DISPLAY_HEIGHT- PIP_POSITION_MARGIN_1080 - PIP_WINDOW_HEIGHT_1080, 
-				1, PIP_WINDOW_HEIGHT_1080);
-
-			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-			break;
-
-		case DISPLAY_MODE_PIP_C2:
-		case DISPLAY_MODE_PIP_C3:
-		case DISPLAY_MODE_PIP_C4:
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 
-				DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080, 
-				DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080 -PIP_WINDOW_HEIGHT_1080, 
-				PIP_WINDOW_WIDTH_1080, 1);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 
-				DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080, 
-				DISPLAY_HEIGHT - PIP_POSITION_MARGIN_1080, 
-				PIP_WINDOW_WIDTH_1080, 1);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 
-				DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080 - PIP_WINDOW_WIDTH_1080-1,	// 190905
-				DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080 - PIP_WINDOW_HEIGHT_1080, 
-				1, PIP_WINDOW_HEIGHT_1080);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 
-				DISPLAY_WIDTH - PIP_POSITION_MARGIN_1080, 
-				DISPLAY_HEIGHT-PIP_POSITION_MARGIN_1080-PIP_WINDOW_HEIGHT_1080, 
-				1, PIP_WINDOW_HEIGHT_1080);
-
-			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-			break;
-
-		case DISPLAY_MODE_PIP_D2:
-		case DISPLAY_MODE_PIP_D3:
-		case DISPLAY_MODE_PIP_D4:
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX0, 	// top
-				PIP_POSITION_MARGIN_1080, 
-				PIP_POSITION_MARGIN_1080, 
-				PIP_WINDOW_WIDTH_1080, 1);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX1, 	// bottom
-				PIP_POSITION_MARGIN_1080, 
-				PIP_POSITION_MARGIN_1080+ PIP_WINDOW_HEIGHT_1080, 
-				PIP_WINDOW_WIDTH_1080, 1);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX2, 	// left
-				PIP_POSITION_MARGIN_1080-1, 			// 190905
-				PIP_POSITION_MARGIN_1080, 
-				1, PIP_WINDOW_HEIGHT_1080);
-			MDINOSD_SetBGBoxArea(BGBOX_INDEX3, 	// right
-				PIP_POSITION_MARGIN_1080 + PIP_WINDOW_WIDTH_1080, 
-				PIP_POSITION_MARGIN_1080, 
-				1, PIP_WINDOW_HEIGHT_1080);
-
-			MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX1, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX2, ON);
-			MDINOSD_EnableBGBox(BGBOX_INDEX3, ON);
-			break;
-                                
-			default :
-				MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
-				MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
-                break;
-		}
+	                                
+				default :
+					MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
+					MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
+					MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
+					MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
+					MDINOSD_EnableBGBox(BGBOX_INDEX4, OFF);
+					MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
+					MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
+					MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+	                break;
+			}
+		}	
+	}
+	//prevMode = displayMode;
 	}
 }
 

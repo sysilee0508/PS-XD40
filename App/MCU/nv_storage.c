@@ -25,6 +25,8 @@ static sNvItemInfo_t nvInfo[NV_ITEM_MAX] =
 		{NV_ITEM_TITLE_DISPLAY_ON,			sizeof(BOOL),								CLEAR},
 		{NV_ITEM_AUTO_SEQ_TIME,				NUM_OF_CHANNEL,								CLEAR},
 		{NV_ITEM_AUTO_SEQ_LOSS_SKIP,		sizeof(BOOL),								CLEAR},
+		{NV_ITEM_AUTO_SEQ_MODE,			sizeof(BOOL),								CLEAR},
+		{NV_ITEM_AUTO_SEQ_PIP_POSITION,		sizeof(ePipPosition_t),						CLEAR},
 		{NV_ITEM_OUTPUT_RESOLUTION,			sizeof(eResolution_t),						CLEAR},
 		{NV_ITEM_OSD_DISPLAY,				sizeof(BOOL),								CLEAR},
 		{NV_ITEM_BORDER_LINE,				sizeof(BOOL),								CLEAR},
@@ -132,6 +134,8 @@ static void LoadDefaultNvData(void)
 		nv_data.data.autoSeqTime[index] = 3;
 	}
 	nv_data.data.autoSeqLossSkip = ON;
+	nv_data.data.autoSeqMode = SEQ_MODE_FULL;
+	nv_data.data.autoSeqPipPosition = PIP_POSITION_LT;
 	nv_data.data.outputResolution = RESOLUTION_1920_1080_60P;
 	nv_data.data.osdOn = ON;
 	nv_data.data.borderLineOn = ON;
@@ -204,18 +208,21 @@ void LoadNvDataFromStorage(void)
 {
 	memcpy((void *)nv_data.buffer, (void *)(NV_STORAGE_START_ADDR), FLASH_PAGE_SIZE);
 
+	nv_data.data.fwVersion.major = FW_VERSION_MAJOR;
+	nv_data.data.fwVersion.minor = FW_VERSION_MINOR;
 	if(CheckNvStorage() == FALSE)
 	{
 		LoadDefaultNvData();
 		RTC_SetDefaultDate();
 	}
+
 }
 
 //--------------------------------------------------------------------------------
 void InitializeNvData(void)
 {
 	LoadDefaultNvData();
-    RTC_SetDefaultDate();
+	RTC_SetDefaultDate();
 }
 
 // read or write each NV Item------------------------------------------------------
@@ -379,6 +386,33 @@ void Write_NvItem_AutoSeqLossSkip(BOOL data)
 {
 	nv_data.data.autoSeqLossSkip = data;
 	nvInfo[NV_ITEM_AUTO_SEQ_LOSS_SKIP].dirty = SET;
+}
+
+void Read_NvItem_AutoSeqMode(BOOL* pData)
+{
+	*pData = nv_data.data.autoSeqMode;
+}
+void Write_NvItem_AutoSeqMode(BOOL data)
+{
+	nv_data.data.autoSeqMode = data;
+	nvInfo[NV_ITEM_AUTO_SEQ_MODE].dirty = SET;
+}
+
+void Read_NvItem_AutoSeq_Position(ePipPosition_t* pData)
+{
+	*pData = nv_data.data.autoSeqPipPosition;
+}
+void Write_NvItem_AutoSeq_Position(ePipPosition_t data)
+{
+	if(data < PIP_POSITION_MAX)
+	{
+		nv_data.data.autoSeqPipPosition = data;
+	}
+	else
+	{
+		nv_data.data.autoSeqPipPosition = PIP_POSITION_LT;
+	}
+	nvInfo[NV_ITEM_AUTO_SEQ_PIP_POSITION].dirty = SET;
 }
 
 void Read_NvItem_TitleDispalyOn(BOOL *pData)

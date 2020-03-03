@@ -75,6 +75,24 @@ static void PlayBuzzer(void)
 	}
 }
 
+static void ForceFreeze(BOOL on_off)
+{
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+
+	switch(on_off)
+	{
+		case ON:
+			MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);
+			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], ON);
+			break;
+
+		case OFF:
+			MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
+			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
+			break;
+	}
+}
+
 //=============================================================================
 //  main function
 //=============================================================================
@@ -82,6 +100,7 @@ static void PlayBuzzer(void)
 void main(void)
 {
 	//eResolution_t outRes;
+	static u8 fCnt = 0;
 	
 	I2C_SET_CHANNEL(I2C_MAIN);
 	// initialize STM32F103x
@@ -150,12 +169,10 @@ void main(void)
 	USART3_Init();
 
 	CreateVideoInstance();
-	//SetAuxOutMode_C();
 	CreateOSDInstance();
 	Osd_ClearScreen();
 
 	// Init TP2912
-	//Read_NvItem_Resolution(&outRes);
 	InitRegisterSet();
 	
 	SetInitialKey();
@@ -173,8 +190,14 @@ void main(void)
 	{
 		RTC_CheckTime();
 		Key_Proc();
+		
+		if(forceFreezeOn == SET)
+		{
+			if(fCnt == 0)
+				ForceFreeze(ON);
+		}
 
-		Delay_ms(1);
+//		Delay_ms(1);
 		
 #if BD_NVP == NVP6158
 		NVP6158_VideoDetectionProc();
@@ -189,16 +212,16 @@ void main(void)
 		PlayBuzzer();
 
 		UpdateDisplayMode();
-		
+
 		UpdateAutoSeqCount();
 		DisplayAutoSeqChannel();
-
+		// update seq?? 
+		
 		if(forceFreezeOn == SET)
 		{
-			MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);
-			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], ON);
+			if(fCnt == 0)
+				ForceFreeze(ON);
 		}
-		//OSD_Display();
 		// video process handler
 		VideoProcessHandler();
 		// delay for HDMI-Tx register !!
@@ -208,13 +231,27 @@ void main(void)
 
 		if(forceFreezeOn == SET)
 		{
-			forceFreezeOn = CLEAR;
-			//Delay_ms(1000);
-			MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
-			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
+			if(fCnt == 0)
+			{
+				// do nothing
+			}
+			else
+			{
+				forceFreezeOn = CLEAR;
+				ForceFreeze(OFF);
+			}
+			fCnt = (++fCnt)%2;
 		}
-		MDINDLY_mSec(1);
-		OSD_Display();
+		else
+		{
+			fCnt = 0;
+		}
+
+		if(fCnt == 0)
+		{
+			OSD_Display();
+			OSD_DrawBorderLine();
+		}
 		StoreNvDataToStorage();
     }
 }

@@ -247,10 +247,27 @@ eChannel_t GetLastAlarmChannel(void)
 {
 	return lastAlarmChannel;
 }
+
 //------------------------------------------------------------------------------
-BOOL GetAlarmStatus(eChannel_t channel)
+u8 GetAlarmStatus(eChannel_t channel)
 {
 	return alarmInfo[channel].alarm_status;
+}
+
+//------------------------------------------------------------------------------
+u8 GetTotalAlarmChannels(void)
+{
+	eChannel_t iChannel;
+	u8 total = 0;
+
+	for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
+	{
+		if(GetAlarmStatus(iChannel) == ALARM_SET)
+		{
+			total++;
+		}
+	}
+	return total;
 }
 
 //------------------------------------------------------------------------------

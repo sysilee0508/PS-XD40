@@ -148,6 +148,14 @@ const u8 menuStr_Baudrate9600[] = "9600";
 
 const u8 menuStr_SelectArea[] = "SELECT AREA";
 
+const u8 menuStr_PIP_Position_LT[] = "Left-Top";
+const u8 menuStr_PIP_Position_RT[] = "Right-Top";
+const u8 menuStr_PIP_Position_LB[] = "Left-Bottom";
+const u8 menuStr_PIP_Position_RB[] = "Right-Bottom";
+
+const u8 menuStr_Full[] = "FULL";
+const u8 menuStr_Pip[] = "PIP";
+
 // Main Menu
 const u8 menuStr_MainMenu_Title[] =           "-- MAIN MENU --";
 const u8 menuStr_MainMenu_TimeDate[] =        "1. TIME / DATE";
@@ -184,6 +192,8 @@ const u8 menuStr_AutoSeq_DisplayTime_Ch2[] = "2. CH2 : ";
 const u8 menuStr_AutoSeq_DisplayTime_Ch3[] = "3. CH3 : ";
 const u8 menuStr_AutoSeq_DisplayTime_Ch4[] = "4. CH4 : ";
 const u8 menuStr_AutoSeq_NoVideoSkip[] =     "5. NO VIDEO CHANNEL SKIP : "; // SKIP(ON) / SHOW(OFF)
+const u8 menuStr_AutoSeq_Mode[] = "6. SEQUENCE MODE : ";
+const u8 menuStr_AutoSeq_PipPosition[] = "7. PIP POSITION : ";
 
 // Display
 const u8 menuStr_Display_Title[] =      "-- DISPLAY OPTION --";

@@ -89,7 +89,7 @@ extern void ChangeAlarmRemoteKeyMode(BYTE mode);
 extern void StartStopAlarm(BOOL start_stop);
 extern void CheckAlarmClearCondition(void);
 extern eChannel_t GetLastAlarmChannel(void);
-extern BOOL GetAlarmStatus(eChannel_t channel);
+extern u8 GetAlarmStatus(eChannel_t channel);
 extern void CheckAlarm(void);
 extern void ChangeBaudrate(void);
 extern u8 GetAlarmBuzzerCount(void);

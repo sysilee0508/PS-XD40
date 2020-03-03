@@ -521,9 +521,13 @@ void OSD_SetFontMAP(void)
 //--------------------------------------------------------------------------------------------------------------------------
 void CreateOSDInstance(void)
 {
+	M380_ID = MDIN_ID_C;
 	OSD_SetFontMAP();				// set GAC in character mode
 	OSD_SetSprite_layer0();
 //	OSD_LoadMenuStatus();
+
+	OSD_SetFontGAC(SPRITE_INDEX0);
+	MDINOSD_EnableSprite(&stOSD[SPRITE_INDEX0], ON);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

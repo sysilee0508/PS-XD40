@@ -291,10 +291,9 @@ unsigned char I2C_Write16(unsigned char ID, unsigned char dAddr, unsigned char p
 		I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); AckDetect();  	
 		//I2C_P2S(pBuff[i+1]);AckDetect();  		
 		//I2C_P2S(pBuff[i]);	AckDetect();
-		if (page==MDIN_HOST_ID)//((page==MDIN_HOST_ID) && (ID == I2C_SUB) && (dAddr == 0xDC))
+		if ((page==MDIN_HOST_ID) && (ID == I2C_SUB) && (dAddr == 0xDC))
 		{
-			MDINDLY_10uSec(10);	// for stability of font osd display on 190906
-			//Delay_us(70);
+			MDINDLY_10uSec(30);	// for stability of font osd display on 190906
 		}
 	}
 

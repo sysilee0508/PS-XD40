@@ -18,10 +18,10 @@
 #define NVSTORAGE_END_CHECK				0x5A5A5A5A
 
 #define NV_VERSION_MAJOR				(uint8_t)2
-#define NV_VERSION_MINOR				(uint8_t)0
+#define NV_VERSION_MINOR				(uint8_t)2
 
 #define FW_VERSION_MAJOR				(uint8_t)0	//engineer version starts 90 
-#define FW_VERSION_MINOR				(uint8_t)1
+#define FW_VERSION_MINOR				(uint8_t)4
 
 #define NV_SUCCESS						TRUE
 #define NV_FAIL							FALSE
@@ -32,6 +32,9 @@
 #define CROPPING_OFFSET_H_MAX			64
 #define CROPPING_OFFSET_V_MIN			0
 #define CROPPING_OFFSET_V_MAX			36
+
+#define SEQ_MODE_FULL					0
+#define SEQ_MODE_PIP					1
 
 //=============================================================================
 //  Type definitions - enum, struct
@@ -52,6 +55,8 @@ typedef enum
 	NV_ITEM_TITLE_DISPLAY_ON,
 	NV_ITEM_AUTO_SEQ_TIME,
 	NV_ITEM_AUTO_SEQ_LOSS_SKIP,
+	NV_ITEM_AUTO_SEQ_MODE,
+	NV_ITEM_AUTO_SEQ_PIP_POSITION,
 	NV_ITEM_OUTPUT_RESOLUTION,
 	NV_ITEM_OSD_DISPLAY,
 	NV_ITEM_BORDER_LINE,
@@ -145,6 +150,14 @@ typedef enum
 	VIDEO_MAX
 } eOutVideoFormat_t;
 
+typedef enum
+{
+	PIP_POSITION_LT,
+	PIP_POSITION_RT,
+	PIP_POSITION_LB,
+	PIP_POSITION_RB,
+	PIP_POSITION_MAX
+} ePipPosition_t;
 //--------------------------------------------------------------------------------------
 typedef struct
 {
@@ -168,6 +181,8 @@ typedef struct
 	BOOL 					titleDisplayOn;
 	uint8_t					autoSeqTime[NUM_OF_CHANNEL];
 	BOOL					autoSeqLossSkip;
+	BOOL					autoSeqMode;
+	ePipPosition_t				autoSeqPipPosition;
 	eResolution_t 			outputResolution;
 	BOOL					osdOn;
 	BOOL					borderLineOn;
@@ -235,6 +250,10 @@ extern void Read_NvItem_AutoSeqTime(u8* pData);
 extern void Write_NvItem_AutoSeqTime(u8* pData);
 extern void Read_NvItem_AutoSeqLossSkip(BOOL* pData);
 extern void Write_NvItem_AutoSeqLossSkip(BOOL data);
+extern void Read_NvItem_AutoSeqMode(BOOL *pData);
+extern void Write_NvItem_AutoSeqMode(BOOL data);
+extern void Read_NvItem_AutoSeq_Position(ePipPosition_t *pData);
+extern void Write_NvItem_AutoSeq_Position(ePipPosition_t data);
 extern void Read_NvItem_OsdOn(BOOL* pData);
 extern void Write_NvItem_OsdOn(BOOL data);
 extern void Read_NvItem_TitleDispalyOn(BOOL *pData);

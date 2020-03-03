@@ -107,6 +107,8 @@ enum
 	AUTOSEQ_ITEM_Y_CH3_DISPLAY_TIME,
 	AUTOSEQ_ITEM_Y_CH4_DISPLAY_TIME,
 	AUTOSEQ_ITEM_Y_LOSS_SKIP,
+	AUTOSEQ_ITEM_Y_SEQ_MODE,
+	AUTOSEQ_ITEM_Y_PIP_POSITION,
 	AUTOSEQ_ITEM_Y_MAX
 };
 
@@ -176,7 +178,7 @@ static u8 lineBuffer[CHARACTERS_IN_MENU_LINE];
 static BOOL requestEnterKeyProc = CLEAR;
 static u8 systemMode = SYSTEM_NORMAL_MODE;
 static eResolution_t outResolution = RESOLUTION_1920_1080_60P;
-static eResolution_t prevOutResolution = RESOLUTION_1920_1080_60P;
+//static eResolution_t prevOutResolution = RESOLUTION_1920_1080_60P;
 static BOOL showAlarmMenu = FALSE;
 
 const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789!@#$%^&*()+- ";
@@ -392,13 +394,9 @@ static void MainMenu_Entry(u8 itemY)
 	requestEnterKeyProc = CLEAR;
 
 	showAlarmMenu = CheckAlarmRemoteEnable(); 
-
 	if(showAlarmMenu == FALSE)		num_of_menu = MAINMENU_ITEM_Y_MAX - 1;
 
-	MDINOSD_SetBGBoxColor(BLACK(GetCurrentColorFormat()));		// set BG-BOX color
-
-	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
-	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 	MDINOSD_EnableBGBox(BGBOX_INDEX1, OFF);
 	MDINOSD_EnableBGBox(BGBOX_INDEX2, OFF);
 	MDINOSD_EnableBGBox(BGBOX_INDEX3, OFF);
@@ -406,6 +404,11 @@ static void MainMenu_Entry(u8 itemY)
 	MDINOSD_EnableBGBox(BGBOX_INDEX5, OFF);
 	MDINOSD_EnableBGBox(BGBOX_INDEX6, OFF);
 	MDINOSD_EnableBGBox(BGBOX_INDEX7, OFF);
+
+	MDINOSD_SetBGBoxColor(BLACK(GetCurrentColorFormat()));		// set BG-BOX color
+
+	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
+	MDINOSD_EnableBGBox(BGBOX_INDEX0, ON);
 
 	DrawSelectMark(itemY);
 	//for(index = 0; index < MAINMENU_ITEM_Y_MAX; index++)
@@ -1145,7 +1148,9 @@ const sLocationNString_t autoSeqMenu[AUTOSEQ_ITEM_Y_MAX] =
 	{20, LINE2_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch2},
 	{20, LINE3_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch3},
 	{20, LINE4_OFFSET_Y, menuStr_AutoSeq_DisplayTime_Ch4},
-	{20, LINE5_OFFSET_Y, menuStr_AutoSeq_NoVideoSkip}
+	{20, LINE5_OFFSET_Y, menuStr_AutoSeq_NoVideoSkip},
+	{20, LINE6_OFFSET_Y, menuStr_AutoSeq_Mode},
+	{20, LINE7_OFFSET_Y, menuStr_AutoSeq_PipPosition},
 };
 
 static void AutoSeqPage_UpdatePage(u8 itemY)
@@ -1153,6 +1158,9 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 	u8 displayTime[NUM_OF_CHANNEL];
 	u8 displayTimeInStr[2];
 	BOOL videoLossSkip;
+	BOOL mode;
+	ePipPosition_t pipPosition;
+	u8* strPosition;
 	u8 attribute = (requestEnterKeyProc == SET)?UNDER_BAR:NULL;
 
 	switch(itemY)
@@ -1195,12 +1203,76 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
 						menuStr_Sec,
 						NULL, strlen(menuStr_Sec));
 			}
-    		break;
+	    		break;
 
-    	case AUTOSEQ_ITEM_Y_LOSS_SKIP :
-    		Read_NvItem_AutoSeqLossSkip(&videoLossSkip);
-    		if(videoLossSkip == ON) //skip
-    		{
+		case AUTOSEQ_ITEM_Y_LOSS_SKIP :
+	    		Read_NvItem_AutoSeqLossSkip(&videoLossSkip);
+	    		if(videoLossSkip == ON) //skip
+	    		{
+	    			Print_StringWithSelectedMarkSize(
+	    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+							autoSeqMenu[itemY].offset_y,
+	    					menuStr_Space13,
+	    					NULL, strlen(menuStr_Space13));
+	    			Print_StringWithSelectedMarkSize(
+	    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+							autoSeqMenu[itemY].offset_y,
+	    					menuStr_Skip,
+	    					attribute, strlen(menuStr_Skip));
+	    		}
+	    		else //show
+	    		{
+	    			Print_StringWithSelectedMarkSize(
+	    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+							autoSeqMenu[itemY].offset_y,
+	    					menuStr_Show,
+	    					attribute, strlen(menuStr_Show));
+	    		}
+	    		break;
+
+	    	case AUTOSEQ_ITEM_Y_SEQ_MODE:
+	    		Read_NvItem_AutoSeqMode(&mode);
+	    		if(mode == SEQ_MODE_FULL) 
+	    		{
+	    			Print_StringWithSelectedMarkSize(
+	    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+							autoSeqMenu[itemY].offset_y,
+	    					menuStr_Full,
+	    					attribute, strlen(menuStr_Full));
+	    		}
+	    		else //PIP
+	    		{
+	    			Print_StringWithSelectedMarkSize(
+	    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+							autoSeqMenu[itemY].offset_y,
+	    					menuStr_Space5,
+	    					NULL, strlen(menuStr_Space5));
+	    			Print_StringWithSelectedMarkSize(
+	    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
+							autoSeqMenu[itemY].offset_y,
+	    					menuStr_Pip,
+	    					attribute, strlen(menuStr_Pip));
+	    		}
+	    		break;
+
+	    	case AUTOSEQ_ITEM_Y_PIP_POSITION:
+	    		Read_NvItem_AutoSeq_Position(&pipPosition);
+	    		switch(pipPosition)
+	    		{
+	    			case PIP_POSITION_LT:
+	    				strPosition = (u8*)menuStr_PIP_Position_LT;
+	    				break;
+	    			case PIP_POSITION_RT:
+	    				strPosition = (u8*)menuStr_PIP_Position_RT;
+	    				break;
+	    			case PIP_POSITION_LB:
+	    				strPosition = (u8*)menuStr_PIP_Position_LB;
+	    				break;
+	    			case PIP_POSITION_RB:
+	    				strPosition = (u8*)menuStr_PIP_Position_RB;
+	    				break;
+	    			
+	    		}
     			Print_StringWithSelectedMarkSize(
     					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
 						autoSeqMenu[itemY].offset_y,
@@ -1209,18 +1281,9 @@ static void AutoSeqPage_UpdatePage(u8 itemY)
     			Print_StringWithSelectedMarkSize(
     					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
 						autoSeqMenu[itemY].offset_y,
-    					menuStr_Skip,
-    					attribute, strlen(menuStr_Skip));
-    		}
-    		else //show
-    		{
-    			Print_StringWithSelectedMarkSize(
-    					autoSeqMenu[itemY].offset_x + strlen(autoSeqMenu[itemY].str),
-						autoSeqMenu[itemY].offset_y,
-    					menuStr_Show,
-    					attribute, strlen(menuStr_Show));
-    		}
-    		break;
+    					strPosition,
+    					attribute, strlen(strPosition));
+	    		break;
  	}
 }
 
@@ -1250,6 +1313,9 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 	u8 inc_dec = DECREASE;
 	static u8 autoSeqTime[NUM_OF_CHANNEL];
 	BOOL autoSeqLossSkip;
+	BOOL mode;
+	ePipPosition_t pipPosition;
+	
 
 	switch(key)
 	{
@@ -1273,13 +1339,23 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 						Toggle(&autoSeqLossSkip);
 						Write_NvItem_AutoSeqLossSkip(autoSeqLossSkip);
 						break;
+					case AUTOSEQ_ITEM_Y_SEQ_MODE:
+						Read_NvItem_AutoSeqMode(&mode);
+						Toggle(&mode);
+						Write_NvItem_AutoSeqMode(mode);
+						break;
+					case AUTOSEQ_ITEM_Y_PIP_POSITION:
+						Read_NvItem_AutoSeq_Position(&pipPosition);
+						IncreaseDecreaseCount(3,0,inc_dec, &pipPosition, TRUE);
+						Write_NvItem_AutoSeq_Position(pipPosition);
+						break;
 				}
 				AutoSeqPage_UpdatePage(itemY);
 			}
 			else
 			{
 				Toggle(&inc_dec);
-				IncreaseDecreaseCount(5, 1, inc_dec, &itemY, TRUE);
+				IncreaseDecreaseCount(AUTOSEQ_ITEM_Y_MAX-1, 1, inc_dec, &itemY, TRUE);
 				DrawSelectMark(itemY);
 			}
 			break;
@@ -1329,9 +1405,11 @@ static void DisplayPage_DisplaySplitMode(eDisplayMode_t split)
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
 	splitModeSelecting = TRUE;
 
+	OSD_SetBoaderLine();
 	DisplayScreen(split);
+	forceFreezeOn = SET;
 	SetInputChanged();
-	OSD_DrawBorderLine();
+	//OSD_DrawBorderLine();
 
 	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space25)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
@@ -1539,7 +1617,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						break;
 					case DISPLAY_ITEM_Y_SPLIT_MODE:
 						split = GetSystemSplitMode();
-						IncreaseDecreaseCount(DISPLAY_MODE_MAX - 1, DISPLAY_MODE_2SPLIT_HSCALE_A, inc_dec, &split, TRUE);
+						IncreaseDecreaseCount(DISPLAY_MODE_4SPLIT_X, DISPLAY_MODE_2SPLIT_HSCALE_A, inc_dec, &split, TRUE);
 						SetSystemSplitMode(split);
 						break;
 					case DISPLAY_ITEM_Y_AUX_VIDEO:
@@ -1752,8 +1830,8 @@ static void AlarmRemoconPage_UpdatePageOption(u8 itemY)//, u8 pos_x)
             if(nv_data != 0)
             {
 				Int2Str(nv_data, str2digit);
-                Print_StringWithSelectedMarkSize(
-                		alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
+				Print_StringWithSelectedMarkSize(
+						alarmRemoconMenu[itemY].offset_x + strlen(alarmRemoconMenu[itemY].str),
 						alarmRemoconMenu[itemY].offset_y,
 						menuStr_Space3,
 						NULL, strlen(menuStr_Space3));
@@ -2471,10 +2549,11 @@ static void MainPage_KeyHandler(eKeyData_t key)
 
 			MDINOSD_SetBGBoxColor(WHITE(GetCurrentColorFormat()));
 			MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-			OSD_DrawBorderLine();
+			OSD_SetBoaderLine();//OSD_DrawBorderLine();
 			OSD_RefreshScreen();
 
-			if(prevOutResolution != outResolution)
+			//if(prevOutResolution != outResolution)
+			if(outResolution == RESOLUTION_1920_1080_30P)
 			{
 				Write_NvItem_Resolution(outResolution);
 				SetInputChanged();
@@ -2518,7 +2597,16 @@ void Enter_MainMenu(void)
 
 	// update out resolution&freq
 	Read_NvItem_Resolution(&outResolution);
-	prevOutResolution = outResolution;
+	//prevOutResolution = outResolution;
+
+	if(outResolution == RESOLUTION_1920_1080_30P)
+	{
+		Write_NvItem_Resolution(RESOLUTION_1920_1080_60P);
+		SetInputChanged();
+		Delay_us(10);
+		Set_InputFreq(RESOLUTION_1920_1080_60P);
+		TVI_Init();
+	}
 	
 	Osd_ClearScreen();//OSD_EraseAll();
 	MainMenu_Entry(MAINMENU_ITEM_Y_TIME_DATE);

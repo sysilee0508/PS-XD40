@@ -466,7 +466,7 @@ void Key_Proc(void)
 	static eKeyData_t previous_keydata = KEY_NONE;
 	eKeyData_t key = GetCurrentKey();
 	BOOL autoSeq_skipNoVideoChannel;
-	static eDisplayMode_t split = DISPLAY_MODE_2SPLIT_HSCALE_A;
+	//static eDisplayMode_t systemSplit = GetSystemSplitMode();;
 	eChannel_t channel; 
 
 	if(IsKeyReady()==TRUE)
@@ -498,13 +498,14 @@ void Key_Proc(void)
 					OSD_RefreshScreen();
 					DisplayScreen((eDisplayMode_t)channel);
 					SetInputChanged();
-					ResetVideoModeDisplayTime(channel);
-					OSD_DrawBorderLine();
+					//ResetVideoModeDisplayTime(channel);
+					OSD_SetBoaderLine();//OSD_DrawBorderLine();
 				}
 				break;
 				
 			case KEY_SPLIT : 
-				if(previous_keydata != key)
+				//if((previous_keydata != key) || (GetCurrentDisplayMode() != GetSystemSplitMode()))
+				if(GetCurrentDisplayMode() != GetSystemSplitMode())
 				{
 					forceFreezeOn = SET;
 					if((screenFreezeOn == SET) || (previous_keydata == KEY_FREEZE))
@@ -521,11 +522,7 @@ void Key_Proc(void)
 							OSD_RefreshScreen();
 							DisplayScreen(GetSystemSplitMode());
 							SetInputChanged();
-							OSD_DrawBorderLine();
-							for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-							{
-								ResetVideoModeDisplayTime(channel);
-							}
+							OSD_SetBoaderLine();//OSD_DrawBorderLine();
 						}
 					}
 					else
@@ -535,11 +532,7 @@ void Key_Proc(void)
 						OSD_RefreshScreen();
 						DisplayScreen(GetSystemSplitMode());
 						SetInputChanged();
-						OSD_DrawBorderLine();
-						for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-						{
-							ResetVideoModeDisplayTime(channel);
-						}
+						OSD_SetBoaderLine();//OSD_DrawBorderLine();
 					}
 				}
 				break;
@@ -598,9 +591,19 @@ void Key_Proc(void)
 					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 				}
 				OSD_EraseAllText();
-				InitializeAutoSeq(AUTO_SEQ_ALARM);
+				if(GetTotalAlarmChannels() < 3)
+				{
+					InitializeAutoSeq(AUTO_SEQ_ALARM);
+				}
+				else
+				{
+					InitializeAutoSeq(AUTO_SEQ_NONE);
+					forceFreezeOn = SET;
+					DisplayScreen(DISPLAY_MODE_4SPLIT_QUAD);
+					SetInputChanged();
+				}
 				OSD_RefreshScreen();
-				OSD_DrawBorderLine();
+				OSD_SetBoaderLine();//OSD_DrawBorderLine();
 				break;
 
 			case KEY_UP:
