@@ -814,11 +814,18 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 				}
 				else
 				{
-					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p60;//VIDOUT_1920x1080pRB;// VIDOUT_1280x720p60;
+					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080pRB;// VIDOUT_1280x720p60;
 					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60; //VIDSRC_1280x720p60;
 				}
 #else
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p60;//VIDOUT_1920x1080pRB;// VIDOUT_1280x720p60;
+				if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
+				{
+					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p30;// VIDOUT_1280x720p60;
+				}
+				else
+				{
+					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p60;// VIDOUT_1280x720p60;
+				}
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60; //VIDSRC_1280x720p60;
 #endif
 				
@@ -845,7 +852,15 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
 				}
 #else
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p50;//VIDOUT_1920x1080pRB2; // VIDOUT_1280x720p50;
+//				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080pRB2; // VIDOUT_1280x720p50;
+				if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
+				{
+					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p25;// VIDOUT_1280x720p60;
+				}
+				else
+				{
+					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p50;// VIDOUT_1280x720p60;
+				}
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
 #endif
 				if(outRes == RESOLUTION_1920_1080_60P)
@@ -867,7 +882,15 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 				(SrcMainFrmt[MDIN_ID_B] == VIDSRC_1920x1080p60) ||
 				(SrcMainFrmt[MDIN_ID_B] == VIDSRC_1280x720p60))
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p60;//VIDOUT_1920x1080pRB;// VIDOUT_1280x720p60;
+				//OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB;// VIDOUT_1280x720p60;
+				if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
+				{
+					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p30;// VIDOUT_1280x720p60;
+				}
+				else
+				{
+					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p60;// VIDOUT_1280x720p60;
+				}
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60; //VIDSRC_1280x720p60;
 				if(outRes == RESOLUTION_1920_1080_60P)
 				{
@@ -881,7 +904,15 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			}
 			else
 			{
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p50;//VIDOUT_1920x1080pRB2; // VIDOUT_1280x720p50;
+				//OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2; // VIDOUT_1280x720p50;
+				if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
+				{
+					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p25;// VIDOUT_1280x720p60;
+				}
+				else
+				{
+					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p50;// VIDOUT_1280x720p60;
+				}
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
 				if(outRes == RESOLUTION_1920_1080_60P)
 				{
@@ -921,7 +952,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60; //VIDSRC_1280x720p60;
 				}
 #else
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p60;//VIDOUT_1920x1080pRB;//VIDOUT_1280x720p60;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080pRB;//VIDOUT_1280x720p60;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60; //VIDSRC_1280x720p60;
 #endif
 				if(outRes == RESOLUTION_1920_1080_60P)
@@ -952,7 +983,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 				}
 #else
-				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p50;//VIDOUT_1920x1080pRB2;// VIDOUT_1280x720p50;
+				OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080pRB2;// VIDOUT_1280x720p50;
 				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; //VIDSRC_1280x720p50;
 #endif
 				if(outRes == RESOLUTION_1920_1080_60P)
@@ -992,7 +1023,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 					SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1280x720p60;
 				}
 #else
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p60;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB;//VIDOUT_1920x1080p60;
 				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60;
 #endif
 			}
@@ -1021,7 +1052,7 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 					SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
 				}
 #else
-				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p50;
+				OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB2;//VIDOUT_1920x1080p50;
 				SrcAuxFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50;
 #endif
 			}

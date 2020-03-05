@@ -1224,7 +1224,7 @@ ROMDATA MDIN_OUTVIDEO_SYNC defMDINOutSync[]		= {
 		 
 		  54,		// pre_div_vclk (P)
 		 277,		// post_div_vclk (M)
-		   2, // kukuri // 1,		// post_scale_vclk (S)
+		   1, // kukuri // 1 --> 60hz, 2-->30hz,	// post_scale_vclk (S)
 
 	#if defined(SYSTEM_USE_MCLK189)
 		   2,		// axclk_gen_div_s (S)
@@ -1294,7 +1294,7 @@ ROMDATA MDIN_OUTVIDEO_SYNC defMDINOutSync[]		= {
 		 
 		  54,		// pre_div_vclk (P)
 		 277,		// post_div_vclk (M)
-		   2, // kukuri // 1,		// post_scale_vclk (S)
+		   1, // kukuri // 1 --> 60hz, 2-->30hz,		// post_scale_vclk (S)
 
 	#if defined(SYSTEM_USE_MCLK189)
 		   2,		// axclk_gen_div_s (S)
