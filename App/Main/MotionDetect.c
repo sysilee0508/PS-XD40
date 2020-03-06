@@ -149,14 +149,6 @@ void Set_MotionDetect_ActivatedArea(eChannel_t channel)
 	}
 }
 
-//BOOL Set_MotionDetect_Indicator(void)
-//{
-//	BOOL indication;
-//
-//	Read_NvItem_MotionIndication(&indication);
-//	return indication;
-//}
-
 void MotionDetectCheck(void)
 {
 	eChannel_t channel;
@@ -168,11 +160,20 @@ void MotionDetectCheck(void)
 	static BOOL motionCleared = TRUE;
 	sSystemTick_t* currentSystemTime = GetSystemTime();
 	static u32 previousSystemTimeIn1s = 0;
+	BOOL fMotion = FALSE;
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
-		currentMotion |= (Get_MotionDetectedStatus(channel) << channel);
+		fMotion = Get_MotionDetectedStatus(channel);
+		currentMotion |= (fMotion << channel);
+
+		// update osd event
+		if((fMotion == TRUE) && ((OSD_GetEvent(channel) & EVT_MOTION) == 0))
+		{
+			OSD_SetEvent(channel, EVT_MOTION);
+		}
 	}
+	
 	// buzzer
 	if((previousMotion == 0) && (currentMotion > 0) && (alarmOutTimeCountInSec == 0))
 	{

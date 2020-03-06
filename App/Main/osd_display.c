@@ -2270,6 +2270,11 @@ void OSD_ClearEvent(eChannel_t channel, u8 evt)
 	eventInfo[channel] &= (~evt);
 }
 
+u8 OSD_GetEvent(eChannel_t channel)
+{
+	return eventInfo[channel];
+}
+
 void ResetVideoModeDisplayTime(eChannel_t channel)
 {
 	videoModeDisplayCount[channel] = VIDEO_MODE_DISPLAY_TIME;
