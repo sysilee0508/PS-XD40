@@ -484,33 +484,47 @@ void Key_Proc(void)
 			case KEY_FULL_CH2 : 
 			case KEY_FULL_CH3 : 
 			case KEY_FULL_CH4 : 
-				channel = (eChannel_t)(key-1);
-				// If key is changed...
-				if(previous_keydata != key)
+				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 				{
-					forceFreezeOn = SET;
+					OSD_ClearEvent(channel, EVT_ALARM);
+					OSD_ClearEvent(channel, EVT_MOTION);
+					OSD_ClearEvent(channel, EVT_FREEZE);
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
 					}
+				}
+				// If key is changed...
+				if(previous_keydata != key)
+				{
+					forceFreezeOn = SET;
+					channel = (eChannel_t)(key-1);
 					OSD_EraseAllText();
 					InitializeAutoSeq(AUTO_SEQ_NONE);
 					OSD_RefreshScreen();
 					DisplayScreen((eDisplayMode_t)channel);
 					SetInputChanged();
-					//ResetVideoModeDisplayTime(channel);
 					OSD_SetBoaderLine();//OSD_DrawBorderLine();
 				}
 				break;
 				
 			case KEY_SPLIT : 
-				//if((previous_keydata != key) || (GetCurrentDisplayMode() != GetSystemSplitMode()))
+				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+				{
+					OSD_ClearEvent(channel, EVT_ALARM);
+					OSD_ClearEvent(channel, EVT_MOTION);
+				}
+				
 				if(GetCurrentDisplayMode() != GetSystemSplitMode())
 				{
 					forceFreezeOn = SET;
 					if((screenFreezeOn == SET) || (previous_keydata == KEY_FREEZE))
 					{
 						screenFreezeOn = CLEAR;
+						for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+						{
+							OSD_ClearEvent(channel, EVT_FREEZE);
+						}
 						M380_ID = MDIN_ID_C;
 						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
 						MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
@@ -538,6 +552,11 @@ void Key_Proc(void)
 				break;
 
 			case KEY_FREEZE :
+				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+				{
+					OSD_ClearEvent(channel, EVT_ALARM);
+					OSD_ClearEvent(channel, EVT_MOTION);
+				}
 				InitializeAutoSeq(AUTO_SEQ_NONE);
 				M380_ID = MDIN_ID_C;
 				if(screenFreezeOn == CLEAR)
@@ -545,16 +564,31 @@ void Key_Proc(void)
 					screenFreezeOn = SET;
 					MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);	//main freeze On
 					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
+					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+					{
+						OSD_SetEvent(channel, EVT_FREEZE);
+					}
 				}
 				else
 				{
 					screenFreezeOn = CLEAR;
+					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+					{
+						OSD_ClearEvent(channel, EVT_FREEZE);
+					}
+
 					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
 					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 				}
 				break;
 
 			case KEY_AUTO_SEQ :
+				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+				{
+					OSD_ClearEvent(channel, EVT_ALARM);
+					OSD_ClearEvent(channel, EVT_MOTION);
+					OSD_ClearEvent(channel, EVT_FREEZE);
+				}
 				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
 				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
 				{
@@ -562,6 +596,10 @@ void Key_Proc(void)
 					if(screenFreezeOn == SET)
 					{
 						screenFreezeOn = CLEAR;
+						//for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+						//{
+						//	OSD_ClearEvent(channel, EVT_FREEZE);
+						//}
 					}
 					InitializeAutoSeq(AUTO_SEQ_NORMAL);
 					OSD_RefreshScreen();
@@ -569,11 +607,21 @@ void Key_Proc(void)
 				break;
 
 			case KEY_MENU :
+				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+				{
+					OSD_ClearEvent(channel, EVT_ALARM);
+					OSD_ClearEvent(channel, EVT_MOTION);
+					OSD_ClearEvent(channel, EVT_FREEZE);
+				}
 				AllButtonLedOff();
 				InitializeAutoSeq(AUTO_SEQ_NONE);
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
+					//for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+					//{
+					//	OSD_ClearEvent(channel, EVT_FREEZE);
+					//}
 					M380_ID = MDIN_ID_C;
 					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
 					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
@@ -583,24 +631,37 @@ void Key_Proc(void)
 
 			case KEY_ALARM :
 				// Sound out beep for configured time(in sec)
+				InitializeAutoSeq(AUTO_SEQ_NONE);
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
+					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+					{
+						OSD_ClearEvent(channel, EVT_FREEZE);
+					}
 					M380_ID = MDIN_ID_C;
 					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
 					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 				}
 				OSD_EraseAllText();
-				if(GetTotalAlarmChannels() < 3)
+				forceFreezeOn = SET;
+				if(GetTotalAlarmChannels() == 1)
 				{
-					InitializeAutoSeq(AUTO_SEQ_ALARM);
+					//InitializeAutoSeq(AUTO_SEQ_ALARM);
+					channel = GetLastAlarmChannel();
+					if(GetCurrentDisplayMode() != (DISPLAY_MODE_FULL_CH1 + channel))
+					{
+						DisplayScreen((eDisplayMode_t)channel);
+						SetInputChanged();
+					}
 				}
 				else
 				{
-					InitializeAutoSeq(AUTO_SEQ_NONE);
-					forceFreezeOn = SET;
-					DisplayScreen(DISPLAY_MODE_4SPLIT_QUAD);
-					SetInputChanged();
+					if(GetCurrentDisplayMode() != DISPLAY_MODE_4SPLIT_QUAD)
+					{
+						DisplayScreen(DISPLAY_MODE_4SPLIT_QUAD);
+						SetInputChanged();
+					}
 				}
 				OSD_RefreshScreen();
 				OSD_SetBoaderLine();//OSD_DrawBorderLine();

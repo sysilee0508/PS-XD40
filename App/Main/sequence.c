@@ -180,6 +180,7 @@ static void InitializeAutoSeq_Normal_Pip(void)
 	OSD_Display();
 }
 
+#if 0
 static void InitializeAutoSeq_Alarm(void)
 {
 	eChannel_t channel;
@@ -203,7 +204,7 @@ static void InitializeAutoSeq_Alarm(void)
 		}
 	}
 }
-
+#endif
 //-----------------------------------------------------------------------------
 void InitializeAutoSeq(eAutoSeqType_t type)
 {
@@ -224,7 +225,7 @@ void InitializeAutoSeq(eAutoSeqType_t type)
 
 		case AUTO_SEQ_ALARM:
 			ChangeAutoSeqOn(OFF);
-			InitializeAutoSeq_Alarm();
+			//InitializeAutoSeq_Alarm();
 			break;
 
 		case AUTO_SEQ_NONE:
@@ -302,6 +303,7 @@ void UpdateAutoSeqCount(void)
 						displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
 					} while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == SKIP_CHANNEL));
 				}
+				/*
 				else if(autoSeqStatus == AUTO_SEQ_ALARM)
 				{
 					do
@@ -310,6 +312,7 @@ void UpdateAutoSeqCount(void)
 					} while(GetAlarmStatus(displayChannel) != ALARM_SET);
 					displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
 				}
+				*/
 			}
 		}
 		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
@@ -321,7 +324,8 @@ void DisplayAutoSeqChannel(void)
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	eChannel_t currentChannel;
 
-	if((currentMode == SEQ_MODE_FULL) || (autoSeqStatus == AUTO_SEQ_ALARM))
+	//if((currentMode == SEQ_MODE_FULL) || (autoSeqStatus == AUTO_SEQ_ALARM))
+	if(currentMode == SEQ_MODE_FULL)
 	{
 		if(IS_FULL_MODE(displayMode) == TRUE)
 			currentChannel = ConvertDisplayMode2Channel(displayMode);

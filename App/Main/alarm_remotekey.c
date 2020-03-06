@@ -147,6 +147,7 @@ void CheckAlarm(void)
 				if(alarmInfo[channel].alarm_status == ALARM_DEBOUNCE)
 				{
 					alarmInfo[channel].alarm_status = ALARM_SET;
+					OSD_SetEvent(channel, EVT_ALARM);
 					//alarmInfo[channel].check_count = 0;
 					//buzzer & alarm output
 					StartStopAlarm(ALARM_START);
@@ -172,10 +173,10 @@ static void ClearAllAlarm(void)
 	}
 	lastAlarmChannel = CHANNEL_NONE;
 
-	if(GetCurrentAutoSeq() == AUTO_SEQ_ALARM)
-	{
-		InitializeAutoSeq(AUTO_SEQ_NONE);
-	}
+//	if(GetCurrentAutoSeq() == AUTO_SEQ_ALARM)
+//	{
+//		InitializeAutoSeq(AUTO_SEQ_NONE);
+//	}
 }
 //------------------------------------------------------------------------------
 static void StartStopAlarm(BOOL start_stop)

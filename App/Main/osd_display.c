@@ -28,7 +28,6 @@ enum
 	VIDEO_OUT
 };
 
-
 enum 
 {
 	QUAD = 0,
@@ -43,6 +42,7 @@ enum
 	SPLIT_V,		// 2 split V
 	NUM_OF_POS_SPLIT
 };
+
 enum
 {
 	PIP_A,
@@ -146,7 +146,7 @@ static const sPosition_t videoLossPosition_Full =
 };
 
 static BOOL requestRefreshScreen = CLEAR;
-static BOOL boarderLineUpdate = CLEAR;
+static BOOL boarderLineUpdate = SET;
 
 static u8 videoModeDisplayCount[NUM_OF_CHANNEL] = 
 {
@@ -155,6 +155,8 @@ static u8 videoModeDisplayCount[NUM_OF_CHANNEL] =
 	VIDEO_MODE_DISPLAY_TIME*2, 
 	VIDEO_MODE_DISPLAY_TIME*2
 };
+
+static u8 eventInfo[NUM_OF_CHANNEL] = {EVT_NONE, EVT_NONE, EVT_NONE, EVT_NONE};
 
 static sPosition_t OSD_TitleStringPosition(eChannel_t channel, eDisplayMode_t displayMode, u8 length)
 {
@@ -1014,52 +1016,78 @@ static u8* FindIndicator(eDisplayMode_t mode, eChannel_t channel)
 {
 	u8* pStr;
 	BOOL videoLossDiplayOn;
+	u8 lastEvent;
 
-	if(IS_FULL_MODE(mode) == TRUE)
+ 	lastEvent = eventInfo[channel];
+	switch(lastEvent)
 	{
-		if(GetAlarmStatus(channel) == ALARM_SET)
-		{
-			pStr = (u8*)osdStr_AlarmFull;
-		}
-		else if(Get_MotionDetectedStatus(channel))//motion
-		{
-			pStr = (u8*)osdStr_MotionFull;
-		}
-		else if(IsScreenFreeze())//freeze
-		{
-			pStr = (u8*)osdStr_FreezeFull;
-		}
-		else
-		{
-			pStr = (u8*)osdStr_Space6;
-		}
+		case EVT_ALARM:
+			if(IS_FULL_MODE(mode) == TRUE)
+			{
+				pStr = (u8*)osdStr_AlarmFull;
+			}
+			else
+			{
+				pStr = (u8*)osdStr_Alarm;
+			}
+			break;
+
+		case EVT_FREEZE:
+			if(IS_FULL_MODE(mode) == TRUE)
+			{
+				pStr = (u8*)osdStr_FreezeFull;
+			}
+			else
+			{
+				pStr = (u8*)osdStr_Freeze;
+			}
+			break;
+
+		case EVT_MOTION:
+			if(IS_FULL_MODE(mode) == TRUE)
+			{
+				pStr = (u8*)osdStr_MotionFull;
+			}
+			else
+			{
+				pStr = (u8*)osdStr_Motion;
+			}
+			break;
+
+		case EVT_NO_VIDOE:
+			Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
+			if((IS_FULL_MODE(mode) == TRUE) || (videoLossDiplayOn == OFF))
+			{
+				pStr = (u8*)osdStr_Space6;
+			}
+			else
+			{
+				pStr = (u8*)osdStr_NoVideo;
+			}
+			break;
+
+		default:
+			// check no video
+			if(IS_FULL_MODE(mode) == TRUE)
+			{
+				pStr = (u8*)osdStr_Space6;
+			}
+			else
+			{
+				if(IsVideoLossChannel(channel) == TRUE)
+				{
+					pStr = (u8*)osdStr_NoVideo;
+				}
+				else
+				{
+					pStr = (u8*)osdStr_Space6;
+				}
+			}
+			break;
+			
 	}
-	else
-	{
-		Read_NvItem_VideoLossDisplayOn(&videoLossDiplayOn);
-		if((IsVideoLossChannel(channel) == TRUE) && (videoLossDiplayOn == ON))
-		{
-			pStr = (u8*)osdStr_NoVideo;
-		}
-		else if(GetAlarmStatus(channel) == ALARM_SET)
-		{
-			pStr = (u8*)osdStr_Alarm;
-		}
-		else if(Get_MotionDetectedStatus(channel))
-		{
-			pStr = (u8*)osdStr_Motion;
-		}
-		else if(IsScreenFreeze())
-		{
-			pStr = (u8*)osdStr_Freeze;
-		}
-		else
-		{
-			pStr = (u8*)osdStr_Space1;
-		}
-	}
-	
-}
+
+ }
 
 static sPosition_t OSD_GetAutoPosition(u8 strLength)
 {
@@ -1297,6 +1325,7 @@ static void OSD_DisplayNoVideo(void)
 			position.pos_y = (DISPLAY_HEIGHT - CHAR_HEIGHT)/2;
 
 			if(IsVideoLossChannel(ConvertDisplayMode2Channel(displayMode)) == TRUE)
+			//if((eventInfo[ConvertDisplayMode2Channel(displayMode)] & EVT_NO_VIDOE) == EVT_NO_VIDOE)
 			{
 				if(videoLossDiplayOn == ON)
 				{
@@ -1311,8 +1340,7 @@ static void OSD_DisplayNoVideo(void)
 	}
 }
 
-u8* pTestString;
-void OSD_DisplayVideoMode(void)
+ void OSD_DisplayVideoMode(void)
 {
 	eChannel_t channel;
 	sPosition_t inPosition, outPosition;
@@ -2230,6 +2258,16 @@ void OSD_DrawBorderLine(void)	//DONE
 	}
 	//prevMode = displayMode;
 	}
+}
+
+void OSD_SetEvent(eChannel_t channel, u8 evt)
+{
+	eventInfo[channel] = evt;
+}
+
+void OSD_ClearEvent(eChannel_t channel, u8 evt)
+{
+	eventInfo[channel] &= (~evt);
 }
 
 void ResetVideoModeDisplayTime(eChannel_t channel)

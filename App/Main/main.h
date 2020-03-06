@@ -21,46 +21,16 @@ typedef enum
 	CHANNEL4
 } eChannel_t;
 
-/*
-typedef enum
-{
-	SPLIT_2H_SCALE = 0,
-	SPLIT_2H_CROP,
-	SPLIT_2V_SCALE,
-	SPLIT_2V_CROP,
-	SPLIT_QUAD,
-	SPLIT_QUAD_R3_SCALE,
-	SPLIT_QUAD_R3_CROP,
-	SPLIT_QUAD_L3_SCALE,
-	SPLIT_QUAD_L3_CROP,
-	SPLIT_QUAD_D3_SCALE,
-	SPLIT_QUAD_D3_CROP,
-	SPLIT_QUAD_U3_SCALE,
-	SPLIT_QUAD_U3_CROP,
-	NUM_OF_SPLIT	//13
-} eSplit_t;
+#define EVT_NONE 						0x00
+#define EVT_NO_VIDOE					0x01
+#define EVT_ALARM						0x02
+#define EVT_MOTION						0x04
+#define EVT_FREEZE						0x08
 
-typedef enum
-{
-	PIP_A2 = 0,
-	PIP_A3,
-	PIP_A4,
-	PIP_B2,
-	PIP_B3,
-	PIP_B4,
-	PIP_C2,
-	PIP_C3,
-	PIP_C4,
-	PIP_D2,
-	PIP_D3,
-	PIP_D4,
-	NUM_OF_PIP	//12
-} ePip_t;
-*/
-extern s8 videoOutResolution;
-
+#if BD_NVP == NVP6158
 extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);
+#endif
 
 extern void TurnOnAlarmOut(u8 requester);
 extern void TurnOffAlarmOut(u8 requester);

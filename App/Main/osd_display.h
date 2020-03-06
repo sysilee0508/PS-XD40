@@ -43,6 +43,8 @@ extern void OSD_Display_State(void);
 extern void OSD_SetBoaderLine(void);
 extern void OSD_DrawBorderLine(void);
 extern void OSD_RefreshScreen(void);
+extern void OSD_SetEvent(eChannel_t channel, u8 evt);
+extern void OSD_ClearEvent(eChannel_t channel, u8 evt);
 
 extern void ResetVideoModeDisplayTime(eChannel_t channel);
 extern void ClearVideoModeDisplayTime(eChannel_t channel);

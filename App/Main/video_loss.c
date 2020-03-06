@@ -22,7 +22,7 @@ static u8 videoLossBuzzerCount = 0;
 static u8 Get_VideoLossChannels(void)
 {
 	eChannel_t channel;
-	NC_VIVO_CH_FORMATDEF_E fmt;
+	//_VIVO_CH_FORMATDEF_E fmt;
 	u8 lossChannels = 0;
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
@@ -31,8 +31,12 @@ static u8 Get_VideoLossChannels(void)
 		{
 			//lossChannels |= (0x01) << NVP_Ch[channel];
 			lossChannels |= (0x01) << channel;
-		}
-	}
+ 		}
+ 		else
+ 		{
+ 			OSD_ClearEvent(channel, EVT_NO_VIDOE);
+ 		}
+ 	}
 
 	return lossChannels;
 }
@@ -45,6 +49,9 @@ void ScanVideoLossChannels(void)
 	static u8 previousLossChannels = VIDEO_LOSS_CHANNEL_ALL;
 	u8 lossChannels = 0x00;
 	u8 changedChannels = 0x0F;
+	u8 newLoss = 0x00;
+	eChannel_t channel;
+	u8 index = 0;
 
 	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
 	{
@@ -59,17 +66,30 @@ void ScanVideoLossChannels(void)
 		if(changedChannels != 0)
 		{
 			SetVideoLossEvent(SET);
-			if((changedChannels & lossChannels) != (u8)VIDEO_LOSS_CHANNEL_NONE)
+			newLoss = changedChannels & lossChannels;
+			if(newLoss != (u8)VIDEO_LOSS_CHANNEL_NONE)
 			{
 				// There is new loss channel..
 				// Should reset the buzzer count for video loss
 				Read_NvItem_VideoLossBuzzerTime((u8*)&videoLossBuzzerCount);
 				videoLossBuzzerCount *= 2;
+
+				// set osd event of no video
+				// fine new loss channel 
+				for(index = 0; index < 4; index++)
+				{
+					if((newLoss >> index) & 0x01)
+					{
+						channel = (eChannel_t)index;
+						OSD_SetEvent(channel, EVT_NO_VIDOE);
+					}
+				}
 			}
 			else
 			{
 				videoLossBuzzerCount = 0;
 			}
+			
 			if(GetCurrentAutoSeq() == AUTO_SEQ_NORMAL)
 			{
 				UpdateAutoSeqDisplayTime();
@@ -85,9 +105,10 @@ BOOL IsVideoLossChannel(eChannel_t channel)
 {
 #if BD_NVP == NVP6158
 	return ((videoLossChannels & VIDEO_LOSS_CHANNEL(channel)) == 0)?FALSE:TRUE;
+
 #elif BD_NVP == NVP6168
-	//return (videoLossChannels & (0x01 << channel)) >> channel;
-	BOOL ret = FALSE;
+
+ 	BOOL ret = FALSE;
 	BYTE format = GetInputVideoFormat(channel);
 
 	if((format == NC_VIVO_CH_FORMATDEF_UNKNOWN) || (format == NC_VI_SIGNAL_ON))
