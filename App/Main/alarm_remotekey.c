@@ -7,10 +7,14 @@
 //=============================================================================
 //  Define & MACRO
 //=============================================================================
-#define ALARM_DEBOUNCE_COUNT_MAX		4
+#define ALARM_DEBOUNCE_COUNT_MAX		3
 //#define ALL_ALARM_STATE
-#define ALARM_START						1
-#define ALARM_STOP						0
+//#define ALARM_START						1
+//#define ALARM_STOP							0
+
+#define ALARM_OUT_CLEAR					0
+#define ALARM_OUT_READY					1
+#define ALARM_OUT_SET						2
 
 #define PARALLELKEY_DEBOUNCE_COUNT_MAX	2
 
@@ -23,7 +27,7 @@
 //=============================================================================
 static BOOL alarmRemoteEnable = TRUE;
 
-static u32 alarmOutTimeCountInSec = 0;
+static u32 alarmOutTimeCountIn500ms = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_NONE;
 
@@ -54,6 +58,8 @@ static sVirtualKeys_t virtual_key_table[] =
 	{KEY_AUTO_SEQ,		VIRTUAL_KEY_AUTO_SEQ},
 	{KEY_MENU,			VIRTUAL_KEY_MENU}
 };
+
+static void AlarmOutState(u8 state);
 
 //=============================================================================
 //  Function Definition
@@ -115,12 +121,20 @@ void CheckAlarm(void)
 					if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
 						(alarmInfo[channel].raw_data == spiDataMask[channel])) //high
 					{
+						if(alarmInfo[channel].alarm_status == ALARM_SET)
+						{
+							AlarmOutState(ALARM_OUT_SET);
+						}
+						alarmInfo[channel].alarm_status = ALARM_CLEAR;
 						alarmInfo[channel].check_count = 0;
 					}
 					else
 					{
-						alarmInfo[channel].check_count++;
-						alarmInfo[channel].alarm_status = ALARM_DEBOUNCE;
+						if(alarmInfo[channel].alarm_status != ALARM_SET)
+						{
+							alarmInfo[channel].check_count++;
+							alarmInfo[channel].alarm_status = ALARM_DEBOUNCE;
+						}
 					}
 					break;
 
@@ -128,12 +142,20 @@ void CheckAlarm(void)
 					if((alarmInfo[channel].raw_data != alarmInfo[channel].previous_data) ||
 						(alarmInfo[channel].raw_data == LOW))
 					{
+						if(alarmInfo[channel].alarm_status == ALARM_SET)
+						{
+							AlarmOutState(ALARM_OUT_SET);
+						}
+						alarmInfo[channel].alarm_status = ALARM_CLEAR;
 						alarmInfo[channel].check_count = 0;
 					}
 					else
 					{
-						alarmInfo[channel].check_count++;
-						alarmInfo[channel].alarm_status = ALARM_DEBOUNCE;
+						if(alarmInfo[channel].alarm_status != ALARM_SET)
+						{
+							alarmInfo[channel].check_count++;
+							alarmInfo[channel].alarm_status = ALARM_DEBOUNCE;
+						}
 					}
 					break;
 
@@ -148,9 +170,10 @@ void CheckAlarm(void)
 				{
 					alarmInfo[channel].alarm_status = ALARM_SET;
 					OSD_SetEvent(channel, EVT_ALARM);
-					//alarmInfo[channel].check_count = 0;
+					alarmInfo[channel].check_count = 0;
 					//buzzer & alarm output
-					StartStopAlarm(ALARM_START);
+					//StartStopAlarm(ALARM_START);
+					AlarmOutState(ALARM_OUT_READY);
 					lastAlarmChannel = (eChannel_t)channel;
 					//Occur key data (key_alarm) to display alarm screen
 					UpdateKeyData(KEY_ALARM);
@@ -172,14 +195,11 @@ static void ClearAllAlarm(void)
 		alarmInfo[channel].check_count = 0;
 	}
 	lastAlarmChannel = CHANNEL_NONE;
-
-//	if(GetCurrentAutoSeq() == AUTO_SEQ_ALARM)
-//	{
-//		InitializeAutoSeq(AUTO_SEQ_NONE);
-//	}
 }
+
 //------------------------------------------------------------------------------
-static void StartStopAlarm(BOOL start_stop)
+//static void StartStopAlarm(BOOL start_stop)
+static void AlarmOutState(u8 state)
 {
 	u8 alarmBuzzerTime;
 	u8 alarmOutTime;
@@ -187,6 +207,28 @@ static void StartStopAlarm(BOOL start_stop)
 	Read_NvItem_AlarmBuzzerTime(&alarmBuzzerTime);
 	Read_NvItem_AlarmOutTime(&alarmOutTime);
 
+	switch(state)
+	{
+		case ALARM_OUT_CLEAR:
+			alarmOutTimeCountIn500ms = 0;
+			//ClearAllAlarm();
+			TurnOffAlarmOut(ALARMOUT_REQUESTER_ALARM);
+			break;
+
+		case ALARM_OUT_READY:
+			if(alarmBuzzerCountIn500ms == 0)
+			{
+				alarmBuzzerCountIn500ms = alarmBuzzerTime * 2;
+			}
+			TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
+			break;
+
+		case ALARM_OUT_SET:
+			alarmOutTimeCountIn500ms = alarmOutTime * 2;
+			TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
+			break;
+	}
+	#if 0
 	if(start_stop == ALARM_START)
 	{
 		alarmBuzzerCountIn500ms = alarmBuzzerTime * 2;
@@ -199,6 +241,7 @@ static void StartStopAlarm(BOOL start_stop)
 		ClearAllAlarm();
 		TurnOffAlarmOut(ALARMOUT_REQUESTER_ALARM);
 	}
+	#endif
 }
 
 //------------------------------------------------------------------------------
@@ -213,35 +256,36 @@ void DecreaseAlarmBuzzerCount(void)
 	alarmBuzzerCountIn500ms--;
 }
 //------------------------------------------------------------------------------
-void CheckAlarmClearCondition(void)
+//void CheckAlarmClearCondition(void)
+void CountDown_AlarmOutTimer(void)
 {
 	sSystemTick_t* currentSystemTime = GetSystemTime();
-	static u32 previousSystemTimeIn1s = 0;
+	static u32 previousSystemTimeIn100ms = 0;
 	eChannel_t channel;
-	BOOL alarmStatus = ALARM_CLEAR;
+	u8 alarmStatus = ALARM_CLEAR;
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
-		if( alarmInfo[channel].alarm_status == ALARM_DEBOUNCE)
+		if( alarmInfo[channel].alarm_status == ALARM_SET)
 		{
-			alarmStatus = ALARM_DEBOUNCE;
+			alarmStatus = ALARM_SET;
 			break;
 		}
 	}
 
-	if((TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1)) && (alarmOutTimeCountInSec !=0))
+	if((TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5)) && (alarmOutTimeCountIn500ms !=0))
 	{
-		alarmOutTimeCountInSec--;
+		alarmOutTimeCountIn500ms--;
+		previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
 	}
 
- 	if(alarmOutTimeCountInSec == 0) 
+ 	if(alarmOutTimeCountIn500ms == 0) 
  	{
- 		if(alarmStatus != ALARM_DEBOUNCE)
+ 		if(alarmStatus != ALARM_SET)
  		{
-			StartStopAlarm(ALARM_STOP);
+	 		AlarmOutState(ALARM_OUT_CLEAR);
 		}	
 	}
-	previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
 }
 //------------------------------------------------------------------------------
 eChannel_t GetLastAlarmChannel(void)

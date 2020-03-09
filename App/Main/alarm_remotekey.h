@@ -61,7 +61,7 @@ enum
 //=============================================================================
 typedef struct
 {
-	BOOL alarm_status;
+	u8 alarm_status;
 	BOOL raw_data;
 	BOOL previous_data;
 	u8 check_count;
@@ -86,8 +86,7 @@ typedef struct
 extern BOOL CheckAlarmRemoteEnable(void);
 extern BYTE ReadSpiDataByte(void);
 extern void ChangeAlarmRemoteKeyMode(BYTE mode);
-extern void StartStopAlarm(BOOL start_stop);
-extern void CheckAlarmClearCondition(void);
+extern void CountDown_AlarmOutTimer(void);
 extern eChannel_t GetLastAlarmChannel(void);
 extern u8 GetAlarmStatus(eChannel_t channel);
 extern void CheckAlarm(void);

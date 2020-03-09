@@ -42,6 +42,7 @@ static void PlayBuzzer(void)
 	u8 alarmCount = GetAlarmBuzzerCount();
 	u8 motionCount = GetMotionBuzzerCount();
 	u8 buzzerCount;
+	static u8 playCount = 0;
 
 	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
 	{
@@ -49,14 +50,20 @@ static void PlayBuzzer(void)
 
 		if(buzzerCount > 0)
 		{
-			if(buzzerCount%2)
-				BUZZER_LOW;
-			else
+			if(playCount%2)
+			{
 				BUZZER_HIGH;
+			}
+			else
+			{
+				BUZZER_LOW;
+			}
+
+			playCount++;
 
 			if(lossCount > 0)
 			{
-                          DecreaseVideoLossBuzzerCount();
+				DecreaseVideoLossBuzzerCount();
 			}
 			if(alarmCount > 0)
 			{
@@ -70,6 +77,7 @@ static void PlayBuzzer(void)
 		else
 		{
 			BUZZER_LOW;
+			playCount = 0;
 		}
 		previousSystemTimeIn100ms = currentSystemTime->tickCount_100ms;
 	}
@@ -207,7 +215,7 @@ void main(void)
 		Delay_ms(10);
 		
 		ScanVideoLossChannels();
-		CheckAlarmClearCondition();
+		CountDown_AlarmOutTimer();
 		MotionDetectCheck();
 		PlayBuzzer();
 
