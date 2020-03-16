@@ -4,9 +4,9 @@
 #define SYSTEM_SETUP_MODE			1	//set-up menu
 #define SYSTEM_NORMAL_MODE			0	//normal working
 
-#define ALARMOUT_REQUESTER_NONE		0x00
-#define ALARMOUT_REQUESTER_ALARM		0x01
-#define ALARMOUT_REQUESTER_MOTION	0x02
+//#define ALARMOUT_REQUESTER_NONE		0x00
+//#define ALARMOUT_REQUESTER_ALARM		0x01
+//#define ALARMOUT_REQUESTER_MOTION	0x02
 
 #define CHANNEL_NONE					0xFF
 //-----------------------------------------------------------------------------
@@ -32,8 +32,9 @@ extern void NVP6158_init(void);
 extern void NVP6158_VideoDetectionProc(void);
 #endif
 
-extern void TurnOnAlarmOut(u8 requester);
-extern void TurnOffAlarmOut(u8 requester);
+extern void TurnOnOffAlarmLed(BOOL on_off);
+//extern void TurnOnAlarmOut(u8 requester);
+//extern void TurnOffAlarmOut(u8 requester);
 
 #endif
 

@@ -1411,9 +1411,9 @@ static void DisplayPage_DisplaySplitMode(eDisplayMode_t split)
 	SetInputChanged();
 	//OSD_DrawBorderLine();
 
-	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space25)*CHAR_WIDTH))/2;
+	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space30)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
-	OSD_PrintString(position, menuStr_Space25, strlen(menuStr_Space25));
+	OSD_PrintString(position, menuStr_Space30, strlen(menuStr_Space30));
 	position.pos_x = (DISPLAY_WIDTH - (strlen(pDisplayMode_Name[split])*CHAR_WIDTH))/2;
 	position.pos_y = 100;
 	OSD_PrintString(position, pDisplayMode_Name[split], strlen(pDisplayMode_Name[split]));
@@ -1476,9 +1476,9 @@ static void DisplayPage_UpdatePageOption(u8 itemY)
 				Print_StringWithSelectedMark(
 						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 						displayMenu[itemY].offset_y,
-						menuStr_Space25,
+						menuStr_Space30,
 						NULL,
-						strlen(menuStr_Space25));
+						strlen(menuStr_Space30));
 				Print_StringWithSelectedMark(
 						displayMenu[itemY].offset_x + strlen(displayMenu[itemY].str),
 						displayMenu[itemY].offset_y,
@@ -1551,9 +1551,9 @@ static void DisplayPage_RedrawPage(u8 itemY)
 
 	splitModeSelecting = FALSE;
 
-	position.pos_x = (DISPLAY_WIDTH -( strlen(menuStr_Space25)*CHAR_WIDTH))/2;
+	position.pos_x = (DISPLAY_WIDTH -( strlen(menuStr_Space30)*CHAR_WIDTH))/2;
 	position.pos_y = 100;
-	OSD_PrintString(position, menuStr_Space25, strlen(menuStr_Space25));
+	OSD_PrintString(position, menuStr_Space30, strlen(menuStr_Space30));
 
 	MDINOSD_SetBGBoxColor(BLACK(GetCurrentColorFormat()));		// set BG-BOX color
 	MDINOSD_SetBGBoxArea(BGBOX_INDEX0, MENU_START_POSITION_X, MENU_START_POSITION_Y, MENU_WIDTH, MENU_HEIGHT);
@@ -2186,7 +2186,11 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 	// Clear screen
 	Erase_AllMenuScreen();
 	MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-	//DisplayMode_FullScreen(channel);
+	if(GetCurrentDisplayMode() != (DISPLAY_MODE_FULL_CH1 + channel))
+	{
+		DisplayScreen((eDisplayMode_t)channel);
+		SetInputChanged();
+	}
 
 	MotionDetectionPage_DrawCursor(0, 0, TRUE);
 	Read_NvItem_MotionBlock(blocks, channel);

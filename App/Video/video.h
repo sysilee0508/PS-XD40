@@ -100,7 +100,7 @@ typedef enum
 #define BLACK(x)						(x == COLOR_RGB) ? RGB_BLACK : YBR_BLACK
 #define GRAY(x)						(x == COLOR_RGB) ? RGB_BLACK : YBR_GRAY
 
-#define ADJUST_WINDOW_STEP_MAX	20
+#define ADJUST_WINDOW_STEP_MAX	146//60
 
 // ----------------------------------------------------------------------
 // Exported Variables

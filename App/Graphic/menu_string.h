@@ -28,7 +28,7 @@ const u8 menuStr_Space8[] = "        ";
 const u8 menuStr_Space9[] = "         ";
 const u8 menuStr_Space10[] = "          ";
 const u8 menuStr_Space13[] = "             ";
-const u8 menuStr_Space25[] = "                         ";
+const u8 menuStr_Space30[] = "                              ";
 
 // Options
 const u8 menuStr_Asia[] = "ASIA (yyyy-mm-dd)";
@@ -41,36 +41,36 @@ const u8 menuStr_Show[] = "INCLUDE(OFF)";
 const u8 menuStr_Resolution1920X1080_60P[] = "1920 X 1080 60(50)P";
 const u8 menuStr_Resolution1920X1080_30P[] = "1920 X 1080 30(25)P";
 
-const u8 menuStr_DisplayMode_2SplitHScale_A[] = "2Split H-Scale Ch1&Ch2";
-const u8 menuStr_DisplayMode_2SplitHCrop_A[] = "2Split H-Crop Ch1&Ch2";
-const u8 menuStr_DisplayMode_2SplitVScale_A[] = "2Split V-Scale Ch1&Ch2";
-const u8 menuStr_DisplayMode_2SplitVCrop_A[] = "2Split V-Crop Ch1&Ch2";
-const u8 menuStr_DisplayMode_2SplitHScale_B[] = "2Split H-Scale Ch3&Ch4";
-const u8 menuStr_DisplayMode_2SplitHCrop_B[] = "2Split H-Crop Ch3&Ch4";
-const u8 menuStr_DisplayMode_2SplitVScale_B[] = "2Split V-Scale Ch3&Ch4";
-const u8 menuStr_DisplayMode_2SplitVCrop_B[] = "2Split V-Crop Ch3&Ch4";
+const u8 menuStr_DisplayMode_2SplitHScale_A[] = "11. 2Split H-Scale Ch1&Ch2";
+const u8 menuStr_DisplayMode_2SplitHCrop_A[] = "12. 2Split H-Crop Ch1&Ch2";
+const u8 menuStr_DisplayMode_2SplitVScale_A[] = "13. 2Split V-Scale Ch1&Ch2";
+const u8 menuStr_DisplayMode_2SplitVCrop_A[] = "14. 2Split V-Crop Ch1&Ch2";
+const u8 menuStr_DisplayMode_2SplitHScale_B[] = "15. 2Split H-Scale Ch3&Ch4";
+const u8 menuStr_DisplayMode_2SplitHCrop_B[] = "16. 2Split H-Crop Ch3&Ch4";
+const u8 menuStr_DisplayMode_2SplitVScale_B[] = "17. 2Split V-Scale Ch3&Ch4";
+const u8 menuStr_DisplayMode_2SplitVCrop_B[] = "18. 2Split V-Crop Ch3&Ch4";
 
-const u8 menuStr_DisplayMode_3Split_RScale[] = "3Split Left Scale";
-const u8 menuStr_DisplayMode_3Split_RCrop[] = "3Split Left Crop";
-const u8 menuStr_DisplayMode_3Split_LScale[] = "3Split Right Scale";
-const u8 menuStr_DisplayMode_3Split_LCrop[] = "3Split Right Crop";
-const u8 menuStr_DisplayMode_3Split_DScale[] = "3Split Top Scale";
-const u8 menuStr_DisplayMode_3Split_DCrop[] = "3Split Top Crop";
-const u8 menuStr_DisplayMode_3Split_UScale[] = "3Split Bottom Scale";
-const u8 menuStr_DisplayMode_3Split_UCrop[] = "3Split Bottom Crop";
+const u8 menuStr_DisplayMode_3Split_RScale[] = "19. 3Split Left Scale";
+const u8 menuStr_DisplayMode_3Split_RCrop[] = "20. 3Split Left Crop";
+const u8 menuStr_DisplayMode_3Split_LScale[] = "21. 3Split Right Scale";
+const u8 menuStr_DisplayMode_3Split_LCrop[] = "22. 3Split Right Crop";
+const u8 menuStr_DisplayMode_3Split_DScale[] = "23. 3Split Top Scale";
+const u8 menuStr_DisplayMode_3Split_DCrop[] = "24. 3Split Top Crop";
+const u8 menuStr_DisplayMode_3Split_UScale[] = "25. 3Split Bottom Scale";
+const u8 menuStr_DisplayMode_3Split_UCrop[] = "26. 3Split Bottom Crop";
 
-const u8 menuStr_DisplayMode_4Split_Quad[] = "QUAD";
-const u8 menuStr_DisplayMode_4Split_RScale[] = "4Split Left Scale";
-const u8 menuStr_DisplayMode_4Split_RCrop[] = "4Split Left Crop";
-const u8 menuStr_DisplayMode_4Split_LScale[] = "4Split Right Scale";
-const u8 menuStr_DisplayMode_4Split_LCrop[] = "4Split Right Crop";
-const u8 menuStr_DisplayMode_4Split_DScale[] = "4Split Top Scale";
-const u8 menuStr_DisplayMode_4Split_DCrop[] = "4Split Top Crop";
-const u8 menuStr_DisplayMode_4Split_UScale[] = "4Split Bottom Scale";
-const u8 menuStr_DisplayMode_4Split_UCrop[] = "4Split Bottom Crop";
-const u8 menuStr_DisplayMode_4Split_H[] = "4Split-H";
-const u8 menuStr_DisplayMode_4Split_X[] = "4Split-X";
-
+const u8 menuStr_DisplayMode_4Split_Quad[] = "27. QUAD";
+const u8 menuStr_DisplayMode_4Split_RScale[] = "1. 4Split Left Scale";
+const u8 menuStr_DisplayMode_4Split_RCrop[] = "2. 4Split Left Crop";
+const u8 menuStr_DisplayMode_4Split_LScale[] = "3. 4Split Right Scale";
+const u8 menuStr_DisplayMode_4Split_LCrop[] = "4. 4Split Right Crop";
+const u8 menuStr_DisplayMode_4Split_DScale[] = "5. 4Split Top Scale";
+const u8 menuStr_DisplayMode_4Split_DCrop[] = "6. 4Split Top Crop";
+const u8 menuStr_DisplayMode_4Split_UScale[] = "7. 4Split Bottom Scale";
+const u8 menuStr_DisplayMode_4Split_UCrop[] = "8. 4Split Bottom Crop";
+const u8 menuStr_DisplayMode_4Split_H[] = "9. 4Split-H";
+const u8 menuStr_DisplayMode_4Split_X[] = "10. 4Split-X";
+#if 0
 const u8 menuStr_DisplayMode_PIP_A2[] = "PIP Right-Top Ch2";
 const u8 menuStr_DisplayMode_PIP_A3[] = "PIP Right-Top Ch3";
 const u8 menuStr_DisplayMode_PIP_A4[] = "PIP Right-Top Ch4";
@@ -83,7 +83,7 @@ const u8 menuStr_DisplayMode_PIP_C4[] = "PIP Right-Bottom Ch4";
 const u8 menuStr_DisplayMode_PIP_D2[] = "PIP Left-Top Ch2";
 const u8 menuStr_DisplayMode_PIP_D3[] = "PIP Left-Top Ch3";
 const u8 menuStr_DisplayMode_PIP_D4[] = "PIP Left-Top Ch4";
-
+#endif
 const u8* pDisplayMode_Name[DISPLAY_MODE_MAX] = 
 {
 	NULL,
@@ -116,7 +116,8 @@ const u8* pDisplayMode_Name[DISPLAY_MODE_MAX] =
 	menuStr_DisplayMode_4Split_UScale,
 	menuStr_DisplayMode_4Split_UCrop,
 	menuStr_DisplayMode_4Split_H,
-	menuStr_DisplayMode_4Split_X,
+	menuStr_DisplayMode_4Split_X
+#if 0	
 	menuStr_DisplayMode_PIP_A2,
 	menuStr_DisplayMode_PIP_A3,
 	menuStr_DisplayMode_PIP_A4,
@@ -129,6 +130,7 @@ const u8* pDisplayMode_Name[DISPLAY_MODE_MAX] =
 	menuStr_DisplayMode_PIP_D2,
 	menuStr_DisplayMode_PIP_D3,
 	menuStr_DisplayMode_PIP_D4
+#endif	
 };
 
 const u8 menuStr_AuxVGA[] = "VGA";

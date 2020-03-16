@@ -12,7 +12,7 @@
 // Struct/Union Types and define
 // ----------------------------------------------------------------------
 
-#define COMPENSATION_MARGIN					10
+#define COMPENSATION_MARGIN					12//10
 
 #define DUMP_REG								0
 
@@ -216,11 +216,6 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 
 	while (nID!=0x85) MDIN3xx_GetChipID(&nID);	// get chip-id
 
-//	MDIN3xx_OutDarkScreen(ON);
-//	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
-//	MDIN3xx_AuxDarkScreen(ON);
-//	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], OFF);
-	
 	MDIN3xx_SetMemoryConfig(mdin);			// initialize DDR memory
 
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
@@ -313,7 +308,6 @@ static void MDIN3xx_SetRegInitial_AB(MDIN_CHIP_ID_t mdin)
 	
 	// define video format of AUX-INPUT  //kukuri
 	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF|MDIN_FIELDID_INPUT|MDIN_LOW_IS_TOPFLD; 		//by hungry 2012.02.24
-	//stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF; 		//by hungry 2012.02.24
 	// define video format of AUX-OUTPUT (CVBS output)
 	stVideo[M380_ID].stOUT_x.frmt = VIDOUT_1920x1080p60;//VIDOUT_1920x1080pRB;
 	stVideo[M380_ID].stOUT_x.mode = MDIN_OUT_MUX656_8;
@@ -540,7 +534,6 @@ static void MDIN3xx_SetRegInitial_D(void)
 
 	if(retry > 3)	return;
 
-//	MDIN3xx_EnableMainDisplay(OFF);		// set main display off
 	MDIN3xx_SetMemoryConfig(MDIN_ID_D);			// initialize DDR memory
 
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
@@ -657,7 +650,6 @@ static void MDIN3xx_SetRegInitial_D(void)
 	MDIN3xx_VideoProcess(&stVideo[M380_ID]);                            // mdin3xx main video process
 	MDINAUX_VideoProcess(&stVideo[M380_ID]);             // mdin3xx aux video process
 
-	//MDIN3xx_EnableMainDisplay(ON);
 	MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 	MDIN3xx_EnableAuxDisplay(&stVideo[M380_ID], ON);
 
@@ -1185,12 +1177,12 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 
 		case VIDSRC_960x480i60:
-			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+4);
 			mainTotalHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+4);
 			mainTotalHeight = DISPLAY_HEIGHT_576;
 			break;
 	}
@@ -1210,12 +1202,12 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			break;
 			
 		case VIDSRC_960x480i60:
-			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+4);
 			auxTotalHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+4);
 			auxTotalHeight = DISPLAY_HEIGHT_576;
 			break;
 
@@ -1551,12 +1543,12 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			break;
 
 		case VIDSRC_960x480i60:
-			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+4);
 			mainTotalHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			mainTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+4);
 			mainTotalHeight = DISPLAY_HEIGHT_576;
 			break;
 	}
@@ -1576,12 +1568,12 @@ void CreateDisplayWindow_B(eDisplayMode_t displayMode)
 			break;
 			
 		case VIDSRC_960x480i60:
-			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+4);
 			auxTotalHeight = DISPLAY_HEIGHT_480;
 			break;
 
 		case VIDSRC_960x576i50:
-			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+5);
+			auxTotalWidth = DISPLAY_WIDTH_960*2 - (COMPENSATION_MARGIN+4);
 			auxTotalHeight = DISPLAY_HEIGHT_576;
 			break;
 

@@ -643,7 +643,6 @@ void Key_Proc(void)
 					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
 					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 				}
-				OSD_EraseAllText();
 				forceFreezeOn = SET;
 				if(GetTotalAlarmChannels() == 1)
 				{
@@ -651,6 +650,7 @@ void Key_Proc(void)
 					channel = GetLastAlarmChannel();
 					if(GetCurrentDisplayMode() != (DISPLAY_MODE_FULL_CH1 + channel))
 					{
+						OSD_EraseAllText();
 						DisplayScreen((eDisplayMode_t)channel);
 						SetInputChanged();
 					}
@@ -659,6 +659,7 @@ void Key_Proc(void)
 				{
 					if(GetCurrentDisplayMode() != DISPLAY_MODE_4SPLIT_QUAD)
 					{
+						OSD_EraseAllText();
 						DisplayScreen(DISPLAY_MODE_4SPLIT_QUAD);
 						SetInputChanged();
 					}
@@ -678,6 +679,7 @@ void Key_Proc(void)
 		}
 
 		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark
+		//previous_keydata = key;
 	}
 }
 

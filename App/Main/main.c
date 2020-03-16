@@ -16,8 +16,21 @@ extern void InitRegisterSet();
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-static u8 alarmOutRequester = ALARMOUT_REQUESTER_NONE;
+//static u8 alarmOutRequester = ALARMOUT_REQUESTER_NONE;
 
+void TurnOnOffAlarmLed(BOOL on_off)
+{
+	if(on_off == ON)
+	{
+		ALARMOUT_LOW;
+	}
+	else
+	{
+		ALARMOUT_HIGH;
+	}
+}
+
+#if 0
 void TurnOnAlarmOut(u8 requester)
 {
 	alarmOutRequester |=  requester;
@@ -33,6 +46,7 @@ void TurnOffAlarmOut(u8 requester)
 		ALARMOUT_HIGH;
 	}
 }
+#endif
 
 static void PlayBuzzer(void)
 {
@@ -215,15 +229,14 @@ void main(void)
 		Delay_ms(10);
 		
 		ScanVideoLossChannels();
-		CountDown_AlarmOutTimer();
 		MotionDetectCheck();
+		CountDown_AlarmOutTimer();
 		PlayBuzzer();
 
 		UpdateDisplayMode();
 
 		UpdateAutoSeqCount();
 		DisplayAutoSeqChannel();
-		// update seq?? 
 		
 		if(forceFreezeOn == SET)
 		{

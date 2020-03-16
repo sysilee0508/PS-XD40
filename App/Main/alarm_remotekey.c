@@ -59,8 +59,6 @@ static sVirtualKeys_t virtual_key_table[] =
 	{KEY_MENU,			VIRTUAL_KEY_MENU}
 };
 
-static void AlarmOutState(u8 state);
-
 //=============================================================================
 //  Function Definition
 //=============================================================================
@@ -174,7 +172,7 @@ void CheckAlarm(void)
 					//buzzer & alarm output
 					//StartStopAlarm(ALARM_START);
 					AlarmOutState(ALARM_OUT_READY);
-					lastAlarmChannel = (eChannel_t)channel;
+					UpdateLastAlarmChannel(channel);
 					//Occur key data (key_alarm) to display alarm screen
 					UpdateKeyData(KEY_ALARM);
 					SetKeyReady();
@@ -198,8 +196,7 @@ static void ClearAllAlarm(void)
 }
 
 //------------------------------------------------------------------------------
-//static void StartStopAlarm(BOOL start_stop)
-static void AlarmOutState(u8 state)
+void AlarmOutState(u8 state)
 {
 	u8 alarmBuzzerTime;
 	u8 alarmOutTime;
@@ -212,7 +209,8 @@ static void AlarmOutState(u8 state)
 		case ALARM_OUT_CLEAR:
 			alarmOutTimeCountIn500ms = 0;
 			//ClearAllAlarm();
-			TurnOffAlarmOut(ALARMOUT_REQUESTER_ALARM);
+			TurnOnOffAlarmLed(OFF);
+			//TurnOffAlarmOut(ALARMOUT_REQUESTER_ALARM);
 			break;
 
 		case ALARM_OUT_READY:
@@ -220,28 +218,16 @@ static void AlarmOutState(u8 state)
 			{
 				alarmBuzzerCountIn500ms = alarmBuzzerTime * 2;
 			}
-			TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
+			TurnOnOffAlarmLed(ON);
+			//TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
 			break;
 
 		case ALARM_OUT_SET:
 			alarmOutTimeCountIn500ms = alarmOutTime * 2;
-			TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
+			TurnOnOffAlarmLed(ON);
+			//TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
 			break;
 	}
-	#if 0
-	if(start_stop == ALARM_START)
-	{
-		alarmBuzzerCountIn500ms = alarmBuzzerTime * 2;
-		alarmOutTimeCountInSec = alarmOutTime;
-		TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
-	}
-	else
-	{
-		alarmOutTimeCountInSec = 0;
-		ClearAllAlarm();
-		TurnOffAlarmOut(ALARMOUT_REQUESTER_ALARM);
-	}
-	#endif
 }
 
 //------------------------------------------------------------------------------
@@ -287,6 +273,12 @@ void CountDown_AlarmOutTimer(void)
 		}	
 	}
 }
+
+//------------------------------------------------------------------------------
+void UpdateLastAlarmChannel(eChannel_t channel)
+{
+	lastAlarmChannel = channel;
+}
 //------------------------------------------------------------------------------
 eChannel_t GetLastAlarmChannel(void)
 {
@@ -299,6 +291,16 @@ u8 GetAlarmStatus(eChannel_t channel)
 	return alarmInfo[channel].alarm_status;
 }
 
+void SetAlarmMotionStatus(eChannel_t channel, BOOL motion)
+{
+	alarmInfo[channel].alarm_motion = motion;
+}
+
+BOOL GetAlarmMotionStatus(eChannel_t channel)
+{
+	return alarmInfo[channel].alarm_motion;
+}
+
 //------------------------------------------------------------------------------
 u8 GetTotalAlarmChannels(void)
 {
@@ -307,7 +309,7 @@ u8 GetTotalAlarmChannels(void)
 
 	for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
 	{
-		if(GetAlarmStatus(iChannel) == ALARM_SET)
+		if((GetAlarmStatus(iChannel) == ALARM_SET) || (GetAlarmMotionStatus(iChannel) == SET))
 		{
 			total++;
 		}

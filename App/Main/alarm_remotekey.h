@@ -22,6 +22,10 @@
 #define REMOCON_ID_NONE 				0
 #define REMOCON_ID_MAX					16
 
+#define ALARM_OUT_CLEAR					0
+#define ALARM_OUT_READY					1
+#define ALARM_OUT_SET						2
+
 //=============================================================================
 //  enum
 //=============================================================================
@@ -65,6 +69,7 @@ typedef struct
 	BOOL raw_data;
 	BOOL previous_data;
 	u8 check_count;
+	BOOL alarm_motion;
 } sAlarmInfo_t;
 
 //=============================================================================
@@ -87,8 +92,12 @@ extern BOOL CheckAlarmRemoteEnable(void);
 extern BYTE ReadSpiDataByte(void);
 extern void ChangeAlarmRemoteKeyMode(BYTE mode);
 extern void CountDown_AlarmOutTimer(void);
+extern void UpdateLastAlarmChannel(eChannel_t channel);
 extern eChannel_t GetLastAlarmChannel(void);
+extern void AlarmOutState(u8 state);
 extern u8 GetAlarmStatus(eChannel_t channel);
+extern void SetAlarmMotionStatus(eChannel_t channel, BOOL motion);
+extern BOOL GetAlarmMotionStatus(eChannel_t channel);
 extern void CheckAlarm(void);
 extern void ChangeBaudrate(void);
 extern u8 GetAlarmBuzzerCount(void);

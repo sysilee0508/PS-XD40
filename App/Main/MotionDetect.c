@@ -152,28 +152,51 @@ void Set_MotionDetect_ActivatedArea(eChannel_t channel)
 void MotionDetectCheck(void)
 {
 	eChannel_t channel;
-	BYTE channel_mask;
-	BYTE currentMotion = 0;// = Get_MotionDetectedStatus();
-	BYTE alarmBuzzerTime;
-	static BYTE alarmOutTimeCountInSec = 0;
-	static BYTE previousMotion = 0x00;
-	static BOOL motionCleared = TRUE;
-	sSystemTick_t* currentSystemTime = GetSystemTime();
-	static u32 previousSystemTimeIn1s = 0;
+	//BYTE channel_mask;
+	//BYTE currentMotion = 0;// = Get_MotionDetectedStatus();
+	//BYTE alarmBuzzerTime;
+	//static BYTE alarmOutTimeCountInSec = 0;
+	//static BYTE previousMotion = 0x00;
+	//static BOOL motionCleared = TRUE;
+	//sSystemTick_t* currentSystemTime = GetSystemTime();
+	//static u32 previousSystemTimeIn1s = 0;
 	BOOL fMotion = FALSE;
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
 		fMotion = Get_MotionDetectedStatus(channel);
-		currentMotion |= (fMotion << channel);
+		//currentMotion |= (fMotion << channel);
 
-		// update osd event
-		if((fMotion == TRUE) && ((OSD_GetEvent(channel) & EVT_MOTION) == 0))
+		
+		if(fMotion == TRUE)
 		{
-			OSD_SetEvent(channel, EVT_MOTION);
+			if((OSD_GetEvent(channel) & EVT_MOTION) == 0)
+			{
+				OSD_SetEvent(channel, EVT_MOTION);
+			}
+
+			if(GetAlarmMotionStatus(channel) == CLEAR)
+			{
+				// this is new motion on this channel
+				SetAlarmMotionStatus(channel, SET);
+				
+				AlarmOutState(ALARM_OUT_READY);
+				UpdateLastAlarmChannel(channel);
+				//Occur key data (key_alarm) to display alarm screen
+				UpdateKeyData(KEY_ALARM);
+				SetKeyReady();
+			}
+		}
+		else
+		{
+			if(GetAlarmMotionStatus(channel) == SET)
+			{
+				AlarmOutState(ALARM_OUT_SET);
+				SetAlarmMotionStatus(channel, CLEAR);
+			}
 		}
 	}
-	
+#if 0	
 	// buzzer
 	if((previousMotion == 0) && (currentMotion > 0) && (alarmOutTimeCountInSec == 0))
 	{
@@ -206,6 +229,7 @@ void MotionDetectCheck(void)
 		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
 	}
 	previousMotion = currentMotion;
+#endif
 }
 
 BOOL Get_MotionDetectedStatus(eChannel_t channel)
