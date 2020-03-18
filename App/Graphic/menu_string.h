@@ -59,7 +59,7 @@ const u8 menuStr_DisplayMode_3Split_DCrop[] = "24. 3Split Top Crop";
 const u8 menuStr_DisplayMode_3Split_UScale[] = "25. 3Split Bottom Scale";
 const u8 menuStr_DisplayMode_3Split_UCrop[] = "26. 3Split Bottom Crop";
 
-const u8 menuStr_DisplayMode_4Split_Quad[] = "27. QUAD";
+const u8 menuStr_DisplayMode_4Split_Quad[] = "QUAD";
 const u8 menuStr_DisplayMode_4Split_RScale[] = "1. 4Split Left Scale";
 const u8 menuStr_DisplayMode_4Split_RCrop[] = "2. 4Split Left Crop";
 const u8 menuStr_DisplayMode_4Split_LScale[] = "3. 4Split Right Scale";

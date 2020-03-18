@@ -62,8 +62,9 @@ static void CreateDefaultChannelTitle(void)
 
 	for(index = 0; index < NUM_OF_CHANNEL; index++)
 	{
-		strncpy((char *)&(nv_data.data.channelName[index]), "CAM", 3);
-		nv_data.data.channelName[index][3] = '1'+index;
+		strncpy((char *)&(nv_data.data.channelName[index]), "    CAM", 7);
+		nv_data.data.channelName[index][7] = '1'+index;
+		strncpy((char *)&(nv_data.data.channelName[index]), "    ", 4);
 	}
 }
 

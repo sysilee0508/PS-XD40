@@ -484,52 +484,77 @@ void Key_Proc(void)
 			case KEY_FULL_CH2 : 
 			case KEY_FULL_CH3 : 
 			case KEY_FULL_CH4 : 
-				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+				if(forceFreezeOn == SET)
 				{
-					OSD_ClearEvent(channel, EVT_ALARM);
-					OSD_ClearEvent(channel, EVT_MOTION);
-					OSD_ClearEvent(channel, EVT_FREEZE);
-					if(screenFreezeOn == SET)
-					{
-						screenFreezeOn = CLEAR;
-					}
+					UpdateKeyData(key);
+					SetKeyReady();
 				}
-				// If key is changed...
-				if(previous_keydata != key)
+				else
 				{
-					forceFreezeOn = SET;
-					channel = (eChannel_t)(key-1);
-					OSD_EraseAllText();
-					InitializeAutoSeq(AUTO_SEQ_NONE);
-					OSD_RefreshScreen();
-					DisplayScreen((eDisplayMode_t)channel);
-					SetInputChanged();
-					OSD_SetBoaderLine();//OSD_DrawBorderLine();
+					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+					{
+						OSD_ClearEvent(channel, EVT_ALARM);
+						OSD_ClearEvent(channel, EVT_MOTION);
+						OSD_ClearEvent(channel, EVT_FREEZE);
+						if(screenFreezeOn == SET)
+						{
+							screenFreezeOn = CLEAR;
+						}
+					}
+					// If key is changed...
+					if(previous_keydata != key)
+					{
+						forceFreezeOn = SET;
+						channel = (eChannel_t)(key-1);
+						OSD_EraseAllText();
+						InitializeAutoSeq(AUTO_SEQ_NONE);
+						OSD_RefreshScreen();
+						DisplayScreen((eDisplayMode_t)channel);
+						SetInputChanged();
+						OSD_SetBoaderLine();//OSD_DrawBorderLine();
+					}
 				}
 				break;
 				
 			case KEY_SPLIT : 
-				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+				if(forceFreezeOn == SET)
 				{
-					OSD_ClearEvent(channel, EVT_ALARM);
-					OSD_ClearEvent(channel, EVT_MOTION);
+					UpdateKeyData(key);
+					SetKeyReady();
 				}
-				
-				if(GetCurrentDisplayMode() != GetSystemSplitMode())
+				else
 				{
-					forceFreezeOn = SET;
-					if((screenFreezeOn == SET) || (previous_keydata == KEY_FREEZE))
+					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 					{
-						screenFreezeOn = CLEAR;
-						for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+						OSD_ClearEvent(channel, EVT_ALARM);
+						OSD_ClearEvent(channel, EVT_MOTION);
+					}
+					
+					if(GetCurrentDisplayMode() != GetSystemSplitMode())
+					{
+						forceFreezeOn = SET;
+						if((screenFreezeOn == SET) || (previous_keydata == KEY_FREEZE))
 						{
-							OSD_ClearEvent(channel, EVT_FREEZE);
-						}
-						M380_ID = MDIN_ID_C;
-						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
-						MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
+							screenFreezeOn = CLEAR;
+							for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+							{
+								OSD_ClearEvent(channel, EVT_FREEZE);
+							}
+							M380_ID = MDIN_ID_C;
+							MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
+							MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 
-						if(IS_FULL_MODE(GetCurrentDisplayMode()) == TRUE)
+							if(IS_FULL_MODE(GetCurrentDisplayMode()) == TRUE)
+							{
+								OSD_EraseAllText();
+								InitializeAutoSeq(AUTO_SEQ_NONE);
+								OSD_RefreshScreen();
+								DisplayScreen(GetSystemSplitMode());
+								SetInputChanged();
+								OSD_SetBoaderLine();//OSD_DrawBorderLine();
+							}
+						}
+						else
 						{
 							OSD_EraseAllText();
 							InitializeAutoSeq(AUTO_SEQ_NONE);
@@ -539,70 +564,77 @@ void Key_Proc(void)
 							OSD_SetBoaderLine();//OSD_DrawBorderLine();
 						}
 					}
-					else
-					{
-						OSD_EraseAllText();
-						InitializeAutoSeq(AUTO_SEQ_NONE);
-						OSD_RefreshScreen();
-						DisplayScreen(GetSystemSplitMode());
-						SetInputChanged();
-						OSD_SetBoaderLine();//OSD_DrawBorderLine();
-					}
 				}
 				break;
 
 			case KEY_FREEZE :
-				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+				if(forceFreezeOn == SET)
 				{
-					OSD_ClearEvent(channel, EVT_ALARM);
-					OSD_ClearEvent(channel, EVT_MOTION);
-				}
-				InitializeAutoSeq(AUTO_SEQ_NONE);
-				M380_ID = MDIN_ID_C;
-				if(screenFreezeOn == CLEAR)
-				{
-					screenFreezeOn = SET;
-					MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);	//main freeze On
-					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
-					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-					{
-						OSD_SetEvent(channel, EVT_FREEZE);
-					}
+					UpdateKeyData(key);
+					SetKeyReady();
 				}
 				else
 				{
-					screenFreezeOn = CLEAR;
 					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 					{
-						OSD_ClearEvent(channel, EVT_FREEZE);
+						OSD_ClearEvent(channel, EVT_ALARM);
+						OSD_ClearEvent(channel, EVT_MOTION);
 					}
+					InitializeAutoSeq(AUTO_SEQ_NONE);
+					M380_ID = MDIN_ID_C;
+					if(screenFreezeOn == CLEAR)
+					{
+						screenFreezeOn = SET;
+						MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);	//main freeze On
+						MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
+						for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+						{
+							OSD_SetEvent(channel, EVT_FREEZE);
+						}
+					}
+					else
+					{
+						screenFreezeOn = CLEAR;
+						for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+						{
+							OSD_ClearEvent(channel, EVT_FREEZE);
+						}
 
-					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
-					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
+						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
+						MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
+					}
 				}
 				break;
 
 			case KEY_AUTO_SEQ :
-				for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+				if(forceFreezeOn == SET)
 				{
-					OSD_ClearEvent(channel, EVT_ALARM);
-					OSD_ClearEvent(channel, EVT_MOTION);
-					OSD_ClearEvent(channel, EVT_FREEZE);
+					UpdateKeyData(key);
+					SetKeyReady();
 				}
-				Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
-				if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
+				else
 				{
-					forceFreezeOn = SET;
-					if(screenFreezeOn == SET)
+					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 					{
-						screenFreezeOn = CLEAR;
-						//for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-						//{
-						//	OSD_ClearEvent(channel, EVT_FREEZE);
-						//}
+						OSD_ClearEvent(channel, EVT_ALARM);
+						OSD_ClearEvent(channel, EVT_MOTION);
+						OSD_ClearEvent(channel, EVT_FREEZE);
 					}
-					InitializeAutoSeq(AUTO_SEQ_NORMAL);
-					OSD_RefreshScreen();
+					Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
+					if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
+					{
+						forceFreezeOn = SET;
+						if(screenFreezeOn == SET)
+						{
+							screenFreezeOn = CLEAR;
+							//for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
+							//{
+							//	OSD_ClearEvent(channel, EVT_FREEZE);
+							//}
+						}
+						InitializeAutoSeq(AUTO_SEQ_NORMAL);
+						OSD_RefreshScreen();
+					}
 				}
 				break;
 

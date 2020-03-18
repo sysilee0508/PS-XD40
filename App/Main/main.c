@@ -99,8 +99,6 @@ static void PlayBuzzer(void)
 
 static void ForceFreeze(BOOL on_off)
 {
-	eDisplayMode_t displayMode = GetCurrentDisplayMode();
-
 	switch(on_off)
 	{
 		case ON:

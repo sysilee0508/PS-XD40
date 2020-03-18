@@ -904,6 +904,7 @@ const sLocationNString_t cameraTitle[CAMERATITLE_ITEM_Y_MAX] =
 };
 static u8 channel_name[NUM_OF_CHANNEL][CHANNEL_NEME_LENGTH_MAX+1] = {0,};
 
+/*
 static void ConvertSpaceToNull(u8* pTitle)
 {
 	u8 titleLength;
@@ -927,7 +928,7 @@ static void ConvertSpaceToNull(u8* pTitle)
 
 	memcpy(pTitle, title, CHANNEL_NEME_LENGTH_MAX);
 }
-
+*/
 static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
 {
 	BOOL titleOn;
@@ -966,8 +967,8 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
  			if(nv_data != 0)
  			{
 				Int2Str(nv_data, str2digit);
-                Print_StringWithSelectedMarkSize(
-                		cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+                		Print_StringWithSelectedMarkSize(
+                				cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
 						cameraTitle[itemY].offset_y,
 						menuStr_Space3,
 						NULL, strlen(menuStr_Space3));
@@ -984,13 +985,13 @@ static void CameraTitlePage_UpdatePage(u8 itemY, u8 pos_x)
  			}
  			else
  			{
-                Print_StringWithSelectedMarkSize(
-                		cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+ 		               Print_StringWithSelectedMarkSize(
+	                			cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
 						cameraTitle[itemY].offset_y,
 						menuStr_Space6,
 						NULL, strlen(menuStr_Space6));
-                Print_StringWithSelectedMark(
-                		cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
+		                Print_StringWithSelectedMark(
+	                			cameraTitle[itemY].offset_x + strlen(cameraTitle[itemY].str),
 						cameraTitle[itemY].offset_y,
 						menuStr_Off,
 						attribute, strlen(menuStr_Off));
@@ -1053,11 +1054,11 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 						Write_NvItem_TitleDispalyOn(titleOn);
 						break;
 
-    				case CAMERATITLE_ITEM_Y_VIDEOLOSS_TIME:
-    					Read_NvItem_VideoLossBuzzerTime(&intData);
-    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
-    					Write_NvItem_VideoLossBuzzerTime(intData);
-    					break;
+	    				case CAMERATITLE_ITEM_Y_VIDEOLOSS_TIME:
+	    					Read_NvItem_VideoLossBuzzerTime(&intData);
+	    					IncreaseDecreaseCount(99, 0, inc_dec, &intData, TRUE);
+	    					Write_NvItem_VideoLossBuzzerTime(intData);
+	    					break;
 				}
 				CameraTitlePage_UpdatePage(itemY, pos_x);
 			}
@@ -1112,7 +1113,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 			break; 	
 
 		case KEY_EXIT :
-	    	if(requestEnterKeyProc)
+		    	if(requestEnterKeyProc)
 			{
 				Toggle(&requestEnterKeyProc);
 				CameraTitlePage_UpdatePage(itemY, pos_x);
@@ -1126,7 +1127,7 @@ static void CameraTitlePage_KeyHandler(eKeyData_t key)
 					{
 						channel_name[channel][pos_x] = NULL;
 					}
-					ConvertSpaceToNull(channel_name[channel]);
+					//ConvertSpaceToNull(channel_name[channel]);
 					Write_NvItem_ChannelName(channel_name[channel], channel);
 				}
 				itemY = CAMERATITLE_ITEM_Y_CH1;

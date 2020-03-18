@@ -145,7 +145,7 @@ static const sPosition_t videoLossPosition_Full =
 	(DISPLAY_HEIGHT - CHAR_HEIGHT) / 2
 };
 
-static BOOL requestRefreshScreen = CLEAR;
+static BOOL requestRefreshScreen = SET;
 static BOOL boarderLineUpdate = SET;
 
 static u8 videoModeDisplayCount[NUM_OF_CHANNEL] = 
@@ -1787,7 +1787,6 @@ void OSD_DisplayChannelName(void)
 	Read_NvItem_TitleDispalyOn(&titleDisplayOn);
 
 	if((titleDisplayOn == ON) && (requestRefreshScreen == SET))
-	//if(titleDisplayOn == ON)
 	{
 		switch(displayMode)
 		{

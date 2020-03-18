@@ -61,7 +61,7 @@ MDIN_SRCVIDEO_PATH_t SrcPath[MDIN_ID_MAX];
 static MDIN_SRCVIDEO_FORMAT_t SrcMainFrmt[MDIN_ID_MAX], PrevSrcMainFrmt[MDIN_ID_MAX];
 static MDIN_OUTVIDEO_FORMAT_t OutMainFrmt[MDIN_ID_MAX], PrevOutMainFrmt[MDIN_ID_MAX];
 static MDIN_SRCVIDEO_FORMAT_t SrcAuxFrmt[MDIN_ID_MAX], PrevSrcAuxFrmt[MDIN_ID_MAX];
-BOOL fInputChanged;
+BOOL fInputChanged = TRUE;
 
 #if DUMP_REG
 BOOL fRegDump = FALSE;
@@ -437,6 +437,8 @@ static void MDIN3xx_SetRegInitial_C(void)
 	// define video format of MAIN-OUTPUT
 	stVideo[M380_ID].stOUT_m.frmt = VIDOUT_1920x1080p60;
 	stVideo[M380_ID].stOUT_m.mode = (video == VIDEO_VGA)? MDIN_OUT_RGB444_8 : MDIN_OUT_EMB422_8;	 //by hungry 2012.03.06		// test by chungsa
+	//stVideo[M380_ID].stOUT_m.mode = MDIN_OUT_RGB444_8;	 //by hungry 2012.03.06		// test by chungsa
+
 	stVideo[M380_ID].stOUT_m.fine = MDIN_SYNC_FREERUN;	// set main outsync free-run
 
 	stVideo[M380_ID].stOUT_m.brightness = 128;			// set main picture factor
