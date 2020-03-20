@@ -31,6 +31,8 @@ static u32 alarmOutTimeCountIn500ms = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_NONE;
 
+static u8 alarmOutStatus = ALARM_OUT_CLEAR;
+
 static u8 uartProc_State = UART_STATE_SOH;
 
 //=============================================================================
@@ -228,6 +230,7 @@ void AlarmOutState(u8 state)
 			//TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
 			break;
 	}
+	alarmOutStatus = state;
 }
 
 //------------------------------------------------------------------------------
@@ -309,7 +312,7 @@ u8 GetTotalAlarmChannels(void)
 
 	for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
 	{
-		if((GetAlarmStatus(iChannel) == ALARM_SET) || (GetAlarmMotionStatus(iChannel) == SET))
+		if((GetAlarmStatus(iChannel) == ALARM_SET) ||(alarmOutStatus != ALARM_OUT_CLEAR)||(GetAlarmMotionStatus(iChannel) == SET))
 		{
 			total++;
 		}
