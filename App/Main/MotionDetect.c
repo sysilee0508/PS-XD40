@@ -165,8 +165,6 @@ void MotionDetectCheck(void)
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
 		fMotion = Get_MotionDetectedStatus(channel);
-		//currentMotion |= (fMotion << channel);
-
 		
 		if(fMotion == TRUE)
 		{

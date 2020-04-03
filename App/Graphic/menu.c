@@ -1396,7 +1396,7 @@ const sLocationNString_t displayMenu[DISPLAY_ITEM_Y_MAX] =
 	{20, LINE5_OFFSET_Y, menuStr_Display_VideoOutFormat}
 };
 static BOOL splitModeSelecting = FALSE;
-static BOOL selectCroppingWindow = FALSE; 
+//static BOOL selectCroppingWindow = FALSE; 
 
 static void DisplayPage_DisplaySplitMode(eDisplayMode_t split)
 {
@@ -1620,6 +1620,14 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						split = GetSystemSplitMode();
 						IncreaseDecreaseCount(DISPLAY_MODE_4SPLIT_X, DISPLAY_MODE_2SPLIT_HSCALE_A, inc_dec, &split, TRUE);
 						SetSystemSplitMode(split);
+						if((split == DISPLAY_MODE_2SPLIT_HCROP_B) ||(split == DISPLAY_MODE_2SPLIT_VCROP_B))
+						{
+							croppingChannel = CHANNEL3;
+						}
+						else
+						{
+							croppingChannel = CHANNEL1;
+						}
 						break;
 					case DISPLAY_ITEM_Y_AUX_VIDEO:
 						Read_NvItem_AuxVideoFormat(&auxVideo);
@@ -1653,11 +1661,18 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 					Read_NvItem_CroppingOffset(&croppingOffset, croppingChannel);
 					if(croppingDir == CROPPING_H)
 					{
-						IncreaseDecreaseCount(ADJUST_WINDOW_STEP_MAX, 0, inc_dec, &croppingOffset.h_offset, FALSE);
+						if(IS_4SPLIT_MODE(split) == TRUE)
+						{
+							IncreaseDecreaseCount(ADJUST_H_WINDOW_STEP_MAX-3, 0, inc_dec, &croppingOffset.h_offset, FALSE);
+						}
+						else
+						{
+							IncreaseDecreaseCount(ADJUST_H_WINDOW_STEP_MAX-2, 0, inc_dec, &croppingOffset.h_offset, FALSE);
+						}
 					}
 					else
 					{
-						IncreaseDecreaseCount(ADJUST_WINDOW_STEP_MAX, 0, inc_dec, &croppingOffset.v_offset, FALSE);
+						IncreaseDecreaseCount(ADJUST_V_WINDOW_STEP_MAX, 0, inc_dec, &croppingOffset.v_offset, FALSE);
 					}
 					Write_NvItem_CroppingOffset(croppingOffset, croppingChannel);
 
@@ -1681,14 +1696,28 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 
 				if(IsCroppingMode(split) == TRUE)
 				{
-					Toggle(&selectCroppingWindow);
+					//Toggle(&selectCroppingWindow);
 					if((split == DISPLAY_MODE_2SPLIT_HCROP_A) || (split == DISPLAY_MODE_2SPLIT_VCROP_A))
 					{
-						croppingChannel = (selectCroppingWindow == TRUE) ? CHANNEL1 : CHANNEL2;
+						if(croppingChannel == CHANNEL1)
+						{
+							croppingChannel =  CHANNEL2;
+						}
+						else
+						{
+							croppingChannel =  CHANNEL1;
+						}
 					}
 					else if((split == DISPLAY_MODE_2SPLIT_HCROP_B) || (split == DISPLAY_MODE_2SPLIT_VCROP_B))
 					{
-						croppingChannel = (selectCroppingWindow == TRUE) ? CHANNEL3 : CHANNEL4;
+						if(croppingChannel == CHANNEL3)
+						{
+							croppingChannel =  CHANNEL4;
+						}
+						else
+						{
+							croppingChannel =  CHANNEL3;
+						}
 					}
 					else
 					{
@@ -1699,15 +1728,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 			else
 			{
 				Toggle(&requestEnterKeyProc);
-				//if((splitModeSelecting == TRUE) && (requestEnterKeyProc == CLEAR))
-				//{
-				//	DisplayPage_RedrawPage(itemY);
-				//}
-				//else
-				//{
 				DisplayPage_UpdatePageOption(itemY);
-				//}
-				//DisplayPage_UpdatePageOption(itemY);
 			}
 			break;
 

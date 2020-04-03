@@ -19,5 +19,7 @@ extern void DisplayAutoSeqChannel(void);
 extern BOOL GetAutoSeqOn(void);
 extern void ChangeAutoSeqOn(BOOL on_off);
 extern eAutoSeqType_t GetCurrentAutoSeq(void);
+extern void PauseAutoSeq(void);
+extern void ResumeAutoSeq(void);
 
 #endif

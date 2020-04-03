@@ -13,6 +13,8 @@ static u8 oldSkipChannels = NO_SKIP_CHANNEL;
 static BOOL currentMode = SEQ_MODE_FULL;
 static ePipPosition_t pipPos = PIP_POSITION_MAX;
 
+static BOOL pauseSeq = FALSE;
+
 //-----------------------------------------------------------------------------
 // Update display time of each channels and display first screen
 // no video channel's display time will be set as 0xFF
@@ -24,8 +26,6 @@ static void InitializeAutoSeq_Normal(void)
 	eChannel_t iChannel;
 	eDisplayMode_t displayMode;
 
-//	MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);
-	
 	autoSeqStatus = AUTO_SEQ_NORMAL;
 
 	Read_NvItem_AutoSeqLossSkip(&skipOn);
@@ -76,11 +76,9 @@ static void InitializeAutoSeq_Normal(void)
 	// update display mode as full screen
 	DisplayScreen((eDisplayMode_t)displayChannel);
 	SetInputChanged();
-	OSD_SetBoaderLine();//OSD_DrawBorderLine();
-	OSD_Display();
-
-//	Delay_ms(100);
-//	MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
+	OSD_RefreshScreen();
+	OSD_SetBoaderLine();
+	//OSD_Display();
 }
 
 
@@ -176,8 +174,9 @@ static void InitializeAutoSeq_Normal_Pip(void)
 	}
 	
 	SetInputChanged();
+	OSD_RefreshScreen();
 	OSD_SetBoaderLine();//OSD_DrawBorderLine();
-	OSD_Display();
+	//OSD_Display();
 }
 
 #if 0
@@ -289,7 +288,10 @@ void UpdateAutoSeqCount(void)
 		{
 			if(displayTime[displayChannel] > 0)
 			{
-				displayTime[displayChannel]--;
+				if(pauseSeq == FALSE)
+				{
+					displayTime[displayChannel]--;
+				}
 			}
 			else
 			{
@@ -324,7 +326,9 @@ void DisplayAutoSeqChannel(void)
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	eChannel_t currentChannel;
 
-	//if((currentMode == SEQ_MODE_FULL) || (autoSeqStatus == AUTO_SEQ_ALARM))
+	if(pauseSeq == TRUE)
+		return;
+
 	if(currentMode == SEQ_MODE_FULL)
 	{
 		if(IS_FULL_MODE(displayMode) == TRUE)
@@ -406,4 +410,14 @@ void ChangeAutoSeqOn(BOOL on_off)
 eAutoSeqType_t GetCurrentAutoSeq(void)
 {
 	return autoSeqStatus;
+}
+
+void PauseAutoSeq(void)
+{
+	pauseSeq = TRUE;
+}
+
+void ResumeAutoSeq(void)
+{
+	pauseSeq = FALSE;
 }

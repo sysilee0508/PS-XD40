@@ -107,8 +107,11 @@ static void ForceFreeze(BOOL on_off)
 			break;
 
 		case OFF:
-			MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
-			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
+			if(IsScreenFreeze() == FALSE)
+			{
+				MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
+				MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
+			}
 			break;
 	}
 }

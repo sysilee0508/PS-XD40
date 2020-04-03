@@ -13,6 +13,8 @@
 #define ASCII_SPACE					0x20
 #define ASCII_ZERO					0x30
 
+#define VIDEO_MODE_DISPLAY_TIME			3//seconds
+
 //-----------------------------------------------------------------
 // type definitions - struct/enum/etc
 //-----------------------------------------------------------------
@@ -47,6 +49,8 @@ extern void OSD_SetEvent(eChannel_t channel, u8 evt);
 extern void OSD_ClearEvent(eChannel_t channel, u8 evt);
 extern u8 OSD_GetEvent(eChannel_t channel);
 
-extern void ResetVideoModeDisplayTime(eChannel_t channel);
+extern void ResetVideoModeDisplayTime(eChannel_t channel, u8 time);
 extern void ClearVideoModeDisplayTime(eChannel_t channel);
+extern u8 GetVideoModeDisplayTime(eChannel_t channel);
+
 #endif

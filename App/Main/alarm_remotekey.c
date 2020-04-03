@@ -30,8 +30,9 @@ static BOOL alarmRemoteEnable = TRUE;
 static u32 alarmOutTimeCountIn500ms = 0;
 static u8 alarmBuzzerCountIn500ms = 0;
 static eChannel_t lastAlarmChannel = CHANNEL_NONE;
+static u8 totalAlarmChannel = 0;
 
-static u8 alarmOutStatus = ALARM_OUT_CLEAR;
+//static u8 alarmOutStatus = ALARM_OUT_CLEAR;
 
 static u8 uartProc_State = UART_STATE_SOH;
 
@@ -209,28 +210,26 @@ void AlarmOutState(u8 state)
 	switch(state)
 	{
 		case ALARM_OUT_CLEAR:
+			totalAlarmChannel = 0;
 			alarmOutTimeCountIn500ms = 0;
-			//ClearAllAlarm();
 			TurnOnOffAlarmLed(OFF);
-			//TurnOffAlarmOut(ALARMOUT_REQUESTER_ALARM);
 			break;
 
 		case ALARM_OUT_READY:
+			totalAlarmChannel++;
 			if(alarmBuzzerCountIn500ms == 0)
 			{
 				alarmBuzzerCountIn500ms = alarmBuzzerTime * 2;
 			}
 			TurnOnOffAlarmLed(ON);
-			//TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
 			break;
 
 		case ALARM_OUT_SET:
 			alarmOutTimeCountIn500ms = alarmOutTime * 2;
 			TurnOnOffAlarmLed(ON);
-			//TurnOnAlarmOut(ALARMOUT_REQUESTER_ALARM);
 			break;
 	}
-	alarmOutStatus = state;
+//	alarmOutStatus = state;
 }
 
 //------------------------------------------------------------------------------
@@ -307,17 +306,20 @@ BOOL GetAlarmMotionStatus(eChannel_t channel)
 //------------------------------------------------------------------------------
 u8 GetTotalAlarmChannels(void)
 {
+#if 0
 	eChannel_t iChannel;
 	u8 total = 0;
 
 	for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
 	{
-		if((GetAlarmStatus(iChannel) == ALARM_SET) ||(alarmOutStatus != ALARM_OUT_CLEAR)||(GetAlarmMotionStatus(iChannel) == SET))
+		if((GetAlarmStatus(iChannel) == ALARM_SET) ||(GetAlarmMotionStatus(iChannel) == SET))
 		{
 			total++;
 		}
 	}
 	return total;
+#endif
+	return totalAlarmChannel;
 }
 
 //------------------------------------------------------------------------------

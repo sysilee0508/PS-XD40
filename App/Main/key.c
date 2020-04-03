@@ -102,6 +102,18 @@ void TurnOnSelectedLed(BYTE selectedLed)
 	}
 }
 
+static void TurnOnOffFreezeLed(BOOL on_off)
+{
+	if(on_off == ON)
+	{
+		led_keycode &= KEYCODE_FREEZE;
+	}
+	else
+	{
+		//led_keycode = ~(led_keycode ^ KEYCODE_FREEZE);
+		led_keycode |= (~KEYCODE_FREEZE);
+	}
+}
 //-----------------------------------------------------------------------------
 // Interface
 //-----------------------------------------------------------------------------
@@ -186,6 +198,8 @@ void SetInitialKey(void)
 	eKeyData_t key = KEY_NONE;
 	BYTE selectedLed;
 	BOOL seqOn;
+	eChannel_t iChannel;
+	u8 initialTime[NUM_OF_CHANNEL] = {0,};
 
 	Read_NvItem_AutoOn(&seqOn);
 	if(seqOn == ON)
@@ -199,6 +213,7 @@ void SetInitialKey(void)
 		{
 			key = (eKeyData_t)displayMode+1;
 			selectedLed = ConvertDisplayMode2Channel(displayMode);
+			initialTime[selectedLed] = VIDEO_MODE_DISPLAY_TIME+3;
 		}
 		else
 		{
@@ -206,10 +221,17 @@ void SetInitialKey(void)
 			selectedLed = LED_SPLIT;
 		}
 	}
-
+	
 	UpdateKeyData(key);
 	TurnOnSelectedLed(selectedLed);
 	SetKeyReady();
+	for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
+	{
+		if(initialTime[iChannel] == 0)
+			initialTime[iChannel] = VIDEO_MODE_DISPLAY_TIME;
+		
+		ResetVideoModeDisplayTime(iChannel, initialTime[iChannel] );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -466,8 +488,9 @@ void Key_Proc(void)
 	static eKeyData_t previous_keydata = KEY_NONE;
 	eKeyData_t key = GetCurrentKey();
 	BOOL autoSeq_skipNoVideoChannel;
-	//static eDisplayMode_t systemSplit = GetSystemSplitMode();;
 	eChannel_t channel; 
+	BOOL prevKeyUpdated = TRUE;
+	//static BOOL seqOn = OFF;
 
 	if(IsKeyReady()==TRUE)
 	{
@@ -488,6 +511,7 @@ void Key_Proc(void)
 				{
 					UpdateKeyData(key);
 					SetKeyReady();
+					prevKeyUpdated = FALSE;
 				}
 				else
 				{
@@ -496,6 +520,7 @@ void Key_Proc(void)
 						OSD_ClearEvent(channel, EVT_ALARM);
 						OSD_ClearEvent(channel, EVT_MOTION);
 						OSD_ClearEvent(channel, EVT_FREEZE);
+						AlarmOutState(ALARM_OUT_CLEAR);
 						if(screenFreezeOn == SET)
 						{
 							screenFreezeOn = CLEAR;
@@ -505,10 +530,20 @@ void Key_Proc(void)
 					if(previous_keydata != key)
 					{
 						forceFreezeOn = SET;
-						channel = (eChannel_t)(key-1);
 						OSD_EraseAllText();
 						InitializeAutoSeq(AUTO_SEQ_NONE);
 						OSD_RefreshScreen();
+
+						if(IS_FULL_MODE(GetCurrentDisplayMode()) == TRUE)
+						{
+							channel = ConvertDisplayMode2Channel(GetCurrentDisplayMode());
+							if(GetVideoModeDisplayTime(channel) < VIDEO_MODE_DISPLAY_TIME)
+							{
+								ClearVideoModeDisplayTime(ConvertDisplayMode2Channel(GetCurrentDisplayMode()));
+							}
+						}
+						
+						channel = (eChannel_t)(key-1);
 						DisplayScreen((eDisplayMode_t)channel);
 						SetInputChanged();
 						OSD_SetBoaderLine();//OSD_DrawBorderLine();
@@ -521,6 +556,7 @@ void Key_Proc(void)
 				{
 					UpdateKeyData(key);
 					SetKeyReady();
+					prevKeyUpdated = FALSE;
 				}
 				else
 				{
@@ -528,6 +564,7 @@ void Key_Proc(void)
 					{
 						OSD_ClearEvent(channel, EVT_ALARM);
 						OSD_ClearEvent(channel, EVT_MOTION);
+						AlarmOutState(ALARM_OUT_CLEAR);
 					}
 					
 					if(GetCurrentDisplayMode() != GetSystemSplitMode())
@@ -572,6 +609,7 @@ void Key_Proc(void)
 				{
 					UpdateKeyData(key);
 					SetKeyReady();
+					prevKeyUpdated = FALSE;
 				}
 				else
 				{
@@ -579,12 +617,18 @@ void Key_Proc(void)
 					{
 						OSD_ClearEvent(channel, EVT_ALARM);
 						OSD_ClearEvent(channel, EVT_MOTION);
+						AlarmOutState(ALARM_OUT_CLEAR);
 					}
-					InitializeAutoSeq(AUTO_SEQ_NONE);
+					//InitializeAutoSeq(AUTO_SEQ_NONE);
 					M380_ID = MDIN_ID_C;
 					if(screenFreezeOn == CLEAR)
 					{
 						screenFreezeOn = SET;
+						TurnOnOffFreezeLed(ON);
+						if(GetAutoSeqOn() == ON)
+						{
+							PauseAutoSeq();
+						}
 						MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);	//main freeze On
 						MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], ON);
 						for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
@@ -594,7 +638,7 @@ void Key_Proc(void)
 					}
 					else
 					{
-						screenFreezeOn = CLEAR;
+						TurnOnOffFreezeLed(OFF);
 						for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 						{
 							OSD_ClearEvent(channel, EVT_FREEZE);
@@ -602,6 +646,13 @@ void Key_Proc(void)
 
 						MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
 						MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
+						screenFreezeOn = CLEAR;
+
+						if(GetAutoSeqOn() == ON)
+						{
+							ResumeAutoSeq();
+						}
+
 					}
 				}
 				break;
@@ -611,6 +662,7 @@ void Key_Proc(void)
 				{
 					UpdateKeyData(key);
 					SetKeyReady();
+					prevKeyUpdated = FALSE;
 				}
 				else
 				{
@@ -619,6 +671,7 @@ void Key_Proc(void)
 						OSD_ClearEvent(channel, EVT_ALARM);
 						OSD_ClearEvent(channel, EVT_MOTION);
 						OSD_ClearEvent(channel, EVT_FREEZE);
+						AlarmOutState(ALARM_OUT_CLEAR);
 					}
 					Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
 					if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
@@ -627,13 +680,9 @@ void Key_Proc(void)
 						if(screenFreezeOn == SET)
 						{
 							screenFreezeOn = CLEAR;
-							//for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-							//{
-							//	OSD_ClearEvent(channel, EVT_FREEZE);
-							//}
 						}
 						InitializeAutoSeq(AUTO_SEQ_NORMAL);
-						OSD_RefreshScreen();
+						//OSD_RefreshScreen();
 					}
 				}
 				break;
@@ -644,6 +693,7 @@ void Key_Proc(void)
 					OSD_ClearEvent(channel, EVT_ALARM);
 					OSD_ClearEvent(channel, EVT_MOTION);
 					OSD_ClearEvent(channel, EVT_FREEZE);
+					AlarmOutState(ALARM_OUT_CLEAR);
 				}
 				AllButtonLedOff();
 				InitializeAutoSeq(AUTO_SEQ_NONE);
@@ -678,7 +728,6 @@ void Key_Proc(void)
 				forceFreezeOn = SET;
 				if(GetTotalAlarmChannels() == 1)
 				{
-					//InitializeAutoSeq(AUTO_SEQ_ALARM);
 					channel = GetLastAlarmChannel();
 					if(GetCurrentDisplayMode() != (DISPLAY_MODE_FULL_CH1 + channel))
 					{
@@ -710,8 +759,11 @@ void Key_Proc(void)
 				break;
 		}
 
-		previous_keydata = (eKeyData_t)(key & 0x1F); // clear long or special key mark
-		//previous_keydata = key;
+		if(prevKeyUpdated == TRUE)
+		{
+			previous_keydata = (eKeyData_t)(key & 0x3F); // clear long or special key mark
+			//previous_keydata = key;
+		}
 	}
 }
 
