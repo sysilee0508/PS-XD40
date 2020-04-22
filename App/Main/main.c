@@ -261,6 +261,7 @@ void main(void)
 			{
 				forceFreezeOn = CLEAR;
 				ForceFreeze(OFF);
+				OSD_EraseAllText();
 			}
 			fCnt = (++fCnt)%2;
 		}

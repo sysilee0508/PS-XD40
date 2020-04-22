@@ -219,12 +219,61 @@ void SetInitialKey(void)
 		{
 			key = KEY_SPLIT;
 			selectedLed = LED_SPLIT;
+			switch(displayMode)
+			{
+				case DISPLAY_MODE_2SPLIT_HSCALE_A:
+				case DISPLAY_MODE_2SPLIT_HCROP_A:
+				case DISPLAY_MODE_2SPLIT_VSCALE_A:
+				case DISPLAY_MODE_2SPLIT_VCROP_A:
+					initialTime[CHANNEL1] = VIDEO_MODE_DISPLAY_TIME+3;
+					initialTime[CHANNEL2] = VIDEO_MODE_DISPLAY_TIME+3;
+					break;
+					
+				case DISPLAY_MODE_2SPLIT_HSCALE_B:
+				case DISPLAY_MODE_2SPLIT_HCROP_B:
+				case DISPLAY_MODE_2SPLIT_VSCALE_B:
+				case DISPLAY_MODE_2SPLIT_VCROP_B:
+					initialTime[CHANNEL3] = VIDEO_MODE_DISPLAY_TIME+3;
+					initialTime[CHANNEL4] = VIDEO_MODE_DISPLAY_TIME+3;
+					break;
+
+				case DISPLAY_MODE_3SPLIT_R2SCALE:
+				case DISPLAY_MODE_3SPLIT_R2CROP:
+				case DISPLAY_MODE_3SPLIT_L2SCALE:
+				case DISPLAY_MODE_3SPLIT_L2CROP:
+				case DISPLAY_MODE_3SPLIT_D2SCALE:
+				case DISPLAY_MODE_3SPLIT_D2CROP:
+				case DISPLAY_MODE_3SPLIT_U2SCALE:
+				case DISPLAY_MODE_3SPLIT_U2CROP:
+					initialTime[CHANNEL1] = VIDEO_MODE_DISPLAY_TIME+3;
+					initialTime[CHANNEL2] = VIDEO_MODE_DISPLAY_TIME+3;
+					initialTime[CHANNEL3] = VIDEO_MODE_DISPLAY_TIME+3;
+					break;
+
+				case DISPLAY_MODE_4SPLIT_QUAD:
+				case DISPLAY_MODE_4SPLIT_R3SCALE:
+				case DISPLAY_MODE_4SPLIT_R3CROP:
+				case DISPLAY_MODE_4SPLIT_L3SCALE:
+				case DISPLAY_MODE_4SPLIT_L3CROP:
+				case DISPLAY_MODE_4SPLIT_D3SCALE:
+				case DISPLAY_MODE_4SPLIT_D3CROP:
+				case DISPLAY_MODE_4SPLIT_U3SCALE:
+				case DISPLAY_MODE_4SPLIT_U3CROP:
+				case DISPLAY_MODE_4SPLIT_H:
+				case DISPLAY_MODE_4SPLIT_X:
+					initialTime[CHANNEL1] = VIDEO_MODE_DISPLAY_TIME+3;
+					initialTime[CHANNEL2] = VIDEO_MODE_DISPLAY_TIME+3;
+					initialTime[CHANNEL3] = VIDEO_MODE_DISPLAY_TIME+3;
+					initialTime[CHANNEL4] = VIDEO_MODE_DISPLAY_TIME+3;
+					break;
+			}
 		}
 	}
 	
 	UpdateKeyData(key);
 	TurnOnSelectedLed(selectedLed);
 	SetKeyReady();
+
 	for(iChannel = CHANNEL1; iChannel < NUM_OF_CHANNEL; iChannel++)
 	{
 		if(initialTime[iChannel] == 0)
@@ -530,7 +579,8 @@ void Key_Proc(void)
 					if(previous_keydata != key)
 					{
 						forceFreezeOn = SET;
-						OSD_EraseAllText();
+						//OSD_EraseAllText();
+						OSD_EraseIndicator();
 						InitializeAutoSeq(AUTO_SEQ_NONE);
 						OSD_RefreshScreen();
 
@@ -583,7 +633,8 @@ void Key_Proc(void)
 
 							if(IS_FULL_MODE(GetCurrentDisplayMode()) == TRUE)
 							{
-								OSD_EraseAllText();
+								//OSD_EraseAllText();
+								OSD_EraseIndicator();
 								InitializeAutoSeq(AUTO_SEQ_NONE);
 								OSD_RefreshScreen();
 								DisplayScreen(GetSystemSplitMode());
@@ -593,7 +644,8 @@ void Key_Proc(void)
 						}
 						else
 						{
-							OSD_EraseAllText();
+							//OSD_EraseAllText();
+							OSD_EraseIndicator();
 							InitializeAutoSeq(AUTO_SEQ_NONE);
 							OSD_RefreshScreen();
 							DisplayScreen(GetSystemSplitMode());
@@ -681,6 +733,7 @@ void Key_Proc(void)
 						{
 							screenFreezeOn = CLEAR;
 						}
+						OSD_EraseIndicator();
 						InitializeAutoSeq(AUTO_SEQ_NORMAL);
 						//OSD_RefreshScreen();
 					}
@@ -700,10 +753,6 @@ void Key_Proc(void)
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
-					//for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
-					//{
-					//	OSD_ClearEvent(channel, EVT_FREEZE);
-					//}
 					M380_ID = MDIN_ID_C;
 					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
 					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
@@ -731,7 +780,7 @@ void Key_Proc(void)
 					channel = GetLastAlarmChannel();
 					if(GetCurrentDisplayMode() != (DISPLAY_MODE_FULL_CH1 + channel))
 					{
-						OSD_EraseAllText();
+						OSD_EraseIndicator();
 						DisplayScreen((eDisplayMode_t)channel);
 						SetInputChanged();
 					}
@@ -740,7 +789,7 @@ void Key_Proc(void)
 				{
 					if(GetCurrentDisplayMode() != DISPLAY_MODE_4SPLIT_QUAD)
 					{
-						OSD_EraseAllText();
+						OSD_EraseIndicator();
 						DisplayScreen(DISPLAY_MODE_4SPLIT_QUAD);
 						SetInputChanged();
 					}

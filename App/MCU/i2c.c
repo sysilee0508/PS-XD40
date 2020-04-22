@@ -273,8 +273,6 @@ unsigned char I2C_Write16(unsigned char ID, unsigned char dAddr, unsigned char p
 	unsigned short i;
 
 	i2c_ch = ID;
-//	BYTE slaveAddr = I2C_MDIN3xx_ADDR(selectedMDIN);
-//	printf("[I2C_W] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr,  *((PWORD)pBuff), bytes);
 
 	I2C_Start();
 	I2C_P2S(dAddr&0xFE); AckDetect();
@@ -289,19 +287,11 @@ unsigned char I2C_Write16(unsigned char ID, unsigned char dAddr, unsigned char p
 	{
 		I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
 		I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); AckDetect();  	
-		//I2C_P2S(pBuff[i+1]);AckDetect();  		
-		//I2C_P2S(pBuff[i]);	AckDetect();
 		if (page==MDIN_HOST_ID) MDINDLY_10uSec(12);	// for stability of font osd display on 190906
-//		if ((page==MDIN_HOST_ID) && (ID == I2C_SUB) && (dAddr == 0xDC))
-//		{
-//			MDINDLY_10uSec(20);	// for stability of font osd display on 190906
-//		}
 	}
 
 	I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
 	I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); NotAck();//AckDetect();  	
-	//I2C_P2S(pBuff[i+1]); AckDetect();  		
-	//I2C_P2S(pBuff[i]);   NotAck();//AckDetect();  	
 
 	I2C_Stop();		
 

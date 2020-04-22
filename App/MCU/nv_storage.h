@@ -21,7 +21,7 @@
 #define NV_VERSION_MINOR				(uint8_t)4
 
 #define FW_VERSION_MAJOR				(uint8_t)0	//engineer version starts 90 
-#define FW_VERSION_MINOR				(uint8_t)58
+#define FW_VERSION_MINOR				(uint8_t)61
 
 #define NV_SUCCESS						TRUE
 #define NV_FAIL							FALSE

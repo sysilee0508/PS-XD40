@@ -1133,7 +1133,7 @@ static sPosition_t OSD_GetAutoPosition(u8 strLength)
 //-----------------------------------------------------------------------------
 // Erase
 //-----------------------------------------------------------------------------
-static void OSD_EraseChannelName(void)
+static void OSD_EraseChannelName(eDisplayMode_t mode)
 {
 	eChannel_t channel;
 	sPosition_t position;
@@ -1141,7 +1141,7 @@ static void OSD_EraseChannelName(void)
 	eChannel_t max_channel = NUM_OF_CHANNEL;
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX+1] = {0,};
 
-	displayMode = GetCurrentDisplayMode();
+	displayMode = mode;
 
 	switch(displayMode)
 	{
@@ -1231,7 +1231,7 @@ static void OSD_EraseTimeDate(void)
 	displayingDateTimeLength = 0;
 }
 
-static void OSD_EraseIndicator(void)
+void OSD_EraseIndicator(void)
 {
 	eChannel_t channel;
 	sPosition_t position;
@@ -1283,13 +1283,13 @@ static void OSD_EraseVideoMode(void)
 {
 	sPosition_t position;
 	eChannel_t channel;
-	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	eDisplayMode_t displayMode = GetPrevDisplayMode();//GetCurrentDisplayMode();
 	
 	if(IS_FULL_MODE(displayMode) || IS_PIP_MODE(displayMode))
 	{
-		position = OSD_VideoModeStringPosition(CHANNEL1, displayMode, VIDEO_IN);
+		position = OSD_VideoModeStringPosition(CHANNEL1, DISPLAY_MODE_FULL_CH1, VIDEO_IN);
 		OSD_PrintString(position, osdStr_Space20, strlen(osdStr_Space20));
-		position = OSD_VideoModeStringPosition(CHANNEL1, displayMode, VIDEO_OUT);
+		position = OSD_VideoModeStringPosition(CHANNEL1, DISPLAY_MODE_FULL_CH1, VIDEO_OUT);
 		OSD_PrintString(position, osdStr_Space20, strlen(osdStr_Space20));
 	}
 	else
@@ -1557,7 +1557,7 @@ static void OSD_DisplayAuto(void)
 //-----------------------------------------------------------------------------
 // Indicator - Freeze, Alarm, Motion
 //-----------------------------------------------------------------------------
-static void OSD_DisplayIndicator(void)
+void OSD_DisplayIndicator(void)
 {
 	sPosition_t position;
 	eChannel_t channel;
@@ -1942,13 +1942,16 @@ void OSD_EraseAllText(void)
 		if(titleOn == TRUE)
 		{
 			//erase title
-			OSD_EraseChannelName();
+			OSD_EraseChannelName(GetPrevDisplayMode());
+			//OSD_EraseChannelName(GetCurrentDisplayMode());
 		}
+		#if 0
 		if((dateOn == TRUE) || (timeOn == TRUE))
 		{
 			// erase time and/or date
 			OSD_EraseTimeDate();
 		}
+		#endif
 		OSD_EraseNoVideo();
 		OSD_EraseAuto();
 		OSD_EraseIndicator();

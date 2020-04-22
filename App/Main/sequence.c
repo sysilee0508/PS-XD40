@@ -70,7 +70,7 @@ static void InitializeAutoSeq_Normal(void)
 		displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
 	}
 
-	OSD_EraseAllText();
+	//OSD_EraseAllText();
 	// set autoSeqOn
 	ChangeAutoSeqOn(ON);
 	// update display mode as full screen
@@ -140,7 +140,7 @@ static void InitializeAutoSeq_Normal_Pip(void)
 		displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
 	}
 
-	OSD_EraseAllText();
+	//OSD_EraseAllText();
 	// set autoSeqOn
 	ChangeAutoSeqOn(ON);
 	// display channel in PIP mode 
@@ -339,7 +339,7 @@ void DisplayAutoSeqChannel(void)
 		if((currentChannel != displayChannel) &&
 				((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)))
 		{
-			OSD_EraseAllText();
+			//OSD_EraseAllText();
 			// update current channel
 			DisplayScreen((eDisplayMode_t)displayChannel);
 			SetInputChanged();

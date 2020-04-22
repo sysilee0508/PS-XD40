@@ -62,7 +62,6 @@ void NVP6168_AutoDetection_Proc(void)
 				NVP6168_OutPort_Set(0, ch, VideoFormat);
 			}
 		}
-		//Delay_ms(500);
 	}
 	VO_PortMapChanged = 0;
 }

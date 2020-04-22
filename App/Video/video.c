@@ -120,7 +120,7 @@ MDIN_OUTVIDEO_FORMAT_t GetOutVideoFormat(MDIN_CHIP_ID_t mdin)
 
 static MDIN_SRCVIDEO_FORMAT_t GetInSourceFormat(eChannel_t channel)
 {
-	static MDIN_SRCVIDEO_FORMAT_t format[NUM_OF_CHANNEL] = {VIDSRC_1920x1080p50, VIDSRC_1920x1080p50, VIDSRC_1920x1080p50, VIDSRC_1920x1080p50};
+	static MDIN_SRCVIDEO_FORMAT_t format[NUM_OF_CHANNEL] = {VIDSRC_1920x1080p60, VIDSRC_1920x1080p60, VIDSRC_1920x1080p60, VIDSRC_1920x1080p60};
 
 	switch(GetInputVideoFormat(channel))
 	{
@@ -373,8 +373,8 @@ static void MDIN3xx_SetRegInitial_C(void)
 	MDIN3xx_SetVCLKPLLSource(MDIN_PLL_SOURCE_XTAL);		// set PLL source
 	MDIN3xx_EnableClockDrive(MDIN_ID_C, MDIN_CLK_DRV_ALL, ON);
 
-	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA36_MAP1); //MDIN3xx_SetInDataMapMode(MDIN_IN_DATA24_MAP0);		// set in_data_map_mode
-	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP7);	//MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP2);		// disable digital out
+	MDIN3xx_SetInDataMapMode(MDIN_IN_DATA36_MAP1);		// set in_data_map_mode
+	MDIN3xx_SetDIGOutMapMode(MDIN_DIG_OUT_M_MAP7);			// disable digital out
 	MDINOSD_SetBGLayerColor(GRAY(GetCurrentColorFormat()));			// set BG-Layer color
 
 	MDINOSD_SetBGBoxColor(WHITE(GetCurrentColorFormat()));			// set BG-BOX color
@@ -457,10 +457,10 @@ static void MDIN3xx_SetRegInitial_C(void)
 	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo[M380_ID].stIPC_m.gain = 34;
-	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_OFF;//MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
 
 	// define map of frame buffer
-	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
+	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_ON;	// when MDIN_DEINT_3DNR_ON
 	
 	// define video format of AUX-INPUT
 	stVideo[M380_ID].stSRC_x.fine = MDIN_CbCrSWAP_OFF;		//by hungry 2012.02.24
@@ -617,7 +617,7 @@ static void MDIN3xx_SetRegInitial_D(void)
 	stVideo[M380_ID].stIPC_m.mode = MDIN_DEINT_ADAPTIVE;
 	stVideo[M380_ID].stIPC_m.film = MDIN_DEINT_FILM_OFF;
 	stVideo[M380_ID].stIPC_m.gain = 34;
-	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_ON;
+	stVideo[M380_ID].stIPC_m.fine = MDIN_DEINT_3DNR_OFF | MDIN_DEINT_CCS_OFF;
 
 	// define map of frame buffer
 	stVideo[M380_ID].stMAP_m.frmt = MDIN_MAP_AUX_ON_NR_OFF;	// when MDIN_DEINT_3DNR_ON
@@ -2025,7 +2025,6 @@ void VideoProcessHandler(void)
 	{
 		InputSourceHandler(InputSelect);
 		VideoFrameProcess();
-//		TurnOff_VideoLossChannels();
 		SetOSDMenuRefresh();
 #if DUMP_REG
 		fRegDump = TRUE;
