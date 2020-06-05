@@ -116,7 +116,7 @@ MDIN_OUTVIDEO_FORMAT_t GetOutVideoFormat(MDIN_CHIP_ID_t mdin);
 void CreateVideoInstance(void);
 void InitInputSource(void);
 void SetInputSource(BYTE input);
-void SetInputChanged(void);
+void SetInputChanged(MDIN_VIDEO_INPUT_t inputSource);
 void VideoProcessHandler(void);
 void VideoHTXCtrlHandler(void);
 void SetAuxOutMode_C(void);

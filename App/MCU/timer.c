@@ -40,7 +40,7 @@ void TIM2_IRQHandler(void)
 void TIM3_Init(void)
 {
 	TIM3->CR1 = 0x0005;				// up-counter enable
-	TIM3->PSC = 639;
+	TIM3->PSC = 319;//TIM3->PSC = 639;
 	TIM3->ARR = 999;					// 64MHz/(1+639)/(1+999) = 100Hz  --> 10ms
 	TIM3->SR = 0x0000;				// clear TIM3 interrupt flags
 	TIM3->DIER = 0x0001;			// enable TIM3 update interrupt
@@ -57,12 +57,12 @@ void TIM3_IRQHandler(void)
 	Key_Led_Ctrl();
 	Key_Check();
 
-	// Check alarm every 20ms if alarm is enabled
-	if(count%2==0)
+	// Check alarm every 50ms if alarm is enabled
+	if(count%5==0)
 	{
 		CheckAlarm();
 	}
-	count = (++count)%2;
+	count = (++count)%5;
 }
 
 //-----------------------------------------------------------------------------

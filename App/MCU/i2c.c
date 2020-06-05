@@ -1,6 +1,6 @@
 #include "common.h"
 
-#define I2C_DELAY 3
+#define I2C_DELAY   1 // 3
 
 eI2C_CH_t i2c_ch = I2C_MAIN;
 //-----------------------------------------------------------------------------
@@ -231,8 +231,6 @@ void I2C_MultiWrite(unsigned char slaveaddr, unsigned char rAddr, unsigned char*
 	I2C_P2S(pBuff[i]);   NotAck();//AckDetect();  	
 
 	I2C_Stop();		
-
-//	return I2C_OK;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -263,8 +261,6 @@ void I2C_MultiRead(unsigned char slaveaddr, unsigned char rAddr, unsigned char* 
 	I2C_Stop();												
 
 	//printf("[I2C_R] nID:%02X, rAddr:%04X, pBuff:%04X, bytes:%04X\n", nID, rAddr, *((PWORD)pBuff), bytes);
-
-//	return I2C_OK;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -272,7 +268,7 @@ unsigned char I2C_Write16(unsigned char ID, unsigned char dAddr, unsigned char p
 {
 	unsigned short i;
 
-	i2c_ch = ID;
+	i2c_ch = (eI2C_CH_t)ID;
 
 	I2C_Start();
 	I2C_P2S(dAddr&0xFE); AckDetect();
@@ -287,7 +283,7 @@ unsigned char I2C_Write16(unsigned char ID, unsigned char dAddr, unsigned char p
 	{
 		I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
 		I2C_P2S((BYTE)(LOBYTE(((PWORD)pBuff)[i]))); AckDetect();  	
-		if (page==MDIN_HOST_ID) MDINDLY_10uSec(12);	// for stability of font osd display on 190906
+		if (page==MDIN_HOST_ID) MDINDLY_10uSec(5);	// for stability of font osd display on 190906
 	}
 
 	I2C_P2S((BYTE)(HIBYTE(((PWORD)pBuff)[i]))); AckDetect();  		
@@ -303,7 +299,7 @@ unsigned char I2C_Read16(unsigned char ID, unsigned char dAddr, unsigned short	 
 {
 	unsigned short i;
 
-	i2c_ch = ID;
+	i2c_ch = (eI2C_CH_t)ID;
 		
 //	BYTE slaveAddr = I2C_MDIN3xx_ADDR(selectedMDIN);
 
@@ -320,14 +316,10 @@ unsigned char I2C_Read16(unsigned char ID, unsigned char dAddr, unsigned short	 
 	{
 		((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();	// Receive a buffer data
 		((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   AckSend();	// Receive a buffer data
-		//pBuff[i+1] = I2C_S2P(); AckSend();	// Receive a buffer data
-		//pBuff[i]   = I2C_S2P(); AckSend();	// Receive a buffer data
 	}
 
 	((PWORD)pBuff)[i]  = ((WORD)I2C_S2P())<<8; AckSend();		// Receive a buffer data
 	((PWORD)pBuff)[i] |= ((WORD)I2C_S2P());	   NotAck();		// Receive a buffer data
-	//pBuff[i+1] = I2C_S2P();	 AckSend();		// Receive a buffer data
-	//pBuff[i]   = I2C_S2P();	 NotAck();		// Receive a buffer data
 
 	I2C_Stop();												
 

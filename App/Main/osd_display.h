@@ -43,6 +43,7 @@ extern void OSD_DisplayChannelName(void);
 extern void OSD_DisplayVideoMode(void);
 extern void OSD_Display_State(void);
 extern void OSD_DisplayIndicator(void);
+extern void OSD_EraseNoVideo(void);
 
 extern void OSD_SetBoaderLine(void);
 extern void OSD_DrawBorderLine(void);

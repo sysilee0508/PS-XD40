@@ -36,7 +36,7 @@ static sMotionDetectInfo_t motiondetectionInfo[NUM_OF_CHANNEL] =
 };
 
 static BYTE motionDetectionSensitivity = 49;
-static BYTE motionBuzzerCountIn500ms = 0;
+//static BYTE motionBuzzerCountIn500ms = 0;
 
 //=============================================================================
 //  Array Declaration (data table)
@@ -152,15 +152,8 @@ void Set_MotionDetect_ActivatedArea(eChannel_t channel)
 void MotionDetectCheck(void)
 {
 	eChannel_t channel;
-	//BYTE channel_mask;
-	//BYTE currentMotion = 0;// = Get_MotionDetectedStatus();
-	//BYTE alarmBuzzerTime;
-	//static BYTE alarmOutTimeCountInSec = 0;
-	//static BYTE previousMotion = 0x00;
-	//static BOOL motionCleared = TRUE;
-	//sSystemTick_t* currentSystemTime = GetSystemTime();
-	//static u32 previousSystemTimeIn1s = 0;
 	BOOL fMotion = FALSE;
+	static BYTE repeatCnt = 0;
 
 	for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 	{
@@ -178,8 +171,8 @@ void MotionDetectCheck(void)
 				// this is new motion on this channel
 				SetAlarmMotionStatus(channel, SET);
 				
-				AlarmOutState(ALARM_OUT_READY);
-				UpdateLastAlarmChannel(channel);
+				AlarmOutState(channel, ALARM_OUT_READY);
+				//UpdateLastAlarmChannel(channel);
 				//Occur key data (key_alarm) to display alarm screen
 				UpdateKeyData(KEY_ALARM);
 				SetKeyReady();
@@ -189,45 +182,19 @@ void MotionDetectCheck(void)
 		{
 			if(GetAlarmMotionStatus(channel) == SET)
 			{
-				AlarmOutState(ALARM_OUT_SET);
-				SetAlarmMotionStatus(channel, CLEAR);
+				if(repeatCnt < 10)
+				{
+					repeatCnt++;
+				}
+				else
+				{
+					repeatCnt = 0;
+					AlarmOutState(channel, ALARM_OUT_SET);
+					SetAlarmMotionStatus(channel, CLEAR);
+				}
 			}
 		}
 	}
-#if 0	
-	// buzzer
-	if((previousMotion == 0) && (currentMotion > 0) && (alarmOutTimeCountInSec == 0))
-	{
-		// it means there is new motion detected channel
-		Read_NvItem_AlarmBuzzerTime(&alarmBuzzerTime);
-		motionBuzzerCountIn500ms =  alarmBuzzerTime * 2;
-	}
-
-	// photo coupler
-	if(currentMotion > 0)
-	{
-		motionCleared = FALSE;
-		TurnOnAlarmOut(ALARMOUT_REQUESTER_MOTION);
-	}
-	else if((motionCleared == FALSE) &&  (currentMotion == 0))
-	{
-		motionCleared = TRUE;
-		Read_NvItem_AlarmOutTime(&alarmOutTimeCountInSec);
-	}
-	else
-	{
-		if((TIME_AFTER(currentSystemTime->tickCount_1s, previousSystemTimeIn1s,1)) && (alarmOutTimeCountInSec !=0))
-		{
-			alarmOutTimeCountInSec--;
-		}
-		else if(alarmOutTimeCountInSec == 0)
-		{
-			TurnOffAlarmOut(ALARMOUT_REQUESTER_MOTION);
-		}
-		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
-	}
-	previousMotion = currentMotion;
-#endif
 }
 
 BOOL Get_MotionDetectedStatus(eChannel_t channel)
@@ -241,6 +208,7 @@ BOOL Get_MotionDetectedStatus(eChannel_t channel)
 	return ((motion & (0x01 << NVP_Ch[channel])) == 0)?FALSE:TRUE;
 }
 
+/*
 BYTE GetMotionBuzzerCount(void)
 {
 	return motionBuzzerCountIn500ms;
@@ -250,6 +218,7 @@ void DecreaseMotionBuzzerCount(void)
 {
 	motionBuzzerCountIn500ms--;
 }
+*/
 
 BOOL Get_MotionIndication(void)
 {

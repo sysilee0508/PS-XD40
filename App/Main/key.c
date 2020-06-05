@@ -55,9 +55,9 @@ const static eKeyData_t key_table[] =
 
 #define NUM_OF_KEYS				sizeof(key_table) //7
 
-#define KEYCOUNT_SHORT			4
-#define KEYCOUNT_REPEAT			40	//400ms
-#define KEYCOUNT_LONG			80	//800ms
+#define KEYCOUNT_SHORT					4
+#define KEYCOUNT_REPEAT				40	//400ms
+#define KEYCOUNT_LONG					160	//800ms
 
 #define VALID_LONG_KEY(key)		(key == KEY_FREEZE)?TRUE:FALSE
 
@@ -352,15 +352,6 @@ void Key_Scan(void)
 
 		if((key_code != KEYCODE_NONE) && (frontKeyCode != key_code))
 		{
-			if(key_code == KEYCODE_FREEZE)
-			{
-				tempKey = ~(led_keycode ^ key_code);
-				led_keycode = tempKey;
-			}
-			else
-			{
-				led_keycode = key_code;
-			}
 			UpdateKeyStatus(KEY_STATUS_PRESSED);
 		}
 		else if(key_code == KEYCODE_NONE)
@@ -428,7 +419,7 @@ void Key_Check(void)
 	if(current_keycode != KEYCODE_NONE)
 	{
 		pKeyCode = keycode_table;
-		UpdateKeyStatus(KEY_STATUS_PRESSED);
+		//UpdateKeyStatus(KEY_STATUS_PRESSED);
 
 		// Find index of key code table
 		for(i=0; i< NUM_OF_KEYS; i++)
@@ -564,23 +555,27 @@ void Key_Proc(void)
 				}
 				else
 				{
+					//ConvertDisplayMode2Channel(displayMode);
+					TurnOnSelectedLed(key-1);
+					
 					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 					{
 						OSD_ClearEvent(channel, EVT_ALARM);
 						OSD_ClearEvent(channel, EVT_MOTION);
 						OSD_ClearEvent(channel, EVT_FREEZE);
-						AlarmOutState(ALARM_OUT_CLEAR);
 						if(screenFreezeOn == SET)
 						{
 							screenFreezeOn = CLEAR;
 						}
 					}
+					AlarmOutState(channel, ALARM_OUT_CLEAR);
 					// If key is changed...
 					if(previous_keydata != key)
 					{
 						forceFreezeOn = SET;
 						//OSD_EraseAllText();
 						OSD_EraseIndicator();
+						//OSD_EraseNoVideo();
 						InitializeAutoSeq(AUTO_SEQ_NONE);
 						OSD_RefreshScreen();
 
@@ -595,8 +590,9 @@ void Key_Proc(void)
 						
 						channel = (eChannel_t)(key-1);
 						DisplayScreen((eDisplayMode_t)channel);
-						SetInputChanged();
-						OSD_SetBoaderLine();//OSD_DrawBorderLine();
+						//SetInputChanged();
+						OSD_SetBoaderLine();
+						//OSD_DrawBorderLine();
 					}
 				}
 				break;
@@ -610,14 +606,15 @@ void Key_Proc(void)
 				}
 				else
 				{
+					TurnOnSelectedLed(LED_SPLIT);
 					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 					{
 						OSD_ClearEvent(channel, EVT_ALARM);
 						OSD_ClearEvent(channel, EVT_MOTION);
-						AlarmOutState(ALARM_OUT_CLEAR);
 					}
+					AlarmOutState(channel, ALARM_OUT_CLEAR);
 					
-					if(GetCurrentDisplayMode() != GetSystemSplitMode())
+					if(previous_keydata != key)
 					{
 						forceFreezeOn = SET;
 						if((screenFreezeOn == SET) || (previous_keydata == KEY_FREEZE))
@@ -631,14 +628,15 @@ void Key_Proc(void)
 							MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
 							MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 
-							if(IS_FULL_MODE(GetCurrentDisplayMode()) == TRUE)
+							if((IS_FULL_MODE(GetCurrentDisplayMode()) == TRUE) || (IS_PIP_MODE(GetCurrentDisplayMode()) == TRUE))
 							{
 								//OSD_EraseAllText();
 								OSD_EraseIndicator();
+								OSD_EraseNoVideo();
 								InitializeAutoSeq(AUTO_SEQ_NONE);
 								OSD_RefreshScreen();
 								DisplayScreen(GetSystemSplitMode());
-								SetInputChanged();
+								//SetInputChanged();
 								OSD_SetBoaderLine();//OSD_DrawBorderLine();
 							}
 						}
@@ -646,10 +644,11 @@ void Key_Proc(void)
 						{
 							//OSD_EraseAllText();
 							OSD_EraseIndicator();
+							OSD_EraseNoVideo();
 							InitializeAutoSeq(AUTO_SEQ_NONE);
 							OSD_RefreshScreen();
 							DisplayScreen(GetSystemSplitMode());
-							SetInputChanged();
+							//SetInputChanged();
 							OSD_SetBoaderLine();//OSD_DrawBorderLine();
 						}
 					}
@@ -669,9 +668,9 @@ void Key_Proc(void)
 					{
 						OSD_ClearEvent(channel, EVT_ALARM);
 						OSD_ClearEvent(channel, EVT_MOTION);
-						AlarmOutState(ALARM_OUT_CLEAR);
 					}
-					//InitializeAutoSeq(AUTO_SEQ_NONE);
+					AlarmOutState(channel, ALARM_OUT_CLEAR);
+
 					M380_ID = MDIN_ID_C;
 					if(screenFreezeOn == CLEAR)
 					{
@@ -718,13 +717,14 @@ void Key_Proc(void)
 				}
 				else
 				{
+					TurnOnSelectedLed(LED_SEQUENCE);
 					for(channel = CHANNEL1; channel < NUM_OF_CHANNEL; channel++)
 					{
 						OSD_ClearEvent(channel, EVT_ALARM);
 						OSD_ClearEvent(channel, EVT_MOTION);
 						OSD_ClearEvent(channel, EVT_FREEZE);
-						AlarmOutState(ALARM_OUT_CLEAR);
 					}
+					AlarmOutState(channel, ALARM_OUT_CLEAR);
 					Read_NvItem_AutoSeqLossSkip(&autoSeq_skipNoVideoChannel);
 					if((OFF == autoSeq_skipNoVideoChannel) || (GetVideoLossChannels() != VIDEO_LOSS_CHANNEL_ALL))
 					{
@@ -734,8 +734,8 @@ void Key_Proc(void)
 							screenFreezeOn = CLEAR;
 						}
 						OSD_EraseIndicator();
+						OSD_EraseNoVideo();
 						InitializeAutoSeq(AUTO_SEQ_NORMAL);
-						//OSD_RefreshScreen();
 					}
 				}
 				break;
@@ -746,10 +746,9 @@ void Key_Proc(void)
 					OSD_ClearEvent(channel, EVT_ALARM);
 					OSD_ClearEvent(channel, EVT_MOTION);
 					OSD_ClearEvent(channel, EVT_FREEZE);
-					AlarmOutState(ALARM_OUT_CLEAR);
 				}
+				AlarmOutState(channel, ALARM_OUT_CLEAR);
 				AllButtonLedOff();
-				InitializeAutoSeq(AUTO_SEQ_NONE);
 				if(screenFreezeOn == SET)
 				{
 					screenFreezeOn = CLEAR;
@@ -757,7 +756,10 @@ void Key_Proc(void)
 					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);	//main freeze Off
 					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 				}
-				Enter_MainMenu();
+				if(GetSystemMode() == SYSTEM_NORMAL_MODE)
+				{
+					Enter_MainMenu();
+				}
 				break;
 
 			case KEY_ALARM :
@@ -775,14 +777,19 @@ void Key_Proc(void)
 					MDIN3xx_EnableAuxFreeze(&stVideo[M380_ID], OFF);
 				}
 				forceFreezeOn = SET;
-				if(GetTotalAlarmChannels() == 1)
+				if(GetTotalAlarmChannels() < 2)
 				{
-					channel = GetLastAlarmChannel();
+					channel = FindAlarmChannel();
+					if(channel == NUM_OF_CHANNEL)
+					{
+						channel = CHANNEL1;
+					}
 					if(GetCurrentDisplayMode() != (DISPLAY_MODE_FULL_CH1 + channel))
 					{
 						OSD_EraseIndicator();
+						//OSD_EraseNoVideo();
 						DisplayScreen((eDisplayMode_t)channel);
-						SetInputChanged();
+						//SetInputChanged();
 					}
 				}
 				else
@@ -790,12 +797,13 @@ void Key_Proc(void)
 					if(GetCurrentDisplayMode() != DISPLAY_MODE_4SPLIT_QUAD)
 					{
 						OSD_EraseIndicator();
+						OSD_EraseNoVideo();
 						DisplayScreen(DISPLAY_MODE_4SPLIT_QUAD);
-						SetInputChanged();
+						//SetInputChanged();
 					}
 				}
 				OSD_RefreshScreen();
-				OSD_SetBoaderLine();//OSD_DrawBorderLine();
+				OSD_SetBoaderLine();
 				break;
 
 			case KEY_UP:
@@ -804,7 +812,10 @@ void Key_Proc(void)
 			case KEY_RIGHT:
 			case KEY_ENTER:
 			case KEY_EXIT:
-				Menu_KeyProc(key);
+				if(readyForSetupMode == TRUE)
+				{
+					Menu_KeyProc(key);
+				}
 				break;
 		}
 
@@ -814,6 +825,12 @@ void Key_Proc(void)
 			//previous_keydata = key;
 		}
 	}
+	
+	if((previous_keydata == KEY_FREEZE) && (GetKeyStatus() == KEY_STATUS_RELEASED) && (GetSystemMode() == SYSTEM_SETUP_MODE))
+	{
+		readyForSetupMode = TRUE;
+	}
+	
 }
 
 

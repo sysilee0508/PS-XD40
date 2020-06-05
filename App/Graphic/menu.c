@@ -168,11 +168,11 @@ typedef struct
 // ----------------------------------------------------------------------
 // Static Global Data section variables
 // ----------------------------------------------------------------------
-static WORD OSDMenuID;
 
 //-----------------------------------------------------------------
 // declare static variables
 //-----------------------------------------------------------------
+static WORD OSDMenuID;
 static u8 currentPage = MENU_PAGE_MAIN;
 static u8 lineBuffer[CHARACTERS_IN_MENU_LINE];
 static BOOL requestEnterKeyProc = CLEAR;
@@ -187,6 +187,7 @@ const static u8 valuableCharacters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklm
 //-----------------------------------------------------------------
 // declare global variables
 //---------------------------------------------------------------
+BOOL readyForSetupMode = FALSE;
 
 //--------------------------------------------------------------------------------------------------
 static void Toggle(BOOL* pObject)
@@ -1153,6 +1154,8 @@ const sLocationNString_t autoSeqMenu[AUTOSEQ_ITEM_Y_MAX] =
 	{20, LINE6_OFFSET_Y, menuStr_AutoSeq_Mode},
 	{20, LINE7_OFFSET_Y, menuStr_AutoSeq_PipPosition},
 };
+static BOOL seqMode = SEQ_MODE_FULL;
+static BOOL fInitSeq = FALSE;
 
 static void AutoSeqPage_UpdatePage(u8 itemY)
 {
@@ -1295,6 +1298,7 @@ static void AutoSeqPage_Entry()
 	currentPage = MENU_PAGE_AUTO_SEQ;
 	Erase_AllMenuScreen();
 	requestEnterKeyProc = CLEAR;
+	Read_NvItem_AutoSeqMode(&seqMode);
 	DrawSelectMark(AUTOSEQ_ITEM_Y_CH1_DISPLAY_TIME);
 
 	for(index = 0; index < AUTOSEQ_ITEM_Y_MAX; index++)
@@ -1375,6 +1379,11 @@ static void AutoSeqPage_KeyHandler(eKeyData_t key)
 			}
 			else
 			{
+				Read_NvItem_AutoSeqMode(&mode);
+				if(seqMode != mode)
+				{
+					fInitSeq = TRUE;
+				}
 				itemY = AUTOSEQ_ITEM_Y_CH1_DISPLAY_TIME;
 				MainMenu_Entry(currentPage);
 			}
@@ -1409,7 +1418,7 @@ static void DisplayPage_DisplaySplitMode(eDisplayMode_t split)
 	OSD_SetBoaderLine();
 	DisplayScreen(split);
 	forceFreezeOn = SET;
-	SetInputChanged();
+	//SetInputChanged();
 	//OSD_DrawBorderLine();
 
 	position.pos_x = (DISPLAY_WIDTH - (strlen(menuStr_Space30)*CHAR_WIDTH))/2;
@@ -1635,7 +1644,7 @@ static void DisplayPage_KeyHandler(eKeyData_t key)
 						Write_NvItem_AuxVideoFormat(auxVideo);
 						SetAuxOutMode_C();
 						MDINOSD_SetBGBoxColor(BLACK(GetCurrentColorFormat()));
-						SetInputChanged();
+						SetInputChanged(VIDEO_DIGITAL_NVP6158_AB);
 						break;
 				}
 				DisplayPage_UpdatePageOption(itemY);
@@ -2211,7 +2220,7 @@ static void MotionDetectionPage_DrawSelectedArea(eChannel_t channel)
 	if(GetCurrentDisplayMode() != (DISPLAY_MODE_FULL_CH1 + channel))
 	{
 		DisplayScreen((eDisplayMode_t)channel);
-		SetInputChanged();
+		//SetInputChanged();
 	}
 
 	MotionDetectionPage_DrawCursor(0, 0, TRUE);
@@ -2362,6 +2371,9 @@ static void MotionDetectionPage_KeyHandler(eKeyData_t key)
 			else
 			{
 				//selecting area
+				if(key == KEY_DOWN) inc_dec = INCREASE;
+				else		inc_dec = DECREASE;
+				
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, FALSE);
 				IncreaseDecreaseCount(ROWS_OF_BLOCKS-1, 0, inc_dec, &cursorY, TRUE);
 				MotionDetectionPage_DrawCursor(cursorX, cursorY, TRUE);
@@ -2572,32 +2584,50 @@ static void MainPage_KeyHandler(eKeyData_t key)
 			Erase_AllMenuScreen();
 			ChangeSystemMode(SYSTEM_NORMAL_MODE);
 			SetKeyMode(KEY_MODE_LONG);
+			readyForSetupMode = FALSE;
 
 			MDINOSD_SetBGBoxColor(WHITE(GetCurrentColorFormat()));
 			MDINOSD_EnableBGBox(BGBOX_INDEX0, OFF);
-			OSD_SetBoaderLine();//OSD_DrawBorderLine();
+			OSD_SetBoaderLine();//
 			OSD_RefreshScreen();
 
 			//if(prevOutResolution != outResolution)
 			if(outResolution == RESOLUTION_1920_1080_30P)
 			{
 				Write_NvItem_Resolution(outResolution);
-				SetInputChanged();
+				SetInputChanged(VIDEO_DIGITAL_NVP6158_AB);
 				Delay_us(10);
 				Set_InputFreq(outResolution);
 				TVI_Init();
 			}
 			StoreNvDataToStorage();
-			// turn on button leds
-			if(IS_FULL_MODE(displayMode) == TRUE)
+
+			if(GetAutoSeqOn() == SET)
 			{
-				TurnOnSelectedLed(ConvertDisplayMode2Channel(displayMode));
+				ResumeAutoSeq();
+				if(fInitSeq == TRUE)
+				{
+					InitializeAutoSeq(AUTO_SEQ_NORMAL);
+				}
+				else
+				{
+					OSD_Display(); 
+					OSD_DrawBorderLine();//OSD_SetBoaderLine();
+				}
+				TurnOnSelectedLed(LED_SEQUENCE);
 			}
 			else
 			{
-				TurnOnSelectedLed(LED_SPLIT);
+				// turn on button leds
+				if(IS_FULL_MODE(displayMode) == TRUE)
+				{
+					TurnOnSelectedLed(ConvertDisplayMode2Channel(displayMode));
+				}
+				else
+				{
+					TurnOnSelectedLed(LED_SPLIT);
+				}
 			}
-	
 			break;
 	}
 }
@@ -2617,25 +2647,33 @@ u8 GetSystemMode(void)
 
 void Enter_MainMenu(void)
 {
-	ChangeSystemMode(SYSTEM_SETUP_MODE);
-	requestEnterKeyProc = CLEAR;
-	SetKeyMode(KEY_MODE_REPEAT);
-
-	// update out resolution&freq
-	Read_NvItem_Resolution(&outResolution);
-	//prevOutResolution = outResolution;
-
-	if(outResolution == RESOLUTION_1920_1080_30P)
+	//if(readyForSetupMode == TRUE)
+	//if(GetSystemMode() == SYSTEM_NORMAL_MODE)
 	{
-		Write_NvItem_Resolution(RESOLUTION_1920_1080_60P);
-		SetInputChanged();
-		Delay_us(10);
-		Set_InputFreq(RESOLUTION_1920_1080_60P);
-		TVI_Init();
+		ChangeSystemMode(SYSTEM_SETUP_MODE);
+		requestEnterKeyProc = CLEAR;
+		SetKeyMode(KEY_MODE_REPEAT);
+
+		// update out resolution&freq
+		Read_NvItem_Resolution(&outResolution);
+		//prevOutResolution = outResolution;
+
+		if(outResolution == RESOLUTION_1920_1080_30P)
+		{
+			Write_NvItem_Resolution(RESOLUTION_1920_1080_60P);
+			SetInputChanged(VIDEO_DIGITAL_NVP6158_AB);
+			Delay_us(10);
+			Set_InputFreq(RESOLUTION_1920_1080_60P);
+			TVI_Init();
+		}
+
+		Osd_ClearScreen();//OSD_EraseAll();
+		if(GetAutoSeqOn() == SET)
+		{
+			PauseAutoSeq();
+		}
+		MainMenu_Entry(MAINMENU_ITEM_Y_TIME_DATE);
 	}
-	
-	Osd_ClearScreen();//OSD_EraseAll();
-	MainMenu_Entry(MAINMENU_ITEM_Y_TIME_DATE);
 }
 
 //-----------------------------------------------------------------

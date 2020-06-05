@@ -54,23 +54,24 @@ static void PlayBuzzer(void)
 	static u32 previousSystemTimeIn100ms = 0;
 	u8 lossCount = GetVideoLossBuzzerCount();
 	u8 alarmCount = GetAlarmBuzzerCount();
-	u8 motionCount = GetMotionBuzzerCount();
+	//u8 motionCount = GetMotionBuzzerCount();
 	u8 buzzerCount;
 	static u8 playCount = 0;
 
 	if(TIME_AFTER(currentSystemTime->tickCount_100ms, previousSystemTimeIn100ms,5))
 	{
-		buzzerCount = MAX(MAX(lossCount, alarmCount), motionCount);
+		buzzerCount = MAX(lossCount, alarmCount);
 
 		if(buzzerCount > 0)
 		{
 			if(playCount%2)
 			{
-				BUZZER_HIGH;
+				
+				BUZZER_LOW;
 			}
 			else
 			{
-				BUZZER_LOW;
+				BUZZER_HIGH;
 			}
 
 			playCount++;
@@ -83,10 +84,10 @@ static void PlayBuzzer(void)
 			{
 				DecreaseAlarmBuzzerCount();
 			}
-			if(motionCount > 0)
-			{
-				DecreaseMotionBuzzerCount();
-			}
+			//if(motionCount > 0)
+			//{
+			//	DecreaseMotionBuzzerCount();
+			//}
 		}
 		else
 		{
@@ -99,18 +100,33 @@ static void PlayBuzzer(void)
 
 static void ForceFreeze(BOOL on_off)
 {
+	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	switch(on_off)
 	{
 		case ON:
-			MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);
-			MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], ON);
+			if(IS_PIP_MODE(displayMode) == TRUE)
+			{
+				MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], ON);
+			}
+			else
+			{
+				MDIN3xx_EnableMainFreeze(MDIN_ID_C, ON);
+				MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], ON);
+			}
 			break;
 
 		case OFF:
 			if(IsScreenFreeze() == FALSE)
 			{
-				MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
-				MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
+				if(IS_PIP_MODE(displayMode) == TRUE)
+				{
+					MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
+				}
+				else
+				{
+					MDIN3xx_EnableMainFreeze(MDIN_ID_C, OFF);
+					MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
+				}
 			}
 			break;
 	}
@@ -123,7 +139,7 @@ static void ForceFreeze(BOOL on_off)
 void main(void)
 {
 	//eResolution_t outRes;
-	static u8 fCnt = 0;
+	//static u8 fCnt = 0;
 	
 	I2C_SET_CHANNEL(I2C_MAIN);
 	// initialize STM32F103x
@@ -214,13 +230,13 @@ void main(void)
 		RTC_CheckTime();
 		Key_Proc();
 		
+		UpdateAutoSeqCount();
+		DisplayAutoSeqChannel();
+		
 		if(forceFreezeOn == SET)
 		{
-			if(fCnt == 0)
-				ForceFreeze(ON);
+			ForceFreeze(ON);
 		}
-
-//		Delay_ms(1);
 		
 #if BD_NVP == NVP6158
 		NVP6158_VideoDetectionProc();
@@ -236,14 +252,6 @@ void main(void)
 
 		UpdateDisplayMode();
 
-		UpdateAutoSeqCount();
-		DisplayAutoSeqChannel();
-		
-		if(forceFreezeOn == SET)
-		{
-			if(fCnt == 0)
-				ForceFreeze(ON);
-		}
 		// video process handler
 		VideoProcessHandler();
 		// delay for HDMI-Tx register !!
@@ -253,24 +261,11 @@ void main(void)
 
 		if(forceFreezeOn == SET)
 		{
-			if(fCnt == 0)
-			{
-				// do nothing
-			}
-			else
-			{
-				forceFreezeOn = CLEAR;
-				ForceFreeze(OFF);
-				OSD_EraseAllText();
-			}
-			fCnt = (++fCnt)%2;
+			forceFreezeOn = CLEAR;
+			ForceFreeze(OFF);
+			OSD_EraseAllText();
 		}
 		else
-		{
-			fCnt = 0;
-		}
-
-		if(fCnt == 0)
 		{
 			OSD_Display();
 			OSD_DrawBorderLine();

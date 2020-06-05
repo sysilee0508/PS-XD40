@@ -711,6 +711,18 @@ static void SetInputVideoPath(MDIN_VIDEO_INPUT_t src, eDisplayMode_t mode)
 					case DISPLAY_MODE_2SPLIT_HCROP_A :
 					case DISPLAY_MODE_2SPLIT_VSCALE_A :
 					case DISPLAY_MODE_2SPLIT_VCROP_A:
+					case DISPLAY_MODE_PIP_A2:
+					case DISPLAY_MODE_PIP_B2:
+					case DISPLAY_MODE_PIP_C2:
+					case DISPLAY_MODE_PIP_D2:
+					case DISPLAY_MODE_PIP_A3:
+					case DISPLAY_MODE_PIP_B3:
+					case DISPLAY_MODE_PIP_C3:
+					case DISPLAY_MODE_PIP_D3:
+					case DISPLAY_MODE_PIP_A4:
+					case DISPLAY_MODE_PIP_B4:
+					case DISPLAY_MODE_PIP_C4:
+					case DISPLAY_MODE_PIP_D4:
 						stVideo[MDIN_ID_A].srcPATH = PATH_MAIN_A_AUX_B;
 						stVideo[MDIN_ID_A].dacPATH = DAC_PATH_MAIN_OUT;
 						
@@ -800,13 +812,23 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			{
 				if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
 				{
-					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p30;// VIDOUT_1280x720p60;
+					if(SrcMainFrmt[MDIN_ID_A] == VIDSRC_960x480i60)
+					{
+						OutMainFrmt[MDIN_ID_A] = VIDOUT_1280x720p60;
+						SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p60;
+					}
+					else
+					{
+						OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p30;
+						SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60;
+					}
 				}
 				else
 				{
-					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p60;// VIDOUT_1280x720p60;
+					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p60;
+					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60;
 				}
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60; //VIDSRC_1280x720p60;
+				//SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60;
 				
 				if(outRes == RESOLUTION_1920_1080_60P)
 				{
@@ -821,14 +843,24 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			{
 				if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
 				{
-					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p25;// VIDOUT_1280x720p60;
+					if(SrcMainFrmt[MDIN_ID_A] == VIDSRC_960x576i50)
+					{
+						OutMainFrmt[MDIN_ID_A] = VIDOUT_1280x720p50;// VIDOUT_1280x720p60;
+						SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+					}
+					else
+					{
+						OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p25;// VIDOUT_1280x720p60;
+						SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50;
+					}
 				}
 				else
 				{
 					OutMainFrmt[MDIN_ID_A] = VIDOUT_1920x1080p50;// VIDOUT_1280x720p60;
+					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50;
 				}
 				
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
+				//SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
 				if(outRes == RESOLUTION_1920_1080_60P)
 				{
 					OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
@@ -848,16 +880,25 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 				(SrcMainFrmt[MDIN_ID_B] == VIDSRC_1920x1080p60) ||
 				(SrcMainFrmt[MDIN_ID_B] == VIDSRC_1280x720p60))
 			{
-				//OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080pRB;// VIDOUT_1280x720p60;
 				if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
 				{
-					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p30;// VIDOUT_1280x720p60;
+					if(SrcMainFrmt[MDIN_ID_B] == VIDSRC_960x480i60)
+					{
+						OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p60;
+						SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p60;
+					}
+					else
+					{
+						OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p30;// VIDOUT_1280x720p60;
+						SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60;
+					}
 				}
 				else
 				{
 					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p60;// VIDOUT_1280x720p60;
+					SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60;
 				}
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60; //VIDSRC_1280x720p60;
+				//SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p60; //VIDSRC_1280x720p60;
 				if(outRes == RESOLUTION_1920_1080_60P)
 				{
 					OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p60;
@@ -872,13 +913,22 @@ static void ConfigVideoFrmt(MDIN_VIDEO_INPUT_t src)
 			{
 				if((IS_FULL_MODE(displayMode) == TRUE) || (IS_PIP_MODE(displayMode) == TRUE))
 				{
-					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p25;// VIDOUT_1280x720p60;
+					if(SrcMainFrmt[MDIN_ID_B] == VIDSRC_960x576i50)
+					{
+						OutMainFrmt[MDIN_ID_B] = VIDOUT_1280x720p50;
+						SrcMainFrmt[MDIN_ID_C] = VIDSRC_1280x720p50;
+					}
+					else
+					{
+						OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p25;// VIDOUT_1280x720p60;
+						SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
+					}
 				}
 				else
 				{
 					OutMainFrmt[MDIN_ID_B] = VIDOUT_1920x1080p50;// VIDOUT_1280x720p60;
 				}
-				SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
+				//SrcMainFrmt[MDIN_ID_C] = VIDSRC_1920x1080p50; // VIDSRC_1280x720p50;
 				if(outRes == RESOLUTION_1920_1080_60P)
 				{
 					OutMainFrmt[MDIN_ID_C] = VIDOUT_1920x1080p50;
@@ -1364,7 +1414,7 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pAuxView->x = winWidth/2;
 			pAuxView->y = 0;
 			break;
-
+#if 0
 		case DISPLAY_MODE_PIP_A2:
 		case DISPLAY_MODE_PIP_A3:
 		case DISPLAY_MODE_PIP_A4:
@@ -1400,6 +1450,7 @@ void CreateDisplayWindow_A(eDisplayMode_t displayMode)
 			pAuxView->x = PIP_POSITION_MARGIN;
 			pAuxView->y = PIP_POSITION_MARGIN;
 			break;
+#endif
 	}
 
 	memcpy(&stVideo[MDIN_ID_A].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
@@ -1855,6 +1906,44 @@ void CreateDisplayWindow_C(eDisplayMode_t displayMode)
 			pAuxCrop->x = 0;
 			pAuxCrop->y = 0;
 			break;
+
+#if 1
+		case DISPLAY_MODE_PIP_A2:
+		case DISPLAY_MODE_PIP_A3:
+		case DISPLAY_MODE_PIP_A4:
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = (DISPLAY_WIDTH - PIP_WINDOW_WIDTH -PIP_POSITION_MARGIN);
+			pAuxView->y = PIP_POSITION_MARGIN;
+			break;
+
+		case DISPLAY_MODE_PIP_B2:
+		case DISPLAY_MODE_PIP_B3:
+		case DISPLAY_MODE_PIP_B4:
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = PIP_POSITION_MARGIN;
+			pAuxView->y = DISPLAY_HEIGHT - PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
+			break;
+
+		case DISPLAY_MODE_PIP_C2:
+		case DISPLAY_MODE_PIP_C3:
+		case DISPLAY_MODE_PIP_C4:
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = (DISPLAY_WIDTH-PIP_WINDOW_WIDTH-PIP_POSITION_MARGIN);
+			pAuxView->y = DISPLAY_HEIGHT-PIP_WINDOW_HEIGHT-PIP_POSITION_MARGIN;
+			break;
+
+		case DISPLAY_MODE_PIP_D2:
+		case DISPLAY_MODE_PIP_D3:
+		case DISPLAY_MODE_PIP_D4:
+			pAuxView->w = PIP_WINDOW_WIDTH;
+			pAuxView->h = PIP_WINDOW_HEIGHT;
+			pAuxView->x = PIP_POSITION_MARGIN;
+			pAuxView->y = PIP_POSITION_MARGIN;
+			break;
+#endif
 	}
 
 	memcpy(&stVideo[MDIN_ID_C].stCROP_m, pMainCrop, sizeof(MDIN_VIDEO_WINDOW));
@@ -1904,7 +1993,7 @@ static void VideoFrameProcess(void)
 	if (stVideo[MDIN_ID_A].exeFLAG == 0 && stVideo[MDIN_ID_B].exeFLAG == 0 && stVideo[MDIN_ID_C].exeFLAG == 0)// && stVideo[MDIN_ID_D].exeFLAG == 0) 
 		return;
 
-#if 1
+#if 0
 	if((forceFreezeOn == CLEAR) && (IsScreenFreeze() == CLEAR))
 	{
 		M380_ID = MDIN_ID_C;
@@ -1945,7 +2034,7 @@ static void VideoFrameProcess(void)
 	M380_ID = MDIN_ID_C;
 	SetIPCVideoFine();	// tune IPC-register (CVBS or HDMI)
 
-#if 1
+#if 0
 	if((forceFreezeOn == CLEAR) && (IsScreenFreeze() == CLEAR))
 	{
 		MDIN3xx_EnableMainFreeze(M380_ID, OFF);
@@ -2011,12 +2100,25 @@ void SetInputSource(BYTE input)
 	}
 }
 
-void SetInputChanged(void)
+void SetInputChanged(MDIN_VIDEO_INPUT_t inputSource)
 {
 	fInputChanged = TRUE;
-	stVideo[MDIN_ID_A].exeFLAG = stVideo[MDIN_ID_B].exeFLAG = MDIN_UPDATE_ALL;
+
+	switch(inputSource)
+	{
+		case VIDEO_DIGITAL_NVP6158_AB:
+			stVideo[MDIN_ID_A].exeFLAG = stVideo[MDIN_ID_B].exeFLAG = MDIN_UPDATE_ALL;
+			break;
+		case VIDEO_DIGITAL_NVP6158_A:
+			stVideo[MDIN_ID_A].exeFLAG = MDIN_UPDATE_ALL;
+			stVideo[MDIN_ID_B].exeFLAG = MDIN_UPDATE_CLEAR;
+			break;
+		case VIDEO_DIGITAL_NVP6158_B:
+			stVideo[MDIN_ID_A].exeFLAG = MDIN_UPDATE_CLEAR;
+			stVideo[MDIN_ID_B].exeFLAG = MDIN_UPDATE_ALL;
+			break;
+	}
 	stVideo[MDIN_ID_C].exeFLAG |= MDIN_UPDATE_IN;
-//	stVideo[MDIN_ID_D].exeFLAG |= MDIN_UPDATE_IN;
 }
 //--------------------------------------------------------------------------------------------------
 void VideoProcessHandler(void)

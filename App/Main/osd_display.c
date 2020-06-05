@@ -1267,7 +1267,7 @@ static void OSD_EraseAuto(void)
 	OSD_PrintString(position, osdStr_Space6, strlen(osdStr_Space4));
 }
 
-static void OSD_EraseNoVideo(void)
+void OSD_EraseNoVideo(void)
 {
 	sPosition_t position;
 
@@ -1780,12 +1780,18 @@ void OSD_DisplayChannelName(void)
 	sPosition_t positionValue;
 	BOOL titleDisplayOn;
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	eDisplayMode_t prevMode = GetPrevDisplayMode();
 	u8 channel_name[CHANNEL_NEME_LENGTH_MAX+1] = {0,};
 
 	Read_NvItem_TitleDispalyOn(&titleDisplayOn);
 
 	if((titleDisplayOn == ON) && (requestRefreshScreen == SET))
 	{
+		if((prevMode != displayMode) && (IS_PIP_MODE(displayMode) == FALSE))
+		{
+			OSD_EraseChannelName(prevMode);
+		}
+		
 		switch(displayMode)
 		{
 			case DISPLAY_MODE_FULL_CH1:
@@ -1810,10 +1816,13 @@ void OSD_DisplayChannelName(void)
 			case DISPLAY_MODE_PIP_D2:
 			case DISPLAY_MODE_PIP_D3:
 			case DISPLAY_MODE_PIP_D4:
-				// channel 1
-				Read_NvItem_ChannelName(channel_name, CHANNEL1);
-				positionValue =  OSD_TitleStringPosition(CHANNEL1, DISPLAY_MODE_FULL_CH1);//, strlen(channel_name));
-				OSD_PrintString(positionValue, channel_name, strlen(channel_name));
+				if(IS_PIP_MODE(prevMode) != TRUE)
+				{
+					// channel 1
+					Read_NvItem_ChannelName(channel_name, CHANNEL1);
+					positionValue =  OSD_TitleStringPosition(CHANNEL1, DISPLAY_MODE_FULL_CH1);//, strlen(channel_name));
+					OSD_PrintString(positionValue, channel_name, strlen(channel_name));
+				}
 				// clean-up
 				memset(channel_name, 0x00, CHANNEL_NEME_LENGTH_MAX+1);
 				positionValue.pos_x = 0;
@@ -1936,13 +1945,14 @@ void OSD_EraseAllText(void)
 	Read_NvItem_TimeDisplayOn(&timeOn);
 	Read_NvItem_DateDisplayOn(&dateOn);
 
-	if(osdOn == TRUE)
+	//if(osdOn == TRUE)
+	if((osdOn == ON) && (GetSystemMode() == SYSTEM_NORMAL_MODE))
 	{
 		// erase freeze or auto
 		if(titleOn == TRUE)
 		{
 			//erase title
-			OSD_EraseChannelName(GetPrevDisplayMode());
+			//OSD_EraseChannelName(GetPrevDisplayMode());
 			//OSD_EraseChannelName(GetCurrentDisplayMode());
 		}
 		#if 0

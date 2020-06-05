@@ -75,7 +75,7 @@ static void InitializeAutoSeq_Normal(void)
 	ChangeAutoSeqOn(ON);
 	// update display mode as full screen
 	DisplayScreen((eDisplayMode_t)displayChannel);
-	SetInputChanged();
+	//SetInputChanged();
 	OSD_RefreshScreen();
 	OSD_SetBoaderLine();
 	//OSD_Display();
@@ -173,40 +173,16 @@ static void InitializeAutoSeq_Normal_Pip(void)
 			break;
 	}
 	
-	SetInputChanged();
+	//SetInputChanged();
 	OSD_RefreshScreen();
 	OSD_SetBoaderLine();//OSD_DrawBorderLine();
 	//OSD_Display();
 }
 
-#if 0
-static void InitializeAutoSeq_Alarm(void)
-{
-	eChannel_t channel;
-	eDisplayMode_t displayMode = GetCurrentDisplayMode();
-
-	memset(displayTime, 0x00, sizeof(displayTime));
-	if(GetLastAlarmChannel() < NUM_OF_CHANNEL)
-	{
-		autoSeqStatus = AUTO_SEQ_ALARM;
-		// the last alarm channel should be start channel
-		displayChannel = GetLastAlarmChannel();
-		displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
-
-		if(displayChannel != displayMode)
-		{
-			OSD_EraseAllText();
-			DisplayScreen((eDisplayMode_t)displayChannel);
-			SetInputChanged();
-			OSD_SetBoaderLine();//OSD_DrawBorderLine();
-			OSD_Display();
-		}
-	}
-}
-#endif
 //-----------------------------------------------------------------------------
 void InitializeAutoSeq(eAutoSeqType_t type)
 {
+	ResumeAutoSeq();
 	switch(type)
 	{
 		case AUTO_SEQ_NORMAL:
@@ -220,11 +196,6 @@ void InitializeAutoSeq(eAutoSeqType_t type)
 				Read_NvItem_AutoSeq_Position(&pipPos);
 				InitializeAutoSeq_Normal_Pip();
 			}
-			break;
-
-		case AUTO_SEQ_ALARM:
-			ChangeAutoSeqOn(OFF);
-			//InitializeAutoSeq_Alarm();
 			break;
 
 		case AUTO_SEQ_NONE:
@@ -246,6 +217,11 @@ void UpdateAutoSeqDisplayTime(void)
 	u8 changedChannels;
 	u8 timeInSecs[NUM_OF_CHANNEL] = {0,};
 
+	if(GetAutoSeqOn() == OFF)
+	{
+		return;
+	}
+	
 	Read_NvItem_AutoSeqLossSkip(&skipOn);
 	Read_NvItem_AutoSeqTime(timeInSecs);
 
@@ -303,18 +279,15 @@ void UpdateAutoSeqCount(void)
 					do
 					{
 						displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
+						if(IS_PIP_MODE(GetCurrentDisplayMode()) == TRUE)
+						{
+							if(displayChannel == CHANNEL1)
+							{
+								displayChannel = CHANNEL2;
+							}
+						}
 					} while((displayTime[displayChannel] == 0) || (displayTime[displayChannel] == SKIP_CHANNEL));
 				}
-				/*
-				else if(autoSeqStatus == AUTO_SEQ_ALARM)
-				{
-					do
-					{
-						displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
-					} while(GetAlarmStatus(displayChannel) != ALARM_SET);
-					displayTime[displayChannel] = DEFAULT_DISPLAY_TIME;
-				}
-				*/
 			}
 		}
 		previousSystemTimeIn1s = currentSystemTime->tickCount_1s;
@@ -326,8 +299,10 @@ void DisplayAutoSeqChannel(void)
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
 	eChannel_t currentChannel;
 
-	if(pauseSeq == TRUE)
+	if((pauseSeq == TRUE) || (GetAutoSeqOn() == OFF))
+	{
 		return;
+	}
 
 	if(currentMode == SEQ_MODE_FULL)
 	{
@@ -342,7 +317,7 @@ void DisplayAutoSeqChannel(void)
 			//OSD_EraseAllText();
 			// update current channel
 			DisplayScreen((eDisplayMode_t)displayChannel);
-			SetInputChanged();
+			//SetInputChanged();
 			// Update OSD
 			OSD_RefreshScreen();
 			forceFreezeOn = SET;
@@ -364,6 +339,7 @@ void DisplayAutoSeqChannel(void)
 		{
 			//OSD_EraseAllText();
 
+			forceFreezeOn = SET;
 			// update current channel
 			switch(pipPos)
 			{
@@ -383,10 +359,11 @@ void DisplayAutoSeqChannel(void)
 					DisplayScreen(DISPLAY_MODE_PIP_C2 + displayChannel - CHANNEL2);
 					break;
 			}
-			SetInputChanged();
+			//SetInputChanged();
+			stVideo[MDIN_ID_A].exeFLAG = MDIN_UPDATE_CLEAR; 
 			// Update OSD
 			OSD_RefreshScreen();
-			forceFreezeOn = SET;
+			OSD_SetBoaderLine();//OSD_DrawBorderLine();
 		}
 	}
 }
