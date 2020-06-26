@@ -233,7 +233,14 @@ void DisplayScreen(eDisplayMode_t mode)
 			NVP6168_VO_Port_Set(VPORT_MAP1);
 #endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
-			SetInputChanged(VIDEO_DIGITAL_NVP6158_AB);
+			if(IS_PIP_MODE(prevDisplayMode) == TRUE)
+			{
+				SetInputChanged(VIDEO_DIGITAL_NVP6158_B);
+			}
+			else
+			{
+				SetInputChanged(VIDEO_DIGITAL_NVP6158_AB);
+			}
 			break;
 
 		case DISPLAY_MODE_PIP_A3:
@@ -246,7 +253,14 @@ void DisplayScreen(eDisplayMode_t mode)
 			NVP6168_VO_Port_Set(VPORT_MAP0);
 #endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
-			SetInputChanged(VIDEO_DIGITAL_NVP6158_AB);
+			if(IS_PIP_MODE(prevDisplayMode) == TRUE)
+			{
+				SetInputChanged(VIDEO_DIGITAL_NVP6158_B);
+			}
+			else
+			{
+				SetInputChanged(VIDEO_DIGITAL_NVP6158_AB);
+			}
 			break;
 
 		case DISPLAY_MODE_PIP_A4:
@@ -259,7 +273,14 @@ void DisplayScreen(eDisplayMode_t mode)
 			NVP6168_VO_Port_Set(VPORT_MAP2);
 #endif
 			SetInputSource(VIDEO_DIGITAL_NVP6158_AB);
-			SetInputChanged(VIDEO_DIGITAL_NVP6158_AB);
+			if(IS_PIP_MODE(prevDisplayMode) == TRUE)
+			{
+				SetInputChanged(VIDEO_DIGITAL_NVP6158_B);
+			}
+			else
+			{
+				SetInputChanged(VIDEO_DIGITAL_NVP6158_AB);
+			}
 			break;
 
 		case DISPLAY_MODE_4SPLIT_QUAD:

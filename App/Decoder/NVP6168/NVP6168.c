@@ -20,13 +20,13 @@ static NC_U8 VO_PortMapChanged = 0;
 NC_CH_E VO_Port[VPORT_MAP_MAX][4] = 
 {
 	{NC_PORT_D, NC_PORT_C, NC_PORT_B, NC_PORT_A},	 // full ch1, 2 split , 4 split(except quad), PIP with ch3
-	{NC_PORT_D, NC_PORT_B, NC_PORT_C, NC_PORT_A},	 // PIP with ch2, quad
-	{NC_PORT_C, NC_PORT_D, NC_PORT_B, NC_PORT_A}	// PIP with ch4
+	{NC_PORT_D, NC_PORT_B, NC_PORT_C, NC_PORT_A},	 // quad
+	{NC_PORT_C, NC_PORT_D, NC_PORT_B, NC_PORT_A} 	// PIP with ch4
 };
 
 
 void NVP6168_ManualDetectionSet(void);
-void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt);
+void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt, NC_U8 fmtChanged);
 
 void NVP6168_Init(void)
 {
@@ -43,12 +43,15 @@ void NVP6168_AutoDetection_Proc(void)
 	NC_U8 VFC 	  = 0;
 	NC_U8 EqStage = 0;
 	NC_U32 SamVal = 0;
+	NC_U8 fmtChanged = 0;
 
 	for(ch = 0; ch < TOTAL_CHANNEL_CNT; ch++)
 	{
-		if((DECODER_Video_Input_Format_Detection_Get(ch, &VFC, &VideoFormat)) ||(VO_PortMapChanged == 1))
+		fmtChanged = DECODER_Video_Input_Format_Detection_Get(ch, &VFC, &VideoFormat);
+		//if((DECODER_Video_Input_Format_Detection_Get(ch, &VFC, &VideoFormat)) ||(VO_PortMapChanged == 1))
+		if((fmtChanged == 1) || (VO_PortMapChanged == 1))
 		{
-			if( VideoFormat != NC_VIVO_CH_FORMATDEF_UNKNOWN )
+			if(( VideoFormat != NC_VIVO_CH_FORMATDEF_UNKNOWN ) && (fmtChanged == 1))
 			{
 				/***********************************************************************
 				 * Decoder Setting : Format Set -> Distance Check -> EQ Set
@@ -59,7 +62,7 @@ void NVP6168_AutoDetection_Proc(void)
 			}
 			else if(VO_PortMapChanged == 1)
 			{
-				NVP6168_OutPort_Set(0, ch, VideoFormat);
+				NVP6168_OutPort_Set(0, ch, VideoFormat, fmtChanged);
 			}
 		}
 	}
@@ -75,12 +78,11 @@ void NVP6168_VO_Port_Set(eVPORT_MAP_t vo_map)
 	}
 }
 
-void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt)
+void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt, NC_U8 fmtChanged)
 {
 	NC_U8 seq;
 	NC_U8 vo_clk;
-	NC_PORT_E port;
-	
+	NC_PORT_E port;		
 
 	port = VO_Port[VO_PortMap][chn];
 
@@ -109,7 +111,7 @@ void NVP6168_OutPort_Set(NC_U8 dev, NC_U8 chn, NC_VIVO_CH_FORMATDEF_E fmt)
        NC_DEVICE_DRIVER_BANK_SET(dev, 0x01);
 	gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC0+(port*2), seq); 
 	gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xC1+(port*2), seq); 
-	
+
 	gpio_i2c_write(g_nc_drv_i2c_addr[dev], 0xcc + port, vo_clk);
 
 }

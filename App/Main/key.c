@@ -55,9 +55,9 @@ const static eKeyData_t key_table[] =
 
 #define NUM_OF_KEYS				sizeof(key_table) //7
 
-#define KEYCOUNT_SHORT					4
-#define KEYCOUNT_REPEAT				40	//400ms
-#define KEYCOUNT_LONG					160	//800ms
+#define KEYCOUNT_SHORT					20 //	4
+#define KEYCOUNT_REPEAT				100	// 40 // 400ms
+#define KEYCOUNT_LONG					160	// 80 // 800ms
 
 #define VALID_LONG_KEY(key)		(key == KEY_FREEZE)?TRUE:FALSE
 

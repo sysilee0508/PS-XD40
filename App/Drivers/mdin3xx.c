@@ -991,10 +991,10 @@ static MDIN_ERROR_t MDIN3xx_SetIPCCtrlFlags(PMDIN_VIDEO_INFO pINFO)
 	else pIPC->attb &= ~MDIN_DEINT_PROG_IPC;
 
 	// set frc down flag, if output is 720p30,25,1080p30,25	// 05Apr2012
-//	if (pOUT->frmt==VIDOUT_1280x720p30||pOUT->frmt==VIDOUT_1280x720p25||pOUT->frmt==VIDOUT_1280x720p24||
-//		pOUT->frmt==VIDOUT_1920x1080p30||pOUT->frmt==VIDOUT_1920x1080p25||pOUT->frmt==VIDOUT_1920x1080p24)
-//		 pIPC->fine |=  MDIN_DEINT_FRC_DOWN;
-//	else 
+	if (pOUT->frmt==VIDOUT_1280x720p30||pOUT->frmt==VIDOUT_1280x720p25||//pOUT->frmt==VIDOUT_1280x720p24||
+		pOUT->frmt==VIDOUT_1920x1080p30||pOUT->frmt==VIDOUT_1920x1080p25)//||pOUT->frmt==VIDOUT_1920x1080p24)
+		 pIPC->fine |=  MDIN_DEINT_FRC_DOWN;
+	else 
 		pIPC->fine &= ~MDIN_DEINT_FRC_DOWN;
 
 	return MDIN_NO_ERROR;

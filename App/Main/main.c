@@ -101,10 +101,11 @@ static void PlayBuzzer(void)
 static void ForceFreeze(BOOL on_off)
 {
 	eDisplayMode_t displayMode = GetCurrentDisplayMode();
+	eDisplayMode_t prevMode = GetPrevDisplayMode();
 	switch(on_off)
 	{
 		case ON:
-			if(IS_PIP_MODE(displayMode) == TRUE)
+			if((IS_PIP_MODE(displayMode) == TRUE) && (IS_PIP_MODE(prevMode) == TRUE))
 			{
 				MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], ON);
 			}
@@ -118,7 +119,7 @@ static void ForceFreeze(BOOL on_off)
 		case OFF:
 			if(IsScreenFreeze() == FALSE)
 			{
-				if(IS_PIP_MODE(displayMode) == TRUE)
+				if((IS_PIP_MODE(displayMode) == TRUE) && (IS_PIP_MODE(prevMode) == TRUE))
 				{
 					MDIN3xx_EnableAuxFreeze(&stVideo[MDIN_ID_C], OFF);
 				}
@@ -136,7 +137,7 @@ static void ForceFreeze(BOOL on_off)
 //  main function
 //=============================================================================
  
-void main(void)
+ void main(void)
 {
 	//eResolution_t outRes;
 	//static u8 fCnt = 0;

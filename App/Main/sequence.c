@@ -70,15 +70,12 @@ static void InitializeAutoSeq_Normal(void)
 		displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
 	}
 
-	//OSD_EraseAllText();
 	// set autoSeqOn
 	ChangeAutoSeqOn(ON);
 	// update display mode as full screen
 	DisplayScreen((eDisplayMode_t)displayChannel);
-	//SetInputChanged();
 	OSD_RefreshScreen();
 	OSD_SetBoaderLine();
-	//OSD_Display();
 }
 
 
@@ -131,6 +128,7 @@ static void InitializeAutoSeq_Normal_Pip(void)
 	else //if(displayMode >= DISPLAY_MODE_QUAD_A)	*/
 	{
 		displayChannel = CHANNEL2;
+		OSD_SetBoaderLine();
 	}
 
 	// check displayChannel is valuable. If not, move to next channel
@@ -140,11 +138,9 @@ static void InitializeAutoSeq_Normal_Pip(void)
 		displayChannel = (++displayChannel) % NUM_OF_CHANNEL;
 	}
 
-	//OSD_EraseAllText();
 	// set autoSeqOn
 	ChangeAutoSeqOn(ON);
 	// display channel in PIP mode 
-
 	if((displayChannel > CHANNEL1) && (displayChannel < NUM_OF_CHANNEL))
 	{
 		displayMode = (eDisplayMode_t)(displayChannel - CHANNEL2);
@@ -173,10 +169,7 @@ static void InitializeAutoSeq_Normal_Pip(void)
 			break;
 	}
 	
-	//SetInputChanged();
 	OSD_RefreshScreen();
-	OSD_SetBoaderLine();//OSD_DrawBorderLine();
-	//OSD_Display();
 }
 
 //-----------------------------------------------------------------------------
@@ -236,7 +229,7 @@ void UpdateAutoSeqDisplayTime(void)
 			{
 				if(IsVideoLossChannel(iChannel) == TRUE)
 				{
-					displayTime[iChannel] = SKIP_CHANNEL;
+					displayTime[iChannel] = 0;//SKIP_CHANNEL;
 				}
 				else
 				{
@@ -274,7 +267,14 @@ void UpdateAutoSeqCount(void)
 				if(autoSeqStatus == AUTO_SEQ_NORMAL)
 				{
 					Read_NvItem_AutoSeqTime(autoSeqTime);
-					displayTime[displayChannel] = autoSeqTime[displayChannel];
+					if(IsVideoLossChannel(displayChannel) == TRUE)
+					{
+						displayTime[displayChannel] = SKIP_CHANNEL;
+					}
+					else
+					{
+						displayTime[displayChannel] = autoSeqTime[displayChannel];
+					}
 					// move to next channel
 					do
 					{
@@ -314,10 +314,8 @@ void DisplayAutoSeqChannel(void)
 		if((currentChannel != displayChannel) &&
 				((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)))
 		{
-			//OSD_EraseAllText();
 			// update current channel
 			DisplayScreen((eDisplayMode_t)displayChannel);
-			//SetInputChanged();
 			// Update OSD
 			OSD_RefreshScreen();
 			forceFreezeOn = SET;
@@ -337,8 +335,6 @@ void DisplayAutoSeqChannel(void)
 		if((currentChannel != displayChannel) &&
 				((autoSeqStatus > AUTO_SEQ_NONE) && (autoSeqStatus < AUTO_SEQ_MAX)))
 		{
-			//OSD_EraseAllText();
-
 			forceFreezeOn = SET;
 			// update current channel
 			switch(pipPos)
@@ -359,11 +355,8 @@ void DisplayAutoSeqChannel(void)
 					DisplayScreen(DISPLAY_MODE_PIP_C2 + displayChannel - CHANNEL2);
 					break;
 			}
-			//SetInputChanged();
-			stVideo[MDIN_ID_A].exeFLAG = MDIN_UPDATE_CLEAR; 
 			// Update OSD
 			OSD_RefreshScreen();
-			OSD_SetBoaderLine();//OSD_DrawBorderLine();
 		}
 	}
 }
